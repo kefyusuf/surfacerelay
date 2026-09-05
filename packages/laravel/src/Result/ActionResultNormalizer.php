@@ -14,16 +14,13 @@ use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineOutcome;
  * empty, and no trusted context (actor, tenant, records, selection, session,
  * receipts, provenance, tokens) is ever auto-projected into results.
  *
- * Current mappings (only implemented behavior):
- *     completed + output                       → succeeded (data may be null)
- *     required_context_missing                 → rejected
- *     input_validation_failed                  → rejected
- *     authorization_denied                     → rejected
- *
- * Unknown halt codes fail loudly (UnmappedPipelineOutcome) instead of being
- * guessed: confirmation semantics belong to T-401, binding codes to M2
- * (D-026 stays PROPOSED until implemented). Configuration/programming
- * exceptions are never converted into caller-visible results.
+ * Halt details are never trusted as-is: for each reserved core code the
+ * normalizer reconstructs public details from an expected narrow shape and
+ * discards everything else, so a misbehaving stage cannot leak arbitrary
+ * data through a recognized halt code. Only the implemented codes below are
+ * mapped; unknown halt codes fail loudly (UnmappedPipelineOutcome) instead
+ * of being guessed. Configuration/programming exceptions are never converted
+ * into caller-visible results.
  */
 final class ActionResultNormalizer
 {
@@ -46,7 +43,7 @@ final class ActionResultNormalizer
                 new ActionError(
                     $halt->code,
                     'Required trusted context is unavailable.',
-                    $halt->details,
+                    $this->sanitizeStringListDetails($halt->details, 'requirements'),
                 ),
             ),
             CoreActionErrorCode::INPUT_VALIDATION_FAILED => ActionResult::rejected(
@@ -54,7 +51,7 @@ final class ActionResultNormalizer
                 new ActionError(
                     $halt->code,
                     'Input validation failed.',
-                    $halt->details,
+                    $this->sanitizeStringListDetails($halt->details, 'fields'),
                 ),
             ),
             CoreActionErrorCode::AUTHORIZATION_DENIED => ActionResult::rejected(
@@ -66,5 +63,30 @@ final class ActionResultNormalizer
             ),
             default => throw UnmappedPipelineOutcome::forHaltCode($halt->code),
         };
+    }
+
+    /**
+     * Public details for list-of-strings codes may contain only
+     * `[$key => list<string>]`; the safe entry is reconstructed from the
+     * recognized key and every other key is discarded, so extra (possibly
+     * sensitive) keys can never reach the public result. Non-string or empty
+     * entries make the shape untrusted; details are dropped entirely (null).
+     *
+     * @return array{requirements: list<string>}|array{fields: list<string>}|null
+     */
+    private function sanitizeStringListDetails(mixed $details, string $key): ?array
+    {
+        if (!is_array($details) || !isset($details[$key]) || !is_array($details[$key])) {
+            return null;
+        }
+
+        $entries = $details[$key];
+        foreach ($entries as $entry) {
+            if (!is_string($entry) || $entry === '') {
+                return null;
+            }
+        }
+
+        return [$key => array_values($entries)];
     }
 }

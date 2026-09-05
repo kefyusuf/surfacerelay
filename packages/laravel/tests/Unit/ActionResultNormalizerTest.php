@@ -119,6 +119,69 @@ final class ActionResultNormalizerTest extends TestCase
     }
 
     // ------------------------------------------------------------------
+    // H-003.4 — adversarial halt details cannot leak through core codes
+    // ------------------------------------------------------------------
+
+    public function test_extra_keys_in_core_halt_details_are_dropped(): void
+    {
+        $outcome = ActionPipelineOutcome::halted(
+            $this->stateWithContextActor(),
+            ActionPipelineStage::Authorization,
+            new PipelineHalt(CoreActionErrorCode::REQUIRED_CONTEXT_MISSING, [
+                'requirements' => ['tenant'],
+                'secret' => 'trusted-value',
+                'actor' => 'attacker',
+            ]),
+        );
+
+        $result = $this->normalizer->normalize($outcome);
+
+        self::assertSame(
+            ['requirements' => ['tenant']],
+            $result->error?->details,
+            'A recognized halt code must not leak extra detail keys.',
+        );
+    }
+
+    public function test_unexpected_detail_shapes_are_dropped_entirely(): void
+    {
+        $nonStringRequirements = ActionPipelineOutcome::halted(
+            $this->stateWithContextActor(),
+            null,
+            new PipelineHalt(CoreActionErrorCode::REQUIRED_CONTEXT_MISSING, [
+                'requirements' => ['tenant', 5],
+            ]),
+        );
+        $nullDetails = ActionPipelineOutcome::halted(
+            $this->stateWithContextActor(),
+            null,
+            new PipelineHalt(CoreActionErrorCode::INPUT_VALIDATION_FAILED),
+        );
+
+        self::assertNull(
+            $this->normalizer->normalize($nonStringRequirements)->error?->details,
+            'Non-string entries make the details shape untrusted; drop it entirely.',
+        );
+        self::assertNull($this->normalizer->normalize($nullDetails)->error?->details);
+    }
+
+    public function test_authorization_denial_never_carries_details(): void
+    {
+        $outcome = ActionPipelineOutcome::halted(
+            $this->stateWithContextActor(),
+            ActionPipelineStage::Authorization,
+            new PipelineHalt(CoreActionErrorCode::AUTHORIZATION_DENIED, ['gateMessage' => 'insufficient role']),
+        );
+
+        $result = $this->normalizer->normalize($outcome);
+
+        self::assertNull(
+            $result->error?->details,
+            'Authorization denials expose no Gate/policy details, even if a stage supplied some.',
+        );
+    }
+
+    // ------------------------------------------------------------------
     // §34 — authorization rejection via T-109 stage behavior
     // ------------------------------------------------------------------
 

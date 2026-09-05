@@ -9,6 +9,7 @@ use SurfaceRelay\Laravel\Enums\ActionEffect;
 use SurfaceRelay\Laravel\Enums\ActionRisk;
 use SurfaceRelay\Laravel\Enums\ActionScope;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
+use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
 use SurfaceRelay\Laravel\Enums\OutputContentTrust;
 use SurfaceRelay\Laravel\Enums\OutputSensitivity;
 

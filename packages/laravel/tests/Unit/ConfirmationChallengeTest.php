@@ -43,4 +43,34 @@ final class ConfirmationChallengeTest extends TestCase
         $this->expectExceptionMessage('summary');
         new ConfirmationChallenge('challenge-1', '');
     }
+
+    public function test_valid_rfc3339_forms_are_preserved_verbatim(): void
+    {
+        $zulu = new ConfirmationChallenge('c1', 's', '2026-09-06T10:30:00Z');
+        $offset = new ConfirmationChallenge('c2', 's', '2026-09-06T13:30:00+03:00');
+
+        self::assertSame('2026-09-06T10:30:00Z', $zulu->expiresAt);
+        self::assertSame('2026-09-06T13:30:00+03:00', $offset->expiresAt);
+    }
+
+    public function test_natural_language_dates_are_rejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('RFC3339');
+        new ConfirmationChallenge('c1', 's', 'tomorrow afternoon');
+    }
+
+    public function test_impossible_calendar_dates_are_rejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('RFC3339');
+        new ConfirmationChallenge('c1', 's', '2026-13-40T25:61:61Z');
+    }
+
+    public function test_missing_timezone_is_rejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('RFC3339');
+        new ConfirmationChallenge('c1', 's', '2026-09-06T10:30:00');
+    }
 }
