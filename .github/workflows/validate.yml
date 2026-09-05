@@ -15,9 +15,64 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - run: python scripts/validate.py
 
+  php-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: '8.3'
+            illuminate-version: '^12.0'
+          - php-version: '8.3'
+            illuminate-version: '^13.0'
+          - php-version: '8.4'
+            illuminate-version: '^12.0'
+          - php-version: '8.4'
+            illuminate-version: '^13.0'
+    name: php-tests (PHP ${{ matrix.php-version }}, Illuminate ${{ matrix.illuminate-version }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+      - name: Constrain Illuminate to the matrix version
+        working-directory: packages/laravel
+        run: >-
+          composer require --no-interaction --no-progress --no-update
+          "illuminate/contracts:${{ matrix.illuminate-version }}"
+          "illuminate/support:${{ matrix.illuminate-version }}"
+          "illuminate/validation:${{ matrix.illuminate-version }}"
+      - name: Install dependencies
+        working-directory: packages/laravel
+        run: composer update --no-interaction --no-progress --prefer-dist
+      - name: Validate composer.json
+        working-directory: packages/laravel
+        run: composer validate --strict
+      - name: Run PHP test suite
+        working-directory: packages/laravel
+        run: composer test
+
   php-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Lint PHP skeleton
-        run: find packages/laravel -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Lint PHP sources
+        run: find packages/laravel -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser-runtime dependencies
+        working-directory: packages/browser-runtime
+        run: npm install
+      - name: Typecheck browser runtime
+        working-directory: packages/browser-runtime
+        run: npm run typecheck
+      - name: Run browser-runtime tests
+        working-directory: packages/browser-runtime
+        run: npm test

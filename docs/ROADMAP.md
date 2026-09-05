@@ -4,7 +4,7 @@
 
 Outcome: provisional v0.1 Action Definition, Runtime Binding, Invocation, and Result semantics are internally coherent and validated by fixtures.
 
-Exit criteria: T-001 through T-003 done.
+Exit criteria: T-001 through T-005 done.
 
 ## M1 — Laravel action kernel
 

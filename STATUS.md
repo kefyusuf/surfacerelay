@@ -5,12 +5,13 @@
 ## Snapshot
 
 - **Project:** SurfaceRelay
-- **Stage:** M0 DONE (frozen); M1 DONE; **M2 BLOCKED pending external architecture/security review**
+- **Stage:** M0 DONE (frozen); M1 DONE; **M1.1 HARDENING DONE** (spec re-frozen); **M2 BLOCKED pending final M1.1 external review**
 - **Scaffolding note:** `packages/laravel` runtime is now real implementation (T-101..T-110); `packages/browser-runtime` remains starter scaffolding until M3 tasks pass their own acceptance criteria.
-- **Active milestone:** M2 — Livewire binding (BLOCKED; do not start before external M1 review)
+- **Active milestone:** M2 — Livewire binding (BLOCKED; do not start before final M1.1 external review)
 - **Active task:** T-201
-- **Last completed task:** T-110 (2026-09-06)
-- **Test baseline:** `packages/laravel` full suite OK — **173 tests, 420 assertions** (PHP 8.4.16, PHPUnit 11.5.56); `composer validate --strict` clean; `python scripts/validate.py` exit 0.
+- **Last completed task:** M1.1 H-004 (2026-09-06)
+- **Branch:** `fix/m1-hardening` (H-000..H-004 commits, see REVIEW_REQUEST.md)
+- **Test baseline:** `packages/laravel` full suite OK — **187 tests, 443 assertions** (PHP 8.4.16, PHPUnit 11.5.56); browser-runtime typecheck + vitest 3 tests green; `composer validate --strict` clean; `python scripts/validate.py` exit 0 (49 contract fixture entries + 12 conformance scenarios).
 - **Frozen spec status:** `spec/0.1` is FROZEN — unchanged since M0 (T-005). Action-definition, runtime-binding, invocation, and action-result schemas, the fixture matrix (27 manifest entries) and the conformance-scenario registry (12 scenarios) all validate green. The PHP runtime conforms to it; M1's stricter result-shape invariants remain valid under the frozen schema.
 - **Default branch:** `main` (expected after repository creation)
 - **Contract version:** `0.1-draft`

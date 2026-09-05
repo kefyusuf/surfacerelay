@@ -335,6 +335,32 @@ python scripts/validate.py           # frozen contract green
 
 ---
 
+## M1.1 — Hardening batch (DONE, branch `fix/m1-hardening`)
+
+External review found no direct spoofing/bypass path but identified contract, package, CI, and repository-hardening issues. Spec freeze was reopened under the freeze exception and re-frozen after this batch.
+
+### H-000 — Remove local-tool ignore traces — DONE
+
+Public `.gitignore` no longer carries scanner/agent-specific rules; local ignores moved to `.git/info/exclude` (never committed). Root commit amended and force-pushed (`f9865d0`).
+
+### H-001 — Contract shape hardening — DONE (commit `0852ed1`)
+
+`action-result.schema.json`: status-specific shapes are now normative (`oneOf`-style `if/then`: succeeded→data, rejected/failed→error, confirmation_required→confirmation; forbidden combinations rejected); nested `error.code/message` and `confirmation.challengeId/summary` minLength 1. `scripts/validate.py` now validates fixtures with a real `FormatChecker` (invalid `date-time` fixtures fail); `Invocation.bindingId` aligned with `RuntimeBinding.bindingId` (minLength/maxLength 1..240, nullable) plus drift guard; `RuntimeBinding.extensions` enforces `namespace/key` `propertyNames` grammar. 17 new fixtures (3 valid + 14 negative); example result fixtures normalized to the reference-runtime shape (no explicit null payload keys).
+
+### H-002 — Output classification redesign — DONE (commit `00d134d`)
+
+D-021 SUPERSEDED by D-032: output sensitivity and content trust are independent dimensions. Contract: `outputTrust` removed; `outputSensitivity` (`normal|sensitive`) + `outputContentTrust` (`trusted_application_data|contains_untrusted_content`) required. PHP `OutputTrust` enum replaced by `OutputSensitivity`/`OutputContentTrust`; `ActionDefinition`/`AgentAction` updated. Browser `types.ts` + WebMCP projection updated: `untrustedContentHint = outputContentTrust === 'contains_untrusted_content'` — sensitivity never suppresses the hint (regression-tested for sensitive+untrusted). All 4 valid combinations covered by fixtures; invalid enum fixtures added; docs/examples updated.
+
+### H-003 — PHP runtime and package hardening — DONE (commit `fb6ceeb`)
+
+`ext-mbstring` declared; `AgentAction.contextRequirements` typed as `list<ContextRequirement>` (arbitrary strings rejected); exhaustive stable-vocabulary tests for all seven enums; `ActionResultNormalizer` reconstructs safe code-specific halt details (adversarial extra keys/shapes cannot leak into public results); `ConfirmationChallenge.expiresAt` validates deterministic RFC3339 (natural language / missing timezone / impossible dates rejected).
+
+### H-004 — Repository, CI, licensing, documentation hardening — DONE
+
+Complete Apache License 2.0 published (`LICENSE`); D-018 ACCEPTED. CI runs `contract`, `php-tests` (PHP 8.3/8.4 × Illuminate ^12/^13 matrix with per-job Illuminate constraints), `php-lint`, and `browser` (typecheck + vitest). `PACKAGE-MANIFEST.md` (stale starter artifact) deleted; ROADMAP M0 exit criteria corrected to T-001..T-005; STATUS/REVIEW_REQUEST aligned with reality.
+
+---
+
 ## M2 — Livewire binding
 
 ### T-201 — Implement Livewire RuntimeBinding descriptor — TODO

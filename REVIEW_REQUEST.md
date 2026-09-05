@@ -4,10 +4,10 @@
 
 ## Review target
 
-- **Milestone review: M0 (Contract Foundation) + M1 (Laravel Kernel) — DONE. Requesting external architecture/security review.**
-- **M2 is BLOCKED:** T-201 and all M2 work have NOT started and must not start until this review completes.
-- **Branch/commit:** not yet created (repository not yet initialized in git; review is over working tree)
-- **Scope:** packages/laravel (T-101..T-110) against the frozen spec/0.1 (M0, T-001..T-005)
+- **Milestone review: M1.1 Hardening (H-000..H-004) on branch `fix/m1-hardening`. M0 + M1 previously completed at root commit `f9865d0`.**
+- **M2 is BLOCKED:** T-201 and all M2 work have NOT started and must not start until this M1.1 review completes.
+- **Repository:** github.com/kefyusuf/surfacerelay (`main` = tool-neutral baseline `f9865d0`; hardening commits on `fix/m1-hardening`)
+- **Scope:** spec/0.1 contract shape, output classification redesign, PHP package hardening, CI/licensing/docs
 
 ## Architecture summary
 

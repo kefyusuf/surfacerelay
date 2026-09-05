@@ -21,7 +21,7 @@ Status: `PROPOSED`, `ACCEPTED`, `SUPERSEDED`.
 | D-015 | ACCEPTED | Confirmation authority uses opaque, scoped, expiring receipts issued by the runtime; caller input (e.g. `confirmed: true`) never grants authority. (Accepted in T-001.) |
 | D-016 | ACCEPTED | Binding drivers are extensible identifiers with explicit registry, not a closed enum. Unknown drivers fail closed; no fallback driver is permitted. (Accepted in T-003.) |
 | D-017 | PROPOSED | `current_selection` is trusted runtime context and must not degrade into caller record IDs. |
-| D-018 | PROPOSED | Apache-2.0 is the project license. |
+| D-018 | ACCEPTED | Apache-2.0 is the project license. (Accepted in M1.1 — H-004: the complete Apache License 2.0 text is published as `LICENSE`.) |
 | D-019 | PROPOSED | Filament is the first production-oriented reference vertical. |
 | D-020 | PROPOSED | HTMX is the second binding used to test portability. |
 | D-021 | SUPERSEDED by D-032 | `outputTrust` is a single-valued enum with precedence `sensitive` > `contains_untrusted_content` > `trusted_application_data`; when an output qualifies for multiple values the highest-precedence value applies. (Accepted in T-001; superseded in M1.1 — H-002 — because the single value collapsed the independent confidentiality and content-trust dimensions, losing the untrusted-content signal for sensitive outputs.) |
