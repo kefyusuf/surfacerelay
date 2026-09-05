@@ -1,0 +1,13 @@
+{
+  "bindingId": "prep-list:component:example-123:add-item",
+  "action": {
+    "id": "prep_list.add_item"
+  },
+  "driver": "livewire",
+  "lifecycle": "component",
+  "target": {
+    "componentId": "example-123",
+    "method": "addItem"
+  },
+  "expiresAt": null
+}

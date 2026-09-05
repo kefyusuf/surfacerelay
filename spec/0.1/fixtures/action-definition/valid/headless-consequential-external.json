@@ -1,0 +1,40 @@
+{
+  "id": "payroll.batches.payout",
+  "version": 1,
+  "title": "Trigger payroll batch payout",
+  "description": "Submits an approved payroll batch to the external payment provider.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "batchId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "batchId"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "payoutReference": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "payoutReference"
+    ]
+  },
+  "scope": "headless",
+  "effect": "external_side_effect",
+  "risk": "consequential",
+  "idempotency": "required_key",
+  "outputTrust": "sensitive",
+  "contextRequirements": [
+    "authenticated_actor",
+    "tenant",
+    "human_confirmation"
+  ]
+}

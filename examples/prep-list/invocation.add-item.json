@@ -1,0 +1,15 @@
+{
+  "action": {
+    "id": "prep_list.add_item",
+    "version": 1
+  },
+  "bindingId": "prep-list:component:example-123:add-item",
+  "input": {
+    "name": "passport"
+  },
+  "idempotencyKey": "demo-1",
+  "confirmationReceipt": null,
+  "clientMeta": {
+    "locale": "tr-TR"
+  }
+}

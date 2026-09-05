@@ -1,0 +1,14 @@
+{
+  "bindingId": "orders:component:example-456:prepareRefund",
+  "action": {
+    "id": "Orders.Refund",
+    "version": 1
+  },
+  "driver": "livewire",
+  "lifecycle": "component",
+  "target": {
+    "componentId": "example-456",
+    "method": "prepareRefund"
+  },
+  "expiresAt": null
+}

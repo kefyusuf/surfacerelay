@@ -1,0 +1,11 @@
+{
+  "name": "SurfaceRelay",
+  "status": "experimental",
+  "contractVersion": "0.1-draft",
+  "primaryRuntime": "Laravel",
+  "primaryBindings": [
+    "Livewire",
+    "Filament"
+  ],
+  "portabilityProof": "HTMX"
+}

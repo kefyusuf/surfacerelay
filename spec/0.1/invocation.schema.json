@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://surfacerelay.dev/spec/0.1/invocation.schema.json",
+  "title": "SurfaceRelay Invocation 0.1 Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "action",
+    "input"
+  ],
+  "properties": {
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "description": "Action Definition identifier. The Invocation ActionReference uses the canonical Action ID grammar defined by the Action Definition contract; it is not a separate identifier namespace.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+          "maxLength": 160
+        },
+        "version": {
+          "description": "Exact Action Definition version this invocation addresses.",
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "bindingId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "input": {
+      "type": "object"
+    },
+    "idempotencyKey": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 240
+    },
+    "confirmationReceipt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 4096
+    },
+    "clientMeta": {
+      "type": "object",
+      "description": "Non-authoritative metadata. Must never provide identity, tenant, roles, permissions, binding authority, or confirmation authority.",
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "orders.refund.prepare",
+  "version": 1,
+  "title": "Prepare refund",
+  "description": "Creates a reviewable refund draft for the current order.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "reason": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "required": [
+      "reason"
+    ]
+  },
+  "outputSchema": {
+    "type": "object"
+  },
+  "scope": "page_scoped",
+  "effect": "reversible_write",
+  "risk": "moderate",
+  "idempotency": "required_key",
+  "outputTrust": "sensitive",
+  "contextRequirements": [
+    "authenticated_actor",
+    "tenant",
+    "current_record",
+    "browser_session"
+  ]
+}

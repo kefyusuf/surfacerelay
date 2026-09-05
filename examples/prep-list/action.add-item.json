@@ -1,0 +1,38 @@
+{
+  "id": "prep_list.add_item",
+  "version": 1,
+  "title": "Add preparation item",
+  "description": "Adds an item to the shared preparation list.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "name"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "itemId": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "itemId"
+    ]
+  },
+  "scope": "page_scoped",
+  "effect": "reversible_write",
+  "risk": "low",
+  "idempotency": "recommended_key",
+  "outputTrust": "trusted_application_data",
+  "contextRequirements": [
+    "browser_session"
+  ]
+}

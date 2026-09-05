@@ -1,0 +1,14 @@
+{
+  "bindingId": "reports:nightly:generate-month-end",
+  "action": {
+    "id": "payroll.batches.payout",
+    "version": 1
+  },
+  "driver": "http",
+  "lifecycle": "persistent",
+  "target": {
+    "url": "https://payments.internal.example/api/v1/payouts",
+    "method": "POST"
+  },
+  "expiresAt": "2027-01-01T00:00:00Z"
+}

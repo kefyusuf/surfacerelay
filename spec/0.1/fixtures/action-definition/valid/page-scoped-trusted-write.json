@@ -1,0 +1,34 @@
+{
+  "id": "inventory.stock.adjust",
+  "version": 1,
+  "title": "Adjust stock level",
+  "description": "Adjusts the stock level of the order line currently resolved by the runtime.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "delta": {
+        "type": "integer"
+      },
+      "note": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "delta"
+    ]
+  },
+  "outputSchema": {
+    "type": "object"
+  },
+  "scope": "page_scoped",
+  "effect": "reversible_write",
+  "risk": "moderate",
+  "idempotency": "recommended_key",
+  "outputTrust": "trusted_application_data",
+  "contextRequirements": [
+    "authenticated_actor",
+    "tenant",
+    "current_record"
+  ]
+}

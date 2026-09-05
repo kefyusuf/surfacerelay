@@ -1,0 +1,95 @@
+{
+  "comment": "SurfaceRelay 0.1 runtime binding conformance scenarios (T-003). kind=schema scenarios are executable today: scripts/validate.py asserts their fixture passes or fails via the fixture manifest. kind=runtime scenarios are semantic (schema-valid but not executable / not permitted); they are documented here and become executable conformance in T-604/T-701 when real runtimes exist. schema-invalid is NOT the same as runtime-stale.",
+  "scenarios": [
+    {
+      "id": "BIND-PAGE-VALID",
+      "kind": "schema",
+      "status": "executable",
+      "fixture": "spec/0.1/fixtures/runtime-binding/valid/page.json",
+      "detail": "A page-scoped binding is structurally valid."
+    },
+    {
+      "id": "BIND-COMPONENT-VALID",
+      "kind": "schema",
+      "status": "executable",
+      "fixture": "spec/0.1/fixtures/runtime-binding/valid/component.json",
+      "detail": "A component-scoped binding is structurally valid."
+    },
+    {
+      "id": "BIND-SESSION-VALID",
+      "kind": "schema",
+      "status": "executable",
+      "fixture": "spec/0.1/fixtures/runtime-binding/valid/session.json",
+      "detail": "A session-scoped binding is structurally valid; session authority is a runtime reference, never caller input."
+    },
+    {
+      "id": "BIND-PERSISTENT-VALID",
+      "kind": "schema",
+      "status": "executable",
+      "fixture": "spec/0.1/fixtures/runtime-binding/valid/persistent.json",
+      "detail": "A persistent binding is structurally valid; persistent never means permanent (D-023)."
+    },
+    {
+      "id": "BIND-LIFECYCLE-UNKNOWN",
+      "kind": "schema",
+      "status": "executable",
+      "fixture": "spec/0.1/fixtures/runtime-binding/invalid/unknown-lifecycle.json",
+      "detail": "Unknown lifecycle value is rejected by schema."
+    },
+    {
+      "id": "BIND-ACTION-VERSION-EXACT",
+      "kind": "schema",
+      "status": "executable",
+      "fixture": "spec/0.1/fixtures/runtime-binding/invalid/missing-action-version.json",
+      "detail": "A binding without an exact action version is rejected by schema; bindings never float across versions (D-022)."
+    },
+    {
+      "id": "BIND-EXPIRED-NOT-EXECUTABLE",
+      "kind": "runtime",
+      "status": "documented",
+      "expect": "fail_closed",
+      "recommendedCode": "binding_expired",
+      "detail": "A schema-valid binding whose expiresAt has passed must be rejected at invocation time. Cumulative validity (D-024): expiry wins independently of lifecycle state."
+    },
+    {
+      "id": "BIND-DRIVER-UNKNOWN",
+      "kind": "runtime",
+      "status": "documented",
+      "expect": "fail_closed",
+      "recommendedCode": "driver_unsupported",
+      "detail": "A schema-valid, well-formed driver string that is not explicitly registered must fail closed with no fallback (D-016). JSON Schema cannot express registry membership by design; the registry check is runtime semantics."
+    },
+    {
+      "id": "BIND-ACTION-VERSION-UNAVAILABLE",
+      "kind": "runtime",
+      "status": "documented",
+      "expect": "fail_closed",
+      "recommendedCode": "binding_stale",
+      "detail": "A schema-valid binding whose referenced action id+version is not registered (or no longer matches) must fail closed even though the document is structurally valid."
+    },
+    {
+      "id": "BIND-COMPONENT-STALE",
+      "kind": "runtime",
+      "status": "documented",
+      "expect": "fail_closed",
+      "recommendedCode": "binding_stale",
+      "detail": "A component-scoped binding whose component instance was unmounted/destroyed/replaced must fail closed; a rerender of the same instance may remain valid. The issuing adapter detects lifecycle end."
+    },
+    {
+      "id": "BIND-NO-SILENT-RETARGET",
+      "kind": "runtime",
+      "status": "documented",
+      "expect": "fail_closed",
+      "recommendedCode": "binding_stale",
+      "detail": "Old binding + replacement component (same class, method name, DOM position, or business record) must NOT execute; the old binding returns stale, and the replacement requires a newly issued binding ID (D-022/D-025)."
+    },
+    {
+      "id": "BIND-ID-UNKNOWN",
+      "kind": "runtime",
+      "status": "documented",
+      "expect": "fail_closed",
+      "recommendedCode": "binding_not_found",
+      "detail": "An unknown bindingId must fail closed. A binding ID is a reference, never proof of authorization by itself (D-022)."
+    }
+  ]
+}

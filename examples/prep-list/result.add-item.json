@@ -1,0 +1,12 @@
+{
+  "status": "succeeded",
+  "correlationId": "corr_demo_1",
+  "data": {
+    "itemId": "item-1"
+  },
+  "error": null,
+  "confirmation": null,
+  "meta": {
+    "surface": "webmcp"
+  }
+}

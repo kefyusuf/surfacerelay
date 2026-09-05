@@ -1,0 +1,13 @@
+{
+  "action": {
+    "id": "orders.refund.commit",
+    "version": 1
+  },
+  "bindingId": "orders:component:example-456:commitRefund",
+  "input": {
+    "draftId": "draft-1"
+  },
+  "idempotencyKey": "demo-1",
+  "confirmationReceipt": null,
+  "confirmed": true
+}

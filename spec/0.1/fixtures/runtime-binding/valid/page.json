@@ -1,0 +1,15 @@
+{
+  "bindingId": "orders-page:page:surf-7f3a21:list-orders",
+  "action": {
+    "id": "orders.current_selection.summarize",
+    "version": 1
+  },
+  "driver": "livewire",
+  "lifecycle": "page",
+  "target": {
+    "pageInstance": "surf-7f3a21",
+    "componentId": "example-100",
+    "method": "summarizeSelection"
+  },
+  "expiresAt": null
+}

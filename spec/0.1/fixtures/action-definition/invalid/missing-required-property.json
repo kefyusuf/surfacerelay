@@ -1,0 +1,16 @@
+{
+  "id": "prep_list.add_item",
+  "version": 1,
+  "title": "Add preparation item",
+  "description": "Adds an item to the shared preparation list.",
+  "inputSchema": {
+    "type": "object"
+  },
+  "scope": "page_scoped",
+  "effect": "reversible_write",
+  "risk": "low",
+  "idempotency": "recommended_key",
+  "contextRequirements": [
+    "browser_session"
+  ]
+}

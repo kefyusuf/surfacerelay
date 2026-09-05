@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://surfacerelay.dev/spec/0.1/action-definition.schema.json",
+  "title": "SurfaceRelay Action Definition 0.1 Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "title",
+    "description",
+    "inputSchema",
+    "scope",
+    "effect",
+    "risk",
+    "idempotency",
+    "outputTrust",
+    "contextRequirements"
+  ],
+  "properties": {
+    "id": {
+      "description": "Stable, protocol-neutral action identifier in reverse-DNS-like dot-separated lowercase segments. It identifies meaning only, never a runtime target.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+      "maxLength": 160
+    },
+    "version": {
+      "description": "Explicit positive integer contract version. Runtime bindings reference action ID plus this version (D-013).",
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "description": "Human-readable short label for the action, suitable for any surface projection.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "description": {
+      "description": "One clear statement of what the action does. Untrusted runtime content must not be embedded here (it becomes tool metadata).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "inputSchema": {
+      "description": "JSON Schema for caller input only. Trusted context (actor, tenant, current record, current selection, confirmation) is resolved by the runtime and never enters this schema.",
+      "type": "object"
+    },
+    "outputSchema": {
+      "description": "Optional JSON Schema describing the action's successful output; null when unstructured.",
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "scope": {
+      "description": "Where the action's meaning/executability depends on context. `portable`: semantics are not intrinsically dependent on a particular UI or agent surface; execution still requires a compatible runtime binding and all required trusted context. `page_scoped`: depends on the active page/application surface. `browser_local`: local to browser/UI state, may have no server equivalent. `headless`: intended for non-visual runtimes.",
+      "enum": [
+        "portable",
+        "page_scoped",
+        "browser_local",
+        "headless"
+      ]
+    },
+    "effect": {
+      "description": "Observable state change execution can cause. Effect is not risk. `read`: no state change. `reversible_write`: restorable change. `destructive_write`: non-restorable change. `external_side_effect`: change outside this application's transactional reach.",
+      "enum": [
+        "read",
+        "reversible_write",
+        "destructive_write",
+        "external_side_effect"
+      ]
+    },
+    "risk": {
+      "description": "Level of user/business consequence. `low`, `moderate`, and `high` form an ordinal review scale. `consequential` is a categorical gate, not an ordinal step: execution requires a runtime-issued, opaque confirmation receipt and must not be compared ordinally with the other values. Risk is orthogonal to effect.",
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "consequential"
+      ]
+    },
+    "idempotency": {
+      "description": "Server-side deduplication policy. `none`: no deduplication. `recommended_key`: deduplicates when a caller supplies a key; proceeds without one otherwise. `required_key`: invocation without a valid key is rejected before execution.",
+      "enum": [
+        "none",
+        "recommended_key",
+        "required_key"
+      ]
+    },
+    "outputTrust": {
+      "description": "Single-valued classification of the action's output with precedence `sensitive` > `contains_untrusted_content` > `trusted_application_data`; the highest-precedence qualifying value applies (D-021). `sensitive` output is subject to redaction; read-only does not imply safe.",
+      "enum": [
+        "trusted_application_data",
+        "contains_untrusted_content",
+        "sensitive"
+      ]
+    },
+    "contextRequirements": {
+      "description": "Trusted facts the runtime must resolve before invocation. These come exclusively from trusted runtime context (authenticated sources, request state, UI runtime), never from caller input. `human_confirmation` is necessary but not sufficient for consequential actions: authority comes only from a runtime-issued confirmation receipt.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "authenticated_actor",
+          "tenant",
+          "current_record",
+          "current_selection",
+          "browser_session",
+          "human_confirmation"
+        ]
+      }
+    },
+    "extensions": {
+      "description": "Namespaced extension point for adapter/driver metadata. Keys must be of the form `namespace/key`; runtime binding details belong in RuntimeBinding, not here.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9.-]+/[a-zA-Z0-9._-]+$"
+      },
+      "additionalProperties": true
+    }
+  }
+}

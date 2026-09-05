@@ -1,0 +1,25 @@
+{
+  "id": "orders.current_selection.summarize",
+  "version": 1,
+  "title": "Summarize selected orders",
+  "description": "Summarizes the orders currently selected in the active order table.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object"
+  },
+  "scope": "page_scoped",
+  "effect": "read",
+  "risk": "low",
+  "idempotency": "none",
+  "outputTrust": "sensitive",
+  "contextRequirements": [
+    "authenticated_actor",
+    "tenant",
+    "current_selection",
+    "browser_session"
+  ]
+}

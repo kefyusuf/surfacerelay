@@ -1,0 +1,7 @@
+{
+  "action": {
+    "id": "Orders.Refund",
+    "version": 1
+  },
+  "input": {}
+}

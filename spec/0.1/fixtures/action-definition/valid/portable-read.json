@@ -1,0 +1,41 @@
+{
+  "id": "kb.articles.search",
+  "version": 1,
+  "title": "Search knowledge base articles",
+  "description": "Searches published knowledge base articles by query and returns matching excerpts.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "query": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "query"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      }
+    },
+    "required": [
+      "results"
+    ]
+  },
+  "scope": "portable",
+  "effect": "read",
+  "risk": "low",
+  "idempotency": "none",
+  "outputTrust": "contains_untrusted_content",
+  "contextRequirements": [
+    "authenticated_actor"
+  ]
+}

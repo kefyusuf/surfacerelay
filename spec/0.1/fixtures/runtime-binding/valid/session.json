@@ -1,0 +1,14 @@
+{
+  "bindingId": "cart:session:usr-8842:resume-draft",
+  "action": {
+    "id": "cart.draft.resume",
+    "version": 1
+  },
+  "driver": "livewire",
+  "lifecycle": "session",
+  "target": {
+    "sessionAuthorityRef": "sess-9d1c-44",
+    "method": "resumeDraft"
+  },
+  "expiresAt": null
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://surfacerelay.dev/spec/0.1/runtime-binding.schema.json",
+  "title": "SurfaceRelay Runtime Binding 0.1 Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bindingId",
+    "action",
+    "driver",
+    "lifecycle",
+    "target"
+  ],
+  "properties": {
+    "bindingId": {
+      "description": "Identifies one exact issued runtime binding instance (D-022). It is a reference to execution authority, never proof of authorization by itself. It must not silently retarget to another action, action version, runtime target, or authority context; a materially changed target requires a newly issued binding ID, and old IDs are never reused for replacement targets. Unknown binding IDs fail closed.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "action": {
+      "description": "The exact Action Definition this binding executes, identified by id plus exact version. Runtime execution requires that exact id+version to be registered and available; bindings do not float across versions.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "description": "Action Definition identifier. `ActionReference.id` uses the canonical Action ID grammar defined by the Action Definition contract; it is not a separate identifier namespace. Must reference a registered Action Definition.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+          "maxLength": 160
+        },
+        "version": {
+          "description": "Exact Action Definition version this binding is valid for.",
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "driver": {
+      "description": "Extensible driver identifier (D-016), not a closed enum: frameworks (e.g. livewire, htmx, liveview, http) and namespaced custom drivers are all expressed here as plain identifiers. A runtime may execute a binding only if this driver is explicitly registered/supported; unknown drivers fail closed; no fallback to another driver is permitted.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.:-]{0,79}$"
+    },
+    "lifecycle": {
+      "description": "Which runtime authority the binding's validity is tied to (D-023). `page`: one runtime-defined page/surface instance, not necessarily a browser document; when that instance ends the binding becomes stale. `component`: one specific component instance; rerenders of the same instance do not necessarily invalidate it, and a replacement instance never inherits the binding merely by sharing class, method name, DOM position, or business record. `session`: a trusted runtime session authority resolved from trusted state, never ordinary caller input; expires, is revoked, logs out, or rotates in a way that invalidates prior bindings makes it stale. `persistent`: not intrinsically tied to page/component/session lifetime, but never permanent, global, or anonymous: it remains subject to explicit revocation, expiresAt, exact action version availability, driver availability, and all other runtime policy.",
+      "enum": [
+        "page",
+        "component",
+        "session",
+        "persistent"
+      ]
+    },
+    "target": {
+      "description": "Driver-owned execution target data. Its shape is owned by the named driver; the core contract does not enumerate driver target shapes. Binding details belong here or in driver code, never in the Action Definition.",
+      "type": "object",
+      "minProperties": 1
+    },
+    "expiresAt": {
+      "description": "Independent hard upper time bound on binding validity (D-024). Lifecycle and expiry are cumulative, not alternatives; whichever invalidates first wins. null or absence means no explicit contract-level time deadline and does not disable lifecycle invalidation or revocation. Expired bindings fail closed. Compare deterministically, UTC-oriented.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "extensions": {
+      "description": "Namespaced extension point for adapter/driver metadata. Keys must be of the form `namespace/key`. Extensions never alter identity, lifecycle, or expiry semantics.",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
