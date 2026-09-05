@@ -121,15 +121,23 @@ Values (locked for v0.1):
 - `recommended_key` — if the caller supplies an idempotency key, the runtime deduplicates on it; if omitted, the invocation proceeds without deduplication. *Example: retry-safe "send welcome email".*
 - `required_key` — an invocation without a valid idempotency key is rejected before execution. *Example: "create subscription charge" refuses to run twice on the same key. Enforcement is server-side (rule 9).*
 
-## Output trust
+## Output sensitivity
 
-Classification of the action's output. Exactly one value applies; when an output would qualify for more than one, the highest-precedence value wins: `sensitive` > `contains_untrusted_content` > `trusted_application_data` (D-021).
+Confidentiality classification of the action's output (D-032). Drives output policy/redaction handling; independent of output content trust — a `sensitive` output may also contain untrusted content, and neither dimension suppresses the other.
 
 Values (locked for v0.1):
 
-- `trusted_application_data` — *Example: a list of internal product categories.*
+- `normal` — *Example: a list of internal product categories.*
+- `sensitive` — *Example: payroll amounts; redaction pipeline applies (T-403).*
+
+## Output content trust
+
+Whether downstream agent consumers must treat the action's output as untrusted content (D-032). Drives surface-level untrusted-content handling (e.g. WebMCP `untrustedContentHint`); independent of output sensitivity. *Example of the combined case: a private customer support message written by the customer is `sensitive` AND `contains_untrusted_content`.*
+
+Values (locked for v0.1):
+
+- `trusted_application_data` — *Example: server-computed aggregates with no third-party text.*
 - `contains_untrusted_content` — *Example: user-generated ticket bodies that a surface must treat as untrusted.*
-- `sensitive` — *Example: payroll amounts; redaction pipeline applies (T-403). `sensitive` also wins when untrusted content is present.*
 
 ## Context requirement
 

@@ -1,7 +1,8 @@
 export type ActionScope = 'portable' | 'page_scoped' | 'browser_local' | 'headless';
 export type ActionEffect = 'read' | 'reversible_write' | 'destructive_write' | 'external_side_effect';
 export type ActionRisk = 'low' | 'moderate' | 'high' | 'consequential';
-export type OutputTrust = 'trusted_application_data' | 'contains_untrusted_content' | 'sensitive';
+export type OutputSensitivity = 'normal' | 'sensitive';
+export type OutputContentTrust = 'trusted_application_data' | 'contains_untrusted_content';
 
 export interface ActionRef { id: string; version: number }
 
@@ -16,7 +17,8 @@ export interface ActionDefinition {
   effect: ActionEffect;
   risk: ActionRisk;
   idempotency: 'none' | 'recommended_key' | 'required_key';
-  outputTrust: OutputTrust;
+  outputSensitivity: OutputSensitivity;
+  outputContentTrust: OutputContentTrust;
   contextRequirements: string[];
 }
 

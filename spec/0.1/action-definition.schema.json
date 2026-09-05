@@ -14,7 +14,8 @@
     "effect",
     "risk",
     "idempotency",
-    "outputTrust",
+    "outputSensitivity",
+    "outputContentTrust",
     "contextRequirements"
   ],
   "properties": {
@@ -87,12 +88,18 @@
         "required_key"
       ]
     },
-    "outputTrust": {
-      "description": "Single-valued classification of the action's output with precedence `sensitive` > `contains_untrusted_content` > `trusted_application_data`; the highest-precedence qualifying value applies (D-021). `sensitive` output is subject to redaction; read-only does not imply safe.",
+    "outputSensitivity": {
+      "description": "Confidentiality classification of the action's output. Controls output policy/redaction handling (e.g. `sensitive` output is subject to redaction and must not be assumed safe for agent surfaces). Independent of `outputContentTrust`: an output may be `sensitive` AND contain untrusted content simultaneously; neither dimension suppresses the other (D-032).",
+      "enum": [
+        "normal",
+        "sensitive"
+      ]
+    },
+    "outputContentTrust": {
+      "description": "Whether downstream agent consumers must treat the action's output as untrusted content. `contains_untrusted_content` requires surfaces to apply untrusted-content handling (e.g. WebMCP untrustedContentHint); it is independent of `outputSensitivity` — `sensitive` output may also contain untrusted content (D-032).",
       "enum": [
         "trusted_application_data",
-        "contains_untrusted_content",
-        "sensitive"
+        "contains_untrusted_content"
       ]
     },
     "contextRequirements": {

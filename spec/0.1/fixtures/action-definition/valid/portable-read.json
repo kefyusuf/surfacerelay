@@ -34,7 +34,8 @@
   "effect": "read",
   "risk": "low",
   "idempotency": "none",
-  "outputTrust": "contains_untrusted_content",
+  "outputSensitivity": "normal",
+  "outputContentTrust": "contains_untrusted_content",
   "contextRequirements": [
     "authenticated_actor"
   ]

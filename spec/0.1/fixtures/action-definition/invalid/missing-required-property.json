@@ -10,6 +10,7 @@
   "effect": "reversible_write",
   "risk": "low",
   "idempotency": "recommended_key",
+  "outputContentTrust": "trusted_application_data",
   "contextRequirements": [
     "browser_session"
   ]

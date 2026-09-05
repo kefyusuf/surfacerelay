@@ -280,6 +280,25 @@
       "expect": "invalid",
       "keyword": "pattern",
       "instancePath": "/extensions"
+    },
+    {
+      "schema": "action-definition",
+      "path": "spec/0.1/fixtures/action-definition/valid/sensitive-untrusted-output.json",
+      "expect": "valid"
+    },
+    {
+      "schema": "action-definition",
+      "path": "spec/0.1/fixtures/action-definition/invalid/invalid-output-sensitivity-enum.json",
+      "expect": "invalid",
+      "keyword": "enum",
+      "instancePath": "/outputSensitivity"
+    },
+    {
+      "schema": "action-definition",
+      "path": "spec/0.1/fixtures/action-definition/invalid/invalid-output-content-trust-enum.json",
+      "expect": "invalid",
+      "keyword": "enum",
+      "instancePath": "/outputContentTrust"
     }
   ]
 }

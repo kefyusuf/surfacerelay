@@ -11,7 +11,8 @@ use SurfaceRelay\Laravel\Enums\ActionRisk;
 use SurfaceRelay\Laravel\Enums\ActionScope;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
-use SurfaceRelay\Laravel\Enums\OutputTrust;
+use SurfaceRelay\Laravel\Enums\OutputContentTrust;
+use SurfaceRelay\Laravel\Enums\OutputSensitivity;
 use SurfaceRelay\Laravel\Contracts\ActionRegistry;
 use SurfaceRelay\Laravel\Registry\ActionDefinitionNotFound;
 use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
@@ -356,7 +357,8 @@ final class ActionBusTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: $requirements,
         );
     }

@@ -23,7 +23,8 @@
   "effect": "reversible_write",
   "risk": "moderate",
   "idempotency": "required_key",
-  "outputTrust": "sensitive",
+  "outputSensitivity": "sensitive",
+  "outputContentTrust": "trusted_application_data",
   "contextRequirements": [
     "authenticated_actor",
     "tenant",

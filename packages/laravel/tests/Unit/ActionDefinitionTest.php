@@ -13,7 +13,8 @@ use SurfaceRelay\Laravel\Enums\ActionRisk;
 use SurfaceRelay\Laravel\Enums\ActionScope;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
-use SurfaceRelay\Laravel\Enums\OutputTrust;
+use SurfaceRelay\Laravel\Enums\OutputContentTrust;
+use SurfaceRelay\Laravel\Enums\OutputSensitivity;
 
 final class ActionDefinitionTest extends TestCase
 {
@@ -37,7 +38,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::Read,
             risk: ActionRisk::Low,
             idempotency: IdempotencyPolicy::None,
-            outputTrust: OutputTrust::ContainsUntrustedContent,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::ContainsUntrustedContent,
             contextRequirements: [ContextRequirement::AuthenticatedActor],
             outputSchema: ['type' => 'object'],
         );
@@ -48,7 +50,8 @@ final class ActionDefinitionTest extends TestCase
         self::assertSame(ActionEffect::Read, $definition->effect);
         self::assertSame(ActionRisk::Low, $definition->risk);
         self::assertSame(IdempotencyPolicy::None, $definition->idempotency);
-        self::assertSame(OutputTrust::ContainsUntrustedContent, $definition->outputTrust);
+        self::assertSame(OutputSensitivity::Normal, $definition->outputSensitivity);
+        self::assertSame(OutputContentTrust::ContainsUntrustedContent, $definition->outputContentTrust);
         self::assertSame([ContextRequirement::AuthenticatedActor], $definition->contextRequirements);
         self::assertSame(['type' => 'object'], $definition->outputSchema);
         self::assertSame([], $definition->extensions);
@@ -66,7 +69,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RecommendedKey,
-            outputTrust: OutputTrust::TrustedApplicationData,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [
                 ContextRequirement::Tenant,
                 ContextRequirement::AuthenticatedActor,
@@ -100,7 +104,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ExternalSideEffect,
             risk: ActionRisk::Consequential,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [ContextRequirement::HumanConfirmation],
         );
 
@@ -122,7 +127,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ExternalSideEffect,
             risk: ActionRisk::Consequential,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
 
@@ -146,7 +152,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Low,
             idempotency: IdempotencyPolicy::RecommendedKey,
-            outputTrust: OutputTrust::TrustedApplicationData,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [ContextRequirement::BrowserSession],
             extensions: [
                 'io.surfacerelay.example/cache-hint' => ['ttl' => 30],
@@ -189,7 +196,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::Read,
             risk: ActionRisk::Low,
             idempotency: IdempotencyPolicy::None,
-            outputTrust: OutputTrust::TrustedApplicationData,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -211,7 +219,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::Read,
             risk: ActionRisk::Low,
             idempotency: IdempotencyPolicy::None,
-            outputTrust: OutputTrust::TrustedApplicationData,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -237,7 +246,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::Read,
             risk: ActionRisk::Low,
             idempotency: IdempotencyPolicy::None,
-            outputTrust: OutputTrust::TrustedApplicationData,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -260,7 +270,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -279,7 +290,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -298,7 +310,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -317,7 +330,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
         );
     }
@@ -340,7 +354,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [
                 ContextRequirement::Tenant,
                 ContextRequirement::Tenant,
@@ -362,7 +377,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             /** @phpstan-ignore-next-line intentionally invalid argument under test */
             contextRequirements: ['tenant'],
         );
@@ -386,7 +402,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
             extensions: ['cache-hint' => ['ttl' => 30]],
         );
@@ -404,7 +421,8 @@ final class ActionDefinitionTest extends TestCase
             effect: ActionEffect::ReversibleWrite,
             risk: ActionRisk::Moderate,
             idempotency: IdempotencyPolicy::RequiredKey,
-            outputTrust: OutputTrust::Sensitive,
+            outputSensitivity: OutputSensitivity::Sensitive,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [],
             extensions: ['acme.corp/flag.v1' => true],
         );

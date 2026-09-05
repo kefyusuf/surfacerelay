@@ -26,7 +26,7 @@ It includes:
 - effect;
 - risk;
 - idempotency policy;
-- output trust;
+- output sensitivity and output content trust (independent dimensions, D-032);
 - trusted context requirements.
 
 It excludes:

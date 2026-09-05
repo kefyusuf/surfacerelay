@@ -63,7 +63,8 @@ Security invariants implemented and regression-tested:
 | D-015 | Confirmation authority via opaque, scoped, expiring runtime receipts only. |
 | D-016 | Binding drivers are extensible identifiers with explicit registry; unknown drivers fail closed; no fallback. |
 | D-017 | `current_selection` is trusted runtime context, never caller record IDs. |
-| D-021 | `outputTrust` single-valued with precedence `sensitive` > `contains_untrusted_content` > `trusted_application_data`. |
+| D-021 | SUPERSEDED by D-032 (single-valued `outputTrust` precedence model). |
+| D-032 | Output sensitivity and output content trust are independent dimensions (`outputSensitivity`, `outputContentTrust`). |
 | D-022 | Binding identity invariants: one exact instance, exact action id+version, no silent retargeting, no ID reuse, unknown IDs fail closed. |
 | D-023 | Lifecycle semantics locked: page / component / session / persistent (never "permanent"). |
 | D-024 | Cumulative binding validity (existence, non-revocation, lifecycle, expiresAt, exact action version, driver); whichever invalidates first wins. |
@@ -79,7 +80,7 @@ Still PROPOSED: D-018 (Apache-2.0 license — LICENSE file present), D-019 (Fila
 ## Files added/changed by M1 (packages/laravel unless noted)
 
 - **Definition:** `src/Definition/ActionDefinition.php`, `src/Definition/InvalidActionDefinition.php`
-- **Enums:** `src/Enums/ContextRequirement.php` (new); existing ActionScope/Effect/Risk/IdempotencyPolicy/OutputTrust reused
+- **Enums:** `src/Enums/ContextRequirement.php` (new); existing ActionScope/Effect/Risk/IdempotencyPolicy reused; OutputSensitivity/OutputContentTrust added in M1.1 (D-032)
 - **Registry:** `src/Contracts/ActionRegistry.php` (rewritten), `src/Registry/{InMemoryActionRegistry,DuplicateActionDefinition,ActionDefinitionNotFound}.php`
 - **Schema:** `src/Schema/{PhpInputSchemaCompiler,UnsupportedParameterType}.php`
 - **Runtime:** `src/Runtime/InvocationContext.php` (rewritten), `src/Runtime/Context/{TrustedContextEntry,ContextProvenance,ResolvedTrustedValue,TrustedContextComposer,DuplicateTrustedContext,TrustedContextNotAvailable}.php`

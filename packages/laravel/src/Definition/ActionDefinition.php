@@ -9,7 +9,8 @@ use SurfaceRelay\Laravel\Enums\ActionRisk;
 use SurfaceRelay\Laravel\Enums\ActionScope;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
-use SurfaceRelay\Laravel\Enums\OutputTrust;
+use SurfaceRelay\Laravel\Enums\OutputContentTrust;
+use SurfaceRelay\Laravel\Enums\OutputSensitivity;
 
 /**
  * Protocol-neutral runtime representation of a spec/0.1 Action Definition.
@@ -60,7 +61,8 @@ final readonly class ActionDefinition
         public ActionEffect $effect,
         public ActionRisk $risk,
         public IdempotencyPolicy $idempotency,
-        public OutputTrust $outputTrust,
+        public OutputSensitivity $outputSensitivity,
+        public OutputContentTrust $outputContentTrust,
         array $contextRequirements,
         public ?array $outputSchema = null,
         public array $extensions = [],

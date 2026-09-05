@@ -26,7 +26,7 @@
   "risk": "moderate",
   "idempotency": "recommended_key",
   "outputSensitivity": "normal",
-  "outputContentTrust": "trusted_application_data",
+  "outputContentTrust": "trusted",
   "contextRequirements": [
     "authenticated_actor",
     "tenant",

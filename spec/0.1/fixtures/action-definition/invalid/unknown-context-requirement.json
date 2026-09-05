@@ -10,7 +10,8 @@
   "effect": "reversible_write",
   "risk": "low",
   "idempotency": "recommended_key",
-  "outputTrust": "trusted_application_data",
+  "outputSensitivity": "normal",
+  "outputContentTrust": "trusted_application_data",
   "contextRequirements": [
     "browser_session",
     "admin_session"

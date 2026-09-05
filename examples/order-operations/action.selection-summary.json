@@ -15,7 +15,8 @@
   "effect": "read",
   "risk": "low",
   "idempotency": "none",
-  "outputTrust": "sensitive",
+  "outputSensitivity": "sensitive",
+  "outputContentTrust": "trusted_application_data",
   "contextRequirements": [
     "authenticated_actor",
     "tenant",

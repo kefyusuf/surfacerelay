@@ -36,7 +36,7 @@ Attacker-controlled text becomes tool name/description/parameter description and
 
 External/UGC content contains instructions aimed at the agent.
 
-**Mitigation:** output trust classification; WebMCP untrusted-content hint projection; structured results; redaction; agent-side caution is helpful but server authorization remains mandatory.
+**Mitigation:** output content-trust classification (`contains_untrusted_content` is independent of sensitivity, D-032); WebMCP untrusted-content hint projection; structured results; redaction; agent-side caution is helpful but server authorization remains mandatory.
 
 ### T3 — Session riding
 

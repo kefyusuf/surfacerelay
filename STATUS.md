@@ -162,12 +162,12 @@ External M1 architecture/security review of the completed Laravel action kernel 
 - **Reason assertions:** `scripts/validate.py` now asserts invalid fixtures fail for the intended validator keyword and, where specified, exact instance path (or offending property name for `additionalProperties`, which jsonschema reports at object level). Orphan fixtures not in the manifest are a hard error.
 - **Negative-mechanism proof:** temporarily made `malformed-id.json` valid — validator failed with `FAIL fixture marked invalid validated cleanly` and exit 1; fixture restored, final run passed with exit 0.
 - **Verification:** `python scripts/validate.py` → all 4 schemas + 21 fixture entries OK, exit 0.
-- **Contract integrity:** no enum value sets, required fields, or patterns changed; D-021 untouched; `packages/` untouched.
+- **Contract integrity:** no enum value sets, required fields, or patterns changed; D-021 untouched (later superseded by D-032 in M1.1); `packages/` untouched.
 
 ## T-001 record (2026-09-05)
 
 - **Changed files:** `docs/GLOSSARY.md`, `docs/DECISION-REGISTER.md`, `spec/0.1/action-definition.schema.json`, `TASKS.md`, `STATUS.md`, `REVIEW_REQUEST.md`.
-- **Decisions locked:** D-013, D-014, D-015 → ACCEPTED; D-021 (outputTrust precedence: `sensitive` > `contains_untrusted_content` > `trusted_application_data`) added as ACCEPTED per user decision.
+- **Decisions locked:** D-013, D-014, D-015 → ACCEPTED; D-021 (single-valued `outputTrust` precedence) added as ACCEPTED per user decision; superseded by D-032 in M1.1 (H-002).
 - **Verification:** `python scripts/validate.py` passes (4 schemas + 7 fixtures; `jsonschema` installed via pip).
 - **Known limitations:** no new fixtures were added (that is T-002); `browser_session` naming is flagged in `REVIEW_REQUEST.md` as a possible rename before runtime implementation.
 - **Note:** repository is not yet a git repository, so the diff was reviewed file-by-file by hand; schema enum value sets, required fields, and patterns were left unchanged.

@@ -22,7 +22,8 @@
   "effect": "external_side_effect",
   "risk": "consequential",
   "idempotency": "required_key",
-  "outputTrust": "sensitive",
+  "outputSensitivity": "sensitive",
+  "outputContentTrust": "trusted_application_data",
   "contextRequirements": [
     "authenticated_actor",
     "tenant",

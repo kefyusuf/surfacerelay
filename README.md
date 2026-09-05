@@ -50,7 +50,7 @@ The first reference runtime is Laravel. Livewire is the first runtime binding an
 - Runtime bindings for stateful/server-driven UI frameworks.
 - Trusted actor, tenant, record, selection, and browser-session context.
 - Separate discovery and invocation authorization.
-- Effect, risk, idempotency, and output-trust semantics.
+- Effect, risk, idempotency, output-sensitivity, and output content-trust semantics.
 - Confirmation receipts for consequential actions.
 - WebMCP projection behind an isolated browser adapter.
 - Laravel reference runtime.

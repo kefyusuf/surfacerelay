@@ -25,7 +25,7 @@
   "effect": "reversible_write",
   "risk": "moderate",
   "idempotency": "recommended_key",
-  "outputSensitivity": "normal",
+  "outputSensitivity": "public",
   "outputContentTrust": "trusted_application_data",
   "contextRequirements": [
     "authenticated_actor",

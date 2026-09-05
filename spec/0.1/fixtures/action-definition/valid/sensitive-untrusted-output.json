@@ -1,0 +1,31 @@
+{
+  "id": "support.tickets.export",
+  "version": 1,
+  "title": "Export support ticket thread",
+  "description": "Exports a private customer support thread written by the customer.",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "ticketId"
+    ],
+    "properties": {
+      "ticketId": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object"
+  },
+  "scope": "page_scoped",
+  "effect": "reversible_write",
+  "risk": "moderate",
+  "idempotency": "recommended_key",
+  "outputSensitivity": "sensitive",
+  "outputContentTrust": "contains_untrusted_content",
+  "contextRequirements": [
+    "authenticated_actor",
+    "tenant"
+  ]
+}

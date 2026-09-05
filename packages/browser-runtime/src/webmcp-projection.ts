@@ -9,7 +9,7 @@ export interface WebMcpAnnotations {
 export function projectAnnotations(action: ActionDefinition): WebMcpAnnotations {
   return {
     readOnlyHint: action.effect === 'read',
-    untrustedContentHint: action.outputTrust === 'contains_untrusted_content',
+    untrustedContentHint: action.outputContentTrust === 'contains_untrusted_content',
     consequentialHint: action.risk === 'consequential',
   };
 }
