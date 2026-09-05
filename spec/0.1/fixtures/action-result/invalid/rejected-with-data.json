@@ -1,0 +1,11 @@
+{
+  "status": "rejected",
+  "correlationId": "c",
+  "data": {
+    "x": 1
+  },
+  "error": {
+    "code": "x",
+    "message": "y"
+  }
+}

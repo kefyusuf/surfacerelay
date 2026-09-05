@@ -1,0 +1,8 @@
+{
+  "status": "rejected",
+  "correlationId": "corr_rej_1",
+  "error": {
+    "code": "authorization_denied",
+    "message": "Authorization denied."
+  }
+}

@@ -31,10 +31,13 @@
       }
     },
     "bindingId": {
+      "description": "Optional reference to the RuntimeBinding executing this invocation. Lexically identical to RuntimeBinding.bindingId (minLength 1, maxLength 240); nullable because the binding layer may be introduced later.",
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "minLength": 1,
+      "maxLength": 240
     },
     "input": {
       "type": "object"

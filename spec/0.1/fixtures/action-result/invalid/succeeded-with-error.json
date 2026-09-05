@@ -1,0 +1,9 @@
+{
+  "status": "succeeded",
+  "correlationId": "c",
+  "data": null,
+  "error": {
+    "code": "x",
+    "message": "y"
+  }
+}

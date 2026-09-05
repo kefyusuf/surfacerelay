@@ -1,0 +1,9 @@
+{
+  "status": "confirmation_required",
+  "correlationId": "c",
+  "confirmation": {
+    "challengeId": "",
+    "summary": "s",
+    "expiresAt": null
+  }
+}

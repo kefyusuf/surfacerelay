@@ -13,10 +13,12 @@ import json, sys
 ROOT = Path(__file__).resolve().parents[1]
 
 try:
-    import jsonschema
+    from jsonschema import Draft202012Validator, FormatChecker, ValidationError
 except ImportError:
     print('ERROR: jsonschema is required. Install with: python -m pip install jsonschema', file=sys.stderr)
     raise SystemExit(2)
+
+FORMAT_CHECKER = FormatChecker()
 
 schema_dir = ROOT / 'spec' / '0.1'
 schema_files = {
@@ -28,7 +30,7 @@ schema_files = {
 schemas = {k: json.loads(p.read_text(encoding='utf-8')) for k, p in schema_files.items()}
 
 for name, schema in schemas.items():
-    jsonschema.Draft202012Validator.check_schema(schema)
+    Draft202012Validator.check_schema(schema)
     print(f'OK schema: {name}')
 
 failures = 0
@@ -57,6 +59,27 @@ for prop, keys in identity_constraints.items():
                 print(f'FAIL Action Identity grammar drift: '
                       f'{ref_name}.{prop}.{key}={actual!r} != canonical {key}={expected!r}')
                 failures += 1
+
+# Contract-consistency assertion (H-001.5): Invocation.bindingId represents
+# the same identity as RuntimeBinding.bindingId and must keep identical
+# lexical constraints (minLength/maxLength), while remaining nullable.
+binding_binding_id = schemas['runtime-binding']['properties']['bindingId']
+invocation_binding_id = schemas['invocation']['properties']['bindingId']
+if binding_binding_id.get('type') != 'string':
+    print(f"FAIL Binding ID drift: runtime-binding.bindingId.type={binding_binding_id.get('type')!r} != 'string'")
+    failures += 1
+if invocation_binding_id.get('type') != ['string', 'null']:
+    print(f"FAIL Binding ID drift: invocation.bindingId.type={invocation_binding_id.get('type')!r} != ['string', 'null']")
+    failures += 1
+for key in ('minLength', 'maxLength'):
+    expected = binding_binding_id.get(key)
+    actual = invocation_binding_id.get(key)
+    if expected != actual:
+        print(f'FAIL Binding ID grammar drift: invocation.bindingId.{key}={actual!r} '
+              f'!= canonical runtime-binding.bindingId.{key}={expected!r}')
+        failures += 1
+    else:
+        print(f'OK Binding ID grammar match: {key}={expected!r}')
 
 
 def instance_path_str(error):
@@ -112,7 +135,7 @@ for scen in scenarios:
 for entry in entries:
     path = ROOT / entry['path']
     value = json.loads(path.read_text(encoding='utf-8'))
-    validator = jsonschema.Draft202012Validator(schemas[entry['schema']])
+    validator = Draft202012Validator(schemas[entry['schema']], format_checker=FORMAT_CHECKER)
     expect = entry['expect']
 
     if expect == 'valid':

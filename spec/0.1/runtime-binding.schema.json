@@ -70,6 +70,9 @@
     "extensions": {
       "description": "Namespaced extension point for adapter/driver metadata. Keys must be of the form `namespace/key`. Extensions never alter identity, lifecycle, or expiry semantics.",
       "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9.-]+/[a-zA-Z0-9._-]+$"
+      },
       "additionalProperties": true
     }
   }

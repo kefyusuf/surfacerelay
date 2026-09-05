@@ -1,0 +1,9 @@
+{
+  "status": "confirmation_required",
+  "correlationId": "corr_conf_1",
+  "confirmation": {
+    "challengeId": "challenge-1",
+    "summary": "Approve refund",
+    "expiresAt": "2026-09-07T00:00:00Z"
+  }
+}

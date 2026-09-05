@@ -160,6 +160,126 @@
       "expect": "invalid",
       "keyword": "enum",
       "instancePath": "/status"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/valid/succeeded-null-data.json",
+      "expect": "valid"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/valid/rejected.json",
+      "expect": "valid"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/valid/confirmation-required.json",
+      "expect": "valid"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/succeeded-with-error.json",
+      "expect": "invalid",
+      "keyword": "not"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/succeeded-without-data.json",
+      "expect": "invalid",
+      "keyword": "required"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/rejected-without-error.json",
+      "expect": "invalid",
+      "keyword": "required"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/rejected-with-data.json",
+      "expect": "invalid",
+      "keyword": "not"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/failed-without-error.json",
+      "expect": "invalid",
+      "keyword": "required"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/confirmation-required-without-confirmation.json",
+      "expect": "invalid",
+      "keyword": "required"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/confirmation-required-with-error.json",
+      "expect": "invalid",
+      "keyword": "not"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/empty-error-code.json",
+      "expect": "invalid",
+      "keyword": "minLength",
+      "instancePath": "/error/code"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/empty-error-message.json",
+      "expect": "invalid",
+      "keyword": "minLength",
+      "instancePath": "/error/message"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/empty-challenge-id.json",
+      "expect": "invalid",
+      "keyword": "minLength",
+      "instancePath": "/confirmation/challengeId"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/empty-summary.json",
+      "expect": "invalid",
+      "keyword": "minLength",
+      "instancePath": "/confirmation/summary"
+    },
+    {
+      "schema": "action-result",
+      "path": "spec/0.1/fixtures/action-result/invalid/invalid-confirmation-expires-at.json",
+      "expect": "invalid",
+      "keyword": "format",
+      "instancePath": "/confirmation/expiresAt"
+    },
+    {
+      "schema": "runtime-binding",
+      "path": "spec/0.1/fixtures/runtime-binding/invalid/invalid-expires-at.json",
+      "expect": "invalid",
+      "keyword": "format",
+      "instancePath": "/expiresAt"
+    },
+    {
+      "schema": "invocation",
+      "path": "spec/0.1/fixtures/invocation/invalid/empty-binding-id.json",
+      "expect": "invalid",
+      "keyword": "minLength",
+      "instancePath": "/bindingId"
+    },
+    {
+      "schema": "invocation",
+      "path": "spec/0.1/fixtures/invocation/invalid/overlength-binding-id.json",
+      "expect": "invalid",
+      "keyword": "maxLength",
+      "instancePath": "/bindingId"
+    },
+    {
+      "schema": "runtime-binding",
+      "path": "spec/0.1/fixtures/runtime-binding/invalid/non-namespaced-extension.json",
+      "expect": "invalid",
+      "keyword": "pattern",
+      "instancePath": "/extensions"
     }
   ]
 }

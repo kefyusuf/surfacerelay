@@ -34,10 +34,12 @@
       ],
       "properties": {
         "code": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "details": {}
       }
@@ -54,10 +56,12 @@
       ],
       "properties": {
         "challengeId": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "summary": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "expiresAt": {
           "type": [
@@ -72,5 +76,119 @@
       "type": "object",
       "additionalProperties": true
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "succeeded"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "data"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "error"
+              ]
+            },
+            {
+              "required": [
+                "confirmation"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rejected"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "data"
+              ]
+            },
+            {
+              "required": [
+                "confirmation"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "error"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "data"
+              ]
+            },
+            {
+              "required": [
+                "confirmation"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "confirmation_required"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "confirmation"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "data"
+              ]
+            },
+            {
+              "required": [
+                "error"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
 }
