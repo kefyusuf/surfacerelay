@@ -10,13 +10,13 @@ namespace SurfaceRelay\Laravel\Result;
  * expiry enforcement, and storage belong to a later task (T-401).
  *
  * `expiresAt` is an optional RFC3339 date-time string (offset or `Z`, with
- * optional fractional seconds). Values are validated deterministically with
- * native PHP (no Carbon); valid input is preserved verbatim — never
- * normalized or re-formatted.
+ * optional fractional seconds). Validation mirrors the repository's JSON
+ * Schema format checker semantics; valid input is preserved verbatim and is
+ * never normalized or re-formatted.
  */
 final readonly class ConfirmationChallenge implements \JsonSerializable
 {
-    private const string RFC3339_PATTERN = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/';
+    private const string RFC3339_PATTERN = '/^(?<year>\d{4})-(?<month>0[1-9]|1[0-2])-(?<day>\d{2})T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/D';
 
     public function __construct(
         public readonly string $challengeId,
@@ -38,31 +38,20 @@ final readonly class ConfirmationChallenge implements \JsonSerializable
 
     private static function isValidRfc3339(string $value): bool
     {
-        if (preg_match(self::RFC3339_PATTERN, $value) !== 1) {
+        if (preg_match(self::RFC3339_PATTERN, $value, $matches) !== 1) {
             return false;
         }
 
-        // Reject syntactically plausible but impossible dates (month 13, etc.).
-        $hasFraction = str_contains($value, '.');
-        $endsWithZ = str_ends_with($value, 'Z');
-        $format = match (true) {
-            $hasFraction && $endsWithZ => 'Y-m-d\TH:i:s.u\Z',
-            $hasFraction => 'Y-m-d\TH:i:s.uP',
-            $endsWithZ => 'Y-m-d\TH:i:s\Z',
-            default => 'Y-m-d\TH:i:sP',
-        };
-
-        $parsed = \DateTimeImmutable::createFromFormat($format, $value);
-        if ($parsed === false) {
+        $year = (int) $matches['year'];
+        if ($year === 0) {
             return false;
         }
 
-        $errors = \DateTimeImmutable::getLastErrors();
-        if (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) {
-            return false;
-        }
-
-        return true;
+        return checkdate(
+            (int) $matches['month'],
+            (int) $matches['day'],
+            $year,
+        );
     }
 
     /**

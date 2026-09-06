@@ -17,7 +17,7 @@ final readonly class RuntimeBinding implements \JsonSerializable
 {
     private const string DRIVER_PATTERN = '/^[a-z][a-z0-9_.:-]{0,79}$/';
     private const string EXTENSION_KEY_PATTERN = '/^[a-z0-9.-]+\/[a-zA-Z0-9._-]+$/';
-    private const string RFC3339_PATTERN = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/';
+    private const string RFC3339_PATTERN = '/^(?<year>\d{4})-(?<month>0[1-9]|1[0-2])-(?<day>\d{2})T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/D';
 
     /**
      * @param array<string, mixed> $target
@@ -97,29 +97,19 @@ final readonly class RuntimeBinding implements \JsonSerializable
 
     private static function isValidRfc3339(string $value): bool
     {
-        if (preg_match(self::RFC3339_PATTERN, $value) !== 1) {
+        if (preg_match(self::RFC3339_PATTERN, $value, $matches) !== 1) {
             return false;
         }
 
-        $hasFraction = str_contains($value, '.');
-        $endsWithZ = str_ends_with($value, 'Z');
-        $format = match (true) {
-            $hasFraction && $endsWithZ => 'Y-m-d\\TH:i:s.u\\Z',
-            $hasFraction => 'Y-m-d\\TH:i:s.uP',
-            $endsWithZ => 'Y-m-d\\TH:i:s\\Z',
-            default => 'Y-m-d\\TH:i:sP',
-        };
-
-        $parsed = \DateTimeImmutable::createFromFormat($format, $value);
-        if ($parsed === false) {
+        $year = (int) $matches['year'];
+        if ($year === 0) {
             return false;
         }
 
-        $errors = \DateTimeImmutable::getLastErrors();
-        if (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) {
-            return false;
-        }
-
-        return true;
+        return checkdate(
+            (int) $matches['month'],
+            (int) $matches['day'],
+            $year,
+        );
     }
 }
