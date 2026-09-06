@@ -29,19 +29,17 @@ final class LivewireBindingProducerTest extends TestCase
 {
     public function test_t203_types_exist(): void
     {
-        self::assertTrue(interface_exists(BindingIdGenerator::class), 'BindingIdGenerator must exist.');
-        self::assertTrue(class_exists(RandomBindingIdGenerator::class), 'RandomBindingIdGenerator must exist.');
-        self::assertTrue(interface_exists(LivewireComponentIdentityResolver::class), 'LivewireComponentIdentityResolver must exist.');
-        self::assertTrue(class_exists(MethodLivewireComponentIdentityResolver::class), 'MethodLivewireComponentIdentityResolver must exist.');
-        self::assertTrue(class_exists(InvalidLivewireBindingProduction::class), 'InvalidLivewireBindingProduction must exist.');
-        self::assertTrue(class_exists(LivewireBindingProducer::class), 'LivewireBindingProducer must exist.');
+        self::assertTrue(interface_exists(BindingIdGenerator::class));
+        self::assertTrue(class_exists(RandomBindingIdGenerator::class));
+        self::assertTrue(interface_exists(LivewireComponentIdentityResolver::class));
+        self::assertTrue(class_exists(MethodLivewireComponentIdentityResolver::class));
+        self::assertTrue(class_exists(InvalidLivewireBindingProduction::class));
+        self::assertTrue(class_exists(LivewireBindingProducer::class));
     }
 
     public function test_random_generator_produces_fresh_runtime_binding_compatible_ids(): void
     {
-        $this->assertTypesExist();
         $generator = new RandomBindingIdGenerator();
-
         $first = $generator->generate();
         $second = $generator->generate();
 
@@ -54,55 +52,41 @@ final class LivewireBindingProducerTest extends TestCase
             definition: $this->definition('producer.random', 1),
             target: new LivewireBindingTarget('component-random', 'perform'),
         );
-
         self::assertSame($first, $binding->bindingId);
     }
 
     public function test_method_identity_resolver_preserves_exact_component_id(): void
     {
-        $this->assertTypesExist();
-        $resolver = new MethodLivewireComponentIdentityResolver();
-
-        self::assertSame('component-123', $resolver->resolve(new IdentityOnlyComponent('component-123')));
+        self::assertSame(
+            'component-123',
+            (new MethodLivewireComponentIdentityResolver())->resolve(new IdentityOnlyComponent('component-123')),
+        );
     }
 
     public function test_missing_get_id_fails_loudly(): void
     {
-        $this->assertTypesExist();
-        $resolver = new MethodLivewireComponentIdentityResolver();
-
         $this->expectException(InvalidLivewireBindingProduction::class);
         $this->expectExceptionMessage('getId');
-        $resolver->resolve(new MissingIdentityComponent());
+        (new MethodLivewireComponentIdentityResolver())->resolve(new MissingIdentityComponent());
     }
 
     public function test_empty_component_id_fails_loudly(): void
     {
-        $this->assertTypesExist();
-        $resolver = new MethodLivewireComponentIdentityResolver();
-
         $this->expectException(InvalidLivewireBindingProduction::class);
-        $resolver->resolve(new EmptyIdentityComponent());
+        (new MethodLivewireComponentIdentityResolver())->resolve(new EmptyIdentityComponent());
     }
 
     public function test_non_string_component_id_fails_loudly(): void
     {
-        $this->assertTypesExist();
-        $resolver = new MethodLivewireComponentIdentityResolver();
-
         $this->expectException(InvalidLivewireBindingProduction::class);
-        $resolver->resolve(new NonStringIdentityComponent());
+        (new MethodLivewireComponentIdentityResolver())->resolve(new NonStringIdentityComponent());
     }
 
-    public function test_exact_exposures_become_component_scoped_livewire_bindings_in_exposure_order(): void
+    public function test_exact_exposures_become_component_scoped_bindings_in_exposure_order(): void
     {
         $alpha = $this->definition('alpha.producer', 1);
         $beta = $this->definition('beta.producer', 2);
-        $producer = $this->producer(
-            $this->queuedGenerator('binding-z', 'binding-a'),
-            $alpha,
-            $beta,
-        );
+        $producer = $this->producer($this->queuedGenerator('binding-z', 'binding-a'), $alpha, $beta);
 
         $bindings = $producer->forComponent(new ProducerComponent('component-A'));
 
@@ -120,9 +104,7 @@ final class LivewireBindingProducerTest extends TestCase
 
     public function test_producer_uses_injected_trusted_identity_resolver(): void
     {
-        $this->assertTypesExist();
-        $definition = $this->definition('alpha.producer', 1);
-        $registry = $this->registry($definition);
+        $definition = $this->definition('single.producer', 1);
         $resolver = new class implements LivewireComponentIdentityResolver {
             public function resolve(object $component): string
             {
@@ -130,12 +112,12 @@ final class LivewireBindingProducerTest extends TestCase
             }
         };
         $producer = new LivewireBindingProducer(
-            new LivewireActionExposureReader($registry),
+            new LivewireActionExposureReader($this->registry($definition)),
             $resolver,
             $this->queuedGenerator('binding-1'),
         );
 
-        $bindings = $producer->forComponent(new ProducerComponent('component-object-id'));
+        $bindings = $producer->forComponent(new SingleProducerComponent('component-object-id'));
 
         self::assertSame('trusted-resolver-id', $bindings[0]->target['componentId']);
     }
@@ -143,10 +125,7 @@ final class LivewireBindingProducerTest extends TestCase
     public function test_repeated_production_for_same_component_issues_fresh_binding_ids(): void
     {
         $definition = $this->definition('single.producer', 1);
-        $producer = $this->producer(
-            $this->queuedGenerator('binding-1', 'binding-2'),
-            $definition,
-        );
+        $producer = $this->producer($this->queuedGenerator('binding-1', 'binding-2'), $definition);
         $component = new SingleProducerComponent('component-A');
 
         $first = $producer->forComponent($component);
@@ -160,10 +139,7 @@ final class LivewireBindingProducerTest extends TestCase
     public function test_replacement_component_never_retargets_old_binding(): void
     {
         $definition = $this->definition('single.producer', 1);
-        $producer = $this->producer(
-            $this->queuedGenerator('binding-old', 'binding-new'),
-            $definition,
-        );
+        $producer = $this->producer($this->queuedGenerator('binding-old', 'binding-new'), $definition);
 
         $old = $producer->forComponent(new SingleProducerComponent('component-old'))[0];
         $new = $producer->forComponent(new SingleProducerComponent('component-new'))[0];
@@ -177,11 +153,10 @@ final class LivewireBindingProducerTest extends TestCase
 
     public function test_empty_exposure_list_returns_empty_without_generating_ids(): void
     {
-        $this->assertTypesExist();
         $generator = new class implements BindingIdGenerator {
             public function generate(): string
             {
-                throw new \RuntimeException('Generator must not be called for an empty exposure list.');
+                throw new \RuntimeException('Generator must not be called.');
             }
         };
         $producer = new LivewireBindingProducer(
@@ -208,7 +183,6 @@ final class LivewireBindingProducerTest extends TestCase
 
     public function test_exposure_reader_errors_propagate_fail_loud(): void
     {
-        $this->assertTypesExist();
         $producer = new LivewireBindingProducer(
             new LivewireActionExposureReader(new InMemoryActionRegistry()),
             new MethodLivewireComponentIdentityResolver(),
@@ -234,20 +208,8 @@ final class LivewireBindingProducerTest extends TestCase
         self::assertSame(1, $component->identityCalls);
     }
 
-    private function assertTypesExist(): void
-    {
-        self::assertTrue(interface_exists(BindingIdGenerator::class), 'BindingIdGenerator must exist.');
-        self::assertTrue(class_exists(RandomBindingIdGenerator::class), 'RandomBindingIdGenerator must exist.');
-        self::assertTrue(interface_exists(LivewireComponentIdentityResolver::class), 'LivewireComponentIdentityResolver must exist.');
-        self::assertTrue(class_exists(MethodLivewireComponentIdentityResolver::class), 'MethodLivewireComponentIdentityResolver must exist.');
-        self::assertTrue(class_exists(InvalidLivewireBindingProduction::class), 'InvalidLivewireBindingProduction must exist.');
-        self::assertTrue(class_exists(LivewireBindingProducer::class), 'LivewireBindingProducer must exist.');
-    }
-
     private function producer(BindingIdGenerator $generator, ActionDefinition ...$definitions): LivewireBindingProducer
     {
-        $this->assertTypesExist();
-
         return new LivewireBindingProducer(
             new LivewireActionExposureReader($this->registry(...$definitions)),
             new MethodLivewireComponentIdentityResolver(),
@@ -257,8 +219,6 @@ final class LivewireBindingProducerTest extends TestCase
 
     private function queuedGenerator(string ...$ids): BindingIdGenerator
     {
-        $this->assertTypesExist();
-
         return new class($ids) implements BindingIdGenerator {
             private int $index = 0;
 
@@ -282,7 +242,6 @@ final class LivewireBindingProducerTest extends TestCase
         foreach ($definitions as $definition) {
             $registry->register($definition);
         }
-
         return $registry;
     }
 
@@ -308,39 +267,25 @@ final class LivewireBindingProducerTest extends TestCase
 final class IdentityOnlyComponent
 {
     public function __construct(private readonly string $id) {}
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
+    public function getId(): string { return $this->id; }
 }
 
 final class MissingIdentityComponent {}
 
 final class EmptyIdentityComponent
 {
-    public function getId(): string
-    {
-        return '';
-    }
+    public function getId(): string { return ''; }
 }
 
 final class NonStringIdentityComponent
 {
-    public function getId(): mixed
-    {
-        return 123;
-    }
+    public function getId(): mixed { return 123; }
 }
 
 final class ProducerComponent
 {
     public function __construct(private readonly string $id) {}
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
+    public function getId(): string { return $this->id; }
 
     #[ExposeAction(id: 'beta.producer', version: 2)]
     public function beta(): void {}
@@ -352,11 +297,7 @@ final class ProducerComponent
 final class SingleProducerComponent
 {
     public function __construct(private readonly string $id) {}
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
+    public function getId(): string { return $this->id; }
 
     #[ExposeAction(id: 'single.producer', version: 1)]
     public function perform(): void {}
@@ -365,21 +306,13 @@ final class SingleProducerComponent
 final class EmptyProducerComponent
 {
     public function __construct(private readonly string $id) {}
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
+    public function getId(): string { return $this->id; }
 }
 
 final class MissingRegisteredExposureComponent
 {
     public function __construct(private readonly string $id) {}
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
+    public function getId(): string { return $this->id; }
 
     #[ExposeAction(id: 'missing.producer', version: 1)]
     public function perform(): void {}
