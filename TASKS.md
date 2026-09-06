@@ -34,72 +34,71 @@ Independent deterministic projection of the supported WebMCP hints. Reviewed che
 
 ### T-303 — Async registration lifecycle — DONE / REVIEWED
 
-**Outcome:** current bound-action snapshots are preflighted completely, projected to deterministic versioned WebMCP identities, registered sequentially through a narrow async browser port, and owned by one AbortController-backed disposable registration lease.
+Whole-snapshot preflight, deterministic versioned tool identity, sequential async registration, one AbortController-backed lease per generation, partial-failure cleanup and exact driver dispatch. Reviewed/merged checkpoint: `961a1715c889cd52b814537646a50e049f1ef9d7`.
 
-**Production additions:**
+### T-304 — Livewire browser driver — DONE / PENDING REVIEW
+
+**Outcome:** trusted Laravel binding issuance now carries a deterministic Livewire positional call plan, and the browser runtime executes only the exact mounted Livewire target through documented `Livewire.find()` and `$wire.$call()` APIs.
+
+**Production additions/changes:**
 
 ```text
-packages/browser-runtime/src/webmcp-types.ts
-packages/browser-runtime/src/webmcp-tool-projection.ts
-packages/browser-runtime/src/webmcp-registration-lifecycle.ts
+packages/laravel/src/Livewire/Binding/LivewireMethodCallPlan.php
+packages/laravel/src/Livewire/Binding/LivewireMethodCallPlanBuilder.php
+packages/laravel/src/Livewire/Binding/LivewireWireReservedNames.php
+packages/laravel/src/Livewire/Binding/LivewireBindingProducer.php
+packages/laravel/src/Livewire/Binding/InvalidLivewireBindingProduction.php
+packages/laravel/src/Livewire/LivewireBindingTarget.php
+
+packages/browser-runtime/src/livewire-errors.ts
+packages/browser-runtime/src/livewire-reserved-names.ts
+packages/browser-runtime/src/livewire-browser-runtime.ts
+packages/browser-runtime/src/livewire-browser-driver.ts
 ```
 
 **Acceptance:**
 
-- exact ActionDefinition `id + version` equals the RuntimeBinding action reference;
-- canonical WebMCP name is `<action-id>.v<version>`;
-- invalid/too-long or duplicate projected names fail before registration;
-- same action/version on multiple bindings is ambiguous and never implicitly selected;
-- supported driver is preflighted through exact T-301 registry lookup without execution;
-- input order is not authority: browser registrations are ASCII-name sorted and sequential;
-- one snapshot generation shares one registration `AbortSignal`;
-- successful registration returns an idempotent disposable lease;
-- empty snapshot is valid and makes zero browser calls;
-- partial registration failure aborts the generation and preserves the original error object;
-- registered tool execution preserves the exact captured RuntimeBinding, input and per-execution signal;
-- registration lifetime signal is distinct from execution cancellation signal;
-- T-302 annotations are reused without reinterpretation;
-- no `bindingId`/component target data is used to manufacture tool identity;
-- no `exposedTo`, automatic reconcile, Livewire browser execution, stale resolution, D-026 finalization, or M4 controls were introduced;
-- D-037 and D-038 record the lifecycle and identity boundaries;
-- `spec/0.1` remains unchanged.
+- trusted producer emits exact `inputOrder` + `requiredCount` from ReflectionMethod order;
+- schema property/required sets must exactly match caller-visible method parameters;
+- unsupported signatures and `$wire`/public-state method collisions fail binding issuance;
+- non-null Action output plus explicit `void`/`never` return fails binding issuance;
+- browser driver requires exact executable Livewire target shape and component lifecycle;
+- explicit expiry is checked before component resolution;
+- input mapping rejects unknown keys, missing required own-properties and positional holes;
+- exact `Livewire.find(componentId)` is the only target lookup;
+- exact `$wire.$id` is rechecked before invocation;
+- missing/replaced component is `binding_stale`; no first/name/DOM/class/record/method fallback exists;
+- invocation is exact `$wire.$call(method, ...params)` once and returns the raw result;
+- arbitrary Livewire/server failures propagate unchanged;
+- T-303 WebMCP lifecycle integration reaches the exact Livewire driver/binding and never retargets to a replacement;
+- cancellation signal is not falsely passed as a `$call()` argument; T-305 owns propagation;
+- D-039/D-040/D-041 record the exact-resolution, call-plan and documented-API boundaries;
+- `spec/0.1` is unchanged.
 
 **Verification:**
 
 ```text
-Boundary corrected RED: 7fcf21c1c90b701b473b3e569d2430bf00b3b8fe
-Boundary RED run:       34063633148
-Boundary GREEN:         1f44a7b7d9715727c8b202f9be52a57599345913
-Boundary GREEN run:     34063660958
-
-Projection RED:         7c89f5f586ff227def203a57261bf8f8be4febff
-Projection RED run:     34063697219
-Projection impl:        e604c3f7943497723822903970f8d037ea438390
-Projection fixture fix: ca8821487656deff188e009b9189e988a8d43ab0
-Projection GREEN run:   34063779909
-
-Lifecycle RED:          6e0f2464a1b523b848975673ac8afa78e512686c
-Lifecycle RED run:      34063844315
-Lifecycle GREEN:        86e91f72ef90c6f9f888ba23e87de2d946923cf5
-Lifecycle GREEN run:    34063883296
-
-Reviewed/merged head:   961a1715c889cd52b814537646a50e049f1ef9d7
-Feature review run:     34064090886 — all 7 jobs success
-Merged main run:        34064515055 — all 7 jobs success
-Browser:                TypeScript typecheck + 49/49 Vitest tests
-PHP:                    266 tests / 783 assertions
-Contract:               52 fixture manifest entries + 12 conformance scenarios
+Design:              98fda16676f667e63611a4470955195e324cf528
+Plan:                76a641a226168053fa056329023e4bb3e7f00e2a
+Server RED:          49ca658250f7e39ab2db4ae524c3e6b51a1ec436 / run 34066761247
+Server GREEN:        9a1b1b302c32371429eda409e63f44a295324ea0 / run 34066974783
+Producer RED:        2d289b1cd11997fdad7b01dbf720a2ffc00cf63f / run 34067044151
+Producer GREEN:      5ce49b140866d584b1c286d543cba53aa6b8db2b / run 34067238627
+Browser boundary RED: af39243aabea1bbe66caf2af297d39d0cb53c647 / run 34067293183
+Boundary GREEN:      1d01fb402087d28c1fa4e5d201af11e678fe5961 / run 34067343303
+Driver RED:          7532c3e018b0751972e7dcc87406023979284f63 / run 34067410382
+Driver impl/fixes:   2fd575514ccd7a5f8f3faebbede0359da5128393 → 01c7a19607a54c518641b5886d270780cf3409d4 → 7d2783a3763a086558f19da39c618b001ec2b512
+Integration proof:  54f82762d06abb7913eb84e6f66593fd6d346146 / run 34067710238 — all 7 jobs green
+Browser:             TypeScript typecheck + 90/90 Vitest tests
+PHP:                 283 tests / 815 assertions
+Contract:            52 fixture manifest entries + 12 conformance scenarios
 ```
-
-### T-304 — Livewire browser driver — TODO
-
-Execute exact Livewire RuntimeBindings using explicit browser target resolution; stale/unknown bindings must fail with no guessing or retargeting.
-
-**Status:** not started; separate design gate required.
 
 ### T-305 — Cancellation propagation — TODO
 
-Propagate cancellation as far as supported without claiming transactional rollback.
+Propagate cancellation as far as the documented browser/framework surfaces permit without claiming transactional rollback or reversal of already-started effects.
+
+**Status:** next task; not started. Separate design gate required.
 
 ---
 
