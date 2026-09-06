@@ -77,7 +77,7 @@ describe('WebMCP bound-action tool projection', () => {
   });
 
   it('accepts a projected tool name exactly at the 128-character boundary', () => {
-    const id = `${'a'.repeat(61)}.${'b'.repeat(61)}`;
+    const id = `${'a'.repeat(60)}.${'b'.repeat(61)}`;
     const name = projectWebMcpToolName(definition({ id, version: 1234 }));
 
     expect(name).toHaveLength(128);
