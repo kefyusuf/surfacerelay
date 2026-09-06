@@ -160,6 +160,8 @@ prep_list.add_item@1 → prep_list.add_item.v1
 orders.refund@3      → orders.refund.v3
 ```
 
+Current WebMCP imperative tool names must be between 1 and 128 characters inclusive and may contain only ASCII alphanumeric characters plus `_`, `-`, and `.`. SurfaceRelay preflight must enforce that current surface contract before calling `registerTool()`.
+
 Properties:
 
 - deterministic from exact Action identity only;
@@ -168,7 +170,9 @@ Properties:
 - never truncates;
 - never hashes as a fallback;
 - never aliases a second version to the first;
-- must satisfy the WebMCP name limit/grammar before registration.
+- must satisfy the WebMCP name contract before registration.
+
+Because the frozen SurfaceRelay Action ID grammar already uses only lowercase ASCII alphanumeric characters, `_`, and `.`, and the `.v<version>` suffix uses only WebMCP-valid characters, a canonical valid ActionDefinition can fail this projection check only when the resulting name exceeds WebMCP's 128-character limit. The validator still checks the complete WebMCP grammar rather than relying on that inference.
 
 If the projected name is invalid or exceeds the supported WebMCP name limit, preflight fails loudly before any tool is registered.
 
@@ -233,7 +237,7 @@ execute(input, options) {
 }
 ```
 
-The exact RuntimeBinding object captured during snapshot projection is preserved. The callback never rediscoveries or retargets a similar binding.
+The exact RuntimeBinding object captured during snapshot projection is preserved. The callback never rediscovers or retargets a similar binding.
 
 T-303 intentionally relies on T-301 for exact driver lookup. Actual `livewire` behavior remains T-304.
 
