@@ -96,8 +96,18 @@ final class LivewireBindingProducerTest extends TestCase
         self::assertSame(['binding-z', 'binding-a'], array_map(static fn ($binding): string => $binding->bindingId, $bindings));
         self::assertSame('livewire', $bindings[0]->driver);
         self::assertSame('component', $bindings[0]->lifecycle->value);
-        self::assertSame(['componentId' => 'component-A', 'method' => 'alpha'], $bindings[0]->target);
-        self::assertSame(['componentId' => 'component-A', 'method' => 'beta'], $bindings[1]->target);
+        self::assertSame([
+            'componentId' => 'component-A',
+            'method' => 'alpha',
+            'inputOrder' => [],
+            'requiredCount' => 0,
+        ], $bindings[0]->target);
+        self::assertSame([
+            'componentId' => 'component-A',
+            'method' => 'beta',
+            'inputOrder' => [],
+            'requiredCount' => 0,
+        ], $bindings[1]->target);
         self::assertNull($bindings[0]->expiresAt);
         self::assertSame([], $bindings[0]->extensions);
     }
@@ -252,7 +262,12 @@ final class LivewireBindingProducerTest extends TestCase
             version: $version,
             title: 'Binding producer action',
             description: 'Action Definition used by T-203 mounted binding producer tests.',
-            inputSchema: ['type' => 'object'],
+            inputSchema: [
+                'type' => 'object',
+                'properties' => [],
+                'required' => [],
+                'additionalProperties' => false,
+            ],
             scope: ActionScope::Portable,
             effect: ActionEffect::Read,
             risk: ActionRisk::Low,
