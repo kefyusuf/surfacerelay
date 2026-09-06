@@ -1,15 +1,15 @@
-# External Review Handoff
+# External Review Record
 
-## Review target
+## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Base:** `main` at `f5cb2c757d4de77d3cf256190f5c6af7794a8828`
-- **Head branch:** `feat/livewire-binding-producer`
-- **Scope:** T-203 only — fresh binding ID generation, trusted mounted component identity resolution, and exact Livewire RuntimeBinding production from T-202 exposures.
+- **Reviewed task:** `T-203 — Livewire mounted binding producer`
+- **Reviewed/merged implementation checkpoint:** `bd69e135cbabb1b3828c51c9cef2293737e8a5be`
+- **Result:** **PASSED**
 - **M2 status:** IN PROGRESS.
 - **Next task:** T-204 has **not** started.
 
-## T-203 architecture
+## Reviewed architecture
 
 ```text
 trusted mounted component object
@@ -30,11 +30,10 @@ trusted mounted component object
                  RuntimeBinding
                  driver=livewire
                  lifecycle=component
-                 target.componentId=exact ID
-                 target.method=explicit exposure
+                 exact componentId + method
 ```
 
-Production files added:
+Production files reviewed:
 
 ```text
 packages/laravel/src/Binding/BindingIdGenerator.php
@@ -45,7 +44,7 @@ packages/laravel/src/Livewire/Binding/InvalidLivewireBindingProduction.php
 packages/laravel/src/Livewire/Binding/LivewireBindingProducer.php
 ```
 
-Test added:
+Test reviewed:
 
 ```text
 packages/laravel/tests/Unit/LivewireBindingProducerTest.php
@@ -58,34 +57,30 @@ docs/design/livewire-binding-producer.md
 docs/plans/2026-09-06-livewire-binding-producer.md
 ```
 
-## Review invariants
+## Accepted review invariants
 
-Please verify directly in code:
-
-1. Producer accepts a trusted component object, never caller `componentId` or `bindingId` parameters.
-2. Reference component identity resolution requires a real callable `getId()` method and a non-empty string result.
-3. No component class/name fallback locator exists.
-4. T-202 exposure reader remains the only action/method mapping source; no method inference or version fallback exists.
-5. Exact registered `ActionDefinition` objects are reused unchanged.
-6. Each exposure receives a newly generated opaque binding ID.
-7. Random IDs are not derived from action ID, method, component ID, or component name.
-8. Duplicate generated IDs within one issuance batch fail loudly.
-9. Repeated production for the same component issues fresh IDs.
-10. Replacement component IDs produce new exact targets and do not mutate or retarget old bindings.
-11. Output order follows deterministic T-202 exposure order, not random binding IDs.
-12. Produced bindings remain `driver=livewire`, `lifecycle=component`, `expiresAt=null`, with empty extensions by default.
-13. Producer never invokes exposed action methods; only the trusted identity accessor is invoked.
-14. No `livewire/livewire` Composer dependency was added.
-15. No server-side Livewire `destroy` hook invalidation exists.
-16. No browser binding registry, `Livewire.find()`, WebMCP registration, stale-target resolution, or ActionBus execution exists.
-17. `spec/0.1` is unchanged.
-18. D-033 correctly records that PHP request teardown is not browser component-lifecycle authority.
+1. Caller input does not supply component target identity or binding identity at the producer boundary.
+2. The reference resolver requires a real callable `getId()` and a non-empty string result; no metadata, component-name, or class-name fallback exists.
+3. Exact T-202 exposure declarations remain the only action/method source.
+4. Exact registered `ActionDefinition` objects are reused; there is no action-version fallback or method guessing.
+5. Every exposure requests a fresh opaque ID through `BindingIdGenerator`.
+6. The default generator uses native 128-bit random bytes and does not derive IDs from action/component/method identity.
+7. Duplicate generated IDs inside one issuance batch fail loudly.
+8. Repeated issuance for the same component creates new binding IDs while preserving the exact target.
+9. Replacement components produce new exact targets; old immutable bindings are never retargeted.
+10. Produced order follows deterministic exposure order, not random ID ordering.
+11. Produced bindings are fixed to `driver=livewire` and `lifecycle=component` with null expiry and empty extensions by default.
+12. Producer invokes no exposed application action method; only the trusted identity accessor is called.
+13. No server `destroy` lifecycle invalidation was introduced.
+14. No `livewire/livewire` dependency, browser registry, stale-target resolver, WebMCP registration, binding execution, or ActionBus integration was introduced.
+15. `spec/0.1` is unchanged.
+16. D-033 correctly separates PHP request teardown from browser component-lifecycle authority.
 
 ## Lifecycle review finding
 
-Current Livewire behavior reconstructs PHP component objects from snapshots on subsequent requests while preserving the snapshot component ID. Livewire's internal server `destroy` hook runs at the end of mount/update request processing, so it cannot be treated as browser unmount authority.
+Current Livewire behavior re-creates PHP component objects from snapshots on subsequent requests while preserving the component ID. The server-side request teardown/destroy point is therefore not equivalent to browser component unmount.
 
-T-203 therefore deliberately does **not** revoke component bindings from server request teardown. Browser component cleanup/stale-target resolution remains assigned to M3 client lifecycle signals.
+D-033 is accepted: server binding production owns exact fresh issuance; browser component cleanup and stale-target resolution belong to the client lifecycle. Server teardown must not revoke or retarget component bindings.
 
 ## TDD evidence
 
@@ -93,27 +88,17 @@ RED:
 
 ```text
 f1c4a1b1f1d6950c28bef14fa39f4723c9466a61
-test(livewire): define T-203 binding production behavior
-
-PHP: 256 tests / 681 assertions / 14 deliberate failures
+PHP: 256 tests / 681 assertions / 14 deliberate T-203 failures
 ```
 
-All failures were new T-203 existence failures. Contract/browser/lint remained green.
-
-Implementation:
+Implementation/review:
 
 ```text
-44e8cf779f79c7ac365f9d8067ee26d9584cb8fd
-feat(binding): add fresh binding ID generation
-
-2ef35c990437434ba0d38ddecf943d64e0ddda1b
-feat(livewire): resolve trusted component identity
-
-0280a6c369aac27f510bee874006af5fe9b20e40
-feat(livewire): produce mounted component bindings
-
-6bccbc87c6449df6b6669f23c75d83b3e8c66220
-test(livewire): fix T-203 identity resolver fixture
+44e8cf779f79c7ac365f9d8067ee26d9584cb8fd  fresh binding ID generation
+2ef35c990437434ba0d38ddecf943d64e0ddda1b  trusted component identity
+0280a6c369aac27f510bee874006af5fe9b20e40  mounted binding producer
+6bccbc87c6449df6b6669f23c75d83b3e8c66220  test fixture correction
+bd69e135cbabb1b3828c51c9cef2293737e8a5be  reviewed checkpoint merged to main
 ```
 
 Final evidence:
@@ -125,29 +110,20 @@ browser:  TypeScript typecheck + 3 Vitest tests
 CI:       contract + PHP 8.3/8.4 × Illuminate 12/13 + php-lint + browser
 ```
 
-All matrix jobs passed on the implementation head.
+The exact feature review checkpoint passed all jobs, and the same checkpoint passed all jobs again after fast-forward to `main`.
+
+## Review nuance carried forward
+
+Cross-batch/global binding-ID uniqueness is not implemented with a stateful registry in T-203. The producer relies on the `BindingIdGenerator` freshness contract and the default 128-bit random generator, while rejecting duplicates inside one issuance batch. Existence/revocation persistence and definitive stale resolution remain later runtime responsibilities.
+
+This does not authorize ID reuse: D-022 remains normative and implementations of `BindingIdGenerator` are required to produce fresh identifiers.
 
 ## Decision status
 
 - D-022..D-025 remain ACCEPTED.
-- D-026 remains PROPOSED until actual binding-resolution failure behavior exists.
-- D-033 ACCEPTED — Livewire PHP request teardown is not browser component-lifecycle authority; server binding issuance and browser lifecycle cleanup/stale resolution are separate responsibilities.
-
-## Deliberate non-goals retained
-
-T-203 does not implement:
-
-- browser component lookup;
-- component init/cleanup registration;
-- binding registry/persistence/revocation store;
-- stale-target ActionResult normalization;
-- D-026 final error-code behavior;
-- WebMCP registration;
-- binding execution;
-- ActionBus integration;
-- Prep List end-to-end flow;
-- current record/selection projection.
+- D-026 remains PROPOSED until real binding-resolution failure behavior exists.
+- D-033 ACCEPTED — PHP request teardown is not browser component-lifecycle authority; server issuance and browser lifecycle cleanup/stale resolution are separate responsibilities.
 
 ## Explicit statement
 
-**T-203 implementation is complete and CI is green. T-204 has NOT started. The next action is external-style review of this branch.**
+**T-203 REVIEW PASSED and is merged to `main`. T-204 is TODO and has not started.**

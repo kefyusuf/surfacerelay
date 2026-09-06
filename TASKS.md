@@ -62,45 +62,46 @@ Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 **Outcome:** explicit method-level `#[ExposeAction]` allow-list, exact registry resolution, deterministic exposure ordering, fail-loud duplicate/visibility rules, no public-method auto-exposure.
 
-**Verification:** PHP 242 tests / 667 assertions; full matrix green on merged main checkpoint.
+**Verification:** PHP 242 tests / 667 assertions; full matrix green on reviewed/merged main checkpoint.
 
-### T-203 — Implement Livewire binding lifecycle producer — DONE
+### T-203 — Implement Livewire binding lifecycle producer — DONE / REVIEWED
 
 **Goal:** Issue fresh component-scoped RuntimeBindings for the exact trusted mounted component identity without confusing PHP request teardown with browser component lifetime.
 
 **Implemented:**
 
-- `BindingIdGenerator` + native `RandomBindingIdGenerator` for fresh opaque issuance IDs;
-- trusted `LivewireComponentIdentityResolver` + `MethodLivewireComponentIdentityResolver` using explicit `getId()`;
+- generic `BindingIdGenerator` and native `RandomBindingIdGenerator`;
+- trusted `LivewireComponentIdentityResolver` and `MethodLivewireComponentIdentityResolver`;
 - `LivewireBindingProducer` converting deterministic T-202 exposures into T-201 RuntimeBindings;
 - exact component ID + exact exposed method target;
-- `driver=livewire`, `lifecycle=component`, `expiresAt=null`, empty extensions by default;
-- duplicate generated binding IDs fail loudly within one batch;
-- repeated issuance gets fresh IDs;
-- replacement components create new exact targets without mutating old bindings;
+- fresh opaque binding ID for each issuance;
+- duplicate generated IDs within one batch fail loudly;
+- repeated issuance receives fresh IDs;
+- replacement components produce new exact targets without mutating old bindings;
 - producer invokes no exposed action methods;
-- no caller-supplied component ID or binding ID at the producer boundary;
-- D-033 records that Livewire server request teardown is not browser component-lifecycle authority.
+- no caller-supplied component ID/binding ID at the producer boundary;
+- D-033: Livewire PHP request teardown is not browser component-lifecycle authority.
 
 **Verification:**
 
 ```text
-RED: f1c4a1b1f1d6950c28bef14fa39f4723c9466a61
-Binding ID generation: 44e8cf779f79c7ac365f9d8067ee26d9584cb8fd
-Trusted identity: 2ef35c990437434ba0d38ddecf943d64e0ddda1b
-Producer: 0280a6c369aac27f510bee874006af5fe9b20e40
-Test fixture correction: 6bccbc87c6449df6b6669f23c75d83b3e8c66220
+RED:                    f1c4a1b1f1d6950c28bef14fa39f4723c9466a61
+Binding ID generation:  44e8cf779f79c7ac365f9d8067ee26d9584cb8fd
+Trusted identity:       2ef35c990437434ba0d38ddecf943d64e0ddda1b
+Producer:               0280a6c369aac27f510bee874006af5fe9b20e40
+Test fixture correction:6bccbc87c6449df6b6669f23c75d83b3e8c66220
+Reviewed/merged checkpoint: bd69e135cbabb1b3828c51c9cef2293737e8a5be
 PHP: 256 tests / 709 assertions
 Contract: 52 fixture manifest entries + 12 conformance scenarios
 Browser: typecheck + 3 tests
-CI: all matrix jobs green
+CI: feature checkpoint and merged main all matrix jobs green
 ```
 
 **Acceptance:**
 - no silent retargeting of old bindings;
-- fresh issuance never intentionally reuses an old binding ID;
-- component authority comes from trusted runtime identity resolution;
-- server `destroy` hook is not used as lifecycle invalidation;
+- fresh issuance does not intentionally reuse old binding IDs;
+- component identity comes from trusted runtime resolution;
+- server `destroy` is not lifecycle invalidation authority;
 - browser stale cleanup remains assigned to M3;
 - no T-204 execution flow mixed in.
 
@@ -110,20 +111,16 @@ CI: all matrix jobs green
 
 **Acceptance:** business logic exists once and tests prove equivalent state transition.
 
-**Status:** next task, not started pending T-203 review.
+**Status:** next task, not started.
 
 ---
 
 ## M3 — Browser Runtime / WebMCP — TODO
 
 ### T-301 — DriverRegistry — TODO
-
 Register drivers by explicit name; unknown drivers fail closed.
 
 ### T-302 — WebMCP semantic projection — TODO
-
-Project protocol-neutral semantics behind the browser adapter:
-
 - `effect == read` → read-only hint;
 - `outputContentTrust == contains_untrusted_content` → untrusted-content hint;
 - `risk == consequential` → consequential hint.
@@ -131,15 +128,12 @@ Project protocol-neutral semantics behind the browser adapter:
 `outputSensitivity` remains independent and belongs to server-side output policy/redaction.
 
 ### T-303 — Async registration lifecycle — TODO
-
 Register current tools through the browser API, handle errors, and clean up with lifecycle/AbortController semantics.
 
 ### T-304 — Livewire browser driver — TODO
-
 Execute Livewire RuntimeBindings; stale/unknown bindings return explicit failures with no guessing.
 
 ### T-305 — Cancellation propagation — TODO
-
 Propagate cancellation as far as supported without claiming transactional rollback.
 
 ---
