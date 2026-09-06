@@ -69,8 +69,9 @@ final class ActionResultNormalizer
      * Public details for list-of-strings codes may contain only
      * `[$key => list<string>]`; the safe entry is reconstructed from the
      * recognized key and every other key is discarded, so extra (possibly
-     * sensitive) keys can never reach the public result. Non-string or empty
-     * entries make the shape untrusted; details are dropped entirely (null).
+     * sensitive) keys can never reach the public result. Associative arrays,
+     * non-string entries, or empty string entries make the shape untrusted;
+     * details are dropped entirely (null).
      *
      * @return array{requirements: list<string>}|array{fields: list<string>}|null
      */
@@ -81,6 +82,10 @@ final class ActionResultNormalizer
         }
 
         $entries = $details[$key];
+        if (!array_is_list($entries)) {
+            return null;
+        }
+
         foreach ($entries as $entry) {
             if (!is_string($entry) || $entry === '') {
                 return null;

@@ -141,7 +141,7 @@ for entry in entries:
     if expect == 'valid':
         try:
             validator.validate(value)
-        except jsonschema.ValidationError as exc:
+        except ValidationError as exc:
             print(f"FAIL fixture marked valid did not validate: {entry['path']} "
                   f"({exc.validator} at {instance_path_str(exc)}: {exc.message[:120]})")
             failures += 1

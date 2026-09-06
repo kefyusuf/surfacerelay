@@ -67,9 +67,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/browser-runtime/package-lock.json
       - name: Install browser-runtime dependencies
         working-directory: packages/browser-runtime
-        run: npm install
+        run: npm ci
       - name: Typecheck browser runtime
         working-directory: packages/browser-runtime
         run: npm run typecheck

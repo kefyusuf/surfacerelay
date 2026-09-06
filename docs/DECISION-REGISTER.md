@@ -1,40 +1,40 @@
 # Decision Register
 
-Status: `PROPOSED`, `ACCEPTED`, `SUPERSEDED`.
+Status values: `PROPOSED`, `ACCEPTED`, `SUPERSEDED`.
 
 | ID | Status | Decision |
 |---|---|---|
 | D-001 | ACCEPTED | Focus first on stateful/server-driven UI actions, not generic backend frameworks. |
 | D-002 | ACCEPTED | Action Definition and Runtime Binding are separate contracts. |
-| D-003 | ACCEPTED | Cross-language sharing is semantic/schema-level; Laravel has a real runtime core. |
+| D-003 | ACCEPTED | Cross-language sharing is semantic/schema-level; Laravel has a real runtime implementation. |
 | D-004 | ACCEPTED | Core semantics are protocol-neutral; WebMCP/MCP annotations are projections. |
-| D-005 | ACCEPTED | Browser WebMCP API is isolated in one adapter. |
-| D-006 | ACCEPTED | Do not implement MCP transport stack from scratch. |
+| D-005 | ACCEPTED | Browser WebMCP API changes are isolated behind one adapter. |
+| D-006 | ACCEPTED | Do not implement an MCP transport stack from scratch. |
 | D-007 | ACCEPTED | Caller input cannot manufacture actor, tenant, selection, confirmation, or binding authority. |
-| D-008 | ACCEPTED | Start as one repository/monorepo; split packages/repos only with release/dependency evidence. |
+| D-008 | ACCEPTED | Start as one monorepo; split only with dependency/release evidence. |
 | D-009 | ACCEPTED | Do not promote a public cross-framework spec before two materially different bindings pass shared scenarios. |
 | D-010 | ACCEPTED | Action exposure is explicit; no expose-all convention. |
 | D-011 | ACCEPTED | Discovery permission does not imply invocation permission. |
 | D-012 | ACCEPTED | OpenAPI is a secondary/import adapter, not the core product. |
-| D-013 | ACCEPTED | Action versions are explicit integers bound by RuntimeBinding. (Accepted in T-001: the 0.1 schema already requires an integer `version >= 1`.) |
-| D-014 | ACCEPTED | Consequential risk is orthogonal to effect/destructiveness. `consequential` is a categorical confirmation gate, not an ordinal step of `low/moderate/high`. (Accepted in T-001.) |
-| D-015 | ACCEPTED | Confirmation authority uses opaque, scoped, expiring receipts issued by the runtime; caller input (e.g. `confirmed: true`) never grants authority. (Accepted in T-001.) |
-| D-016 | ACCEPTED | Binding drivers are extensible identifiers with explicit registry, not a closed enum. Unknown drivers fail closed; no fallback driver is permitted. (Accepted in T-003.) |
-| D-017 | PROPOSED | `current_selection` is trusted runtime context and must not degrade into caller record IDs. |
-| D-018 | ACCEPTED | Apache-2.0 is the project license. (Accepted in M1.1 — H-004: the complete Apache License 2.0 text is published as `LICENSE`.) |
+| D-013 | ACCEPTED | Action versions are explicit positive integers and RuntimeBindings reference exact `id + version`. |
+| D-014 | ACCEPTED | `consequential` risk is a categorical confirmation gate, orthogonal to effect/destructiveness. |
+| D-015 | ACCEPTED | Confirmation authority uses opaque, scoped, expiring runtime-issued receipts; caller booleans never grant authority. |
+| D-016 | ACCEPTED | Binding drivers are extensible identifiers with an explicit registry; unknown drivers fail closed and never fall back. |
+| D-017 | ACCEPTED | `current_selection` is trusted runtime context, never caller record IDs. T-105/T-106 operationalize this with typed trusted entries and a fail-closed context gate. |
+| D-018 | ACCEPTED | Apache-2.0 is the project license; the complete license text is published in `LICENSE`. |
 | D-019 | PROPOSED | Filament is the first production-oriented reference vertical. |
 | D-020 | PROPOSED | HTMX is the second binding used to test portability. |
-| D-021 | SUPERSEDED by D-032 | `outputTrust` is a single-valued enum with precedence `sensitive` > `contains_untrusted_content` > `trusted_application_data`; when an output qualifies for multiple values the highest-precedence value applies. (Accepted in T-001; superseded in M1.1 — H-002 — because the single value collapsed the independent confidentiality and content-trust dimensions, losing the untrusted-content signal for sensitive outputs.) |
-| D-022 | ACCEPTED | Binding identity invariants: `bindingId` identifies one exact issued binding instance; it references exactly one Action Definition `id + version`; it never silently retargets to another action, version, target, or authority context; materially changed targets require a new `bindingId`; old binding IDs are never reused for replacement targets; unknown binding IDs fail closed. A binding ID is a reference, never proof of authorization by itself. (Accepted in T-003.) |
-| D-023 | ACCEPTED | Lifecycle value semantics locked for v0.1: `page` = one runtime-defined page/surface instance (not necessarily a browser document); `component` = one specific component instance (rerenders keep validity, replacement instances never inherit the binding); `session` = trusted runtime session authority, never caller-controlled; `persistent` = not intrinsically tied to page/component/session lifetime, but never permanent — still subject to revocation, `expiresAt`, and all runtime policy. (Accepted in T-003.) |
-| D-024 | ACCEPTED | Binding validity is cumulative: existence AND non-revocation AND lifecycle authority AND `expiresAt` AND exact action id/version availability AND driver support. Lifecycle and expiry are not alternatives; whichever invalidates first wins. `expiresAt: null`/absence means no contract-level time deadline and does not disable lifecycle invalidation or revocation. Expired bindings fail closed. Timestamp comparisons are deterministic and UTC-oriented. (Accepted in T-003.) |
-| D-025 | ACCEPTED | A stale binding (unknown/revoked, lifecycle authority ended, `expiresAt` passed, exact action version unavailable, or target instance gone) fails closed. The runtime must not silently rediscover or substitute a "similar" replacement target; replacements require a newly issued binding. Unsupported driver is conceptually distinct from stale but also fails closed. (Accepted in T-003.) |
-| D-026 | PROPOSED | Recommended provisional binding failure codes for conformance and adapters: `binding_not_found`, `binding_stale`, `binding_expired`, `driver_unsupported`. These are recommendations, not a closed schema enum; the Action Result `error.code` remains free-form. |
-| D-027 | ACCEPTED | `InvocationContext` separates trusted `ContextRequirement`-typed entries (resolved only by trusted runtime resolvers/adapters, with provenance metadata) from non-authoritative invocation metadata (`surface`, `correlationId`, `idempotencyKey`, `metadata`). No hydration from caller payload and no fallback from metadata or any non-authoritative source to trusted context exists; duplicates fail loudly; absence is entry absence (null entry values prohibited). Surface and idempotency keys are never authorization. (Implemented in T-105, operationalizing D-007.) |
-| D-028 | ACCEPTED | Actor and tenant authority are resolved from injected trusted application/runtime services before ActionBus dispatch, via zero-argument resolver contracts (`AuthenticatedActorResolver`, `TenantResolver`) returning `?ResolvedTrustedValue`; neither resolver accepts caller action input, request data, or invocation metadata as an authority source. Resolver absence (null) omits the trusted entry — policy stays in `ActionDefinition` context requirements, enforced fail-closed by the ActionBus gate. Only the Laravel auth adapter is framework-specific; no generic tenant implementation or multi-guard fallback is provided. |
-| D-029 | ACCEPTED | Laravel authorization evaluates the exact trusted actor stored in `InvocationContext` through a user-scoped Gate (`forUser(actor) → allows(ability, arguments)`); there is no ambient-user fallback, no implicit action-ID-to-ability mapping, no `has()` pre-check, and no authorization metadata inside `ActionDefinition`. Abilities and their argument resolvers are explicit per-action application configuration; denial is a boolean stage halt (`authorization_denied`), and missing authorization configuration is a loud configuration failure, not implicit allow. |
-| D-030 | ACCEPTED | `ActionError.code` is an extensible machine-readable lowercase string namespace, not a closed enum. Core/runtime layers reserve stable codes only when the behavior is implemented and tested (`required_context_missing`, `input_validation_failed`, `authorization_denied` in T-110). Binding, confirmation, idempotency, and adapter layers may add codes without revising the protocol status enum; D-026 binding codes stay PROPOSED until M2 implements them. |
-| D-031 | ACCEPTED | Public result status meanings are locked: `succeeded` = execution completed (data may legitimately be null — presence of the executed result is tracked, not truthiness); `rejected` = deliberate pre-success refusal (missing required context, validation failure, authorization denial); `failed` = runtime/execution failure (model exists; broad exception normalization is deliberately out of scope, configuration errors stay loud); `confirmation_required` = paused awaiting a real trusted confirmation challenge — never fabricated by the normalizer. The normalizer maps machine halt codes only; unknown codes fail loudly (`UnmappedPipelineOutcome`). |
-| D-032 | ACCEPTED | Output confidentiality and output content trust are independent semantic dimensions, represented by `outputSensitivity` (`normal`/`sensitive`) and `outputContentTrust` (`trusted_application_data`/`contains_untrusted_content`). A result may be sensitive and contain untrusted content simultaneously; neither dimension suppresses the other. Sensitivity drives server-side output policy/redaction (T-403); content trust drives downstream untrusted-content handling (e.g. WebMCP `untrustedContentHint`). Supersedes D-021's single-valued precedence model. |
+| D-021 | SUPERSEDED | The old single-valued `outputTrust` precedence model is superseded by D-032 because it collapsed independent confidentiality/content-trust properties. |
+| D-022 | ACCEPTED | `bindingId` identifies one exact issued binding instance, exact action version and target; no ID reuse or silent retargeting. Binding ID is a reference, not authorization proof. |
+| D-023 | ACCEPTED | Binding lifecycles are `page`, `component`, `session`, and `persistent`; persistent never means permanent/global/anonymous. |
+| D-024 | ACCEPTED | Binding validity is cumulative: existence, non-revocation, lifecycle authority, expiry, exact action availability, and driver support must all hold. |
+| D-025 | ACCEPTED | Stale bindings fail closed and must not rediscover/substitute similar replacement targets. |
+| D-026 | PROPOSED | Provisional binding failure codes: `binding_not_found`, `binding_stale`, `binding_expired`, `driver_unsupported`; ActionError codes remain extensible. |
+| D-027 | ACCEPTED | InvocationContext separates trusted typed entries from non-authoritative metadata; no payload/metadata fallback, duplicates fail loudly, absence is entry absence. |
+| D-028 | ACCEPTED | Actor and tenant authority are resolved from injected trusted services before ActionBus dispatch through zero-argument resolver contracts. |
+| D-029 | ACCEPTED | Laravel authorization evaluates the exact trusted actor via `Gate::forUser(actor)`; no ambient-user fallback or implicit Action-ID-to-ability mapping. |
+| D-030 | ACCEPTED | `ActionError.code` is an extensible machine-readable lowercase string namespace, not a closed enum. |
+| D-031 | ACCEPTED | `succeeded` = execution completed; `rejected` = deliberate pre-success refusal; `failed` = runtime/execution failure; `confirmation_required` = awaiting a real trusted challenge. Unknown halt codes fail loudly. |
+| D-032 | ACCEPTED | Output confidentiality and content trust are independent: `outputSensitivity` (`normal`/`sensitive`) and `outputContentTrust` (`trusted_application_data`/`contains_untrusted_content`). Sensitive output may simultaneously contain untrusted content. |
 
-When a proposed decision is implemented in public API, change it to `ACCEPTED` in the same PR or explicitly record why it remains experimental.
+When a proposed decision becomes part of implemented public behavior, promote it to `ACCEPTED` in the same change or record why it remains experimental.

@@ -1,304 +1,57 @@
 {
   "comment": "SurfaceRelay 0.1 fixture matrix (T-002). Every fixture under spec/0.1/fixtures must be listed here; scripts/validate.py asserts each entry and fails on orphans. Invalid entries assert the intended validator keyword and, when given, the exact instance path.",
   "entries": [
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/valid/portable-read.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/valid/page-scoped-trusted-write.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/valid/headless-consequential-external.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "examples/prep-list/action.add-item.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "examples/order-operations/action.selection-summary.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "examples/order-operations/action.prepare-refund.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "examples/order-operations/action.commit-refund.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/protocol-field-in-core.json",
-      "expect": "invalid",
-      "keyword": "additionalProperties",
-      "property": "livewireComponent"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/malformed-id.json",
-      "expect": "invalid",
-      "keyword": "pattern",
-      "instancePath": "/id"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/unknown-context-requirement.json",
-      "expect": "invalid",
-      "keyword": "enum",
-      "instancePath": "/contextRequirements/1"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/missing-required-property.json",
-      "expect": "invalid",
-      "keyword": "required"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/invalid-effect-enum.json",
-      "expect": "invalid",
-      "keyword": "enum",
-      "instancePath": "/effect"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/invalid-version.json",
-      "expect": "invalid",
-      "keyword": "minimum",
-      "instancePath": "/version"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/unexpected-top-level-property.json",
-      "expect": "invalid",
-      "keyword": "additionalProperties",
-      "property": "owner"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "examples/prep-list/binding.livewire.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/valid/page.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/valid/component.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/valid/session.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/valid/persistent.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/invalid/unknown-lifecycle.json",
-      "expect": "invalid",
-      "keyword": "enum",
-      "instancePath": "/lifecycle"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/invalid/missing-action-version.json",
-      "expect": "invalid",
-      "keyword": "required",
-      "instancePath": "/action"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/invalid/malformed-action-reference-id.json",
-      "expect": "invalid",
-      "keyword": "pattern",
-      "instancePath": "/action/id"
-    },
-    {
-      "schema": "invocation",
-      "path": "examples/prep-list/invocation.add-item.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "invocation",
-      "path": "spec/0.1/fixtures/invocation/invalid/caller-confirmed-field.json",
-      "expect": "invalid",
-      "keyword": "additionalProperties",
-      "property": "confirmed"
-    },
-    {
-      "schema": "invocation",
-      "path": "spec/0.1/fixtures/invocation/invalid/malformed-action-reference-id.json",
-      "expect": "invalid",
-      "keyword": "pattern",
-      "instancePath": "/action/id"
-    },
-    {
-      "schema": "action-result",
-      "path": "examples/prep-list/result.add-item.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/invalid-status.json",
-      "expect": "invalid",
-      "keyword": "enum",
-      "instancePath": "/status"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/valid/succeeded-null-data.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/valid/rejected.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/valid/confirmation-required.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/succeeded-with-error.json",
-      "expect": "invalid",
-      "keyword": "not"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/succeeded-without-data.json",
-      "expect": "invalid",
-      "keyword": "required"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/rejected-without-error.json",
-      "expect": "invalid",
-      "keyword": "required"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/rejected-with-data.json",
-      "expect": "invalid",
-      "keyword": "not"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/failed-without-error.json",
-      "expect": "invalid",
-      "keyword": "required"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/confirmation-required-without-confirmation.json",
-      "expect": "invalid",
-      "keyword": "required"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/confirmation-required-with-error.json",
-      "expect": "invalid",
-      "keyword": "not"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/empty-error-code.json",
-      "expect": "invalid",
-      "keyword": "minLength",
-      "instancePath": "/error/code"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/empty-error-message.json",
-      "expect": "invalid",
-      "keyword": "minLength",
-      "instancePath": "/error/message"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/empty-challenge-id.json",
-      "expect": "invalid",
-      "keyword": "minLength",
-      "instancePath": "/confirmation/challengeId"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/empty-summary.json",
-      "expect": "invalid",
-      "keyword": "minLength",
-      "instancePath": "/confirmation/summary"
-    },
-    {
-      "schema": "action-result",
-      "path": "spec/0.1/fixtures/action-result/invalid/invalid-confirmation-expires-at.json",
-      "expect": "invalid",
-      "keyword": "format",
-      "instancePath": "/confirmation/expiresAt"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/invalid/invalid-expires-at.json",
-      "expect": "invalid",
-      "keyword": "format",
-      "instancePath": "/expiresAt"
-    },
-    {
-      "schema": "invocation",
-      "path": "spec/0.1/fixtures/invocation/invalid/empty-binding-id.json",
-      "expect": "invalid",
-      "keyword": "minLength",
-      "instancePath": "/bindingId"
-    },
-    {
-      "schema": "invocation",
-      "path": "spec/0.1/fixtures/invocation/invalid/overlength-binding-id.json",
-      "expect": "invalid",
-      "keyword": "maxLength",
-      "instancePath": "/bindingId"
-    },
-    {
-      "schema": "runtime-binding",
-      "path": "spec/0.1/fixtures/runtime-binding/invalid/non-namespaced-extension.json",
-      "expect": "invalid",
-      "keyword": "pattern",
-      "instancePath": "/extensions"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/valid/sensitive-untrusted-output.json",
-      "expect": "valid"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/invalid-output-sensitivity-enum.json",
-      "expect": "invalid",
-      "keyword": "enum",
-      "instancePath": "/outputSensitivity"
-    },
-    {
-      "schema": "action-definition",
-      "path": "spec/0.1/fixtures/action-definition/invalid/invalid-output-content-trust-enum.json",
-      "expect": "invalid",
-      "keyword": "enum",
-      "instancePath": "/outputContentTrust"
-    }
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/valid/portable-read.json","expect":"valid"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/valid/page-scoped-trusted-write.json","expect":"valid"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/valid/headless-consequential-external.json","expect":"valid"},
+    {"schema":"action-definition","path":"examples/prep-list/action.add-item.json","expect":"valid"},
+    {"schema":"action-definition","path":"examples/order-operations/action.selection-summary.json","expect":"valid"},
+    {"schema":"action-definition","path":"examples/order-operations/action.prepare-refund.json","expect":"valid"},
+    {"schema":"action-definition","path":"examples/order-operations/action.commit-refund.json","expect":"valid"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/protocol-field-in-core.json","expect":"invalid","keyword":"additionalProperties","property":"livewireComponent"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/malformed-id.json","expect":"invalid","keyword":"pattern","instancePath":"/id"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/unknown-context-requirement.json","expect":"invalid","keyword":"enum","instancePath":"/contextRequirements/1"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/missing-required-property.json","expect":"invalid","keyword":"required"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/invalid-effect-enum.json","expect":"invalid","keyword":"enum","instancePath":"/effect"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/invalid-version.json","expect":"invalid","keyword":"minimum","instancePath":"/version"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/unexpected-top-level-property.json","expect":"invalid","keyword":"additionalProperties","property":"owner"},
+    {"schema":"runtime-binding","path":"examples/prep-list/binding.livewire.json","expect":"valid"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/valid/page.json","expect":"valid"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/valid/component.json","expect":"valid"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/valid/session.json","expect":"valid"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/valid/persistent.json","expect":"valid"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/invalid/unknown-lifecycle.json","expect":"invalid","keyword":"enum","instancePath":"/lifecycle"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/invalid/missing-action-version.json","expect":"invalid","keyword":"required","instancePath":"/action"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/invalid/malformed-action-reference-id.json","expect":"invalid","keyword":"pattern","instancePath":"/action/id"},
+    {"schema":"invocation","path":"examples/prep-list/invocation.add-item.json","expect":"valid"},
+    {"schema":"invocation","path":"spec/0.1/fixtures/invocation/invalid/caller-confirmed-field.json","expect":"invalid","keyword":"additionalProperties","property":"confirmed"},
+    {"schema":"invocation","path":"spec/0.1/fixtures/invocation/invalid/malformed-action-reference-id.json","expect":"invalid","keyword":"pattern","instancePath":"/action/id"},
+    {"schema":"action-result","path":"examples/prep-list/result.add-item.json","expect":"valid"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/invalid-status.json","expect":"invalid","keyword":"enum","instancePath":"/status"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/valid/succeeded-null-data.json","expect":"valid"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/valid/rejected.json","expect":"valid"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/valid/confirmation-required.json","expect":"valid"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/succeeded-with-error.json","expect":"invalid","keyword":"not"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/succeeded-without-data.json","expect":"invalid","keyword":"required"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/rejected-without-error.json","expect":"invalid","keyword":"required"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/rejected-with-data.json","expect":"invalid","keyword":"not"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/failed-without-error.json","expect":"invalid","keyword":"required"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/confirmation-required-without-confirmation.json","expect":"invalid","keyword":"required"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/confirmation-required-with-error.json","expect":"invalid","keyword":"not"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/empty-error-code.json","expect":"invalid","keyword":"minLength","instancePath":"/error/code"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/empty-error-message.json","expect":"invalid","keyword":"minLength","instancePath":"/error/message"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/empty-challenge-id.json","expect":"invalid","keyword":"minLength","instancePath":"/confirmation/challengeId"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/empty-summary.json","expect":"invalid","keyword":"minLength","instancePath":"/confirmation/summary"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/invalid-confirmation-expires-at.json","expect":"invalid","keyword":"format","instancePath":"/confirmation/expiresAt"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/invalid/invalid-expires-at.json","expect":"invalid","keyword":"format","instancePath":"/expiresAt"},
+    {"schema":"invocation","path":"spec/0.1/fixtures/invocation/invalid/empty-binding-id.json","expect":"invalid","keyword":"minLength","instancePath":"/bindingId"},
+    {"schema":"invocation","path":"spec/0.1/fixtures/invocation/invalid/overlength-binding-id.json","expect":"invalid","keyword":"maxLength","instancePath":"/bindingId"},
+    {"schema":"runtime-binding","path":"spec/0.1/fixtures/runtime-binding/invalid/non-namespaced-extension.json","expect":"invalid","keyword":"pattern","instancePath":"/extensions"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/valid/sensitive-untrusted-output.json","expect":"valid"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/invalid-output-sensitivity-enum.json","expect":"invalid","keyword":"enum","instancePath":"/outputSensitivity"},
+    {"schema":"action-definition","path":"spec/0.1/fixtures/action-definition/invalid/invalid-output-content-trust-enum.json","expect":"invalid","keyword":"enum","instancePath":"/outputContentTrust"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/rejected-null-error.json","expect":"invalid","keyword":"type","instancePath":"/error"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/failed-null-error.json","expect":"invalid","keyword":"type","instancePath":"/error"},
+    {"schema":"action-result","path":"spec/0.1/fixtures/action-result/invalid/confirmation-required-null-confirmation.json","expect":"invalid","keyword":"type","instancePath":"/confirmation"}
   ]
 }
