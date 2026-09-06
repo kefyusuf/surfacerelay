@@ -3,121 +3,143 @@
 ## Review target
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Base:** `main` at `f9865d04e999054671c43a2c42a26fc1f5c8914b`
-- **Head branch:** `fix/m1-hardening`
-- **Scope:** completed M0 + M1 kernel plus M1.1 hardening and final external-review fixes.
-- **M2 status:** BLOCKED. `T-201` has not started.
+- **Base:** `main` at `11e7348cbee6f69fa8e502308f6db262bf78e271`
+- **Head branch:** `feat/livewire-runtime-binding`
+- **Scope:** T-201 only — generic RuntimeBinding model + Livewire component descriptor.
+- **M2 status:** IN PROGRESS.
+- **Next task:** T-202 has **not** started.
 
-## Architecture under review
+## T-201 architecture
 
 ```text
 ActionDefinition
-  → ActionRegistry
-  → trusted InvocationContext
-  → ActionBus
-      exact resolution
-      trusted-context gate
-      input validation
-      authorization
-      confirmation slot
-      idempotency slot
-      execution
-      output-policy slot
-      audit finalizer
-  → ActionPipelineOutcome
-  → safe ActionResult normalization
+      │
+      ▼
+RuntimeBinding
+├── bindingId
+├── exact action id + version
+├── driver
+├── lifecycle
+├── target
+├── expiresAt
+└── extensions
+      ▲
+      │
+LivewireBindingTarget
+├── componentId
+└── method
+
+LivewireRuntimeBinding::forComponent(...)
+    → driver=livewire
+    → lifecycle=component
 ```
 
-Output semantics:
+Production files added:
 
 ```text
-outputSensitivity  = normal | sensitive
-outputContentTrust = trusted_application_data | contains_untrusted_content
+packages/laravel/src/Binding/BindingLifecycle.php
+packages/laravel/src/Binding/InvalidRuntimeBinding.php
+packages/laravel/src/Binding/RuntimeBinding.php
+packages/laravel/src/Livewire/LivewireBindingTarget.php
+packages/laravel/src/Livewire/LivewireRuntimeBinding.php
 ```
 
-These dimensions are independent (D-032).
+Tests added:
 
-## Security invariants to re-check
+```text
+packages/laravel/tests/Unit/RuntimeBindingTest.php
+packages/laravel/tests/Unit/LivewireRuntimeBindingTest.php
+```
 
-1. Caller action input and `metadata` cannot satisfy trusted `ContextRequirement` entries.
-2. Actor/tenant are resolved before dispatch from injected trusted runtime/application services.
-3. Laravel validation forwards only the validated dataset.
-4. Laravel authorization uses the exact trusted actor with `Gate::forUser()`; no ambient-user fallback.
-5. Missing exact action versions, validation rules, authorization rules, or pipeline handlers do not become implicit allow.
-6. Binding/action identity does not silently float across versions.
-7. Reserved halt codes expose only code-specific safe detail shapes.
-8. Associative/non-list detail arrays are rejected rather than normalized into public details.
-9. Unknown halt codes are not guessed into public result statuses.
-10. Sensitive output does not suppress the untrusted-content signal.
+Design / plan:
 
-## M1.1 hardening summary
+```text
+docs/design/livewire-runtime-binding.md
+docs/plans/2026-09-06-livewire-runtime-binding.md
+```
 
-### H-001
+## Review invariants
 
-- Status-specific Action Result shapes are normative in JSON Schema.
-- `error` and `confirmation` are object-only when present; explicit `null` placeholders are invalid.
-- `date-time` formats use a real `FormatChecker`.
-- RuntimeBinding/Invocation `bindingId` constraints are drift-guarded.
-- RuntimeBinding extension key grammar is enforced.
+Please verify these boundaries directly in code:
 
-### H-002
+1. `ActionDefinition` contains no Livewire-specific fields.
+2. `RuntimeBinding` serializes only exact `ActionDefinition.id + version`; no version negotiation/fallback exists.
+3. `bindingId` is explicit input to the descriptor and is not treated as authorization.
+4. Driver grammar remains open/extensible and matches the frozen contract.
+5. `BindingLifecycle` values exactly match `page/component/session/persistent`.
+6. Generic `target` must be a non-empty string-keyed object.
+7. `expiresAt` is null or valid RFC3339 and is preserved verbatim.
+8. Extension keys use the frozen `namespace/key` grammar.
+9. `LivewireBindingTarget` stores only `componentId + method` and does not store component class/name as a fallback locator.
+10. `LivewireRuntimeBinding::forComponent()` fixes `driver=livewire` and `lifecycle=component`; callers cannot override either.
+11. No `livewire/livewire` dependency was added.
+12. No component lookup, method reflection, discovery, lifecycle producer, registry/store, invocation execution, or browser runtime behavior exists in T-201.
+13. `spec/0.1` is unchanged.
 
-- D-021 single-valued `outputTrust` model was superseded.
-- D-032 introduced independent `outputSensitivity` and `outputContentTrust`.
-- PHP, schema, fixtures, examples, TypeScript types, and WebMCP projection are aligned.
-- `sensitive + contains_untrusted_content` keeps `untrustedContentHint=true`.
+## TDD evidence
 
-### H-003
+RED:
 
-- `ext-mbstring` is declared.
-- `AgentAction` context requirements align with the canonical enum.
-- PHP enum vocabulary parity is exhaustive.
-- Halt details are sanitized by reserved error-code shape.
-- Confirmation challenge timestamps are RFC3339-validated.
+```text
+commit: 66041e403e423b010dc28efd84b5761fd37b2772
+PHP: 219 tests / 476 assertions / 30 failures
+```
 
-### H-004
+The failures were deliberate existence failures for the not-yet-implemented T-201 classes. Pre-existing contract, browser, and lint jobs remained green.
 
-- Full Apache-2.0 license published; D-018 ACCEPTED.
-- CI covers contract validation, PHP 8.3/8.4 × Illuminate 12/13, PHP lint, browser typecheck/tests.
-- Browser dependency install is lockfile-reproducible (`npm ci`).
-- Stale starter-package artifact removed.
-- Roadmap/task/status documentation aligned.
+Implementation commits:
 
-## Verification target
+```text
+28364e137b0b052eeaa0ea878739963e387ba7ed
+feat(laravel): add generic runtime binding model
 
-Expected final branch evidence after this review-fix commit:
+1e572894e8f0338465fa58593130d01d736fa68b
+feat(livewire): add component runtime binding descriptor
+```
+
+GREEN:
 
 ```text
 contract: 52 fixture manifest entries + 12 conformance scenarios
-PHP:      188 tests / 444 assertions
-browser:  typecheck + 3 tests
-CI:       contract + four PHP matrix jobs + php-lint + browser
+PHP:      219 tests / 569 assertions
+browser:  TypeScript typecheck + 3 Vitest tests
+CI:       contract + PHP 8.3/8.4 × Illuminate 12/13 + php-lint + browser
 ```
 
-All GitHub Actions jobs must be green before review approval.
+All jobs passed on the implementation commit.
+
+## Deliberate non-goals
+
+T-201 does not implement:
+
+- binding ID issuance/generation;
+- binding registry/storage/revocation;
+- lifecycle invalidation/stale lookup;
+- explicit Livewire action exposure/discovery;
+- `Livewire\Component` integration;
+- component existence lookup;
+- method reflection;
+- method execution;
+- ActionBus binding resolution;
+- browser execution / `Livewire.find()` / `$wire.$call()`;
+- current record/selection projection.
+
+These remain assigned to later tasks.
 
 ## Decision status
 
-Accepted and relevant:
+Relevant accepted decisions:
 
-- D-007 trusted authority cannot come from caller input.
-- D-017 `current_selection` is trusted runtime context.
-- D-018 Apache-2.0.
-- D-027 trusted/non-authoritative invocation-context separation.
-- D-028 actor/tenant trusted resolver boundary.
-- D-029 exact trusted actor authorization.
-- D-030 extensible error-code namespace.
-- D-031 public result status semantics.
-- D-032 independent output sensitivity/content trust.
+- D-016 extensible binding drivers.
+- D-022 exact issued binding identity; no silent retarget.
+- D-023 lifecycle semantics.
+- D-024 cumulative binding validity.
+- D-025 stale bindings fail closed.
 
 Still PROPOSED:
 
-- D-019 Filament first production vertical.
-- D-020 HTMX second binding.
-- D-026 binding error codes until M2 behavior exists.
-
-D-021 is SUPERSEDED by D-032.
+- D-026 binding failure codes until resolution behavior exists.
 
 ## Explicit statement
 
-**M2/T-201 has not started.** The next action is M2 kickoff only after this external review passes.
+**T-201 is implemented and awaiting external review. T-202 has NOT started.**

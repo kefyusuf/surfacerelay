@@ -2,7 +2,7 @@
 
 Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 
-A task is DONE only after its required verification passes. SurfaceRelay implements one task at a time; do not begin the next task automatically.
+A task is DONE only after required verification passes. SurfaceRelay implements one task at a time; do not begin the next task automatically.
 
 ## M0 — Contract Foundation — DONE
 
@@ -31,7 +31,7 @@ A task is DONE only after its required verification passes. SurfaceRelay impleme
 | T-109 — Gate/Policy authorization adapter | DONE | Exact trusted actor via user-scoped Gate. |
 | T-110 — Normalized ActionResult/Error model | DONE | Safe public result/status/error normalization. |
 
-## M1.1 — Hardening — DONE, pending final external approval
+## M1.1 — Hardening — DONE / REVIEWED
 
 | Task | Status | Outcome |
 |---|---|---|
@@ -46,27 +46,51 @@ A task is DONE only after its required verification passes. SurfaceRelay impleme
 | R-004 — Source-of-truth final alignment | DONE | TASKS/STATUS/REVIEW_REQUEST + D-017 aligned. |
 | R-005 — Browser CI reproducibility | DONE | Lockfile installs use `npm ci`. |
 
-**M2 remains BLOCKED until final M1.1 external review passes.**
+Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ---
 
-## M2 — Livewire Binding — BLOCKED
+## M2 — Livewire Binding — IN PROGRESS
 
-### T-201 — Implement Livewire RuntimeBinding descriptor — TODO
+### T-201 — Implement Livewire RuntimeBinding descriptor — DONE
 
 **Goal:** Represent Livewire-specific execution target data only in RuntimeBinding/driver code.
 
+**Implemented:**
+
+- `BindingLifecycle` exact frozen vocabulary: `page/component/session/persistent`.
+- immutable generic `RuntimeBinding` over exact `ActionDefinition.id + version`.
+- construction validation for binding ID, driver grammar, non-empty object target, RFC3339 expiry, and namespaced extensions.
+- `LivewireBindingTarget(componentId, method)` with no class/name fallback locator.
+- `LivewireRuntimeBinding::forComponent()` fixes `driver=livewire` and `lifecycle=component`.
+- deterministic serialization matches the existing Livewire RuntimeBinding fixture shape.
+- no `livewire/livewire` dependency and no execution/discovery/lifecycle behavior.
+
+**Verification:**
+
+```text
+TDD RED: 66041e403e423b010dc28efd84b5761fd37b2772
+Implementation: 28364e137b0b052eeaa0ea878739963e387ba7ed + 1e572894e8f0338465fa58593130d01d736fa68b
+PHP: 219 tests / 569 assertions
+Contract: 52 fixture manifest entries + 12 conformance scenarios
+Browser: typecheck + 3 tests
+CI: all matrix jobs green
+```
+
 **Acceptance:**
-- component instance identity and callable/action mapping are outside `ActionDefinition`;
+- component instance identity and callable mapping remain outside `ActionDefinition`;
 - exact Action Definition `id + version`;
 - explicit binding identity;
-- no silent target/version fallback.
+- no silent target/version fallback;
+- no T-202/T-203/T-304 implementation mixed in.
 
 ### T-202 — Implement explicit Livewire action exposure API — TODO
 
 **Goal:** Mounted components explicitly expose actions/bindings.
 
 **Acceptance:** no reflection-based “expose all public methods” path.
+
+**Do not begin until T-201 external review completes.**
 
 ### T-203 — Implement Livewire binding lifecycle producer — TODO
 
