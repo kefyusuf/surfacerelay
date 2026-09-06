@@ -116,7 +116,7 @@ describe('LivewireBrowserDriver', () => {
   });
 
   it('accepts null/absent and future RFC3339 expiry', async () => {
-    for (const expiresAt of [null, undefined, '2026-09-07T00:00:00.123456789+00:30']) {
+    for (const expiresAt of [null, undefined, '2026-09-07T01:00:00.123456789+00:30']) {
       const targetWire = wire();
       const fixture = driver(targetWire);
       const value = binding();
