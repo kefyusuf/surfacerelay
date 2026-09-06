@@ -6,149 +6,131 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/livewire-runtime-binding`
-- **Reviewed main baseline:** `11e7348cbee6f69fa8e502308f6db262bf78e271`
+- **Branch:** `feat/livewire-action-exposure`
+- **Main baseline:** `2f474f2f2362cbef2969724d0aa445d232c78d30`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; **M2 IN PROGRESS**
-- **Last completed task:** `T-201 — Livewire RuntimeBinding descriptor`
-- **Next task:** `T-202 — Explicit Livewire action exposure API` — **not started**
+- **Last completed task:** `T-202 — Explicit Livewire action exposure API`
+- **Next task:** `T-203 — Livewire binding lifecycle producer` — **not started**
 - **Contract version:** `0.1-draft`
-- **Spec status:** `spec/0.1` remains frozen; T-201 required no schema change.
+- **Spec status:** `spec/0.1` remains frozen and unchanged by T-202.
 - **Contract baseline:** **52 fixture manifest entries + 12 conformance scenarios**.
-- **PHP baseline:** **227 tests / 577 assertions** across PHP 8.3/8.4 × Illuminate 12/13 CI.
+- **PHP baseline:** **242 tests / 667 assertions** across PHP 8.3/8.4 × Illuminate 12/13 CI.
 - **Browser baseline:** TypeScript typecheck + **3 Vitest tests**.
-- **CI jobs:** contract, four PHP matrix jobs, PHP lint, browser typecheck/tests — all green for the final T-201 review-fix commit.
+- **CI jobs:** contract, four PHP matrix jobs, PHP lint, browser typecheck/tests — all green for final T-202 implementation head.
 
 ## Current objective
 
-Final external review of T-201 before beginning T-202.
+External-style review of T-202 before beginning T-203.
 
-## T-201 — Runtime Binding descriptor
+## T-202 — Explicit Livewire action exposure
 
 Implemented:
 
 ```text
-packages/laravel/src/Binding/
-├── BindingLifecycle.php
-├── InvalidRuntimeBinding.php
-└── RuntimeBinding.php
-
 packages/laravel/src/Livewire/
-├── LivewireBindingTarget.php
-└── LivewireRuntimeBinding.php
+├── Attributes/
+│   └── ExposeAction.php
+└── Exposure/
+    ├── InvalidLivewireActionExposure.php
+    ├── LivewireActionExposure.php
+    └── LivewireActionExposureReader.php
 ```
 
-### Generic RuntimeBinding
+### Exposure declaration
 
-`RuntimeBinding` is the protocol-neutral PHP representation of the frozen Runtime Binding contract. It carries:
+A method is a SurfaceRelay exposure candidate only when it explicitly carries:
 
-- explicit `bindingId`;
-- exact `ActionDefinition` reference, serialized as `action.id + version`;
-- extensible driver string;
-- frozen lifecycle enum;
-- non-empty driver-owned target object;
-- optional RFC3339 expiry;
-- namespaced extensions.
-
-It validates construction only. It does not resolve, authorize, discover, execute, refresh, revoke, store, or silently retarget bindings.
-
-### Livewire descriptor
-
-`LivewireBindingTarget` contains only:
-
-```text
-componentId
-method
+```php
+#[ExposeAction(id: 'action.id', version: 1)]
 ```
 
-`LivewireRuntimeBinding::forComponent(...)` always produces:
+An ordinary public method is ignored. Public Livewire callability is not treated as SurfaceRelay exposure authority.
 
-```text
-driver    = livewire
-lifecycle = component
-```
+### Reader invariants
 
-Neither value is caller-configurable. The descriptor uses exact mounted-component identity only; no component class/name fallback is stored.
+`LivewireActionExposureReader`:
 
-### RFC3339 contract parity review fix
+- inspects attributes but never invokes component methods;
+- accepts only concrete-class public instance declarations;
+- does not automatically inherit a parent-only exposure annotation;
+- rejects annotated protected/private/static methods as configuration errors;
+- rejects duplicate `ExposeAction` declarations on one method;
+- resolves the exact registered Action Definition with `ActionRegistry::get(id, version)`;
+- does not perform latest-version/fuzzy/method-name fallback;
+- rejects the same exact action identity mapped to more than one method;
+- preserves different versions of the same action as separate exact identities;
+- returns deterministic ordering by action ID, version, then method;
+- reuses the exact registered `ActionDefinition` object.
 
-Final review found that the initial native-PHP date parser did not exactly match the repository's JSON Schema `date-time` checker. Both `ConfirmationChallenge` and `RuntimeBinding` are now aligned to the checker semantics:
-
-- arbitrary-length fractional seconds are accepted;
-- year `0000` is rejected;
-- timezone hours are restricted to `00..23`;
-- timezone minutes are restricted to `00..59`;
-- impossible calendar dates fail via `checkdate()`;
-- valid input remains verbatim and is never normalized.
-
-No schema or dependency change was required.
+Exposure remains strictly weaker than discovery authorization and invocation authorization.
 
 ### Deliberately not implemented
 
 - no `livewire/livewire` dependency;
-- no component lookup;
-- no method reflection;
+- no mounted component ID lookup;
+- no RuntimeBinding issuance;
 - no binding ID generation;
-- no binding registry/store;
-- no stale/lifecycle producer;
-- no action discovery/exposure API;
-- no Livewire execution;
-- no browser-runtime change;
-- no ActionDefinition Livewire fields;
-- no action-version fallback.
+- no binding registry/revocation/stale tracking;
+- no discovery authorization policy;
+- no invocation authorization change;
+- no component method execution;
+- no ActionBus integration;
+- no browser-runtime execution;
+- no automatic Action Definition creation from reflected methods.
 
-These boundaries remain assigned to T-202/T-203/T-204/T-304.
+These remain later-task concerns, beginning with T-203.
 
-## T-201 verification
+## TDD / verification evidence
 
-### Descriptor TDD cycle
-
-1. RED: `66041e403e423b010dc28efd84b5761fd37b2772`
-   - 219 tests executed;
-   - 30 expected T-201 failures because descriptor classes did not exist;
-   - pre-existing contract, lint, and browser jobs remained green.
-2. Generic model: `28364e137b0b052eeaa0ea878739963e387ba7ed`.
-3. Livewire descriptor: `1e572894e8f0338465fa58593130d01d736fa68b`.
-4. Initial checkpoint: `a4256e20d5be422a76959b44814f41deda9c9ac2`.
-
-### RFC3339 parity TDD cycle
-
-1. RED: `060a68b6d70de1caa971253737c24be8122a9999`
-   - 227 tests / 575 assertions;
-   - 2 errors + 6 failures precisely exposed checker/PHP semantic drift.
-2. GREEN fix: `563a3e06aed5c60c1f30ed83cf5a3bb341bb68a0`.
-   - all CI jobs green.
-
-Observed final PHP result on PHP 8.3 + Illuminate 12:
+RED:
 
 ```text
-OK (227 tests, 577 assertions)
+35850ce5c2bb8bdb78dda7bf63791f46d7cbf4ef
+test(livewire): define T-202 explicit exposure behavior
+
+PHP: 242 tests / 592 assertions / 15 expected failures
 ```
 
-The other three PHP/Illuminate matrix combinations also passed.
+All 15 failures were the new T-202 tests proving the exposure classes did not yet exist. Contract and browser checks remained green.
+
+Implementation:
+
+```text
+4a79e6302ea0f138b28bd6a8646fc19d88274cfa
+feat(livewire): add explicit exposure vocabulary
+
+471769c7eda6767e6bf19b08d3cdd828e2c8053d
+feat(livewire): resolve explicit action exposures
+
+2fb1fffe9a5bb966b1c4629c676bf30d8ac22b8f
+refactor(livewire): resolve exposure with exact registry lookup
+```
+
+Final observed PHP result:
+
+```text
+OK (242 tests, 667 assertions)
+```
+
+All PHP/Illuminate matrix combinations, contract validation, PHP lint, and browser checks passed.
 
 ## Security / architecture invariants carried forward
 
-1. Caller input still cannot manufacture trusted actor, tenant, selection, confirmation, or binding authority.
-2. A binding ID remains a reference, never authorization by itself.
-3. RuntimeBinding action identity is exact `id + version`; there is no latest/fallback behavior.
-4. Livewire component target identity is exact instance ID; no replacement lookup exists.
-5. `driver=livewire` and `lifecycle=component` are fixed by the Livewire factory.
-6. T-201 introduces no discovery/exposure mechanism and cannot expose public methods automatically.
-7. PHP date-time validation now agrees with the language-neutral schema checker.
+1. Explicit exposure is an allow-list declaration, not reflection-based public-method exposure.
+2. Exposure is not discovery authorization and not invocation authorization.
+3. Exact Action Definition `id + version` is required; no version fallback exists.
+4. Parent-class exposure metadata does not silently propagate to child components.
+5. Reader reflection never invokes component code.
+6. ActionDefinition remains free of Livewire-specific target/method identity.
+7. T-202 issues no RuntimeBinding and creates no trusted runtime authority.
 8. Frozen `spec/0.1` is unchanged.
 
 ## Decisions
 
-- D-016 ACCEPTED — extensible binding drivers; unsupported drivers fail closed when runtime resolution exists.
-- D-017 ACCEPTED — `current_selection` is trusted runtime context.
-- D-018 ACCEPTED — Apache-2.0.
-- D-021 SUPERSEDED by D-032.
-- D-022..D-025 ACCEPTED — binding identity/lifecycle/stale semantics.
-- D-026 remains PROPOSED until binding-resolution failure behavior is implemented.
-- D-032 ACCEPTED — output sensitivity/content trust are independent.
+Existing accepted decisions remain unchanged. D-026 remains PROPOSED until binding-resolution failure behavior exists.
 
 ## Next task
 
-`T-202 — Implement explicit Livewire action exposure API`
+`T-203 — Implement Livewire binding lifecycle producer`
 
-**Do not begin T-202 until T-201 external review completes.**
+**Do not begin T-203 until T-202 review completes.**

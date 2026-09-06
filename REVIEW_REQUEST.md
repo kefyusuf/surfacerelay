@@ -3,173 +3,132 @@
 ## Review target
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Base:** `main` at `11e7348cbee6f69fa8e502308f6db262bf78e271`
-- **Head branch:** `feat/livewire-runtime-binding`
-- **Scope:** T-201 only — generic RuntimeBinding model, Livewire component descriptor, and final RFC3339 contract-parity correction discovered during review.
+- **Base:** `main` at `2f474f2f2362cbef2969724d0aa445d232c78d30`
+- **Head branch:** `feat/livewire-action-exposure`
+- **Scope:** T-202 only — explicit method-level Livewire action exposure declaration and exact registry-backed exposure resolution.
 - **M2 status:** IN PROGRESS.
-- **Next task:** T-202 has **not** started.
+- **Next task:** T-203 has **not** started.
 
-## T-201 architecture
+## T-202 architecture
 
 ```text
-ActionDefinition
+concrete component
       │
       ▼
-RuntimeBinding
-├── bindingId
-├── exact action id + version
-├── driver
-├── lifecycle
-├── target
-├── expiresAt
-└── extensions
-      ▲
+method #[ExposeAction(id, version)]
       │
-LivewireBindingTarget
-├── componentId
-└── method
-
-LivewireRuntimeBinding::forComponent(...)
-    → driver=livewire
-    → lifecycle=component
+      ▼
+LivewireActionExposureReader
+      │ exact ActionRegistry::get(id, version)
+      ▼
+LivewireActionExposure
+├── exact ActionDefinition object
+└── concrete method name
+      │
+      ▼
+T-203 (not implemented)
 ```
 
 Production files added:
 
 ```text
-packages/laravel/src/Binding/BindingLifecycle.php
-packages/laravel/src/Binding/InvalidRuntimeBinding.php
-packages/laravel/src/Binding/RuntimeBinding.php
-packages/laravel/src/Livewire/LivewireBindingTarget.php
-packages/laravel/src/Livewire/LivewireRuntimeBinding.php
+packages/laravel/src/Livewire/Attributes/ExposeAction.php
+packages/laravel/src/Livewire/Exposure/InvalidLivewireActionExposure.php
+packages/laravel/src/Livewire/Exposure/LivewireActionExposure.php
+packages/laravel/src/Livewire/Exposure/LivewireActionExposureReader.php
 ```
 
 Tests added:
 
 ```text
-packages/laravel/tests/Unit/RuntimeBindingTest.php
-packages/laravel/tests/Unit/LivewireRuntimeBindingTest.php
-packages/laravel/tests/Unit/Rfc3339ParityTest.php
+packages/laravel/tests/Unit/LivewireActionExposureReaderTest.php
 ```
 
 Design / plan:
 
 ```text
-docs/design/livewire-runtime-binding.md
-docs/plans/2026-09-06-livewire-runtime-binding.md
+docs/design/livewire-action-exposure.md
+docs/plans/2026-09-06-livewire-action-exposure.md
 ```
 
 ## Review invariants
 
-Please verify these boundaries directly in code:
+Please verify directly in code:
 
-1. `ActionDefinition` contains no Livewire-specific fields.
-2. `RuntimeBinding` serializes only exact `ActionDefinition.id + version`; no version negotiation/fallback exists.
-3. `bindingId` is explicit input to the descriptor and is not treated as authorization.
-4. Driver grammar remains open/extensible and matches the frozen contract.
-5. `BindingLifecycle` values exactly match `page/component/session/persistent`.
-6. Generic `target` must be a non-empty string-keyed object.
-7. `expiresAt` is null or schema-checker-compatible RFC3339 and is preserved verbatim.
-8. Extension keys use the frozen `namespace/key` grammar.
-9. `LivewireBindingTarget` stores only `componentId + method` and does not store component class/name as a fallback locator.
-10. `LivewireRuntimeBinding::forComponent()` fixes `driver=livewire` and `lifecycle=component`; callers cannot override either.
-11. No `livewire/livewire` dependency was added.
-12. No component lookup, method reflection, discovery, lifecycle producer, registry/store, invocation execution, or browser runtime behavior exists in T-201.
-13. `spec/0.1` is unchanged.
-14. PHP RFC3339 acceptance/rejection matches the repository JSON Schema checker for long fractional seconds, year zero, timezone bounds, and impossible dates.
+1. Only explicit `#[ExposeAction]` methods become exposure candidates.
+2. Unannotated public methods are ignored; there is no expose-all-public-methods path.
+3. Exposure is not discovery authorization and not invocation authorization.
+4. The reader never invokes reflected component methods.
+5. Only an annotation declared by the concrete inspected class is accepted; parent-only exposure does not propagate automatically.
+6. Annotated protected/private/static concrete methods fail loudly as configuration errors.
+7. Duplicate `ExposeAction` attributes on one method fail through `InvalidLivewireActionExposure` before attribute instantiation.
+8. Exact `ActionRegistry::get(id, version)` resolution is used; no latest/same-ID/fuzzy fallback exists.
+9. Different versions of one action remain distinct exact identities.
+10. One exact action identity cannot map to multiple methods on the same component.
+11. Results are deterministic by action ID, version, method.
+12. The exact registered `ActionDefinition` object is reused; no second definition is constructed or mutated.
+13. No RuntimeBinding, component ID, binding ID, lifecycle, stale state, or execution behavior is introduced.
+14. No `livewire/livewire` Composer dependency is introduced.
+15. `spec/0.1` is unchanged.
 
 ## TDD evidence
-
-### Descriptor RED
-
-```text
-commit: 66041e403e423b010dc28efd84b5761fd37b2772
-PHP: 219 tests / 476 assertions / 30 failures
-```
-
-The failures were deliberate existence failures for the not-yet-implemented T-201 classes. Pre-existing contract, browser, and lint jobs remained green.
-
-Implementation commits:
-
-```text
-28364e137b0b052eeaa0ea878739963e387ba7ed
-feat(laravel): add generic runtime binding model
-
-1e572894e8f0338465fa58593130d01d736fa68b
-feat(livewire): add component runtime binding descriptor
-```
-
-### RFC3339 parity review cycle
-
-Review exposed a cross-language mismatch inherited from the earlier confirmation model and copied into RuntimeBinding.
 
 RED:
 
 ```text
-060a68b6d70de1caa971253737c24be8122a9999
-test(spec): expose PHP RFC3339 parity gaps
+35850ce5c2bb8bdb78dda7bf63791f46d7cbf4ef
+test(livewire): define T-202 explicit exposure behavior
 
-PHP: 227 tests / 575 assertions
-2 errors + 6 failures
+PHP: 242 tests / 592 assertions / 15 failures
 ```
 
-The regression proved that the previous PHP parser:
+The 15 failures were deliberate existence failures for the new T-202 classes. Pre-existing contract and browser checks remained green.
 
-- rejected a schema-valid 7-digit fractional second;
-- accepted year `0000`;
-- accepted timezone hour `24`;
-- accepted timezone minute `60`.
-
-GREEN:
+Implementation:
 
 ```text
-563a3e06aed5c60c1f30ed83cf5a3bb341bb68a0
-fix(spec): align PHP RFC3339 validation
+4a79e6302ea0f138b28bd6a8646fc19d88274cfa
+feat(livewire): add explicit exposure vocabulary
+
+471769c7eda6767e6bf19b08d3cdd828e2c8053d
+feat(livewire): resolve explicit action exposures
+
+2fb1fffe9a5bb966b1c4629c676bf30d8ac22b8f
+refactor(livewire): resolve exposure with exact registry lookup
 ```
 
 Final evidence:
 
 ```text
 contract: 52 fixture manifest entries + 12 conformance scenarios
-PHP:      227 tests / 577 assertions
+PHP:      242 tests / 667 assertions
 browser:  TypeScript typecheck + 3 Vitest tests
 CI:       contract + PHP 8.3/8.4 × Illuminate 12/13 + php-lint + browser
 ```
 
-All jobs passed on the final review-fix commit.
+All jobs passed on the exact-lookup implementation head.
 
 ## Deliberate non-goals
 
-T-201 does not implement:
+T-202 does not implement:
 
-- binding ID issuance/generation;
+- RuntimeBinding issuance;
+- binding ID generation;
+- mounted component ID resolution;
 - binding registry/storage/revocation;
-- lifecycle invalidation/stale lookup;
-- explicit Livewire action exposure/discovery;
-- `Livewire\Component` integration;
-- component existence lookup;
-- method reflection;
-- method execution;
-- ActionBus binding resolution;
-- browser execution / `Livewire.find()` / `$wire.$call()`;
-- current record/selection projection.
-
-These remain assigned to later tasks.
+- lifecycle invalidation/stale detection;
+- discovery authorization;
+- invocation authorization changes;
+- Livewire method execution;
+- ActionBus binding integration;
+- browser `Livewire.find()` / `$wire.$call()` execution;
+- current record/selection projection;
+- method-signature → ActionDefinition compilation.
 
 ## Decision status
 
-Relevant accepted decisions:
-
-- D-016 extensible binding drivers.
-- D-022 exact issued binding identity; no silent retarget.
-- D-023 lifecycle semantics.
-- D-024 cumulative binding validity.
-- D-025 stale bindings fail closed.
-
-Still PROPOSED:
-
-- D-026 binding failure codes until resolution behavior exists.
+No decision-register changes were required by T-202. D-026 remains PROPOSED until binding-resolution failure behavior exists.
 
 ## Explicit statement
 
-**T-201 is implemented and final CI is green. T-202 has NOT started.**
+**T-202 is implemented and final CI is green. T-203 has NOT started.**

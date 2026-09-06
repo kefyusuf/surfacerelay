@@ -54,54 +54,54 @@ Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ### T-201 — Implement Livewire RuntimeBinding descriptor — DONE
 
-**Goal:** Represent Livewire-specific execution target data only in RuntimeBinding/driver code.
+**Outcome:** generic immutable RuntimeBinding + typed Livewire component target; exact action identity; `driver=livewire`; `lifecycle=component`; RFC3339 contract parity; no execution/discovery/lifecycle producer.
+
+**Verification:** PHP 227 tests / 577 assertions; contract 52 fixture entries + 12 conformance scenarios; browser 3 tests; full matrix green.
+
+### T-202 — Implement explicit Livewire action exposure API — DONE
+
+**Goal:** Concrete components explicitly nominate exact registered actions through specific public instance methods.
 
 **Implemented:**
 
-- `BindingLifecycle` exact frozen vocabulary: `page/component/session/persistent`.
-- immutable generic `RuntimeBinding` over exact `ActionDefinition.id + version`.
-- construction validation for binding ID, driver grammar, non-empty object target, RFC3339 expiry, and namespaced extensions.
-- `LivewireBindingTarget(componentId, method)` with no class/name fallback locator.
-- `LivewireRuntimeBinding::forComponent()` fixes `driver=livewire` and `lifecycle=component`.
-- deterministic serialization matches the existing Livewire RuntimeBinding fixture shape.
-- no `livewire/livewire` dependency and no execution/discovery/lifecycle behavior.
-- final review aligned PHP RFC3339 validation with the JSON Schema checker: arbitrary fractional seconds accepted; year zero and invalid timezone bounds rejected; calendar validity enforced.
+- method-level `#[ExposeAction(id, version)]` allow-list declaration;
+- immutable `LivewireActionExposure` carrying the exact registered `ActionDefinition` object + method name;
+- `LivewireActionExposureReader` using exact `ActionRegistry::get(id, version)`;
+- unannotated public methods are ignored;
+- parent-only annotations do not auto-expose on child components;
+- annotated protected/private/static concrete methods fail loudly;
+- duplicate attributes and duplicate exact action identity mappings fail loudly;
+- different action versions remain distinct;
+- deterministic ordering by action ID/version/method;
+- reader never invokes component methods;
+- no `livewire/livewire` dependency.
 
 **Verification:**
 
 ```text
-Descriptor RED: 66041e403e423b010dc28efd84b5761fd37b2772
-Generic model: 28364e137b0b052eeaa0ea878739963e387ba7ed
-Livewire descriptor: 1e572894e8f0338465fa58593130d01d736fa68b
-RFC3339 parity RED: 060a68b6d70de1caa971253737c24be8122a9999
-RFC3339 parity GREEN: 563a3e06aed5c60c1f30ed83cf5a3bb341bb68a0
-PHP: 227 tests / 577 assertions
+RED: 35850ce5c2bb8bdb78dda7bf63791f46d7cbf4ef
+Vocabulary: 4a79e6302ea0f138b28bd6a8646fc19d88274cfa
+Reader: 471769c7eda6767e6bf19b08d3cdd828e2c8053d
+Exact lookup review refactor: 2fb1fffe9a5bb966b1c4629c676bf30d8ac22b8f
+PHP: 242 tests / 667 assertions
 Contract: 52 fixture manifest entries + 12 conformance scenarios
 Browser: typecheck + 3 tests
 CI: all matrix jobs green
 ```
 
 **Acceptance:**
-- component instance identity and callable mapping remain outside `ActionDefinition`;
-- exact Action Definition `id + version`;
-- explicit binding identity;
-- no silent target/version fallback;
-- date-time acceptance/rejection matches the language-neutral schema checker;
-- no T-202/T-203/T-304 implementation mixed in.
-
-### T-202 — Implement explicit Livewire action exposure API — TODO
-
-**Goal:** Mounted components explicitly expose actions/bindings.
-
-**Acceptance:** no reflection-based “expose all public methods” path.
-
-**Do not begin until T-201 external review completes.**
+- no reflection-based “expose all public methods” path;
+- exact action `id + version` only;
+- exposure is not discovery or invocation authorization;
+- no RuntimeBinding issuance or T-203 lifecycle behavior mixed in.
 
 ### T-203 — Implement Livewire binding lifecycle producer — TODO
 
 **Goal:** Issue mounted binding descriptors and invalidate them on lifecycle/navigation replacement.
 
 **Acceptance:** stale/replaced component bindings fail closed; no silent retargeting.
+
+**Do not begin until T-202 review completes.**
 
 ### T-204 — End-to-end Prep List through shared ActionBus — TODO
 
