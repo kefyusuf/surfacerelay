@@ -23,13 +23,17 @@ jobs:
         include:
           - php-version: '8.3'
             illuminate-version: '^12.0'
+            testbench-version: '^10.0'
           - php-version: '8.3'
             illuminate-version: '^13.0'
+            testbench-version: '^11.0'
           - php-version: '8.4'
             illuminate-version: '^12.0'
+            testbench-version: '^10.0'
           - php-version: '8.4'
             illuminate-version: '^13.0'
-    name: php-tests (PHP ${{ matrix.php-version }}, Illuminate ${{ matrix.illuminate-version }})
+            testbench-version: '^11.0'
+    name: php-tests (PHP ${{ matrix.php-version }}, Illuminate ${{ matrix.illuminate-version }}, Testbench ${{ matrix.testbench-version }})
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -43,6 +47,12 @@ jobs:
           "illuminate/contracts:${{ matrix.illuminate-version }}"
           "illuminate/support:${{ matrix.illuminate-version }}"
           "illuminate/validation:${{ matrix.illuminate-version }}"
+      - name: Constrain Testbench and Livewire integration dependencies
+        working-directory: packages/laravel
+        run: >-
+          composer require --dev --no-interaction --no-progress --no-update
+          "orchestra/testbench:${{ matrix.testbench-version }}"
+          "livewire/livewire:^4.4"
       - name: Install dependencies
         working-directory: packages/laravel
         run: composer update --no-interaction --no-progress --prefer-dist
