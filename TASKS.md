@@ -52,13 +52,13 @@ Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ## M2 — Livewire Binding — IN PROGRESS
 
-### T-201 — Implement Livewire RuntimeBinding descriptor — DONE
+### T-201 — Implement Livewire RuntimeBinding descriptor — DONE / REVIEWED
 
 **Outcome:** generic immutable RuntimeBinding + typed Livewire component target; exact action identity; `driver=livewire`; `lifecycle=component`; RFC3339 contract parity; no execution/discovery/lifecycle producer.
 
 **Verification:** PHP 227 tests / 577 assertions; contract 52 fixture entries + 12 conformance scenarios; browser 3 tests; full matrix green.
 
-### T-202 — Implement explicit Livewire action exposure API — DONE
+### T-202 — Implement explicit Livewire action exposure API — DONE / REVIEWED
 
 **Goal:** Concrete components explicitly nominate exact registered actions through specific public instance methods.
 
@@ -83,10 +83,11 @@ RED: 35850ce5c2bb8bdb78dda7bf63791f46d7cbf4ef
 Vocabulary: 4a79e6302ea0f138b28bd6a8646fc19d88274cfa
 Reader: 471769c7eda6767e6bf19b08d3cdd828e2c8053d
 Exact lookup review refactor: 2fb1fffe9a5bb966b1c4629c676bf30d8ac22b8f
+Reviewed/merged main checkpoint: 40dce9f460c1c6e83dc9a8b8548abe0c49ae4f77
 PHP: 242 tests / 667 assertions
 Contract: 52 fixture manifest entries + 12 conformance scenarios
 Browser: typecheck + 3 tests
-CI: all matrix jobs green
+CI: feature head and merged main all matrix jobs green
 ```
 
 **Acceptance:**
@@ -101,7 +102,7 @@ CI: all matrix jobs green
 
 **Acceptance:** stale/replaced component bindings fail closed; no silent retargeting.
 
-**Do not begin until T-202 review completes.**
+**Status:** next task, not started.
 
 ### T-204 — End-to-end Prep List through shared ActionBus — TODO
 
