@@ -1,104 +1,205 @@
 # Project Status
 
-> Current repository state for implementation and review.
+> Current repository state for implementation and external review.
 
 ## Snapshot
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Reviewed T-203 implementation checkpoint:** `bd69e135cbabb1b3828c51c9cef2293737e8a5be`
-- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; **M2 IN PROGRESS**
-- **Last completed/reviewed task:** `T-203 — Livewire mounted binding producer`
-- **Next task:** `T-204 — End-to-end Prep List through shared ActionBus` — **not started**
+- **Branch:** `feat/prep-list-e2e`
+- **Main baseline:** `44eb738bae54c8066e04ccc015edfea160de58f2`
+- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; **M2 IMPLEMENTATION COMPLETE / REVIEW PENDING**
+- **Last completed task:** `T-204 — Prep List shared ActionBus E2E`
+- **Next task:** `T-301 — DriverRegistry` — **not started**
 - **Contract version:** `0.1-draft`
-- **Spec status:** `spec/0.1` remains frozen and unchanged by T-203.
+- **Spec status:** `spec/0.1` remains frozen and unchanged by T-204.
 - **Contract baseline:** **52 fixture manifest entries + 12 conformance scenarios**.
-- **PHP baseline:** **256 tests / 709 assertions** across PHP 8.3/8.4 × Illuminate 12/13 CI.
+- **PHP baseline:** **266 tests / 783 assertions**.
+- **Integration matrix:** PHP 8.3/8.4 × Illuminate 12/13 × Testbench 10/11 with Livewire 4.4 — all green on T-204 implementation head.
+- **Observed Livewire:** `v4.4.3` in the current matrix run.
 - **Browser baseline:** TypeScript typecheck + **3 Vitest tests**.
-- **CI:** contract, four PHP matrix jobs, PHP lint, and browser checks are green on both the T-203 feature checkpoint and merged `main` checkpoint.
 
 ## Current objective
 
-T-203 is reviewed, merged, and closed. T-204 is next but has not started; its end-to-end execution boundary must be designed before implementation.
+External-style review of T-204 and the complete M2 Livewire vertical before beginning M3/T-301.
 
-## T-203 — Livewire mounted binding producer
+## T-204 — Prep List shared ActionBus E2E
 
-Implemented:
+T-204 proves the first complete Livewire reference path without adding an agent-only business endpoint.
 
 ```text
-packages/laravel/src/Binding/
-├── BindingIdGenerator.php
-└── RandomBindingIdGenerator.php
-
-packages/laravel/src/Livewire/
-├── Identity/
-│   ├── LivewireComponentIdentityResolver.php
-│   └── MethodLivewireComponentIdentityResolver.php
-└── Binding/
-    ├── InvalidLivewireBindingProduction.php
-    └── LivewireBindingProducer.php
+Human Livewire call ───────────────┐
+                                   ▼
+                            PrepListComponent::addItem
+                                   │
+Binding-derived invocation ────────┘
+                                   │
+                                   ▼
+                              ActionBus
+                                   │
+                                   ▼
+                         ActionExecutionStage
+                                   │
+                                   ▼
+                         PrepListActionExecutor
+                                   │
+                                   ▼
+                           AddPrepListItem
+                                   │
+                                   ▼
+                             PrepListStore
 ```
 
-### Reviewed invariants
+The binding-derived test does not claim the M3 browser driver exists. It obtains an actual Livewire component instance, produces a T-203 RuntimeBinding, verifies the exact component ID/action/method target, and asks the real Livewire test harness to call precisely that binding target method.
 
-1. Producer accepts a trusted component object; caller input supplies neither `componentId` nor `bindingId`.
-2. Reference identity resolution requires a real callable `getId()` and a non-empty string result; there is no component-name/class fallback.
-3. T-202 exact exposures are the only action/method mapping source.
-4. Exact registered `ActionDefinition` objects are reused; no version or method fallback exists.
-5. Every exposure requests a fresh opaque binding ID; the default generator uses native `random_bytes()` and does not derive identity from action/component/method data.
-6. Duplicate generated IDs inside one issuance batch fail loudly.
-7. Repeated issuance for the same component produces new binding IDs while retaining the exact target.
-8. Replacement components produce new exact targets; old immutable bindings are never retargeted.
-9. Output ordering follows deterministic T-202 exposure order rather than random IDs.
-10. Produced bindings remain `driver=livewire`, `lifecycle=component`, `expiresAt=null`, with empty extensions by default.
-11. Producer never invokes exposed action methods; only the trusted identity accessor is called.
-12. Livewire server request teardown is not used as browser component lifecycle authority.
-13. No `livewire/livewire` dependency, browser binding registry, stale resolver, WebMCP registration, or ActionBus execution was introduced.
-14. `spec/0.1` is unchanged.
+### Production runtime additions
 
-### D-033 lifecycle boundary
+Only two protocol-neutral production files were required:
 
-Livewire re-creates PHP component objects from snapshots on later requests while preserving component identity. Its server-side request teardown is therefore not equivalent to browser component unmount.
+```text
+packages/laravel/src/Contracts/ActionExecutor.php
+packages/laravel/src/Runtime/Pipeline/ActionExecutionStage.php
+```
 
-D-033 is ACCEPTED: server binding production owns fresh exact issuance; browser registration cleanup and stale-target resolution remain client-lifecycle responsibilities. Server `destroy` is not used to revoke or retarget component bindings.
+`ActionExecutionStage`:
+
+- is exactly the canonical `execution` stage;
+- delegates once to `ActionExecutor`;
+- passes the exact resolved `ActionDefinition` object;
+- passes current pipeline input after earlier transformations/validation;
+- passes the exact trusted `InvocationContext`;
+- records executor return value through immutable pipeline state;
+- treats `null` as a real execution output;
+- propagates application exceptions unchanged.
+
+No generic executor fallback registry, surface-specific executor, or agent-only execution path was added.
+
+### Real Livewire/Testbench integration
+
+Livewire is now a **development-only** dependency of the Laravel package:
+
+```text
+livewire/livewire ^4.4
+orchestra/testbench ^10|^11
+```
+
+It is not present in production Composer `require`.
+
+CI explicitly tests:
+
+```text
+PHP 8.3 × Illuminate 12 × Testbench 10 × Livewire 4.4
+PHP 8.3 × Illuminate 13 × Testbench 11 × Livewire 4.4
+PHP 8.4 × Illuminate 12 × Testbench 10 × Livewire 4.4
+PHP 8.4 × Illuminate 13 × Testbench 11 × Livewire 4.4
+```
+
+The reusable library no longer commits `packages/laravel/composer.lock`; every CI cell resolves its supported framework generation independently.
+
+### Prep List reference fixture
+
+All Prep List application/reference code remains test-only under:
+
+```text
+packages/laravel/tests/Fixtures/PrepList/
+```
+
+The fixture includes:
+
+- `PrepListStore` — deterministic in-memory state;
+- `AddPrepListItem` — the single business mutation;
+- `PrepListActionExecutor` — exact `prep_list.add_item@1` executor;
+- `PrepListAuthorizer` — explicit fixture authorization port;
+- `PrepListInvocationContextFactory` — trusted BrowserSession authority;
+- `PrepListActionGateway` — exact ActionCall → shared ActionBus;
+- `PrepListComponent` — real Livewire component with explicit `#[ExposeAction]`;
+- `PrepListTestPipeline` — integration wiring.
+
+The real component uses Livewire lifecycle injection:
+
+```text
+boot(PrepListActionGateway)
+```
+
+and contains no direct store/business mutation.
+
+### Security and pipeline proof
+
+The E2E suite proves:
+
+1. Human `Livewire::test(...)->call('addItem', 'passport')` reaches the shared ActionBus and mutates state exactly once.
+2. A T-203 binding generated from the real component points to the exact real component ID and `addItem` method.
+3. Calling exactly the binding target method through the real Livewire test harness reaches the same ActionBus and same `AddPrepListItem` service.
+4. Fresh human and binding-derived runs produce equivalent state.
+5. The real validation stage passes only validated `name` downstream.
+6. The real authorization stage is traversed after validation.
+7. `browser_session` exists only as trusted `InvocationContext`; it is absent from action input.
+8. Invalid empty input halts at input validation before authorization and execution; business mutation count remains zero.
+9. Component wiring uses `boot()` lifecycle DI, not constructor/service-locator application wiring.
+
+Confirmation, idempotency, output-policy and audit completion are **not** claimed by T-204. Their T-204 handlers/auditor are explicit test-only placeholders because production implementations belong to M4.
 
 ## TDD / verification evidence
 
-```text
-RED:                    f1c4a1b1f1d6950c28bef14fa39f4723c9466a61
-Binding ID generation:  44e8cf779f79c7ac365f9d8067ee26d9584cb8fd
-Trusted identity:       2ef35c990437434ba0d38ddecf943d64e0ddda1b
-Producer:               0280a6c369aac27f510bee874006af5fe9b20e40
-Test fixture correction:6bccbc87c6449df6b6669f23c75d83b3e8c66220
-Reviewed checkpoint:    bd69e135cbabb1b3828c51c9cef2293737e8a5be
-```
-
-RED evidence:
+### Execution stage RED → GREEN
 
 ```text
-256 tests / 681 assertions / 14 deliberate T-203 failures
+RED:   868eb1f3dc89e47023af95217bd44279b7a80994
+GREEN: 7267a43d6ede657d52cffc0d8a96f047f6c885af
 ```
 
-Final evidence:
+RED observed:
 
 ```text
-PHP:      256 tests / 709 assertions
-contract: 52 fixture manifest entries + 12 conformance scenarios
-browser:  TypeScript typecheck + 3 Vitest tests
-CI:       contract + PHP 8.3/8.4 × Illuminate 12/13 + php-lint + browser
+260 tests / 713 assertions / 4 deliberate failures
 ```
 
-All jobs passed on the exact T-203 review checkpoint and again after merge to `main`.
+Failures were only missing `ActionExecutor` / `ActionExecutionStage` behavior.
+
+### Prep List E2E RED → GREEN
+
+```text
+RED:      75022ae6594dfcabfd33bec89825d51459d0b8fa
+Fixture:  f1eca5290d4ddbbd4b36990feddf76e20cc76f1c
+Harness:  e7e6a9809d647070aff78105285ac08da0b4a03b
+```
+
+RED observed:
+
+```text
+266 tests / 735 assertions / 6 deliberate failures
+```
+
+All failures were absent Prep List fixture/wiring. After fixture implementation the remaining integration error was Testbench's missing application encryption key; a fixed test-only key was added to the integration environment.
+
+Final observed result:
+
+```text
+OK (266 tests, 783 assertions)
+```
+
+All four PHP/Illuminate/Testbench/Livewire cells, contract validation, PHP lint, and browser checks passed on the exact T-204 implementation head.
 
 ## Decisions
 
 - D-022..D-025 remain ACCEPTED.
-- D-026 remains PROPOSED until actual binding-resolution failure behavior exists.
-- D-033 ACCEPTED — PHP request teardown is not browser component-lifecycle authority; server issuance and browser cleanup/stale resolution remain separate responsibilities.
+- D-026 remains PROPOSED until real binding-resolution failure behavior exists.
+- D-033 remains ACCEPTED — server request teardown is not browser component-lifecycle authority.
+- D-034 ACCEPTED — human Livewire interaction and binding-derived invocation converge on the same explicit component method and shared ActionBus/application mutation; no agent-only business endpoint is introduced.
+
+## M2 completion state
+
+```text
+T-201 DONE / REVIEWED
+T-202 DONE / REVIEWED
+T-203 DONE / REVIEWED
+T-204 DONE / REVIEW PENDING
+```
+
+M2 implementation is complete. M2 is not marked reviewed until the T-204 feature branch passes final external-style review and merged-main verification.
 
 ## Next task
 
-`T-204 — End-to-end Prep List through shared ActionBus`
+`M3 / T-301 — DriverRegistry`
 
-**Status: TODO / not started.**
+**Status: not started. Do not begin until T-204/M2 review passes.**
