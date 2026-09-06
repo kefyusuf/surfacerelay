@@ -50,58 +50,51 @@ Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ---
 
-## M2 — Livewire Binding — IMPLEMENTATION COMPLETE / REVIEW PENDING
+## M2 — Livewire Binding — DONE / REVIEWED
 
 ### T-201 — Implement Livewire RuntimeBinding descriptor — DONE / REVIEWED
 
-**Outcome:** generic immutable RuntimeBinding + typed Livewire component target; exact action identity; `driver=livewire`; `lifecycle=component`; RFC3339 contract parity; no execution/discovery/lifecycle producer.
+**Outcome:** immutable generic RuntimeBinding + typed exact Livewire target; `driver=livewire`, `lifecycle=component`, exact action identity and no silent fallback/retarget.
 
-**Verification:** PHP 227 tests / 577 assertions; contract 52 fixture entries + 12 conformance scenarios; browser 3 tests; full matrix green.
+**Verification:** PHP 227 tests / 577 assertions; contract/browser/full matrix green.
 
 ### T-202 — Implement explicit Livewire action exposure API — DONE / REVIEWED
 
-**Outcome:** explicit method-level `#[ExposeAction]` allow-list, exact registry resolution, deterministic exposure ordering, fail-loud duplicate/visibility rules, no public-method auto-exposure.
+**Outcome:** explicit method-level `#[ExposeAction]` allow-list with exact ActionRegistry resolution, deterministic ordering and fail-loud configuration boundaries.
 
-**Verification:** PHP 242 tests / 667 assertions; full matrix green on reviewed/merged main checkpoint.
+**Verification:** PHP 242 tests / 667 assertions; full matrix green.
 
 ### T-203 — Implement Livewire binding lifecycle producer — DONE / REVIEWED
 
-**Outcome:** trusted exact component identity, fresh opaque binding IDs, deterministic exposure → component-scoped RuntimeBinding production, no silent retargeting, and D-033 lifecycle separation.
+**Outcome:** trusted exact component identity, fresh opaque binding IDs, exact exposure → component binding production, replacement/no-retarget semantics and D-033 lifecycle separation.
 
-**Verification:** PHP 256 tests / 709 assertions; full PHP 8.3/8.4 × Illuminate 12/13 matrix green on reviewed/merged main checkpoint.
+**Verification:** PHP 256 tests / 709 assertions; full matrix green.
 
-### T-204 — End-to-end Prep List through shared ActionBus — DONE / REVIEW PENDING
+### T-204 — End-to-end Prep List through shared ActionBus — DONE / REVIEWED
 
-**Goal:** Prove a normal human Livewire call and a binding-derived agent invocation use the same explicit component method, shared ActionBus, and single application mutation.
+**Outcome:** real Livewire/Testbench proof that human interaction and binding-derived invocation converge on the same explicitly exposed component method, shared ActionBus, production execution stage and single application mutation.
 
-**Production implementation:**
+**Production additions:**
 
-- `ActionExecutor` protocol-neutral application execution port;
-- `ActionExecutionStage` real canonical execution-stage adapter;
-- no surface-specific executor registry or fallback;
-- no agent-only endpoint, controller, transport, or business mutation path.
+```text
+packages/laravel/src/Contracts/ActionExecutor.php
+packages/laravel/src/Runtime/Pipeline/ActionExecutionStage.php
+```
 
-**Real integration harness:**
+**Reference proof:**
 
-- Livewire `^4.4` and Testbench `^10|^11` are development-only dependencies;
-- `livewire/livewire` remains absent from production `require`;
-- library `composer.lock` removed so each supported Laravel/Testbench matrix cell resolves independently;
-- CI explicitly pairs Illuminate 12 with Testbench 10 and Illuminate 13 with Testbench 11.
-
-**Prep List reference proof:**
-
-- real `Livewire\Component`;
-- explicit `#[ExposeAction(id: 'prep_list.add_item', version: 1)]` on `addItem`;
-- component obtains `PrepListActionGateway` through real Livewire `boot()` lifecycle DI;
-- real `LaravelInputValidationStage`;
-- real `AuthorizationStage`;
+- real Livewire 4 component/test harness;
+- Livewire/Testbench remain `require-dev` only;
+- exact `prep_list.add_item@1` exposure and T-203 RuntimeBinding target;
+- real validation and authorization stages;
 - real `ActionExecutionStage`;
-- trusted BrowserSession provided only through `InvocationContext`;
-- one `AddPrepListItem` business mutation service;
-- binding-derived invocation calls exactly the T-203 target method through the real Livewire test harness;
-- confirmation/idempotency/output-policy/audit placeholders are test-only and do not claim M4 completion.
+- one `AddPrepListItem` business mutation;
+- trusted BrowserSession authority stays outside action input;
+- invalid input halts before authorization/execution;
+- confirmation/idempotency/output-policy/audit placeholders are test-only and do not claim M4 completion;
+- no agent-only endpoint or browser driver implementation.
 
-**TDD / verification:**
+**Verification:**
 
 ```text
 Execution RED:   868eb1f3dc89e47023af95217bd44279b7a80994
@@ -109,20 +102,21 @@ Execution GREEN: 7267a43d6ede657d52cffc0d8a96f047f6c885af
 E2E RED:         75022ae6594dfcabfd33bec89825d51459d0b8fa
 Prep fixture:    f1eca5290d4ddbbd4b36990feddf76e20cc76f1c
 Testbench key:   e7e6a9809d647070aff78105285ac08da0b4a03b
+Reviewed/merged checkpoint: 068347ac6d1bba645ab1c311daf918f87298b2e8
 PHP: 266 tests / 783 assertions
 Contract: 52 fixture manifest entries + 12 conformance scenarios
 Browser: typecheck + 3 tests
-CI: PHP 8.3/8.4 × Illuminate 12/13 × Testbench 10/11 × Livewire 4.4, plus contract/lint/browser — all green
+CI: PHP 8.3/8.4 × Illuminate 12/13 × Testbench 10/11 × Livewire 4.4 + contract/lint/browser — feature and merged-main checkpoints green
 ```
 
 **Acceptance:**
 - business mutation exists once;
-- human and binding-derived paths converge at the same explicit component method;
-- both traverse the same shared ActionBus/application execution path;
-- invalid input halts before authorization/execution;
-- caller input never manufactures BrowserSession authority;
-- no T-301/T-304 browser runtime implementation mixed in;
-- D-034 records the shared-path invariant without claiming that the M3 browser driver already exists.
+- human and binding-derived paths use the same explicit Livewire method;
+- both traverse the same ActionBus/application path;
+- exact binding target/action identity is preserved;
+- caller input cannot manufacture BrowserSession authority;
+- no M3 browser runtime or M4 production-safety controls are falsely claimed;
+- D-034 records the shared-path invariant.
 
 ---
 
