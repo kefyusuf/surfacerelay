@@ -169,7 +169,7 @@ final class LivewireRuntimeBindingTest extends TestCase
         self::assertTrue((new ReflectionClass(LivewireBindingTarget::class))->isReadOnly());
     }
 
-    public function test_t201_does_not_add_livewire_package_dependency(): void
+    public function test_livewire_is_not_a_production_package_dependency(): void
     {
         $composer = json_decode(
             (string) file_get_contents(__DIR__ . '/../../composer.json'),
@@ -178,7 +178,7 @@ final class LivewireRuntimeBindingTest extends TestCase
         );
 
         self::assertArrayNotHasKey('livewire/livewire', $composer['require'] ?? []);
-        self::assertArrayNotHasKey('livewire/livewire', $composer['require-dev'] ?? []);
+        self::assertArrayHasKey('livewire/livewire', $composer['require-dev'] ?? []);
     }
 
     private function assertLivewireBindingTypesExist(): void
