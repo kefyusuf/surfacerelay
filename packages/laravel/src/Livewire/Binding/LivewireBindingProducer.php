@@ -14,16 +14,23 @@ use SurfaceRelay\Laravel\Livewire\LivewireRuntimeBinding;
 /**
  * Produces fresh component-scoped Runtime Bindings for one trusted mounted component.
  *
- * This class issues descriptors only. It does not execute bindings, persist them,
- * inspect browser lifecycle, revoke old descriptors, or silently retarget them.
+ * T-304 adds a server-issued positional call plan so bindings produced here are
+ * executable through the documented Livewire browser API. Lower-level manual
+ * LivewireBindingTarget construction may omit that plan, but this trusted
+ * producer never does.
  */
 final class LivewireBindingProducer
 {
+    private readonly LivewireMethodCallPlanBuilder $callPlanBuilder;
+
     public function __construct(
         private readonly LivewireActionExposureReader $exposureReader,
         private readonly LivewireComponentIdentityResolver $componentIdentityResolver,
         private readonly BindingIdGenerator $bindingIdGenerator,
-    ) {}
+        ?LivewireMethodCallPlanBuilder $callPlanBuilder = null,
+    ) {
+        $this->callPlanBuilder = $callPlanBuilder ?? new LivewireMethodCallPlanBuilder();
+    }
 
     /** @return list<RuntimeBinding> */
     public function forComponent(object $component): array
@@ -35,6 +42,8 @@ final class LivewireBindingProducer
         $issuedIds = [];
 
         foreach ($exposures as $exposure) {
+            // Validate execution compatibility before consuming an issued binding ID.
+            $callPlan = $this->callPlanBuilder->forExposure($component, $exposure);
             $bindingId = $this->bindingIdGenerator->generate();
 
             if (isset($issuedIds[$bindingId])) {
@@ -45,7 +54,12 @@ final class LivewireBindingProducer
             $bindings[] = LivewireRuntimeBinding::forComponent(
                 bindingId: $bindingId,
                 definition: $exposure->definition,
-                target: new LivewireBindingTarget($componentId, $exposure->method),
+                target: new LivewireBindingTarget(
+                    componentId: $componentId,
+                    method: $exposure->method,
+                    inputOrder: $callPlan->inputOrder,
+                    requiredCount: $callPlan->requiredCount,
+                ),
             );
         }
 
