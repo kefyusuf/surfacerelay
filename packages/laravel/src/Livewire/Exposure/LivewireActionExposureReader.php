@@ -7,6 +7,7 @@ namespace SurfaceRelay\Laravel\Livewire\Exposure;
 use ReflectionObject;
 use SurfaceRelay\Laravel\Contracts\ActionRegistry;
 use SurfaceRelay\Laravel\Livewire\Attributes\ExposeAction;
+use SurfaceRelay\Laravel\Registry\ActionDefinitionNotFound;
 
 /**
  * Resolves only explicitly annotated methods on the concrete component class.
@@ -55,7 +56,10 @@ final class LivewireActionExposureReader
 
             /** @var ExposeAction $attribute */
             $attribute = $attributes[0]->newInstance();
-            if (!$this->registry->has($attribute->id, $attribute->version)) {
+
+            try {
+                $definition = $this->registry->get($attribute->id, $attribute->version);
+            } catch (ActionDefinitionNotFound) {
                 throw InvalidLivewireActionExposure::actionNotRegistered(
                     $method->getName(),
                     $attribute->id,
@@ -63,7 +67,6 @@ final class LivewireActionExposureReader
                 );
             }
 
-            $definition = $this->registry->get($attribute->id, $attribute->version);
             $identityKey = $definition->id . '@' . $definition->version;
 
             if (isset($methodsByIdentity[$identityKey])) {
