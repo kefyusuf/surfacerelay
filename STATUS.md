@@ -6,155 +6,95 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Reviewed M2 implementation checkpoint:** `068347ac6d1bba645ab1c311daf918f87298b2e8`
-- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; **M2 DONE/REVIEWED**; M3 TODO
-- **Last completed/reviewed task:** `T-204 — Prep List shared ActionBus E2E`
-- **Next task:** `T-301 — DriverRegistry` — **not started**
+- **Branch:** `feat/browser-driver-registry`
+- **Base reviewed main checkpoint:** `42a1c643c60ccd9ad445d5b9f21b83ee8490de05`
+- **T-301 implementation head:** `1c1ff62ac70f779e90866bd169abc7599b7632bf`
+- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; **M3 IN PROGRESS**
+- **Current task:** `T-301 — DriverRegistry` — implementation DONE, pending final review
+- **Next task:** `T-302 — WebMCP semantic projection` — **not started**
 - **Contract version:** `0.1-draft`
-- **Spec status:** `spec/0.1` remains frozen and unchanged by M2/T-204.
+- **Spec status:** `spec/0.1` remains frozen and unchanged by T-301.
 - **Contract baseline:** **52 fixture manifest entries + 12 conformance scenarios**.
 - **PHP baseline:** **266 tests / 783 assertions**.
-- **Integration matrix:** PHP 8.3/8.4 × Illuminate 12/13 × Testbench 10/11 × Livewire 4.4 — all green on both feature review checkpoint and merged `main` checkpoint.
-- **Observed Livewire:** `v4.4.3` in the reviewed matrix run.
-- **Browser baseline:** TypeScript typecheck + **3 Vitest tests**.
-
-## Current objective
-
-M2 Livewire Binding is reviewed, merged, and closed. M3/T-301 is the next task but has not started; its DriverRegistry boundary must be designed before implementation.
+- **Browser baseline:** TypeScript typecheck + **18 Vitest tests**.
+- **CI:** contract, PHP 8.3/8.4 × Illuminate 12/13 × Testbench 10/11 × Livewire 4.4, php-lint and browser are green on the T-301 implementation head.
 
 ## M2 — Livewire Binding — DONE / REVIEWED
 
-### T-201 — RuntimeBinding descriptor
+T-201 through T-204 remain reviewed and merged. The Livewire vertical proves explicit exposure, exact mounted RuntimeBindings and a single shared ActionBus/application mutation path for human and binding-derived invocation.
 
-Delivered generic immutable RuntimeBinding modeling plus exact Livewire component target data. Livewire descriptors fix `driver=livewire` and `lifecycle=component`, preserve exact action identity, and do not silently retarget or fallback.
+## M3 — Browser Runtime / WebMCP — IN PROGRESS
 
-### T-202 — Explicit action exposure
+### T-301 — DriverRegistry
 
-Delivered method-level `#[ExposeAction(id, version)]` allow-list declarations and exact registry-backed exposure resolution. Public framework methods are not automatically SurfaceRelay exposures; exposure remains separate from discovery/invocation authorization.
-
-### T-203 — Mounted binding producer
-
-Delivered trusted component identity resolution, fresh opaque binding IDs, deterministic exposure-to-binding production, exact target retention, and D-033 lifecycle separation. PHP request teardown is not treated as browser component unmount.
-
-### T-204 — Shared ActionBus E2E
-
-T-204 proves the Livewire vertical's central application-path claim:
+The existing browser-runtime registry has been completed and hardened rather than redesigned.
 
 ```text
-Human Livewire call ───────────────┐
-                                   ▼
-                            PrepListComponent::addItem
-                                   │
-Binding-derived invocation ────────┘
-                                   │
-                                   ▼
-                              ActionBus
-                                   │
-                                   ▼
-                         ActionExecutionStage
-                                   │
-                                   ▼
-                         PrepListActionExecutor
-                                   │
-                                   ▼
-                           AddPrepListItem
-                                   │
-                                   ▼
-                             PrepListStore
+RuntimeBinding.driver
+        │ exact contract-valid identifier
+        ▼
+DriverRegistry.requireDriver(name)
+        │
+        ├── explicitly registered ──→ exact BindingDriver object
+        └── unknown/invalid ────────→ fail closed
 ```
 
-The binding-derived test is intentionally not the M3 browser driver. It uses a real Livewire component instance, T-203 binding production, and then invokes exactly the produced `target.method` through the real Livewire testing API.
+Reviewed implementation boundaries:
 
-### T-204 production additions
+1. `register(name, driver)` and `requireDriver(name)` remain the complete public registry API.
+2. Driver identifiers use the frozen RuntimeBinding driver grammar and are not trimmed, lowercased, aliased or defaulted.
+3. Duplicate registration fails loudly and does not replace the original driver.
+4. Contract-valid but unsupported names fail closed.
+5. Runtime non-string names are rejected before regex coercion or unsupported-driver lookup.
+6. Multiple explicit drivers coexist independently.
+7. Registration/lookup never calls `BindingDriver.execute()`.
+8. Registry performs no binding discovery, lifecycle validation, stale resolution, target lookup, authorization, action-version resolution, WebMCP registration or driver execution.
+9. `spec/0.1` is unchanged.
 
-Only protocol-neutral runtime pieces were added under `src/`:
+### Runtime hardening finding
 
-```text
-packages/laravel/src/Contracts/ActionExecutor.php
-packages/laravel/src/Runtime/Pipeline/ActionExecutionStage.php
-```
+JavaScript `RegExp.test()` coerces non-string values. Before T-301 hardening, a value such as `null` could be tested as the string `"null"`, pass the identifier regex and reach the registry despite the contract requiring a string.
 
-`ActionExecutionStage` passes the exact resolved definition, current pipeline input and trusted context to the injected executor, records the executor result as real output including `null`, and lets application exceptions propagate.
-
-No agent-only endpoint, controller, transport, surface-specific executor, or duplicate business path exists.
-
-### Real Livewire integration evidence
-
-Livewire and Testbench are development-only dependencies:
-
-```text
-livewire/livewire ^4.4
-orchestra/testbench ^10|^11
-```
-
-`livewire/livewire` is absent from production Composer `require`.
-
-The reviewed CI matrix is:
-
-```text
-PHP 8.3 × Illuminate 12 × Testbench 10 × Livewire 4.4
-PHP 8.3 × Illuminate 13 × Testbench 11 × Livewire 4.4
-PHP 8.4 × Illuminate 12 × Testbench 10 × Livewire 4.4
-PHP 8.4 × Illuminate 13 × Testbench 11 × Livewire 4.4
-```
-
-All four cells passed on the exact feature review checkpoint and again after fast-forward to `main`.
-
-### Prep List proof
-
-All application/reference code remains test-only under `packages/laravel/tests/Fixtures/PrepList/`.
-
-The integration suite proves:
-
-1. real human Livewire method invocation traverses shared ActionBus and mutates once;
-2. T-203 binding production from the real mounted instance returns exact action/component/method identity;
-3. calling exactly the binding target method through the real Livewire harness traverses the same ActionBus and same `AddPrepListItem` mutation;
-4. fresh human and binding-derived runs produce equivalent state;
-5. real validation runs before authorization/execution;
-6. real authorization receives validated input and trusted BrowserSession context;
-7. BrowserSession authority is never part of action input;
-8. invalid input halts before authorization and mutation;
-9. Livewire component dependencies use real `boot()` lifecycle injection rather than component-owned constructor/service-locator wiring.
-
-Confirmation, idempotency, output policy and audit implementations remain M4 work. T-204 uses explicitly test-only placeholders for those stages and makes no production-safety claim about them.
+The registry now checks `typeof name === 'string'` before applying the frozen grammar. This preserves the TypeScript API while making the runtime boundary fail closed for JavaScript/untyped callers.
 
 ## TDD / verification evidence
 
 ```text
-Execution RED:   868eb1f3dc89e47023af95217bd44279b7a80994
-Execution GREEN: 7267a43d6ede657d52cffc0d8a96f047f6c885af
-E2E RED:         75022ae6594dfcabfd33bec89825d51459d0b8fa
-Prep fixture:    f1eca5290d4ddbbd4b36990feddf76e20cc76f1c
-Testbench key:   e7e6a9809d647070aff78105285ac08da0b4a03b
-Review/merge:    068347ac6d1bba645ab1c311daf918f87298b2e8
+RED test commit:  5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
+GREEN fix commit: 1c1ff62ac70f779e90866bd169abc7599b7632bf
+RED workflow:     34050492466
+GREEN workflow:   34050557047
 ```
 
-RED evidence:
+RED browser evidence:
 
 ```text
-ActionExecutionStage: 260 tests / 713 assertions / 4 deliberate failures
-Prep List E2E:        266 tests / 735 assertions / 6 deliberate failures
+18 tests total
+16 passed
+2 deliberate failures
 ```
 
-Final evidence:
+Both failures were the non-string runtime-name cases.
+
+GREEN evidence:
 
 ```text
+browser:  TypeScript typecheck + 18/18 Vitest tests
 PHP:      266 tests / 783 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-browser:  TypeScript typecheck + 3 Vitest tests
-CI:       all PHP/Illuminate/Testbench/Livewire cells + contract + php-lint + browser GREEN
+CI:       all jobs green
 ```
 
 ## Decisions
 
+- D-016 remains ACCEPTED — drivers are extensible identifiers and unknown drivers fail closed.
 - D-022..D-025 remain ACCEPTED.
-- D-026 remains PROPOSED until actual binding-resolution failure behavior exists.
-- D-033 ACCEPTED — PHP request teardown is not browser component-lifecycle authority.
-- D-034 ACCEPTED — human Livewire interaction and binding-derived invocation converge at the same explicit component method and shared ActionBus/application action; the future browser driver selects that existing target rather than creating an agent-only business endpoint.
+- D-026 remains PROPOSED until real binding-resolution failure behavior exists.
+- D-033 and D-034 remain ACCEPTED.
+- D-035 ACCEPTED — browser DriverRegistry maps exact contract-valid driver names only to explicitly registered browser BindingDrivers; registration does not confer authority, validate lifecycle or permit alias/fallback behavior.
 
 ## Next task
 
-`M3 / T-301 — DriverRegistry`
+`T-302 — WebMCP semantic projection`
 
-**Status: TODO / not started.**
+**Status: TODO / not started. Do not begin until T-301 review is closed.**

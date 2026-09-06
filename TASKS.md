@@ -33,104 +33,61 @@ A task is DONE only after required verification passes. SurfaceRelay implements 
 
 ## M1.1 — Hardening — DONE / REVIEWED
 
-| Task | Status | Outcome |
-|---|---|---|
-| H-000 — Public tool-neutral baseline | DONE | Local tool ignores removed from tracked repo; main root rewritten. |
-| H-001 — Contract shape hardening | DONE | Result shapes, date-time enforcement, bindingId parity, extension grammar. |
-| H-002 — Output classification redesign | DONE | `outputSensitivity` and `outputContentTrust` split; D-032. |
-| H-003 — PHP/package hardening | DONE | mbstring requirement, enum alignment, safe halt details, RFC3339 challenge dates. |
-| H-004 — Repo/CI/license/docs hardening | DONE | Full Apache-2.0, real CI matrix, browser CI, source-of-truth cleanup. |
-| R-001 — Validator exception-path fix | DONE | Valid-fixture errors use imported `ValidationError`. |
-| R-002 — Null result payload rejection | DONE | `error`/`confirmation` are object-only; negative fixtures added. |
-| R-003 — Halt-detail list-shape enforcement | DONE | Associative arrays fail safe normalization. |
-| R-004 — Source-of-truth final alignment | DONE | TASKS/STATUS/REVIEW_REQUEST + D-017 aligned. |
-| R-005 — Browser CI reproducibility | DONE | Lockfile installs use `npm ci`. |
-
-Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
-
----
+M1.1 hardening and review fixes remain closed. Reviewed baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ## M2 — Livewire Binding — DONE / REVIEWED
 
-### T-201 — Implement Livewire RuntimeBinding descriptor — DONE / REVIEWED
+| Task | Status | Outcome |
+|---|---|---|
+| T-201 — Livewire RuntimeBinding descriptor | DONE | Exact immutable Livewire target binding. |
+| T-202 — Explicit Livewire action exposure API | DONE | Method-level explicit allow-list and exact registry resolution. |
+| T-203 — Livewire binding producer | DONE | Trusted mounted identity + fresh opaque binding IDs. |
+| T-204 — Shared ActionBus E2E | DONE | Real Livewire/Testbench proof of one shared application mutation path. |
 
-**Outcome:** immutable generic RuntimeBinding + typed exact Livewire target; `driver=livewire`, `lifecycle=component`, exact action identity and no silent fallback/retarget.
+Reviewed M2 implementation checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8`.
 
-**Verification:** PHP 227 tests / 577 assertions; contract/browser/full matrix green.
+---
 
-### T-202 — Implement explicit Livewire action exposure API — DONE / REVIEWED
+## M3 — Browser Runtime / WebMCP — IN PROGRESS
 
-**Outcome:** explicit method-level `#[ExposeAction]` allow-list with exact ActionRegistry resolution, deterministic ordering and fail-loud configuration boundaries.
+### T-301 — DriverRegistry — DONE / REVIEW PENDING
 
-**Verification:** PHP 242 tests / 667 assertions; full matrix green.
+**Outcome:** existing browser DriverRegistry completed with executable fail-closed contract tests and a runtime string-type guard.
 
-### T-203 — Implement Livewire binding lifecycle producer — DONE / REVIEWED
+**Invariants:**
 
-**Outcome:** trusted exact component identity, fresh opaque binding IDs, exact exposure → component binding production, replacement/no-retarget semantics and D-033 lifecycle separation.
-
-**Verification:** PHP 256 tests / 709 assertions; full matrix green.
-
-### T-204 — End-to-end Prep List through shared ActionBus — DONE / REVIEWED
-
-**Outcome:** real Livewire/Testbench proof that human interaction and binding-derived invocation converge on the same explicitly exposed component method, shared ActionBus, production execution stage and single application mutation.
-
-**Production additions:**
-
-```text
-packages/laravel/src/Contracts/ActionExecutor.php
-packages/laravel/src/Runtime/Pipeline/ActionExecutionStage.php
-```
-
-**Reference proof:**
-
-- real Livewire 4 component/test harness;
-- Livewire/Testbench remain `require-dev` only;
-- exact `prep_list.add_item@1` exposure and T-203 RuntimeBinding target;
-- real validation and authorization stages;
-- real `ActionExecutionStage`;
-- one `AddPrepListItem` business mutation;
-- trusted BrowserSession authority stays outside action input;
-- invalid input halts before authorization/execution;
-- confirmation/idempotency/output-policy/audit placeholders are test-only and do not claim M4 completion;
-- no agent-only endpoint or browser driver implementation.
+- explicit `register(name, driver)` only;
+- exact `requireDriver(name)` lookup only;
+- frozen RuntimeBinding driver grammar;
+- duplicate registration fails and preserves the original driver;
+- unsupported valid names fail closed;
+- invalid and non-string runtime names fail before lookup;
+- no trim/lowercase/alias/default/fallback;
+- registration and lookup never execute drivers;
+- registry owns no discovery, lifecycle, stale resolution, authorization, target lookup or WebMCP registration;
+- D-035 records the browser registry boundary.
 
 **Verification:**
 
 ```text
-Execution RED:   868eb1f3dc89e47023af95217bd44279b7a80994
-Execution GREEN: 7267a43d6ede657d52cffc0d8a96f047f6c885af
-E2E RED:         75022ae6594dfcabfd33bec89825d51459d0b8fa
-Prep fixture:    f1eca5290d4ddbbd4b36990feddf76e20cc76f1c
-Testbench key:   e7e6a9809d647070aff78105285ac08da0b4a03b
-Reviewed/merged checkpoint: 068347ac6d1bba645ab1c311daf918f87298b2e8
-PHP: 266 tests / 783 assertions
-Contract: 52 fixture manifest entries + 12 conformance scenarios
-Browser: typecheck + 3 tests
-CI: PHP 8.3/8.4 × Illuminate 12/13 × Testbench 10/11 × Livewire 4.4 + contract/lint/browser — feature and merged-main checkpoints green
+RED:          5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
+GREEN:        1c1ff62ac70f779e90866bd169abc7599b7632bf
+RED run:      34050492466 — browser 16 passed / 2 deliberate failures
+GREEN run:    34050557047 — all jobs green
+Browser:      TypeScript typecheck + 18/18 Vitest tests
+PHP:          266 tests / 783 assertions
+Contract:     52 fixture manifest entries + 12 conformance scenarios
 ```
 
-**Acceptance:**
-- business mutation exists once;
-- human and binding-derived paths use the same explicit Livewire method;
-- both traverse the same ActionBus/application path;
-- exact binding target/action identity is preserved;
-- caller input cannot manufacture BrowserSession authority;
-- no M3 browser runtime or M4 production-safety controls are falsely claimed;
-- D-034 records the shared-path invariant.
-
----
-
-## M3 — Browser Runtime / WebMCP — TODO
-
-### T-301 — DriverRegistry — TODO
-Register drivers by explicit name; unknown drivers fail closed.
-
 ### T-302 — WebMCP semantic projection — TODO
+
 - `effect == read` → read-only hint;
 - `outputContentTrust == contains_untrusted_content` → untrusted-content hint;
 - `risk == consequential` → consequential hint.
 
 `outputSensitivity` remains independent and belongs to server-side output policy/redaction.
+
+**Status:** not started; do not begin until T-301 review closes.
 
 ### T-303 — Async registration lifecycle — TODO
 Register current tools through the browser API, handle errors, and clean up with lifecycle/AbortController semantics.
@@ -145,19 +102,10 @@ Propagate cancellation as far as supported without claiming transactional rollba
 
 ## M4 — Production Trust Controls — TODO
 
-### T-401 — Confirmation challenge/receipt — TODO
-Opaque runtime-issued, scoped, expiring confirmation receipts. Caller `confirmed=true` never grants authority.
-
-### T-402 — Idempotency store — TODO
-Server-side deduplication for required/recommended keys.
-
-### T-403 — Output policy/redaction — TODO
-Use `outputSensitivity` for redaction and preserve `outputContentTrust` for downstream untrusted-content handling.
-
-### T-404 — Structured audit events — TODO
-Record safe action identity/context references/outcome/correlation evidence without storing secrets by default.
-
----
+- T-401 — Confirmation challenge/receipt.
+- T-402 — Idempotency store.
+- T-403 — Output policy/redaction.
+- T-404 — Structured audit events.
 
 ## M5 — Filament Vertical — TODO
 
@@ -166,8 +114,6 @@ Record safe action identity/context references/outcome/correlation evidence with
 - T-503 — Active-filter context.
 - T-504 — Confirmation bridge.
 - T-505 — Multi-tenant order operations demo.
-
-M5 must prove selection/tenant authority cannot be forged through action input.
 
 ## M6 — HTMX Portability Proof — TODO
 
@@ -182,11 +128,3 @@ M5 must prove selection/tenant authority cannot be forged through action input.
 - T-702 — Adapter author guide.
 - T-703 — Laravel MCP projection using a maintained MCP implementation.
 - T-704 — Optional OpenAPI importer as a secondary adapter.
-
-## Deferred until evidence exists
-
-- Rails/Hotwire runtime package.
-- Phoenix LiveView runtime package.
-- Blazor/Vaadin runtime packages.
-- Public registry/discovery service.
-- Browser automation/reverse-engineered tool generation.
