@@ -18,14 +18,7 @@ Reviewed baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ## M2 — Livewire Binding — DONE / REVIEWED
 
-| Task | Status | Outcome |
-|---|---|---|
-| T-201 — Livewire RuntimeBinding descriptor | DONE | Exact immutable Livewire target binding. |
-| T-202 — Explicit Livewire action exposure API | DONE | Method-level explicit allow-list and exact registry resolution. |
-| T-203 — Livewire binding producer | DONE | Trusted mounted identity + fresh opaque binding IDs. |
-| T-204 — Shared ActionBus E2E | DONE | Real Livewire/Testbench proof of one shared application mutation path. |
-
-Reviewed M2 checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8`.
+T-201 through T-204 DONE / REVIEWED. Reviewed M2 checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8`.
 
 ---
 
@@ -33,15 +26,11 @@ Reviewed M2 checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8`.
 
 ### T-301 — DriverRegistry — DONE / REVIEWED
 
-**Outcome:** exact explicit driver registration/lookup, fail-closed invalid/unknown handling and runtime string-type hardening.
+Exact explicit driver registration/lookup with fail-closed invalid/unknown handling. Reviewed checkpoint: `df55267a72a93ed7a3017c810469fd5c0ff1b6f4`.
 
-**Reviewed checkpoint:** `df55267a72a93ed7a3017c810469fd5c0ff1b6f4`.
+### T-302 — WebMCP semantic projection — DONE / REVIEWED
 
-### T-302 — WebMCP semantic projection — DONE / REVIEW PENDING
-
-**Outcome:** existing projection completed as a deterministic, orthogonal semantic projection contract.
-
-**Mapping:**
+**Outcome:** deterministic orthogonal projection of three core semantics:
 
 - `effect == read` → `readOnlyHint`;
 - `outputContentTrust == contains_untrusted_content` → `untrustedContentHint`;
@@ -51,8 +40,8 @@ Reviewed M2 checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8`.
 
 - no risk inference from destructive/external effects;
 - no content-trust inference from output sensitivity;
-- combinations such as `read + consequential` preserve both true hints;
-- no `sensitivityHint`, `destructiveHint`, `idempotentHint`, `openWorldHint` or unrelated hint synthesis;
+- `read + consequential` preserves both true hints;
+- no unrelated/unsupported hint synthesis from sensitivity, effect or idempotency;
 - ActionDefinition remains unchanged;
 - projection owns no registration/execution/binding/authorization behavior;
 - returned projection shape is deterministic: all three booleans are present and required in the TypeScript type;
@@ -61,13 +50,17 @@ Reviewed M2 checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8`.
 **Verification:**
 
 ```text
-RED:   8ef99e86331b1a6d81f4755ab7cd65294b639075
-GREEN: 13253898b568bd0a52b0a2dc8d3d9f0be113483f
-RED run:   34052956365 — browser typecheck failed on optional projection shape
-GREEN run: 34053052459 — all 7 jobs green
-Browser:   TypeScript typecheck + 30/30 Vitest tests
-PHP:       266 tests / 783 assertions
-Contract:  52 fixture manifest entries + 12 conformance scenarios
+RED:               8ef99e86331b1a6d81f4755ab7cd65294b639075
+GREEN:             13253898b568bd0a52b0a2dc8d3d9f0be113483f
+Reviewed/merged:   b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0
+RED run:           34052956365
+GREEN run:         34053052459
+Review run:        34053277732
+Merged main run:   34053337527
+Browser:           TypeScript typecheck + 30/30 Vitest tests
+PHP:               266 tests / 783 assertions
+Contract:          52 fixture manifest entries + 12 conformance scenarios
+CI:                all 7 jobs green on feature review and merged main
 ```
 
 ### T-303 — Async registration lifecycle — TODO

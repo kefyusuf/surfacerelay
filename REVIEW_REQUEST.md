@@ -3,23 +3,21 @@
 ## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Review scope:** `T-302 — WebMCP semantic projection`
-- **Implementation checkpoint:** `13253898b568bd0a52b0a2dc8d3d9f0be113483f`
-- **Result:** review pending
+- **Reviewed scope:** `T-302 — WebMCP semantic projection`
+- **Reviewed/merged checkpoint:** `b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0`
+- **Result:** **PASSED**
 - **M3 status:** IN PROGRESS
 - **Next task:** T-303 has **not** started.
 
-## Reviewed scope
-
-T-302 completes the pre-existing browser `webmcp-projection.ts` skeleton. It does not add WebMCP registration, browser tool lifecycle, binding execution or driver behavior.
-
-Production file:
+## Reviewed production scope
 
 ```text
 packages/browser-runtime/src/webmcp-projection.ts
 ```
 
-Test/typecheck files:
+The runtime mapping logic remained unchanged. T-302 strengthened the public return type so its three booleans are required, matching the values that `projectAnnotations()` always emits.
+
+Test/typecheck coverage:
 
 ```text
 packages/browser-runtime/tests/webmcp-projection.test.ts
@@ -27,34 +25,22 @@ packages/browser-runtime/tests/webmcp-projection.typecheck.ts
 packages/browser-runtime/tsconfig.json
 ```
 
-## Projection contract under review
+## Accepted invariants
 
-```text
-effect=read
-    → readOnlyHint=true
-
-outputContentTrust=contains_untrusted_content
-    → untrustedContentHint=true
-
-risk=consequential
-    → consequentialHint=true
-```
-
-Accepted review targets:
-
-1. The three mappings are independent.
-2. Non-read effects never set `readOnlyHint` merely because of risk or other metadata.
-3. Destructive/external effects do not imply consequential risk.
-4. `risk=consequential` works independently for read or write actions.
-5. Output sensitivity never changes `untrustedContentHint`; only output content trust controls it.
-6. Sensitive + trusted and sensitive + untrusted combinations remain distinct.
-7. No unsupported/unrelated annotations are synthesized from effect, sensitivity or idempotency.
-8. Projection is pure and leaves the ActionDefinition untouched.
-9. Projection owns no validation, authorization, driver lookup, binding resolution, execution or WebMCP registration.
-10. Runtime output already contained all three booleans; T-302 strengthens the public TypeScript return shape so those fields are required rather than `boolean | undefined`.
-11. A compile-time fixture now guards the exact return shape.
-12. `spec/0.1` is unchanged.
-13. D-036 records the orthogonal projection boundary.
+1. `effect=read` alone controls `readOnlyHint`.
+2. `outputContentTrust=contains_untrusted_content` alone controls `untrustedContentHint`.
+3. `risk=consequential` alone controls `consequentialHint`.
+4. Destructive/external effects do not imply consequential risk.
+5. Read-only and consequential hints may both be true.
+6. Output sensitivity does not affect the untrusted-content hint.
+7. Sensitive/trusted and sensitive/untrusted outputs remain distinct.
+8. Projection does not synthesize sensitivity, destructive, idempotent, open-world or unrelated hints.
+9. Projection leaves the ActionDefinition unchanged.
+10. Projection does not register tools, resolve/execute bindings, choose drivers or authorize actions.
+11. `WebMcpAnnotations` now guarantees the exact deterministic three-boolean projection shape.
+12. Browser typecheck includes an explicit compile-time fixture guarding that return contract.
+13. `spec/0.1` is unchanged.
+14. D-036 records the independent projection boundary.
 
 ## TDD evidence
 
@@ -63,16 +49,8 @@ RED:
 ```text
 commit:   8ef99e86331b1a6d81f4755ab7cd65294b639075
 workflow: 34052956365
+TS2322: WebMcpAnnotations was not assignable to an exact three-boolean shape because fields were optional.
 ```
-
-RED failure:
-
-```text
-TS2322: WebMcpAnnotations not assignable to exact three-boolean shape
-readOnlyHint: boolean | undefined is not assignable to boolean
-```
-
-This proved a type/runtime drift: `projectAnnotations()` always emitted all three booleans while the declared interface allowed missing fields.
 
 GREEN:
 
@@ -80,21 +58,35 @@ GREEN:
 commit:   13253898b568bd0a52b0a2dc8d3d9f0be113483f
 workflow: 34053052459
 browser:  typecheck + 30/30 Vitest tests
+```
+
+Review and merge:
+
+```text
+review checkpoint: b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0
+feature review run: 34053277732 — all 7 jobs success
+merged main run:    34053337527 — all 7 jobs success
+```
+
+Final evidence:
+
+```text
+browser:  TypeScript typecheck + 30/30 Vitest tests
 PHP:      266 tests / 783 assertions
-contract: 52 fixture entries + 12 conformance scenarios
-CI:       all 7 jobs green
+contract: 52 fixture manifest entries + 12 conformance scenarios
+CI:       all jobs green on feature review checkpoint and merged main
 ```
 
 ## Decision status
 
 - D-014 remains ACCEPTED — consequential risk is orthogonal to effect/destructiveness.
 - D-032 remains ACCEPTED — sensitivity and content trust are independent.
-- D-036 ACCEPTED — WebMCP projection maps these semantics independently, returns a deterministic three-boolean shape and does not synthesize unrelated hints.
+- D-036 ACCEPTED — WebMCP projection maps the three supported SurfaceRelay projection hints independently, returns a deterministic three-boolean shape and does not infer unrelated semantics.
 
 ## Explicit boundary
 
-T-302 does **not** call `document.modelContext.registerTool()`, does not manage AbortController cleanup, does not execute RuntimeBindings and does not implement the Livewire browser driver. Those responsibilities remain T-303/T-304/T-305.
+T-302 does **not** call the WebMCP registration API, manage registration cleanup/AbortController state, execute RuntimeBindings or implement the Livewire browser driver. Those remain T-303/T-304/T-305.
 
 ## Explicit statement
 
-**T-302 implementation is ready for final review. T-303 is TODO and has NOT started.**
+**T-302 REVIEW PASSED and is merged to `main`. T-303 is TODO and has NOT started.**
