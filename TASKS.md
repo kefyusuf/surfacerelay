@@ -65,13 +65,17 @@ Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 - `LivewireRuntimeBinding::forComponent()` fixes `driver=livewire` and `lifecycle=component`.
 - deterministic serialization matches the existing Livewire RuntimeBinding fixture shape.
 - no `livewire/livewire` dependency and no execution/discovery/lifecycle behavior.
+- final review aligned PHP RFC3339 validation with the JSON Schema checker: arbitrary fractional seconds accepted; year zero and invalid timezone bounds rejected; calendar validity enforced.
 
 **Verification:**
 
 ```text
-TDD RED: 66041e403e423b010dc28efd84b5761fd37b2772
-Implementation: 28364e137b0b052eeaa0ea878739963e387ba7ed + 1e572894e8f0338465fa58593130d01d736fa68b
-PHP: 219 tests / 569 assertions
+Descriptor RED: 66041e403e423b010dc28efd84b5761fd37b2772
+Generic model: 28364e137b0b052eeaa0ea878739963e387ba7ed
+Livewire descriptor: 1e572894e8f0338465fa58593130d01d736fa68b
+RFC3339 parity RED: 060a68b6d70de1caa971253737c24be8122a9999
+RFC3339 parity GREEN: 563a3e06aed5c60c1f30ed83cf5a3bb341bb68a0
+PHP: 227 tests / 577 assertions
 Contract: 52 fixture manifest entries + 12 conformance scenarios
 Browser: typecheck + 3 tests
 CI: all matrix jobs green
@@ -82,6 +86,7 @@ CI: all matrix jobs green
 - exact Action Definition `id + version`;
 - explicit binding identity;
 - no silent target/version fallback;
+- date-time acceptance/rejection matches the language-neutral schema checker;
 - no T-202/T-203/T-304 implementation mixed in.
 
 ### T-202 — Implement explicit Livewire action exposure API — TODO

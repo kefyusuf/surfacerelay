@@ -14,13 +14,13 @@
 - **Contract version:** `0.1-draft`
 - **Spec status:** `spec/0.1` remains frozen; T-201 required no schema change.
 - **Contract baseline:** **52 fixture manifest entries + 12 conformance scenarios**.
-- **PHP baseline:** **219 tests / 569 assertions** across PHP 8.3/8.4 × Illuminate 12/13 CI.
+- **PHP baseline:** **227 tests / 577 assertions** across PHP 8.3/8.4 × Illuminate 12/13 CI.
 - **Browser baseline:** TypeScript typecheck + **3 Vitest tests**.
-- **CI jobs:** contract, four PHP matrix jobs, PHP lint, browser typecheck/tests — all green for T-201 implementation commit.
+- **CI jobs:** contract, four PHP matrix jobs, PHP lint, browser typecheck/tests — all green for the final T-201 review-fix commit.
 
 ## Current objective
 
-External review of T-201 before beginning T-202.
+Final external review of T-201 before beginning T-202.
 
 ## T-201 — Runtime Binding descriptor
 
@@ -67,9 +67,20 @@ driver    = livewire
 lifecycle = component
 ```
 
-Neither value is caller-configurable.
+Neither value is caller-configurable. The descriptor uses exact mounted-component identity only; no component class/name fallback is stored.
 
-The descriptor uses exact mounted-component identity only. No component class/name fallback is stored.
+### RFC3339 contract parity review fix
+
+Final review found that the initial native-PHP date parser did not exactly match the repository's JSON Schema `date-time` checker. Both `ConfirmationChallenge` and `RuntimeBinding` are now aligned to the checker semantics:
+
+- arbitrary-length fractional seconds are accepted;
+- year `0000` is rejected;
+- timezone hours are restricted to `00..23`;
+- timezone minutes are restricted to `00..59`;
+- impossible calendar dates fail via `checkdate()`;
+- valid input remains verbatim and is never normalized.
+
+No schema or dependency change was required.
 
 ### Deliberately not implemented
 
@@ -89,20 +100,28 @@ These boundaries remain assigned to T-202/T-203/T-204/T-304.
 
 ## T-201 verification
 
-TDD evidence:
+### Descriptor TDD cycle
 
-1. RED commit: `66041e403e423b010dc28efd84b5761fd37b2772`
+1. RED: `66041e403e423b010dc28efd84b5761fd37b2772`
    - 219 tests executed;
    - 30 expected T-201 failures because descriptor classes did not exist;
-   - pre-existing tests, contract, lint, and browser jobs remained green.
-2. Generic model commit: `28364e137b0b052eeaa0ea878739963e387ba7ed`.
-3. Livewire descriptor commit: `1e572894e8f0338465fa58593130d01d736fa68b`.
-4. Final implementation CI: all jobs green.
+   - pre-existing contract, lint, and browser jobs remained green.
+2. Generic model: `28364e137b0b052eeaa0ea878739963e387ba7ed`.
+3. Livewire descriptor: `1e572894e8f0338465fa58593130d01d736fa68b`.
+4. Initial checkpoint: `a4256e20d5be422a76959b44814f41deda9c9ac2`.
 
-Observed PHP result on PHP 8.3 + Illuminate 12:
+### RFC3339 parity TDD cycle
+
+1. RED: `060a68b6d70de1caa971253737c24be8122a9999`
+   - 227 tests / 575 assertions;
+   - 2 errors + 6 failures precisely exposed checker/PHP semantic drift.
+2. GREEN fix: `563a3e06aed5c60c1f30ed83cf5a3bb341bb68a0`.
+   - all CI jobs green.
+
+Observed final PHP result on PHP 8.3 + Illuminate 12:
 
 ```text
-OK (219 tests, 569 assertions)
+OK (227 tests, 577 assertions)
 ```
 
 The other three PHP/Illuminate matrix combinations also passed.
@@ -115,7 +134,8 @@ The other three PHP/Illuminate matrix combinations also passed.
 4. Livewire component target identity is exact instance ID; no replacement lookup exists.
 5. `driver=livewire` and `lifecycle=component` are fixed by the Livewire factory.
 6. T-201 introduces no discovery/exposure mechanism and cannot expose public methods automatically.
-7. Frozen `spec/0.1` is unchanged.
+7. PHP date-time validation now agrees with the language-neutral schema checker.
+8. Frozen `spec/0.1` is unchanged.
 
 ## Decisions
 

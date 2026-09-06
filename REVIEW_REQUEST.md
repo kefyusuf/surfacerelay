@@ -5,7 +5,7 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Base:** `main` at `11e7348cbee6f69fa8e502308f6db262bf78e271`
 - **Head branch:** `feat/livewire-runtime-binding`
-- **Scope:** T-201 only — generic RuntimeBinding model + Livewire component descriptor.
+- **Scope:** T-201 only — generic RuntimeBinding model, Livewire component descriptor, and final RFC3339 contract-parity correction discovered during review.
 - **M2 status:** IN PROGRESS.
 - **Next task:** T-202 has **not** started.
 
@@ -49,6 +49,7 @@ Tests added:
 ```text
 packages/laravel/tests/Unit/RuntimeBindingTest.php
 packages/laravel/tests/Unit/LivewireRuntimeBindingTest.php
+packages/laravel/tests/Unit/Rfc3339ParityTest.php
 ```
 
 Design / plan:
@@ -68,17 +69,18 @@ Please verify these boundaries directly in code:
 4. Driver grammar remains open/extensible and matches the frozen contract.
 5. `BindingLifecycle` values exactly match `page/component/session/persistent`.
 6. Generic `target` must be a non-empty string-keyed object.
-7. `expiresAt` is null or valid RFC3339 and is preserved verbatim.
+7. `expiresAt` is null or schema-checker-compatible RFC3339 and is preserved verbatim.
 8. Extension keys use the frozen `namespace/key` grammar.
 9. `LivewireBindingTarget` stores only `componentId + method` and does not store component class/name as a fallback locator.
 10. `LivewireRuntimeBinding::forComponent()` fixes `driver=livewire` and `lifecycle=component`; callers cannot override either.
 11. No `livewire/livewire` dependency was added.
 12. No component lookup, method reflection, discovery, lifecycle producer, registry/store, invocation execution, or browser runtime behavior exists in T-201.
 13. `spec/0.1` is unchanged.
+14. PHP RFC3339 acceptance/rejection matches the repository JSON Schema checker for long fractional seconds, year zero, timezone bounds, and impossible dates.
 
 ## TDD evidence
 
-RED:
+### Descriptor RED
 
 ```text
 commit: 66041e403e423b010dc28efd84b5761fd37b2772
@@ -97,16 +99,44 @@ feat(laravel): add generic runtime binding model
 feat(livewire): add component runtime binding descriptor
 ```
 
+### RFC3339 parity review cycle
+
+Review exposed a cross-language mismatch inherited from the earlier confirmation model and copied into RuntimeBinding.
+
+RED:
+
+```text
+060a68b6d70de1caa971253737c24be8122a9999
+test(spec): expose PHP RFC3339 parity gaps
+
+PHP: 227 tests / 575 assertions
+2 errors + 6 failures
+```
+
+The regression proved that the previous PHP parser:
+
+- rejected a schema-valid 7-digit fractional second;
+- accepted year `0000`;
+- accepted timezone hour `24`;
+- accepted timezone minute `60`.
+
 GREEN:
 
 ```text
+563a3e06aed5c60c1f30ed83cf5a3bb341bb68a0
+fix(spec): align PHP RFC3339 validation
+```
+
+Final evidence:
+
+```text
 contract: 52 fixture manifest entries + 12 conformance scenarios
-PHP:      219 tests / 569 assertions
+PHP:      227 tests / 577 assertions
 browser:  TypeScript typecheck + 3 Vitest tests
 CI:       contract + PHP 8.3/8.4 × Illuminate 12/13 + php-lint + browser
 ```
 
-All jobs passed on the implementation commit.
+All jobs passed on the final review-fix commit.
 
 ## Deliberate non-goals
 
@@ -142,4 +172,4 @@ Still PROPOSED:
 
 ## Explicit statement
 
-**T-201 is implemented and awaiting external review. T-202 has NOT started.**
+**T-201 is implemented and final CI is green. T-202 has NOT started.**
