@@ -36,5 +36,6 @@ Status values: `PROPOSED`, `ACCEPTED`, `SUPERSEDED`.
 | D-030 | ACCEPTED | `ActionError.code` is an extensible machine-readable lowercase string namespace, not a closed enum. |
 | D-031 | ACCEPTED | `succeeded` = execution completed; `rejected` = deliberate pre-success refusal; `failed` = runtime/execution failure; `confirmation_required` = awaiting a real trusted challenge. Unknown halt codes fail loudly. |
 | D-032 | ACCEPTED | Output confidentiality and content trust are independent: `outputSensitivity` (`normal`/`sensitive`) and `outputContentTrust` (`trusted_application_data`/`contains_untrusted_content`). Sensitive output may simultaneously contain untrusted content. |
+| D-033 | ACCEPTED | Livewire PHP request teardown is not component-lifecycle authority. Server binding production derives the exact mounted component ID and fresh binding IDs; browser registration cleanup and stale-target resolution belong to client component lifecycle signals. Server `destroy` must not revoke or retarget component bindings. |
 
 When a proposed decision becomes part of implemented public behavior, promote it to `ACCEPTED` in the same change or record why it remains experimental.
