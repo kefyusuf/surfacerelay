@@ -25,6 +25,11 @@ final class PrepListLivewireE2ETest extends TestCase
         return [LivewireServiceProvider::class];
     }
 
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('app.key', '0123456789abcdef0123456789abcdef');
+    }
+
     public function test_prep_list_fixture_types_exist(): void
     {
         self::assertTrue(class_exists(PrepListTestPipeline::class), 'PrepListTestPipeline must exist.');
