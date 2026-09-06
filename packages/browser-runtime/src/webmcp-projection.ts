@@ -1,9 +1,9 @@
 import type { ActionDefinition } from './types.js';
 
 export interface WebMcpAnnotations {
-  readOnlyHint?: boolean;
-  untrustedContentHint?: boolean;
-  consequentialHint?: boolean;
+  readOnlyHint: boolean;
+  untrustedContentHint: boolean;
+  consequentialHint: boolean;
 }
 
 export function projectAnnotations(action: ActionDefinition): WebMcpAnnotations {
