@@ -3,16 +3,15 @@
 ## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Review scope:** `T-301 — browser DriverRegistry`
-- **Base reviewed main checkpoint:** `42a1c643c60ccd9ad445d5b9f21b83ee8490de05`
-- **Implementation checkpoint:** `1c1ff62ac70f779e90866bd169abc7599b7632bf`
-- **Result:** **PENDING FINAL REVIEW**
+- **Reviewed scope:** `T-301 — browser DriverRegistry`
+- **Reviewed/merged checkpoint:** `df55267a72a93ed7a3017c810469fd5c0ff1b6f4`
+- **Result:** **PASSED**
 - **M3 status:** IN PROGRESS.
 - **Next task:** T-302 has **not** started.
 
-## Scope
+## Reviewed scope
 
-T-301 completes and hardens the pre-existing browser `DriverRegistry`; it does not introduce a new subsystem or redesign its public API.
+T-301 completed and hardened the pre-existing browser `DriverRegistry`; it did not introduce a new subsystem or redesign the public API.
 
 Production file:
 
@@ -28,7 +27,7 @@ packages/browser-runtime/tests/driver-registry.test.ts
 
 No design/implementation-plan artifact was added because this was approved as a bounded completion of an existing flow.
 
-## Expected architecture
+## Reviewed architecture
 
 ```text
 RuntimeBinding.driver
@@ -45,7 +44,7 @@ DriverRegistry
 
 The registry is only a browser execution-adapter lookup. It is not binding authority or lifecycle state.
 
-## Review invariants
+## Accepted invariants
 
 1. Only exact explicit registration creates support for a driver identifier.
 2. Registry names follow the frozen RuntimeBinding driver grammar.
@@ -58,13 +57,13 @@ The registry is only a browser execution-adapter lookup. It is not binding autho
 9. Registration and lookup do not call `BindingDriver.execute()`.
 10. Registry does not discover bindings, validate lifecycle/expiry/revocation, resolve stale targets, authorize invocations, resolve action versions, inspect driver-owned targets, register WebMCP tools or execute bindings.
 11. `spec/0.1` is unchanged.
-12. T-302/T-303/T-304/T-305 are not implemented by this task.
+12. T-302/T-303/T-304/T-305 remain unimplemented.
 
 ## Runtime hardening finding
 
-The original `assertValidDriverName(name: string)` relied only on TypeScript typing before `RegExp.test()`. At runtime, JavaScript regex APIs coerce non-string inputs; for example `null` is tested as `"null"`, which matches the driver grammar and could be inserted as a non-string Map key by untyped JavaScript callers.
+The original validator relied on the TypeScript type before `RegExp.test()`. JavaScript regex APIs coerce non-string values; `null`, for example, is tested as `"null"`, which matches the identifier grammar and could reach the registry as a non-string Map key from untyped JavaScript.
 
-T-301 adds the minimal runtime guard:
+The final implementation requires:
 
 ```text
 typeof name === "string"
@@ -72,52 +71,53 @@ AND
 frozen driver grammar matches
 ```
 
-No other production behavior was expanded.
+This is the only production behavior change in T-301.
 
 ## TDD evidence
 
-RED commit:
+RED:
 
 ```text
-5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
-workflow 34050492466
+commit:   5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
+workflow: 34050492466
+browser:  18 tests total / 16 passed / 2 deliberate failures
 ```
 
-Browser result:
-
-```text
-18 tests total
-16 passed
-2 deliberate failures
-```
-
-The two failures prove:
+The two failures proved:
 
 - non-string registration could pass without error;
-- non-string lookup reached `Unsupported binding driver` instead of being rejected as an invalid contract value.
+- non-string lookup reached unsupported-driver resolution instead of failing as an invalid contract value.
 
-GREEN commit:
+GREEN:
 
 ```text
-1c1ff62ac70f779e90866bd169abc7599b7632bf
-workflow 34050557047
+commit:   1c1ff62ac70f779e90866bd169abc7599b7632bf
+workflow: 34050557047
 ```
 
-Final implementation evidence:
+Review / merge:
+
+```text
+review checkpoint: df55267a72a93ed7a3017c810469fd5c0ff1b6f4
+feature review run: 34050778061 — success
+merged main run:    34050849851 — success
+```
+
+Final evidence:
 
 ```text
 browser:  TypeScript typecheck + 18/18 Vitest tests
 PHP:      266 tests / 783 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       contract + four PHP matrix cells + php-lint + browser — all green
+CI:       all jobs green on feature checkpoint and merged main
 ```
 
 ## Decision status
 
 - D-016 remains ACCEPTED — driver identifiers are extensible and unsupported drivers fail closed.
-- D-035 ACCEPTED — browser DriverRegistry maps exact contract-valid identifiers only to explicitly registered BindingDrivers; registration/lookup do not confer authority, validate lifecycle or permit aliases/fallback.
-- D-026 remains PROPOSED; T-301 does not define the eventual normalized browser binding-resolution error model.
+- D-035 ACCEPTED — browser DriverRegistry maps exact contract-valid identifiers only to explicitly registered BindingDrivers; registration/lookup do not confer authority, validate lifecycle or permit aliases/defaults/fallback.
+- D-026 remains PROPOSED; T-301 does not define normalized browser binding-resolution failure semantics.
 
 ## Explicit statement
 
-**T-301 implementation is complete and green. Final external-style review is requested before merge. T-302 is TODO and has NOT started.**
+**T-301 REVIEW PASSED and is merged to `main`. T-302 is TODO and has NOT started.**

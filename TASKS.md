@@ -50,7 +50,7 @@ Reviewed M2 implementation checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8
 
 ## M3 — Browser Runtime / WebMCP — IN PROGRESS
 
-### T-301 — DriverRegistry — DONE / REVIEW PENDING
+### T-301 — DriverRegistry — DONE / REVIEWED
 
 **Outcome:** existing browser DriverRegistry completed with executable fail-closed contract tests and a runtime string-type guard.
 
@@ -70,13 +70,16 @@ Reviewed M2 implementation checkpoint: `068347ac6d1bba645ab1c311daf918f87298b2e8
 **Verification:**
 
 ```text
-RED:          5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
-GREEN:        1c1ff62ac70f779e90866bd169abc7599b7632bf
-RED run:      34050492466 — browser 16 passed / 2 deliberate failures
-GREEN run:    34050557047 — all jobs green
-Browser:      TypeScript typecheck + 18/18 Vitest tests
-PHP:          266 tests / 783 assertions
-Contract:     52 fixture manifest entries + 12 conformance scenarios
+RED:                  5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
+GREEN:                1c1ff62ac70f779e90866bd169abc7599b7632bf
+Reviewed/merged head: df55267a72a93ed7a3017c810469fd5c0ff1b6f4
+RED run:              34050492466 — browser 16 passed / 2 deliberate failures
+GREEN run:            34050557047 — all jobs green
+Review run:           34050778061 — all jobs green
+Merged main run:      34050849851 — success
+Browser:              TypeScript typecheck + 18/18 Vitest tests
+PHP:                  266 tests / 783 assertions
+Contract:             52 fixture manifest entries + 12 conformance scenarios
 ```
 
 ### T-302 — WebMCP semantic projection — TODO
@@ -87,7 +90,7 @@ Contract:     52 fixture manifest entries + 12 conformance scenarios
 
 `outputSensitivity` remains independent and belongs to server-side output policy/redaction.
 
-**Status:** not started; do not begin until T-301 review closes.
+**Status:** not started.
 
 ### T-303 — Async registration lifecycle — TODO
 Register current tools through the browser API, handle errors, and clean up with lifecycle/AbortController semantics.
