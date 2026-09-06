@@ -76,7 +76,12 @@ function parseTarget(binding: RuntimeBinding): LivewireTarget {
     seen.add(name);
   }
 
-  if (!Number.isInteger(requiredCount) || requiredCount < 0 || requiredCount > inputOrder.length) {
+  if (
+    typeof requiredCount !== 'number'
+    || !Number.isInteger(requiredCount)
+    || requiredCount < 0
+    || requiredCount > inputOrder.length
+  ) {
     throw executionError('binding_target_invalid', 'Livewire target requiredCount is outside inputOrder bounds.');
   }
 
