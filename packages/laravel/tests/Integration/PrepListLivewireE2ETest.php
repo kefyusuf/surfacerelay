@@ -75,6 +75,8 @@ final class PrepListLivewireE2ETest extends TestCase
         self::assertSame($runtime->definition, $bindings[0]->definition);
         self::assertSame($instance->getId(), $bindings[0]->target['componentId']);
         self::assertSame('addItem', $bindings[0]->target['method']);
+        self::assertSame(['name'], $bindings[0]->target['inputOrder']);
+        self::assertSame(1, $bindings[0]->target['requiredCount']);
 
         $testable->call($bindings[0]->target['method'], 'passport');
 
@@ -127,6 +129,7 @@ final class PrepListLivewireE2ETest extends TestCase
         $reflection = new ReflectionClass(PrepListComponent::class);
         $constructor = $reflection->getConstructor();
         $boot = $reflection->getMethod('boot');
+        $addItem = $reflection->getMethod('addItem');
 
         self::assertTrue(
             $constructor === null || $constructor->getDeclaringClass()->getName() !== PrepListComponent::class,
@@ -134,6 +137,7 @@ final class PrepListLivewireE2ETest extends TestCase
         );
         self::assertCount(1, $boot->getParameters());
         self::assertSame(PrepListActionGateway::class, $boot->getParameters()[0]->getType()?->getName());
+        self::assertSame('array', $addItem->getReturnType()?->getName());
     }
 
     private function runtime(): PrepListTestPipeline
