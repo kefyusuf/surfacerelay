@@ -36,67 +36,51 @@ Independent deterministic projection of the supported WebMCP hints. Reviewed che
 
 Whole-snapshot preflight, deterministic versioned tool identity, sequential async registration, one AbortController-backed lease per generation, partial-failure cleanup and exact driver dispatch. Reviewed/merged checkpoint: `961a1715c889cd52b814537646a50e049f1ef9d7`.
 
-### T-304 — Livewire browser driver — DONE / PENDING REVIEW
+### T-304 — Livewire browser driver — DONE / REVIEWED
 
-**Outcome:** trusted Laravel binding issuance now carries a deterministic Livewire positional call plan, and the browser runtime executes only the exact mounted Livewire target through documented `Livewire.find()` and `$wire.$call()` APIs.
-
-**Production additions/changes:**
-
-```text
-packages/laravel/src/Livewire/Binding/LivewireMethodCallPlan.php
-packages/laravel/src/Livewire/Binding/LivewireMethodCallPlanBuilder.php
-packages/laravel/src/Livewire/Binding/LivewireWireReservedNames.php
-packages/laravel/src/Livewire/Binding/LivewireBindingProducer.php
-packages/laravel/src/Livewire/Binding/InvalidLivewireBindingProduction.php
-packages/laravel/src/Livewire/LivewireBindingTarget.php
-
-packages/browser-runtime/src/livewire-errors.ts
-packages/browser-runtime/src/livewire-reserved-names.ts
-packages/browser-runtime/src/livewire-browser-runtime.ts
-packages/browser-runtime/src/livewire-browser-driver.ts
-```
+**Outcome:** trusted Laravel binding issuance carries a deterministic positional Livewire call plan, and the browser executes only the exact mounted target through documented `Livewire.find()` and `$wire.$call()` APIs.
 
 **Acceptance:**
 
 - trusted producer emits exact `inputOrder` + `requiredCount` from ReflectionMethod order;
-- schema property/required sets must exactly match caller-visible method parameters;
+- schema property/required sets exactly match caller-visible method parameters;
 - unsupported signatures and `$wire`/public-state method collisions fail binding issuance;
 - non-null Action output plus explicit `void`/`never` return fails binding issuance;
 - browser driver requires exact executable Livewire target shape and component lifecycle;
-- explicit expiry is checked before component resolution;
+- explicit expiry is validated/enforced before component lookup;
 - input mapping rejects unknown keys, missing required own-properties and positional holes;
-- exact `Livewire.find(componentId)` is the only target lookup;
-- exact `$wire.$id` is rechecked before invocation;
-- missing/replaced component is `binding_stale`; no first/name/DOM/class/record/method fallback exists;
+- exact `Livewire.find(componentId)` is the only target lookup and `$wire.$id` is rechecked;
+- missing/replaced component is stale; no first/name/DOM/class/record/method/replacement fallback exists;
 - invocation is exact `$wire.$call(method, ...params)` once and returns the raw result;
 - arbitrary Livewire/server failures propagate unchanged;
-- T-303 WebMCP lifecycle integration reaches the exact Livewire driver/binding and never retargets to a replacement;
-- cancellation signal is not falsely passed as a `$call()` argument; T-305 owns propagation;
-- D-039/D-040/D-041 record the exact-resolution, call-plan and documented-API boundaries;
-- `spec/0.1` is unchanged.
+- T-303 WebMCP integration reaches the exact Livewire driver/binding and never retargets to replacement components;
+- cancellation signal is not falsely appended to `$call()`; T-305 owns propagation;
+- D-039/D-040/D-041 record exact-resolution, call-plan and documented-API-only boundaries;
+- `spec/0.1` remains unchanged.
 
 **Verification:**
 
 ```text
-Design:              98fda16676f667e63611a4470955195e324cf528
-Plan:                76a641a226168053fa056329023e4bb3e7f00e2a
-Server RED:          49ca658250f7e39ab2db4ae524c3e6b51a1ec436 / run 34066761247
-Server GREEN:        9a1b1b302c32371429eda409e63f44a295324ea0 / run 34066974783
-Producer RED:        2d289b1cd11997fdad7b01dbf720a2ffc00cf63f / run 34067044151
-Producer GREEN:      5ce49b140866d584b1c286d543cba53aa6b8db2b / run 34067238627
+Design:               98fda16676f667e63611a4470955195e324cf528
+Plan:                 76a641a226168053fa056329023e4bb3e7f00e2a
+Server RED:           49ca658250f7e39ab2db4ae524c3e6b51a1ec436 / run 34066761247
+Server GREEN:         9a1b1b302c32371429eda409e63f44a295324ea0 / run 34066974783
+Producer RED:         2d289b1cd11997fdad7b01dbf720a2ffc00cf63f / run 34067044151
+Producer GREEN:       5ce49b140866d584b1c286d543cba53aa6b8db2b / run 34067238627
 Browser boundary RED: af39243aabea1bbe66caf2af297d39d0cb53c647 / run 34067293183
-Boundary GREEN:      1d01fb402087d28c1fa4e5d201af11e678fe5961 / run 34067343303
-Driver RED:          7532c3e018b0751972e7dcc87406023979284f63 / run 34067410382
-Driver impl/fixes:   2fd575514ccd7a5f8f3faebbede0359da5128393 → 01c7a19607a54c518641b5886d270780cf3409d4 → 7d2783a3763a086558f19da39c618b001ec2b512
-Integration proof:  54f82762d06abb7913eb84e6f66593fd6d346146 / run 34067710238 — all 7 jobs green
-Browser:             TypeScript typecheck + 90/90 Vitest tests
-PHP:                 283 tests / 815 assertions
-Contract:            52 fixture manifest entries + 12 conformance scenarios
+Boundary GREEN:       1d01fb402087d28c1fa4e5d201af11e678fe5961 / run 34067343303
+Driver RED:           7532c3e018b0751972e7dcc87406023979284f63 / run 34067410382
+Driver fixes:         2fd575514ccd7a5f8f3faebbede0359da5128393 → 01c7a19607a54c518641b5886d270780cf3409d4 → 7d2783a3763a086558f19da39c618b001ec2b512
+Integration proof:   54f82762d06abb7913eb84e6f66593fd6d346146 / run 34067710238
+Review checkpoint:   20ac963871a2ffc7730c0cd42747c8a02de72fab / run 34067907647 — all 7 jobs green
+Browser:              TypeScript typecheck + 90/90 Vitest tests
+PHP:                  283 tests / 815 assertions
+Contract:             52 fixture manifest entries + 12 conformance scenarios
 ```
 
 ### T-305 — Cancellation propagation — TODO
 
-Propagate cancellation as far as the documented browser/framework surfaces permit without claiming transactional rollback or reversal of already-started effects.
+Propagate cancellation as far as documented browser/framework surfaces permit without claiming transactional rollback or reversal of already-started effects.
 
 **Status:** next task; not started. Separate design gate required.
 

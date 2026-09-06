@@ -4,12 +4,13 @@
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Reviewed scope:** `T-304 — Livewire browser driver`
-- **Implementation/integration head:** `54f82762d06abb7913eb84e6f66593fd6d346146`
-- **Result:** **PENDING FINAL CHECKPOINT REVIEW**
+- **Reviewed checkpoint:** `20ac963871a2ffc7730c0cd42747c8a02de72fab`
+- **Review workflow:** `34067907647` — all 7 jobs success
+- **Result:** **PASSED**
 - **M3 status:** IN PROGRESS
 - **Next task:** T-305 has **not** started.
 
-## Reviewed architecture candidate
+## Reviewed architecture
 
 ```text
 Laravel server issuance
@@ -40,99 +41,52 @@ verify exact $wire.$id
 $wire.$call(exact method, ...params)
 ```
 
-## Production scope under review
+## Review findings
 
-Laravel:
+No blocker found.
 
-```text
-packages/laravel/src/Livewire/Binding/LivewireMethodCallPlan.php
-packages/laravel/src/Livewire/Binding/LivewireMethodCallPlanBuilder.php
-packages/laravel/src/Livewire/Binding/LivewireWireReservedNames.php
-packages/laravel/src/Livewire/Binding/LivewireBindingProducer.php
-packages/laravel/src/Livewire/Binding/InvalidLivewireBindingProduction.php
-packages/laravel/src/Livewire/LivewireBindingTarget.php
-```
+1. Action input object/schema order is not invocation authority; parameter order comes only from the server-issued ReflectionMethod plan.
+2. Action schema property and required sets are exact against the caller-visible method signature; unsupported signatures fail issuance rather than relying on hidden Livewire binding behavior.
+3. `$wire` proxy/state collisions fail closed; the reference implementation does not bypass them using private Livewire request/fireAction APIs.
+4. Browser target shape is strict and includes only `componentId`, `method`, `inputOrder`, and `requiredCount`.
+5. RuntimeBinding expiry validation matches the frozen PHP RFC3339 acceptance boundary and runs before browser component lookup.
+6. Input mapping rejects missing required own-properties, unknown fields and positional holes; trailing optional omission is the only omission supported.
+7. Exact `Livewire.find(componentId)` plus exact `$wire.$id` is the sole target-resolution path.
+8. Missing/replacement component identity produces `binding_stale`; no first/name/DOM/class/record/method/replacement lookup or retarget exists.
+9. Invocation uses documented `$wire.$call(method, ...params)` exactly once and returns the raw result.
+10. Livewire/server/network/application rejections propagate unchanged; the driver does not guess stale/expired from arbitrary failures.
+11. T-303 integration proves WebMCP registration → DriverRegistry → exact Livewire binding execution and proves replacement/no-retarget behavior.
+12. Prep List's exposed method now returns the same ActionBus semantic result used by the application path; no second business implementation exists.
+13. `DriverExecutionContext.signal` is intentionally not converted into a fake `$call()` parameter or rollback claim; T-305 remains separate.
+14. `spec/0.1` is unchanged; call-plan metadata stays driver-owned RuntimeBinding target data.
+15. No T-305 cancellation implementation, M4 trust controls, Filament/HTMX driver behavior, or cross-origin exposure policy leaked into scope.
 
-Browser:
-
-```text
-packages/browser-runtime/src/livewire-errors.ts
-packages/browser-runtime/src/livewire-reserved-names.ts
-packages/browser-runtime/src/livewire-browser-runtime.ts
-packages/browser-runtime/src/livewire-browser-driver.ts
-```
-
-Reference fixture/example changes are limited to returning Prep List semantic output, proving the executable target shape, and updating the illustrative binding descriptor.
-
-## Invariants to review
-
-1. Action input object order is never Livewire invocation authority; parameter order comes only from the server-issued ReflectionMethod call plan.
-2. Action schema property set equals the caller-visible PHP parameter set exactly; no Action field is silently dropped and no extra PHP argument is invented.
-3. Schema required set equals PHP parameters without defaults; required arguments form a positional prefix.
-4. Variadic, by-reference, union/intersection and method-level dependency signatures fail executable binding issuance.
-5. `$wire` public/proxy reserved names and public component-state collisions fail closed rather than bypassing documented APIs.
-6. Non-null Action output plus explicit PHP `void`/`never` return fails binding issuance; no speculative full PHP/JSON-Schema type inference exists.
-7. Trusted producer emits `inputOrder` + `requiredCount`; low-level legacy/manual target construction may omit them but the browser driver then rejects that descriptor as non-executable.
-8. Browser target must contain exactly `componentId`, `method`, `inputOrder`, and `requiredCount` with strict value constraints.
-9. Explicit RuntimeBinding expiry is parsed strictly and enforced before component lookup; malformed expiry is invalid, `expiresAt <= now` is expired.
-10. Input mapping requires required own-properties, rejects unknown keys and positional holes, permits only trailing optional omission, and forwards values unchanged.
-11. Exact component resolution uses only documented `Livewire.find(componentId)`.
-12. The returned `$wire.$id` must equal the bound component ID.
-13. Missing or mismatching exact identity is `binding_stale`; no first/name/DOM/class/record/method/replacement lookup is attempted.
-14. Invocation uses documented `$wire.$call(method, ...params)` exactly once; private `fireAction`/request internals are not imported.
-15. Raw successful method result is returned unchanged.
-16. Arbitrary Livewire/server/network/application rejection is propagated unchanged and is not guessed to be a stale binding.
-17. T-303 integration proves WebMCP registration → exact DriverRegistry → LivewireBrowserDriver execution.
-18. Replacement test proves an old exact component binding never invokes a newly mounted similar component.
-19. `DriverExecutionContext.signal` is intentionally not appended to `$call()` arguments; T-305 owns actual cancellation propagation and rollback non-claims.
-20. `spec/0.1` remains unchanged; all new invocation metadata is driver-owned RuntimeBinding target data.
-21. D-039/D-040/D-041 record the exact lookup, server-issued call-plan, and documented-API-only boundaries.
-22. D-026 remains proposed as a complete generic failure vocabulary; T-304 only emits conditions it can prove locally.
-
-## TDD evidence
+## TDD and verification evidence
 
 ```text
 Design:                 98fda16676f667e63611a4470955195e324cf528
 Plan:                   76a641a226168053fa056329023e4bb3e7f00e2a
-
-Server call-plan RED:   49ca658250f7e39ab2db4ae524c3e6b51a1ec436
-RED workflow:           34066761247
-Server GREEN/fix:       9a1b1b302c32371429eda409e63f44a295324ea0
-GREEN workflow:         34066974783
-
-Producer RED:           2d289b1cd11997fdad7b01dbf720a2ffc00cf63f
-RED workflow:           34067044151
-Producer GREEN:         5ce49b140866d584b1c286d543cba53aa6b8db2b
-GREEN workflow:         34067238627
-
-Browser boundary RED:   af39243aabea1bbe66caf2af297d39d0cb53c647
-RED workflow:           34067293183
-Boundary GREEN:         1d01fb402087d28c1fa4e5d201af11e678fe5961
-GREEN workflow:         34067343303
-
-Driver RED:             7532c3e018b0751972e7dcc87406023979284f63
-RED workflow:           34067410382
+Server RED:             49ca658250f7e39ab2db4ae524c3e6b51a1ec436 / 34066761247
+Server GREEN:           9a1b1b302c32371429eda409e63f44a295324ea0 / 34066974783
+Producer RED:           2d289b1cd11997fdad7b01dbf720a2ffc00cf63f / 34067044151
+Producer GREEN:         5ce49b140866d584b1c286d543cba53aa6b8db2b / 34067238627
+Browser boundary RED:   af39243aabea1bbe66caf2af297d39d0cb53c647 / 34067293183
+Boundary GREEN:         1d01fb402087d28c1fa4e5d201af11e678fe5961 / 34067343303
+Driver RED:             7532c3e018b0751972e7dcc87406023979284f63 / 34067410382
 Driver implementation:  2fd575514ccd7a5f8f3faebbede0359da5128393
 Type-narrowing fix:     01c7a19607a54c518641b5886d270780cf3409d4
 Expiry fixture fix:     7d2783a3763a086558f19da39c618b001ec2b512
-
-WebMCP integration:     723b77281890aff6e12c5566c4aa62340ca2f0c5
-Integration head:       54f82762d06abb7913eb84e6f66593fd6d346146
-Integration workflow:   34067710238 — all 7 jobs success
+WebMCP integration:     54f82762d06abb7913eb84e6f66593fd6d346146 / 34067710238
+Review checkpoint:      20ac963871a2ffc7730c0cd42747c8a02de72fab / 34067907647
 ```
 
-Intermediate failures did not loosen behavior:
-
-- the first driver implementation required an explicit TypeScript number guard for `requiredCount`;
-- one offset-expiry test fixture was mathematically in the past after conversion to UTC; only the test timestamp was corrected.
-
-## Current evidence
+Final review evidence:
 
 ```text
 browser:  TypeScript typecheck + 90/90 Vitest tests
 PHP:      283 tests / 815 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all 7 jobs success on exact integration head
+CI:       all 7 jobs success on exact review checkpoint
 Livewire: observed v4.4.3 in matrix
 ```
 
@@ -145,25 +99,8 @@ Livewire: observed v4.4.3 in matrix
 
 ## Explicit non-claims
 
-T-304 does **not** implement:
+T-304 does **not** implement revocation persistence, actual AbortSignal propagation into Livewire requests, cancellation/rollback guarantees, confirmation receipts, idempotency persistence, output redaction, structured audit, or other framework drivers.
 
-- revocation persistence/current-binding authority beyond exact browser component existence and expiry;
-- automatic component/router/DOM lifecycle observation beyond T-303 lease ownership;
-- actual AbortSignal propagation into Livewire requests;
-- cancellation/rollback guarantees;
-- confirmation receipts;
-- idempotency persistence;
-- output redaction policy;
-- structured production audit;
-- Filament/HTMX browser drivers.
+## Explicit statement
 
-## Review gate
-
-Before marking T-304 reviewed or merging:
-
-1. compare `main...feat/livewire-browser-driver` for scope leakage;
-2. confirm no `spec/0.1` changes;
-3. confirm no private Livewire JS imports or lookup fallbacks;
-4. run fresh CI on the exact documentation/review checkpoint;
-5. require all 7 jobs green;
-6. stop before T-305 until T-304 review/merge is complete.
+**T-304 REVIEW PASSED on checkpoint `20ac963871a2ffc7730c0cd42747c8a02de72fab`. T-305 is TODO and has NOT started.**
