@@ -31,4 +31,47 @@ final class InvalidLivewireBindingProduction extends \RuntimeException
             $bindingId,
         ));
     }
+
+    public static function methodSignature(string $method, string $reason): self
+    {
+        return new self(sprintf(
+            'Livewire exposed method "%s" has an unsupported browser-call signature: %s.',
+            $method,
+            $reason,
+        ));
+    }
+
+    public static function inputSchema(string $method, string $reason): self
+    {
+        return new self(sprintf(
+            'Livewire exposed method "%s" cannot be mapped from Action input properties: %s.',
+            $method,
+            $reason,
+        ));
+    }
+
+    public static function reservedMethod(string $method): self
+    {
+        return new self(sprintf(
+            'Livewire exposed method "%s" is reserved by the public $wire browser surface.',
+            $method,
+        ));
+    }
+
+    public static function publicPropertyCollision(string $method): self
+    {
+        return new self(sprintf(
+            'Livewire exposed method "%s" collides with a public component property and cannot be resolved safely through $wire.',
+            $method,
+        ));
+    }
+
+    public static function outputIncompatible(string $method, string $returnType): self
+    {
+        return new self(sprintf(
+            'Livewire exposed method "%s" declares output-incompatible return type "%s" for an Action with outputSchema.',
+            $method,
+            $returnType,
+        ));
+    }
 }
