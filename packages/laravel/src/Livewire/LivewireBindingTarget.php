@@ -7,14 +7,21 @@ namespace SurfaceRelay\Laravel\Livewire;
 /** Driver-owned execution target for one exact mounted Livewire component. */
 final readonly class LivewireBindingTarget implements \JsonSerializable
 {
+    /** @var list<string> */
+    public array $inputOrder;
+
+    public int $requiredCount;
+
+    private bool $hasCallPlan;
+
     /**
-     * @param list<string> $inputOrder
+     * @param list<string>|null $inputOrder
      */
     public function __construct(
         public string $componentId,
         public string $method,
-        public array $inputOrder = [],
-        public int $requiredCount = 0,
+        ?array $inputOrder = null,
+        ?int $requiredCount = null,
     ) {
         if ($this->componentId === '') {
             throw new \InvalidArgumentException('Livewire binding componentId must be a non-empty string.');
@@ -22,6 +29,14 @@ final readonly class LivewireBindingTarget implements \JsonSerializable
         if ($this->method === '') {
             throw new \InvalidArgumentException('Livewire binding method must be a non-empty string.');
         }
+        if (($inputOrder === null) !== ($requiredCount === null)) {
+            throw new \InvalidArgumentException('Livewire binding call plan requires both inputOrder and requiredCount.');
+        }
+
+        $this->hasCallPlan = $inputOrder !== null;
+        $this->inputOrder = $inputOrder ?? [];
+        $this->requiredCount = $requiredCount ?? 0;
+
         if (!array_is_list($this->inputOrder)) {
             throw new \InvalidArgumentException('Livewire binding inputOrder must be a list.');
         }
@@ -43,16 +58,21 @@ final readonly class LivewireBindingTarget implements \JsonSerializable
     }
 
     /**
-     * @return array{componentId: string, method: string, inputOrder: list<string>, requiredCount: int}
+     * @return array{componentId: string, method: string}|array{componentId: string, method: string, inputOrder: list<string>, requiredCount: int}
      */
     public function toArray(): array
     {
-        return [
+        $target = [
             'componentId' => $this->componentId,
             'method' => $this->method,
-            'inputOrder' => $this->inputOrder,
-            'requiredCount' => $this->requiredCount,
         ];
+
+        if ($this->hasCallPlan) {
+            $target['inputOrder'] = $this->inputOrder;
+            $target['requiredCount'] = $this->requiredCount;
+        }
+
+        return $target;
     }
 
     public function jsonSerialize(): array
