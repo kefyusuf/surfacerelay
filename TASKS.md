@@ -30,48 +30,72 @@ Exact explicit driver registration/lookup with fail-closed invalid/unknown handl
 
 ### T-302 — WebMCP semantic projection — DONE / REVIEWED
 
-**Outcome:** deterministic orthogonal projection of three core semantics:
+Independent deterministic projection of the three supported WebMCP hints. Reviewed checkpoint: `b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0`.
 
-- `effect == read` → `readOnlyHint`;
-- `outputContentTrust == contains_untrusted_content` → `untrustedContentHint`;
-- `risk == consequential` → `consequentialHint`.
+### T-303 — Async registration lifecycle — DONE / PENDING REVIEW
+
+**Outcome:** current bound-action snapshots are preflighted completely, projected to deterministic versioned WebMCP identities, registered sequentially through a narrow async browser port, and owned by one AbortController-backed disposable registration lease.
+
+**Production additions:**
+
+```text
+packages/browser-runtime/src/webmcp-types.ts
+packages/browser-runtime/src/webmcp-tool-projection.ts
+packages/browser-runtime/src/webmcp-registration-lifecycle.ts
+```
 
 **Acceptance:**
 
-- no risk inference from destructive/external effects;
-- no content-trust inference from output sensitivity;
-- `read + consequential` preserves both true hints;
-- no unrelated/unsupported hint synthesis from sensitivity, effect or idempotency;
-- ActionDefinition remains unchanged;
-- projection owns no registration/execution/binding/authorization behavior;
-- returned projection shape is deterministic: all three booleans are present and required in the TypeScript type;
-- D-036 records the independent mapping boundary.
+- exact ActionDefinition `id + version` must equal the binding action reference;
+- canonical WebMCP name is `<action-id>.v<version>`;
+- invalid/too-long projected names fail before registration;
+- duplicate projected names, including same action/version on multiple bindings, fail before registration with no implicit binding selection;
+- supported driver is checked through exact T-301 registry lookup without execution;
+- input order is not authority: browser registrations are ASCII-name sorted and sequential;
+- one generation shares one registration `AbortSignal`;
+- successful registration returns an idempotent disposable lease;
+- empty snapshot is valid and makes zero browser calls;
+- partial browser registration failure aborts the generation and preserves the original error object;
+- registered tool execution preserves the exact captured RuntimeBinding, input and per-execution signal;
+- execution cancellation signal is separate from registration lifetime signal;
+- T-302 annotations are reused without reinterpretation;
+- no `bindingId`/component target data is used to manufacture tool identity;
+- no `exposedTo`, automatic reconcile, Livewire browser execution, stale resolution, D-026 finalization, or M4 controls are introduced;
+- D-037 and D-038 record the lifecycle and identity boundaries;
+- `spec/0.1` remains unchanged.
 
-**Verification:**
+**TDD / verification:**
 
 ```text
-RED:               8ef99e86331b1a6d81f4755ab7cd65294b639075
-GREEN:             13253898b568bd0a52b0a2dc8d3d9f0be113483f
-Reviewed/merged:   b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0
-RED run:           34052956365
-GREEN run:         34053052459
-Review run:        34053277732
-Merged main run:   34053337527
-Browser:           TypeScript typecheck + 30/30 Vitest tests
-PHP:               266 tests / 783 assertions
-Contract:          52 fixture manifest entries + 12 conformance scenarios
-CI:                all 7 jobs green on feature review and merged main
+Boundary RED:       7fcf21c1c90b701b473b3e569d2430bf00b3b8fe
+Boundary RED run:   34063633148
+Boundary GREEN:     1f44a7b7d9715727c8b202f9be52a57599345913
+Boundary GREEN run: 34063660958
+
+Projection RED:       7c89f5f586ff227def203a57261bf8f8be4febff
+Projection RED run:   34063697219
+Projection impl:      e604c3f7943497723822903970f8d037ea438390
+Projection fixture:   ca8821487656deff188e009b9189e988a8d43ab0
+Projection GREEN run: 34063779909
+
+Lifecycle RED:       6e0f2464a1b523b848975673ac8afa78e512686c
+Lifecycle RED run:   34063844315
+Lifecycle GREEN:     86e91f72ef90c6f9f888ba23e87de2d946923cf5
+Lifecycle GREEN run: 34063883296 — all 7 jobs green
+
+Browser:  TypeScript typecheck + 49/49 Vitest tests
+PHP:      266 tests / 783 assertions
+Contract: 52 fixture manifest entries + 12 conformance scenarios
 ```
 
-### T-303 — Async registration lifecycle — TODO
-Register current tools through the browser API, handle errors, and clean up with lifecycle/AbortController semantics.
-
-**Status:** next task, not started.
-
 ### T-304 — Livewire browser driver — TODO
-Execute Livewire RuntimeBindings; stale/unknown bindings return explicit failures with no guessing.
+
+Execute exact Livewire RuntimeBindings using explicit browser target resolution; stale/unknown bindings must fail with no guessing or retargeting.
+
+**Status:** not started; separate design gate required.
 
 ### T-305 — Cancellation propagation — TODO
+
 Propagate cancellation as far as supported without claiming transactional rollback.
 
 ---
