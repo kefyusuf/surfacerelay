@@ -16,10 +16,11 @@ final class PrepListComponent extends Component
         $this->actions = $actions;
     }
 
+    /** @return array{itemId: string, name: string} */
     #[ExposeAction(id: 'prep_list.add_item', version: 1)]
-    public function addItem(string $name): void
+    public function addItem(string $name): array
     {
-        $this->actions->addItem($name);
+        return $this->actions->addItem($name);
     }
 
     public function render(): string
