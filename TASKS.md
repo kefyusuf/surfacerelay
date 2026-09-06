@@ -60,55 +60,57 @@ Reviewed M1.1 baseline: `11e7348cbee6f69fa8e502308f6db262bf78e271`.
 
 ### T-202 — Implement explicit Livewire action exposure API — DONE / REVIEWED
 
-**Goal:** Concrete components explicitly nominate exact registered actions through specific public instance methods.
+**Outcome:** explicit method-level `#[ExposeAction]` allow-list, exact registry resolution, deterministic exposure ordering, fail-loud duplicate/visibility rules, no public-method auto-exposure.
+
+**Verification:** PHP 242 tests / 667 assertions; full matrix green on merged main checkpoint.
+
+### T-203 — Implement Livewire binding lifecycle producer — DONE
+
+**Goal:** Issue fresh component-scoped RuntimeBindings for the exact trusted mounted component identity without confusing PHP request teardown with browser component lifetime.
 
 **Implemented:**
 
-- method-level `#[ExposeAction(id, version)]` allow-list declaration;
-- immutable `LivewireActionExposure` carrying the exact registered `ActionDefinition` object + method name;
-- `LivewireActionExposureReader` using exact `ActionRegistry::get(id, version)`;
-- unannotated public methods are ignored;
-- parent-only annotations do not auto-expose on child components;
-- annotated protected/private/static concrete methods fail loudly;
-- duplicate attributes and duplicate exact action identity mappings fail loudly;
-- different action versions remain distinct;
-- deterministic ordering by action ID/version/method;
-- reader never invokes component methods;
-- no `livewire/livewire` dependency.
+- `BindingIdGenerator` + native `RandomBindingIdGenerator` for fresh opaque issuance IDs;
+- trusted `LivewireComponentIdentityResolver` + `MethodLivewireComponentIdentityResolver` using explicit `getId()`;
+- `LivewireBindingProducer` converting deterministic T-202 exposures into T-201 RuntimeBindings;
+- exact component ID + exact exposed method target;
+- `driver=livewire`, `lifecycle=component`, `expiresAt=null`, empty extensions by default;
+- duplicate generated binding IDs fail loudly within one batch;
+- repeated issuance gets fresh IDs;
+- replacement components create new exact targets without mutating old bindings;
+- producer invokes no exposed action methods;
+- no caller-supplied component ID or binding ID at the producer boundary;
+- D-033 records that Livewire server request teardown is not browser component-lifecycle authority.
 
 **Verification:**
 
 ```text
-RED: 35850ce5c2bb8bdb78dda7bf63791f46d7cbf4ef
-Vocabulary: 4a79e6302ea0f138b28bd6a8646fc19d88274cfa
-Reader: 471769c7eda6767e6bf19b08d3cdd828e2c8053d
-Exact lookup review refactor: 2fb1fffe9a5bb966b1c4629c676bf30d8ac22b8f
-Reviewed/merged main checkpoint: 40dce9f460c1c6e83dc9a8b8548abe0c49ae4f77
-PHP: 242 tests / 667 assertions
+RED: f1c4a1b1f1d6950c28bef14fa39f4723c9466a61
+Binding ID generation: 44e8cf779f79c7ac365f9d8067ee26d9584cb8fd
+Trusted identity: 2ef35c990437434ba0d38ddecf943d64e0ddda1b
+Producer: 0280a6c369aac27f510bee874006af5fe9b20e40
+Test fixture correction: 6bccbc87c6449df6b6669f23c75d83b3e8c66220
+PHP: 256 tests / 709 assertions
 Contract: 52 fixture manifest entries + 12 conformance scenarios
 Browser: typecheck + 3 tests
-CI: feature head and merged main all matrix jobs green
+CI: all matrix jobs green
 ```
 
 **Acceptance:**
-- no reflection-based “expose all public methods” path;
-- exact action `id + version` only;
-- exposure is not discovery or invocation authorization;
-- no RuntimeBinding issuance or T-203 lifecycle behavior mixed in.
-
-### T-203 — Implement Livewire binding lifecycle producer — TODO
-
-**Goal:** Issue mounted binding descriptors and invalidate them on lifecycle/navigation replacement.
-
-**Acceptance:** stale/replaced component bindings fail closed; no silent retargeting.
-
-**Status:** next task, not started.
+- no silent retargeting of old bindings;
+- fresh issuance never intentionally reuses an old binding ID;
+- component authority comes from trusted runtime identity resolution;
+- server `destroy` hook is not used as lifecycle invalidation;
+- browser stale cleanup remains assigned to M3;
+- no T-204 execution flow mixed in.
 
 ### T-204 — End-to-end Prep List through shared ActionBus — TODO
 
 **Goal:** Human Livewire UI and agent binding execute the same application action.
 
 **Acceptance:** business logic exists once and tests prove equivalent state transition.
+
+**Status:** next task, not started pending T-203 review.
 
 ---
 
@@ -145,19 +147,15 @@ Propagate cancellation as far as supported without claiming transactional rollba
 ## M4 — Production Trust Controls — TODO
 
 ### T-401 — Confirmation challenge/receipt — TODO
-
 Opaque runtime-issued, scoped, expiring confirmation receipts. Caller `confirmed=true` never grants authority.
 
 ### T-402 — Idempotency store — TODO
-
 Server-side deduplication for required/recommended keys.
 
 ### T-403 — Output policy/redaction — TODO
-
 Use `outputSensitivity` for redaction and preserve `outputContentTrust` for downstream untrusted-content handling.
 
 ### T-404 — Structured audit events — TODO
-
 Record safe action identity/context references/outcome/correlation evidence without storing secrets by default.
 
 ---
