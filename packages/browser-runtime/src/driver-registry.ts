@@ -8,7 +8,7 @@ import type { BindingDriver } from './types.js';
 const DRIVER_NAME_PATTERN = /^[a-z][a-z0-9_.:-]{0,79}$/;
 
 function assertValidDriverName(name: string): void {
-  if (!DRIVER_NAME_PATTERN.test(name)) {
+  if (typeof name !== 'string' || !DRIVER_NAME_PATTERN.test(name)) {
     throw new Error('Invalid binding driver name (must match the frozen driver grammar).');
   }
 }
