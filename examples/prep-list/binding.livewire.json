@@ -8,7 +8,11 @@
   "lifecycle": "component",
   "target": {
     "componentId": "example-123",
-    "method": "addItem"
+    "method": "addItem",
+    "inputOrder": [
+      "name"
+    ],
+    "requiredCount": 1
   },
   "expiresAt": null
 }
