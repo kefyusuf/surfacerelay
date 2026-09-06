@@ -6,104 +6,85 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Reviewed T-301 checkpoint:** `df55267a72a93ed7a3017c810469fd5c0ff1b6f4`
+- **Branch:** `feat/webmcp-semantic-projection`
+- **T-302 implementation checkpoint:** `13253898b568bd0a52b0a2dc8d3d9f0be113483f`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; **M3 IN PROGRESS**
-- **Last completed/reviewed task:** `T-301 — DriverRegistry`
-- **Next task:** `T-302 — WebMCP semantic projection` — **not started**
+- **Last implementation task:** `T-302 — WebMCP semantic projection`
+- **Review state:** ready for final review
+- **Next task:** `T-303 — Async registration lifecycle` — **not started**
 - **Contract version:** `0.1-draft`
-- **Spec status:** `spec/0.1` remains frozen and unchanged by T-301.
+- **Spec status:** `spec/0.1` remains frozen and unchanged by T-302.
 - **Contract baseline:** **52 fixture manifest entries + 12 conformance scenarios**.
 - **PHP baseline:** **266 tests / 783 assertions**.
-- **Browser baseline:** TypeScript typecheck + **18 Vitest tests**.
-- **CI:** feature review checkpoint and merged `main` checkpoint are green across contract, four PHP matrix cells, php-lint and browser.
-
-## M2 — Livewire Binding — DONE / REVIEWED
-
-T-201 through T-204 remain reviewed and merged. The Livewire vertical proves explicit exposure, exact mounted RuntimeBindings and a single shared ActionBus/application mutation path for human and binding-derived invocation.
+- **Browser baseline:** TypeScript typecheck + **30/30 Vitest tests**.
 
 ## M3 — Browser Runtime / WebMCP — IN PROGRESS
 
 ### T-301 — DriverRegistry — DONE / REVIEWED
 
-T-301 completed and hardened the existing browser DriverRegistry without redesigning its public API.
+Exact explicit driver registration/lookup with no aliases/default/fallback; invalid, non-string and unsupported names fail closed. D-035 remains ACCEPTED.
+
+### T-302 — WebMCP semantic projection — IMPLEMENTED / REVIEW READY
+
+The existing projection skeleton was completed as a deterministic semantic contract rather than redesigned.
 
 ```text
-RuntimeBinding.driver
-        │ exact contract-valid identifier
-        ▼
-DriverRegistry.requireDriver(name)
-        │
-        ├── explicitly registered ──→ exact BindingDriver object
-        └── unknown/invalid ────────→ fail closed
+ActionDefinition.effect == read
+        ↓
+readOnlyHint
+
+ActionDefinition.outputContentTrust == contains_untrusted_content
+        ↓
+untrustedContentHint
+
+ActionDefinition.risk == consequential
+        ↓
+consequentialHint
 ```
 
-Reviewed invariants:
+Reviewed implementation intent:
 
-1. `register(name, driver)` and `requireDriver(name)` remain the complete registry API.
-2. Driver names use the frozen RuntimeBinding driver grammar.
-3. Names are not trimmed, lowercased, aliased, defaulted or silently substituted.
-4. Duplicate registration fails loudly and preserves the original driver.
-5. Contract-valid but unsupported names fail closed.
-6. Runtime non-string names fail before JavaScript regex coercion or unsupported-driver lookup.
-7. Multiple explicit drivers coexist independently.
-8. Registration and lookup never execute the driver.
-9. Registry owns no discovery, binding lifecycle validation, stale resolution, target lookup, authorization, action-version resolution or WebMCP registration.
-10. `spec/0.1` is unchanged.
+1. The three mappings are independent.
+2. Destructive/external effects do not imply consequential risk.
+3. Sensitive output does not imply untrusted content.
+4. `read + consequential` legitimately produces both hints as true.
+5. Idempotency/effect/sensitivity do not synthesize unrelated hints.
+6. Projection is pure and does not mutate the ActionDefinition.
+7. Projection performs no registration, authorization, driver selection or binding resolution.
+8. The reference projection always returns all three booleans; its TypeScript return type now matches that runtime fact.
+9. Typecheck includes an explicit projection-shape contract fixture.
+10. D-036 records orthogonal projection semantics.
 
-### Runtime hardening finding
-
-JavaScript `RegExp.test()` coerces non-string inputs. Before hardening, a runtime value such as `null` could be tested as the string `"null"`, satisfy the grammar and reach the registry despite the contract requiring a string.
-
-The final implementation requires both:
+### TDD evidence
 
 ```text
-typeof name === "string"
-AND
-frozen driver grammar matches
+RED:   8ef99e86331b1a6d81f4755ab7cd65294b639075
+GREEN: 13253898b568bd0a52b0a2dc8d3d9f0be113483f
+RED run:   34052956365
+GREEN run: 34053052459
 ```
 
-No broader production behavior was introduced.
+RED proved that the runtime always emitted three booleans while the public TypeScript return type weakened them to `boolean | undefined`.
 
-## TDD / verification evidence
-
-```text
-RED test commit:      5e442a7ae70a59ef2d8b7f5c9bdd3dcc4134d91b
-GREEN implementation: 1c1ff62ac70f779e90866bd169abc7599b7632bf
-Review checkpoint:    df55267a72a93ed7a3017c810469fd5c0ff1b6f4
-RED workflow:         34050492466
-GREEN workflow:       34050557047
-Feature review run:   34050778061
-Merged main run:      34050849851
-```
-
-RED browser evidence:
+Final GREEN evidence:
 
 ```text
-18 tests total
-16 passed
-2 deliberate failures
-```
-
-Final evidence:
-
-```text
-browser:  TypeScript typecheck + 18/18 Vitest tests
-PHP:      266 tests / 783 assertions
-contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all jobs green on feature checkpoint and merged main
+browser typecheck: success
+browser tests:     30/30
+PHP:               266 tests / 783 assertions
+contract:          52 fixture entries + 12 conformance scenarios
+CI:                all 7 jobs green on implementation head
 ```
 
 ## Decisions
 
-- D-016 remains ACCEPTED — drivers are extensible identifiers and unknown drivers fail closed.
-- D-022..D-025 remain ACCEPTED.
-- D-026 remains PROPOSED until real binding-resolution failure behavior exists.
-- D-033 and D-034 remain ACCEPTED.
-- D-035 ACCEPTED — browser DriverRegistry maps exact contract-valid driver names only to explicitly registered browser BindingDrivers; registration/lookup do not confer authority, validate lifecycle or permit alias/default/fallback behavior.
+- D-014 remains ACCEPTED — consequential risk is independent of effect.
+- D-032 remains ACCEPTED — output sensitivity and content trust are independent.
+- D-035 remains ACCEPTED — exact browser driver registration boundary.
+- D-036 ACCEPTED — WebMCP hint projection is orthogonal and deterministic; unsupported/unrelated hints are not synthesized.
 
 ## Next task
 
-`T-302 — WebMCP semantic projection`
+`T-303 — Async registration lifecycle`
 
 **Status: TODO / not started.**
