@@ -8,16 +8,18 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
 - **Working branch:** `feat/confirmation-challenge-receipt`
+- **PR:** `#1 — feat(laravel): add scoped confirmation challenge and receipt trust controls`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
-- **Current task:** `T-401 — Confirmation challenge/receipt` — **DONE / READY FOR EXTERNAL REVIEW**
-- **Implementation verification checkpoint:** `7db7d54fd1af9387c3cb408ec472c949168ed569`
-- **Implementation CI:** workflow `34130941909` — **all 7 jobs green**
-- **PHP evidence:** **344 tests / 1299 assertions** across PHP 8.3/8.4 and Illuminate 12/13 matrix
+- **Current task:** `T-401 — Confirmation challenge/receipt` — **DONE / REVIEWED / MERGE READY**
+- **Final code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
+- **Final PR workflow:** `34135906728` — **all 7 jobs green**
+- **PHP evidence:** **344 tests / 1300 assertions** across PHP 8.3/8.4 and Illuminate 12/13 matrix
 - **Browser isolation evidence:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract evidence:** `python scripts/validate.py` green; `spec/0.1` is frozen and unchanged; fixture/scenario baseline remains **52 + 12**
-- **Diff evidence:** implementation checkpoint is based exactly on `main@5eb33c20...`, 0 commits behind; no `spec/0.1`, browser production, T-402, T-403 or T-404 implementation changes
+- **External automated review:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f` — no blocker; one trivial bounded-lock-wait finding, verified and fixed TDD-first
+- **CodeRabbit head status:** success on `f94340947b00f06707451590f1bef9fcc980479d`
 - **Next task:** `T-402 — Idempotency store` — **not started**
-- **Merge status:** T-401 is **not merged**; external review is still required
+- **Merge status:** PR #1 is merge-ready but **not merged at this checkpoint**
 
 ## T-401 — Implemented trust boundary
 
@@ -58,7 +60,7 @@ confirmation stage
 7. Default challenge TTL is 300s and approved-receipt TTL is 120s; validity requires `now < expiresAt`.
 8. Exact-scope successful consumption is atomic and single-use. Receipt replay fails. Downstream failure does not restore a consumed receipt.
 9. Scope mismatch does not grant authority and does not spend an otherwise-valid approved receipt.
-10. `CacheConfirmationStore` requires a shared lock-capable Laravel cache (`Store` + `LockProvider`) and never degrades to unlocked mutation.
+10. `CacheConfirmationStore` requires a shared lock-capable Laravel cache (`Store` + `LockProvider`), uses a per-token lock with a bounded **2 second** wait and a **10 second** lock TTL, maps timeout/acquisition failure to `ConfirmationStoreUnavailable`, and never degrades to unlocked mutation.
 11. Only successful receipt consumption creates a runtime-owned `VerifiedConfirmation` trusted entry; provenance contains no receipt/token/scope secret.
 12. `ActionResultNormalizer` maps only a typed real ConfirmationChallenge. Generic halt details cannot fabricate a challenge.
 13. T-402 idempotency remains separate; T-401 single-use receipt semantics are not a duplicate-side-effect solution.
@@ -77,9 +79,17 @@ State-machine GREEN:       cc7eb1a0bb6a0ea2d715826cbed7db1ed5d062f5 / 3412596197
 Pipeline checkpoint:       c10f06c16384c5d53f28ea38fa0f64903a4a37ab / 34127948471
 Full integration RED:      de78135f5df344aae4f2ab8bdf846130ed008c82 / 34130583026
 Implementation GREEN:      7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
+Review-prep checkpoint:    d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
+PR validation:             d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
+CodeRabbit full review:    e1364e16-d11d-4fe9-85d5-5f6675a2d99f — 1 trivial lock-wait finding, no blocker
+Review finding RED:        37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223 — expected lock.block(2) failures
+Review finding GREEN:      f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
+Final PHP:                 344 tests / 1300 assertions
+Final browser:             TypeScript typecheck + 103/103 Vitest tests
+Final contract:            frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
 ```
 
-The full integration RED intentionally exposed one remaining missing behavior: the public normalizer did not map the typed `confirmation_required` halt. The final GREEN adds only that narrow mapping; the suite then passes at 344 tests / 1299 assertions.
+The external review finding was availability-only: a non-blocking lock acquisition could reject a concurrent request immediately. The production store now waits at most two seconds for the same per-token lock and still fails closed on timeout or any acquisition failure. No confirmation authority semantics changed.
 
 ## Decisions
 
@@ -97,4 +107,4 @@ The full integration RED intentionally exposed one remaining missing behavior: t
 
 ## Next boundary
 
-**Stop after T-401 review preparation. Do not begin T-402 automatically.**
+**T-401 is reviewed and merge-ready. Stop after merge closure; do not begin T-402 automatically.**

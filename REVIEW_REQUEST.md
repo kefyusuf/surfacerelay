@@ -1,4 +1,4 @@
-# External Review Request
+# External Review Record
 
 ## Review status
 
@@ -6,12 +6,17 @@
 - **Scope:** `T-401 — Confirmation challenge/receipt`
 - **Base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
 - **Candidate branch:** `feat/confirmation-challenge-receipt`
-- **Implementation checkpoint:** `7db7d54fd1af9387c3cb408ec472c949168ed569`
-- **Implementation workflow:** `34130941909` — all 7 jobs success
-- **Result:** **READY FOR EXTERNAL REVIEW / NOT MERGED**
+- **Pull request:** `#1 — feat(laravel): add scoped confirmation challenge and receipt trust controls`
+- **Reviewed code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
+- **Final PR workflow:** `34135906728` — **all 7 jobs success**
+- **External automated reviewer:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f`
+- **Review result:** **PASSED WITH ONE TRIVIAL FINDING, FIXED AND REVERIFIED**
+- **CodeRabbit status on final code head:** success
+- **Open review threads:** 0
+- **Merge status:** **MERGE READY / NOT MERGED AT THIS CHECKPOINT**
 - **M4 status:** IN PROGRESS; T-402..T-404 remain TODO
 
-## What changed
+## Reviewed trust boundary
 
 T-401 implements real Laravel runtime confirmation authority without changing `spec/0.1` wire shapes:
 
@@ -31,43 +36,67 @@ runtime-owned HumanConfirmation trusted entry
 execution
 ```
 
-The production confirmation store persists only scalar/cache-safe records keyed by SHA-256 token hash. Raw bearer tokens are not persisted. A Laravel cache store must implement both `Store` and `LockProvider`; approve/consume operations are lock-protected and have no unlocked fallback.
+The production confirmation store persists only scalar/cache-safe records keyed by SHA-256 token hash. Raw bearer tokens are not persisted. A Laravel cache store must implement both `Store` and `LockProvider`; every confirmation-record mutation is protected by a per-token lock with a bounded two-second acquisition wait and no unlocked fallback.
 
-## Review focus
+## External review finding
 
-1. **Authority boundary:** confirm action input, metadata, `confirmed=true`, pending challenge IDs and prebuilt HumanConfirmation cannot satisfy the gate.
-2. **Exact scope:** confirm action ID/version, validated input, surface, binding, actor, tenant, record, selection and browser session are bound; correlation/idempotency/metadata are excluded intentionally.
-3. **Stable context representation:** confirm arbitrary objects fail closed unless a trusted resolver supplies a non-secret confirmation scope key; Laravel `Authenticatable` identity derives a stable actor key without credentials/tokens.
-4. **State machine:** confirm pending → approved → consumed/expired is server-side, approval cannot rewrite scope, and the same opaque token is used across challenge/receipt states.
-5. **Replay/expiry:** confirm strict equality expiry, single-use receipt semantics, and receipt remains spent when downstream execution fails.
-6. **Mismatch behavior:** confirm wrong-scope attempt cannot execute and does not consume the legitimate exact-scope receipt.
-7. **Cache atomicity:** confirm every authority mutation is under per-token lock and lock/store failures fail closed.
-8. **Secret handling:** confirm raw receipt, token hash, scope hash and trusted actor/tenant values do not leak through halt details, result metadata, provenance or exceptions.
-9. **Result semantics:** confirm `confirmation_required` is produced only from a typed real `ConfirmationChallenge`, never fabricated from generic halt details.
-10. **Scope discipline:** confirm there is no T-402 idempotency, T-403 redaction, T-404 audit persistence, T-504 UI, or `spec/0.1` change.
+CodeRabbit found no blocker/security defect and reported one **trivial Stability & Availability** issue in `CacheConfirmationStore::withTokenLock()`:
+
+- the original implementation used a single non-blocking `Lock::get()` attempt;
+- short contention on the same token could therefore surface `ConfirmationStoreUnavailable` immediately;
+- Laravel 12/13 support bounded `Lock::block()` acquisition, with timeout represented as a lock acquisition failure.
+
+The finding was verified against the current Laravel cache lock contracts before changing code. It was then fixed test-first:
+
+```text
+Review RED:   37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
+              four PHP matrix jobs failed only because lock.get was still used
+
+Review GREEN: f94340947b00f06707451590f1bef9fcc980479d / 34135906728
+              all 7 jobs success; 344 tests / 1300 assertions
+```
+
+The final behavior is:
+
+```text
+per-token lock TTL:  10s
+bounded wait:         2s
+wait timeout/error:   ConfirmationStoreUnavailable
+unlocked fallback:    forbidden
+```
+
+This hardening changes availability under brief contention only; confirmation authority, scope, expiry, replay and single-use semantics remain unchanged.
+
+## Review conclusions
+
+1. **Authority boundary:** action input, metadata, `confirmed=true`, pending challenge IDs and prebuilt HumanConfirmation cannot satisfy the gate.
+2. **Exact scope:** action ID/version, validated input, surface, binding, actor, tenant, record, selection and browser session are bound; correlation/idempotency/metadata are excluded intentionally.
+3. **Stable context representation:** arbitrary objects fail closed unless a trusted resolver supplies a non-secret confirmation scope key; Laravel `Authenticatable` identity derives a stable actor key without credentials/tokens.
+4. **State machine:** pending → approved → consumed/expired is server-side, approval cannot rewrite scope, and the same opaque token is used across challenge/receipt states.
+5. **Replay/expiry:** expiry equality fails closed, successful consumption is single-use, and downstream execution failure does not restore a receipt.
+6. **Mismatch behavior:** wrong-scope attempts cannot execute and do not consume the legitimate exact-scope receipt.
+7. **Cache atomicity:** every authority mutation is under the exact per-token lock; acquisition waits are bounded and timeout/store failures fail closed.
+8. **Secret handling:** raw receipt, token hash, scope hash and trusted actor/tenant values do not leak through halt details, result metadata, provenance or exceptions.
+9. **Result semantics:** `confirmation_required` is produced only from a typed real `ConfirmationChallenge`, never fabricated from generic halt details.
+10. **Scope discipline:** no T-402 idempotency, T-403 redaction, T-404 audit persistence, T-504 UI, rollback semantics, or `spec/0.1` change was introduced.
 
 ## Verification evidence
 
 ```text
-Implementation checkpoint: 7db7d54fd1af9387c3cb408ec472c949168ed569
-Workflow:                  34130941909 — 7/7 jobs success
-PHP:                       344 tests / 1299 assertions
-Browser:                   TypeScript typecheck + 103/103 Vitest tests
-Contract:                  python scripts/validate.py green; frozen spec/0.1 unchanged
-Base comparison:           main@5eb33c20... → checkpoint, 17 commits ahead / 0 behind
+Design checkpoint:          13437eec846bc2410125f7e7648d4a3034c8abfe
+Implementation plan:        76a92dd65131d58c3833f9415ff03984910bf8ac
+Implementation GREEN:       7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
+Review-prep checkpoint:      d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
+Initial PR validation:       d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
+CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99f
+Review-finding RED:          37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
+Review-finding GREEN:        f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
+PHP:                         344 tests / 1300 assertions
+Browser:                     TypeScript typecheck + 103/103 Vitest tests
+Contract:                    python scripts/validate.py green; frozen spec/0.1 unchanged
+CodeRabbit final head status: success
+Open review threads:          0
 ```
-
-Key TDD checkpoints:
-
-```text
-Invocation RED/GREEN:      e0e6b5fee4752d0655a95fa72dfd7c9f0b1fd7d8 → d39d9985109f50c2501bd058420d1be6cb3b6ac6
-Scope RED/GREEN:           9bd56e1ea7c93d2acdf4f353e663b7ff21e0e5ab → 02faf1e105691acbd19221662972cc1d3c347ffa
-State-machine RED/GREEN:   d21f8a26b7e0bebbebe4aeb105449718eff4f29b → cc7eb1a0bb6a0ea2d715826cbed7db1ed5d062f5
-Full integration RED:      de78135f5df344aae4f2ab8bdf846130ed008c82 / run 34130583026
-Final implementation GREEN:7db7d54fd1af9387c3cb408ec472c949168ed569 / run 34130941909
-```
-
-The full integration RED had exactly one remaining production gap: `confirmation_required` typed halt normalization. After adding the narrow typed mapping, the complete feature branch returned to 7/7 green.
 
 ## Decision status
 
@@ -79,6 +108,6 @@ The full integration RED had exactly one remaining production gap: `confirmation
 
 T-401 does **not** claim idempotent/exactly-once business execution, output redaction, structured audit persistence, a generic approval HTTP endpoint, browser/Filament confirmation UX, rollback, compensation, or post-dispatch cancellation. Those remain T-402/T-403/T-404/T-504 or separate concerns.
 
-## Requested reviewer outcome
+## Review outcome
 
-Review the feature branch against `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`. A successful review may mark T-401 **REVIEWED** and permit a separate explicit merge step. This document does not self-approve or merge the task.
+**T-401 external automated review passed after its only finding was verified, fixed TDD-first, and revalidated on the exact code head. PR #1 is merge-ready; merge remains a separate explicit operation.**
