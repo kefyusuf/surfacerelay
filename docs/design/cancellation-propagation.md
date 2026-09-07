@@ -6,15 +6,15 @@ Date: 2026-09-07
 
 ## Purpose
 
-T-305 defines how caller cancellation propagates through SurfaceRelay's browser execution path without turning a stopped client request into a false claim that server-side work was rolled back or reversed.
+T-305 defines how caller cancellation propagates through SurfaceRelay's existing WebMCP → DriverRegistry → Livewire execution path without turning a stopped client request into a false claim that server-side work was rolled back or reversed.
 
-The core rule is:
+Core rule:
 
-> SurfaceRelay may make a strong "not dispatched" cancellation claim only before framework dispatch begins. After dispatch begins, cancellation may stop observation, but server/application outcome is not inferred.
+> SurfaceRelay may make a strong "not dispatched" cancellation claim only before framework dispatch begins. After dispatch begins, caller cancellation does not prove that server/application work stopped, rolled back, or reversed.
 
-This task implements that rule for the existing WebMCP → DriverRegistry → Livewire browser path.
+This design operationalizes Threat Model T13 — cancellation confusion.
 
-## Existing execution path
+## Existing path
 
 Before T-305:
 
@@ -32,15 +32,17 @@ Livewire.find(exact componentId)
 $wire.$call(exact method, ...mappedParams)
 ```
 
-T-303 already forwards WebMCP's per-execution signal into `DriverExecutionContext`.
+T-303 already forwards the per-execution WebMCP signal into `DriverExecutionContext`.
 
-T-304 deliberately does not reinterpret that signal as a `$wire.$call()` argument or claim that cancelling the caller reverses already-started work.
+T-304 deliberately does not append that signal to `$wire.$call()` or claim that caller cancellation reverses already-started work.
 
-## Current external contracts
+## External contract corrections
 
-### WebMCP
+### WebMCP signal is required
 
-The current WebMCP execution callback contract requires an `AbortSignal` in tool execution options. The browser runtime compatibility type must therefore model the execution signal as required rather than optional.
+The current WebMCP tool execution callback contract requires an `AbortSignal`.
+
+The compatibility type therefore becomes:
 
 ```ts
 interface WebMcpToolExecuteOptions {
@@ -48,20 +50,18 @@ interface WebMcpToolExecuteOptions {
 }
 ```
 
-The generic `DriverExecutionContext.signal` remains optional because SurfaceRelay drivers may later be invoked from non-WebMCP surfaces that do not provide cancellation.
+`DriverExecutionContext.signal` remains optional because future non-WebMCP surfaces may invoke drivers without cancellation support.
 
-### Livewire 4.4+
+### Livewire 4.4+ cancellation surface
 
-The reference Livewire compatibility target is the documented Livewire 4.4 interceptor surface.
-
-Relevant documented component-scoped APIs:
+The reference Livewire compatibility target is the documented Livewire 4.4 action-interceptor API:
 
 ```js
 $wire.intercept(callback)
 $wire.intercept('method', callback)
 ```
 
-Action interceptor context includes:
+The action interceptor exposes the exact action plus lifecycle hooks including:
 
 ```text
 action.cancel()
@@ -70,45 +70,39 @@ onCancel(callback)
 onFinish(callback)
 ```
 
-All interceptors return an unsubscribe function.
+Interceptors return an unsubscribe function.
 
-This task uses only component-scoped action interception. It does not use message-level or request-level cancellation for generic SurfaceRelay action cancellation.
+T-305 uses only component-scoped action interception. It does not use message-level or request-level cancellation for generic SurfaceRelay execution.
 
-## Cancellation model
+## Cancellation frontier
 
-T-305 defines an explicit dispatch frontier.
+T-305 defines one hard browser/framework dispatch frontier:
 
 ```text
 PRE-DISPATCH                              DISPATCHED
 
-queued / buffered / deferred             request has started
-        │                                       │
+queued / buffered / deferred             exact action onSend fired
         │                                       │
         ├── exact action.cancel() allowed       ├── no SurfaceRelay Livewire cancel
         │                                       │
         └── strong no-dispatch claim            └── server outcome unknown
-                         ▲
-                         │
-                    onSend frontier
 ```
 
-### Pre-dispatch
+### Pre-dispatch guarantee
 
-Before the exact Livewire action's `onSend` hook fires, SurfaceRelay may cancel that exact action with `action.cancel()`.
+Before the exact captured action's `onSend` hook fires, SurfaceRelay may invoke `action.cancel()`.
 
-The guarantee is narrow:
+The guarantee is intentionally narrow:
 
-> If SurfaceRelay cancels the exact action before the dispatch frontier, that action is not intentionally dispatched by SurfaceRelay to the server.
+> If SurfaceRelay cancels the exact Livewire action before `onSend`, SurfaceRelay does not intentionally dispatch that action to the server.
 
-This is not a general transaction or rollback guarantee. It is a browser/framework dispatch guarantee for the exact captured action.
+This is not a database, queue, external-system, or transaction rollback guarantee.
 
-### Dispatched
+### Post-dispatch rule
 
 Once `onSend` fires, dispatch has begun.
 
-After this point SurfaceRelay must not claim that browser cancellation stopped PHP execution, database work, queue publication, external calls, or any other server/application effect.
-
-Post-dispatch signal abort therefore does not invoke:
+After this frontier, caller abort must not trigger:
 
 ```text
 action.cancel()
@@ -116,102 +110,94 @@ message.cancel()
 request.cancel()
 ```
 
-The underlying Livewire operation is allowed to complete naturally so that framework state synchronization and error handling remain consistent.
+The Livewire operation is allowed to complete naturally so framework state synchronization remains coherent and the direct driver result continues to describe the framework's real outcome.
 
-## Why request-level cancellation is rejected
+## Why broad Livewire cancellation is forbidden
 
-Livewire may bundle multiple messages/components/actions into one HTTP request.
+A Livewire HTTP request may bundle multiple messages, components, actions, or state updates.
 
-`request.cancel()` aborts the request controller and cancels all messages in that request. Therefore a SurfaceRelay action abort could unintentionally cancel unrelated human UI work or another component's update.
-
-Example:
+`request.cancel()` aborts the request controller and cancels every message in that request. Cancelling one SurfaceRelay invocation could therefore interfere with unrelated human/UI work.
 
 ```text
 one Livewire request
-├── SurfaceRelay agent action
-└── unrelated human/component update
+├── SurfaceRelay invocation
+└── unrelated component/UI work
 
-agent abort
-    ↓
-request.cancel()      ← forbidden
-    ↓
-both operations affected
+SurfaceRelay signal abort
+        ↓
+request.cancel()          ← forbidden
+        ↓
+unrelated work affected
 ```
 
-T-305 therefore never uses `request.cancel()` for generic action cancellation.
+Message cancellation is rejected for the same scope reason: the message may contain more than the exact SurfaceRelay action.
 
-The same principle excludes message-level cancellation: a message can contain work beyond the exact SurfaceRelay action.
+T-305 uses only exact `action.cancel()` and only pre-dispatch.
 
-## Why `#[Async]` / isolation is not required
+## No forced isolation
 
-T-305 does not require applications to change the exposed Livewire action's execution semantics merely to manufacture a more cancellable transport.
+SurfaceRelay must not change application semantics merely to manufacture cancellability.
 
-The reference implementation must not require:
+T-305 does not require:
 
 ```text
 #[Async]
 #[Isolate]
-private Livewire request APIs
 agent-only Livewire methods
 agent-only business endpoints
+private Livewire request/fireAction APIs
 ```
 
-Human and agent execution continue to converge at the same exposed Livewire component method established by D-034.
+Human and binding-derived invocation continue to converge at the same exposed component method under D-034.
 
-## WebMCP execution gate
+## Generic WebMCP abort gate
 
-`WebMcpRegistrationLifecycle` receives a mandatory WebMCP execution signal.
-
-Before resolving or executing a driver:
+Before invocation-time driver lookup/execution, the registered tool callback checks the required WebMCP signal:
 
 ```text
 options.signal.aborted?
         │
     yes ┴ no
     │       │
-throw      DriverRegistry
-abort      → driver.execute(...)
-reason
+throw      invocation-time
+abort      DriverRegistry.requireDriver(...)
+reason     → driver.execute(...)
 ```
 
-An already-aborted WebMCP execution must not:
+Important distinction:
 
-- resolve a driver;
-- execute a driver;
-- perform Livewire component lookup;
-- invoke `$wire.$call()`.
+- T-303 registration-time driver-support preflight remains unchanged.
+- T-305 blocks only invocation-time driver resolution/execution when the execution signal is already aborted.
 
-The abort reason must be preserved rather than replaced with a generic driver error.
+An already-aborted invocation must not execute a driver, perform Livewire lookup, or call `$wire.$call()`.
 
-This is a generic browser-surface rule and does not belong only to the Livewire driver.
+The exact abort reason is preserved.
 
 ## Abort reason semantics
 
-SurfaceRelay distinguishes caller cancellation from Livewire's internal action-cancellation rejection.
+Caller-originated cancellation and Livewire's internal cancellation rejection are different contracts.
 
-When caller cancellation caused a pre-dispatch `action.cancel()`:
+When caller abort causes pre-dispatch `action.cancel()`:
 
 ```text
 AbortSignal reason
         ↓
-SurfaceRelay cancels exact Livewire action
+exact Livewire action.cancel()
         ↓
 Livewire action promise rejects internally
         ↓
-SurfaceRelay exposes the original AbortSignal reason
+SurfaceRelay exposes original AbortSignal reason
 ```
 
-SurfaceRelay must not expose Livewire's internal cancellation-shaped rejection as if it were the caller's public cancellation contract.
+SurfaceRelay must not expose Livewire's internal cancellation object as its public caller-cancellation result.
 
-Implementation should use the platform signal's abort reason semantics and must not invent a new business result such as `rolled_back`, `reverted`, or `cancelled_successfully`.
+No synthetic business result such as `rolled_back`, `reverted`, or `cancelled_successfully` is introduced.
 
-## Livewire compatibility boundary
+## Livewire compatibility port
 
-T-304's compatibility port currently exposes only exact component lookup and `$call()`.
+T-304 currently models exact component lookup plus `$call()`.
 
-T-305 extends the narrow port with the smallest documented action-interceptor surface needed for cancellation.
-
-Conceptual types:
+T-305 extends the port only with the documented action-interceptor fields it needs:
 
 ```ts
 interface LivewireActionHandle {
@@ -238,57 +224,55 @@ interface LivewireWire {
 }
 ```
 
-The production type may include only the fields required by the implementation and tests. It must not mirror Livewire's entire interceptor API.
+The implementation must not mirror the entire Livewire interceptor API.
 
-### Compatibility failure
+### Runtime compatibility failure
 
-For a cancellation-aware execution (`context.signal` present), the reference Livewire runtime must expose the documented `intercept` function.
+When `DriverExecutionContext.signal` is present, the reference Livewire runtime must expose callable documented `intercept` support.
 
-If it does not, execution fails before `$call()` with an explicit runtime-compatibility error rather than silently advertising cancellation semantics that cannot be honored.
+If not, execution fails before `$call()` with an explicit cancellation-compatibility error rather than silently claiming cancellation semantics that cannot be provided.
 
-A non-cancellation execution path (`context.signal` absent) may retain T-304 behavior and does not need an interceptor solely for T-305.
+When no signal is present, the T-304 execution path may continue without installing a cancellation interceptor.
 
-The supported reference matrix remains Livewire `^4.4`; no lower Livewire compatibility promise is introduced by this task.
+The reference compatibility matrix remains Livewire `^4.4`; T-305 introduces no lower-version support promise.
 
-## Exact action capture
+## Exact one-shot action capture
 
-SurfaceRelay must capture only the exact component/method invocation that it is about to start.
-
-Flow:
+SurfaceRelay captures only the action created by the exact `$wire.$call()` it is about to initiate.
 
 ```text
-resolved exact $wire
+exact $wire resolved by T-304
         ↓
-install component-scoped method interceptor
+install component-scoped exact-method interceptor
         ↓
-(no await / async gap)
+(no await / timer / user callback)
         ↓
 $wire.$call(exact method, ...params)
         ↓
-interceptor receives exact action
-        ↓
-immediately unsubscribe interceptor
+interceptor captures exact action
 ```
 
 Rules:
 
-1. The interceptor is registered on the exact `$wire` resolved by T-304.
-2. It filters by the exact binding method through the documented method-specific interceptor API.
-3. No `await`, timer, microtask handoff, or user callback is inserted between interceptor registration and `$call()` initiation.
-4. The interceptor is one-shot: it unsubscribes immediately after capturing the first expected action.
-5. A final cleanup path also unsubscribes defensively if capture or `$call()` fails.
-6. The interceptor is never left installed for future human or unrelated invocations.
+1. The interceptor is attached to the exact `$wire` resolved by T-304.
+2. It uses the documented method-specific interceptor form.
+3. No asynchronous gap is introduced between interceptor installation and `$call()` initiation.
+4. The callback is logically one-shot immediately: once the expected action is captured, a local `captured` guard makes any later callback invocation a no-op.
+5. Physical unsubscribe is **not** performed synchronously from inside the interceptor callback.
+6. Physical unsubscribe is scheduled after Livewire's current interceptor iteration (for example with a microtask), then repeated defensively by final cleanup if still needed.
+7. This avoids mutating Livewire's interceptor array while Livewire is iterating it, which could otherwise skip an unrelated interceptor registered after SurfaceRelay's callback.
+8. No future human/same-method invocation may be captured by this execution-local interceptor.
 
-If the expected action cannot be captured on a runtime that claims interceptor support, SurfaceRelay fails loudly rather than falling back to global action search or request interception.
+If a runtime claims interceptor support but the expected action is not captured from the synchronous `$call()` initiation, SurfaceRelay fails loudly. It does not fall back to global action search, message inspection, request interception, DOM lookup, or private Livewire APIs.
 
-## Livewire execution state
+## Per-invocation state
 
-The driver needs only a small local state machine for one invocation:
+A small private state machine is sufficient:
 
 ```text
 CREATED
   │
-  ├─ signal already aborted → ABORTED_PRE_DISPATCH
+  ├─ already aborted → ABORTED_PRE_DISPATCH
   │
   ▼
 INTERCEPTOR_INSTALLED
@@ -300,74 +284,63 @@ ACTION_CAPTURED
   │
   └─ onSend → DISPATCHED
                  │
-                 ├─ signal abort → observation cancelled externally;
-                 │                 Livewire execution not cancelled
-                 │
+                 ├─ signal abort → no framework cancellation
                  ├─ Livewire success → NATURAL_SUCCESS
                  └─ Livewire failure → NATURAL_FAILURE
 ```
 
-No public state enum is required unless implementation evidence shows one materially improves correctness. A private boolean such as `dispatched` plus captured-action state is sufficient if tests cover all transitions.
+No public lifecycle enum is required unless implementation evidence shows one is necessary. Private captured/dispatched/cancelled flags are sufficient if transition tests are exhaustive.
 
 ## Detailed algorithm
 
 For a Livewire execution with a signal:
 
-1. Reuse all T-304 descriptor, expiry, reserved-method, input and exact component validation.
-2. Check `signal.aborted` before any interceptor or `$call()` work. If aborted, throw the exact abort reason.
+1. Reuse all T-304 target, expiry, reserved-method, input mapping and exact component checks.
+2. Check `signal.aborted` before interceptor setup or `$call()`; throw the exact abort reason if already aborted.
 3. Require callable documented `$wire.intercept` support.
-4. Install one component-scoped interceptor for the exact target method.
-5. In that interceptor:
+4. Install one component-scoped interceptor for the exact method.
+5. Add one AbortSignal listener for this invocation.
+6. Start exact `$wire.$call(method, ...params)` synchronously with no asynchronous gap after interceptor installation.
+7. In the first expected interceptor callback:
+   - mark the callback logically captured so later invocations are ignored;
    - capture the exact action handle;
-   - register `onSend` to mark `dispatched = true`;
-   - immediately unsubscribe the one-shot interceptor.
-6. Add one AbortSignal listener for this invocation.
-7. Start exact `$wire.$call(method, ...params)` synchronously after interceptor installation.
-8. If the signal aborts before `dispatched`:
-   - mark cancellation as caller-originated pre-dispatch cancellation;
-   - invoke captured `action.cancel()` exactly once.
+   - register `onSend` to set `dispatched = true`;
+   - schedule physical unsubscribe after Livewire's current interceptor iteration.
+8. If the signal aborts after action capture but before `dispatched`:
+   - record caller-originated pre-dispatch cancellation;
+   - invoke exact `action.cancel()` exactly once.
 9. If the signal aborts after `dispatched`:
    - do not invoke any Livewire cancellation primitive.
 10. Await the natural `$call()` promise.
-11. If the invocation was cancelled pre-dispatch, expose the original signal reason, regardless of Livewire's internal cancellation rejection shape.
-12. Otherwise preserve the natural Livewire success value or exact original rejection.
-13. In all paths, remove the signal listener and any remaining interceptor subscription.
+11. If caller cancellation caused pre-dispatch action cancellation, surface the original signal reason regardless of Livewire's internal rejection shape.
+12. Otherwise preserve the exact natural Livewire success value or rejection.
+13. In all paths, remove the AbortSignal listener and defensively unsubscribe any remaining interceptor subscription.
 
-## Already-aborted race protection
+## Race semantics
 
-Both the generic WebMCP gate and Livewire driver check already-aborted state.
-
-The duplicate-looking check is intentional defense in depth:
-
-- WebMCP gate prevents needless driver resolution/execution for the primary surface.
-- Driver gate preserves correct behavior when the driver is invoked directly or by a future non-WebMCP surface with a signal.
-
-Neither check confers authorization or replaces T-304 binding validity checks.
-
-## Pre-dispatch race semantics
-
-JavaScript execution is run-to-completion within the synchronous interceptor-registration → `$call()` initiation sequence.
-
-The design relies on this property:
+JavaScript run-to-completion is part of the design boundary.
 
 ```text
 install interceptor
+add abort listener
 $call(...)
 capture action
 ```
 
-is one synchronous initiation sequence with no intentional asynchronous gap.
+contains no intentional asynchronous yield.
 
-After action capture, an abort event may occur while the action is buffered/deferred but before `onSend`; in that state exact `action.cancel()` is valid.
+The driver also rechecks already-aborted state itself even though WebMCP performs an outer gate. This defense-in-depth check preserves direct/future non-WebMCP driver correctness.
+
+An abort event can then occur while the captured action is queued/deferred and before `onSend`; that is the cancellable window.
 
 ## Deferred Livewire actions
 
-Livewire may defer a new action while an overlapping same-scope message is active.
+Livewire may defer a new same-scope action while another message is active.
 
-This is a primary reason T-305 uses action-level cancellation.
+This is a primary T-305 use case:
 
 ```text
-existing Livewire request in flight
+existing Livewire request active
         ↓
 SurfaceRelay action created/deferred
         ↓
@@ -375,223 +348,220 @@ caller aborts before deferred action fires
         ↓
 exact action.cancel()
         ↓
-deferred action never intentionally dispatches
+action never intentionally dispatches
 ```
 
-T-305 must include a focused test for this state rather than only testing an immediate action.
+A focused test must cover deferred/queued cancellation rather than only immediate actions.
 
-## Post-dispatch semantics
+## Post-dispatch truth model
 
-Post-dispatch cancellation has two distinct truths:
+After `onSend`, caller cancellation and server/framework outcome are independent facts:
 
 ```text
 caller/WebMCP observation
-        = cancelled / no longer waiting
+= cancelled / no longer waiting
 
-framework/server operation
-        = outcome not inferred from cancellation
+framework/server outcome
+= not inferred from caller cancellation
 ```
 
-The direct Livewire driver's promise continues to represent the framework's natural result after dispatch:
+For direct driver execution after dispatch:
 
-- successful Livewire response → resolve raw result;
-- server/network/application failure → reject exact original error;
-- caller signal abort after `onSend` does not replace either result.
+- Livewire success resolves the exact raw result;
+- Livewire/server/network/application failure rejects the exact original error;
+- a later caller abort does not replace either outcome.
 
-This is intentional. It preserves truthful framework outcome semantics and avoids pretending a transport-level cancellation signal can reverse server state.
+The WebMCP host may independently stop observing/exposing an execution when its signal aborts. SurfaceRelay does not reinterpret that host behavior as proof of rollback.
 
-The WebMCP host may independently stop awaiting/exposing the tool result when its execution signal is aborted. SurfaceRelay does not reinterpret that caller-facing behavior as a server rollback.
+## Explicit non-claims
 
-## No rollback claim
-
-T-305 must never emit or document statements equivalent to:
+T-305 never claims:
 
 ```text
-"action was rolled back"
-"server execution stopped"
-"side effect was reversed"
-"database transaction was cancelled"
+server execution stopped
+database transaction rolled back
+external side effect reversed
+queue work cancelled
+request cancellation restored prior state
 ```
 
-unless a later trusted runtime feature has explicit evidence for such a guarantee.
-
-This task has no such feature.
+No such authority exists in this task.
 
 ## Error handling
 
-T-304 execution error codes remain unchanged for descriptor/target/runtime problems.
+T-304 descriptor/target errors remain unchanged.
 
-T-305 may add one focused compatibility code if needed, for example:
+T-305 may add one focused runtime compatibility code if implementation needs it, such as:
 
 ```text
 livewire_cancellation_unavailable
 ```
 
-This code means the documented cancellation-interceptor capability required for a cancellation-aware invocation is not available.
+It means only that the documented action-interceptor capability needed for cancellation-aware invocation is unavailable.
 
-It does not mean:
+It does not mean stale binding, server failure, or rollback.
 
-- the binding is stale;
-- the action failed on the server;
-- the request was rolled back.
+Caller-originated abort uses the original AbortSignal reason rather than a new `LivewireBindingExecutionError` code.
 
-Caller-originated abort itself should use the original AbortSignal reason instead of a new `LivewireBindingExecutionError` code.
+D-026 remains PROPOSED as a complete generic binding-failure vocabulary.
 
-D-026 remains PROPOSED as the complete generic binding-error vocabulary.
+## Cleanup
 
-## Listener and interceptor cleanup
-
-Every execution must clean up both temporary resources:
+Every cancellation-aware execution owns two temporary resources:
 
 ```text
-component method interceptor subscription
+component-method interceptor subscription
 AbortSignal event listener
 ```
 
-Cleanup is mandatory on:
+Cleanup is mandatory and idempotent on:
 
 - natural success;
 - natural failure;
 - pre-dispatch cancellation;
-- interceptor/capture failure;
+- missing/capture-incompatible interceptor behavior;
 - synchronous `$call()` initiation failure.
 
-Cleanup must be idempotent.
+No execution-local interceptor or signal listener may remain after the driver's promise settles.
 
-No execution-local listener may remain attached after the driver's promise settles.
+## Registration lifetime remains independent
 
-## Interaction with T-303 registration lifetime
-
-Registration cancellation and execution cancellation remain distinct authorities.
+T-303 registration lifetime and T-305 invocation cancellation remain different authorities:
 
 ```text
 registration lease AbortSignal
-→ controls whether the WebMCP tool remains registered
+→ controls browser tool registration lifetime
 
 WebMCP execute options.signal
 → controls one invocation
 ```
 
-Disposing the T-303 registration lease must not be reinterpreted as cancelling an already-running business invocation unless the WebMCP host separately aborts that invocation's execution signal.
+Disposing a registration lease does not automatically cancel already-running business work unless the WebMCP host separately aborts that execution's signal.
 
 D-037 remains unchanged.
 
-## Interaction with M4 trust controls
+## M4 interaction
 
-T-305 does not solve replay, idempotency or final-state evidence.
-
-Those remain separate:
+Cancellation does not replace later trust controls:
 
 ```text
 T-402 idempotency
-→ repeated/duplicate execution protection
+→ duplicate/retry protection
 
 T-404 structured audit
-→ authoritative execution/final-state observability
+→ authoritative execution/final-state evidence
 ```
 
-Cancellation does not substitute for either control.
+A cancelled caller without final-state evidence cannot infer whether a dispatched write occurred.
 
-## Threat-model alignment
+## Threat-model requirement
 
-T-305 operationalizes T13 — Cancellation confusion.
+T-305 operationalizes T13.
 
-Required security property:
+Security property:
 
-> A cancelled caller must not cause SurfaceRelay to report reversal of an effect that may already have happened, and cancelling one SurfaceRelay action must not cancel unrelated Livewire work through a broader request/message primitive.
+> Cancelling one SurfaceRelay action must not cancel broader unrelated Livewire work, and cancellation after dispatch must not be described as reversal of an effect that may already have happened.
 
-Negative security test:
+Required negative test:
 
 ```text
-SurfaceRelay action and unrelated Livewire work share/belong to broader runtime activity
+SurfaceRelay action exists alongside unrelated Livewire work
         ↓
-SurfaceRelay signal aborts
+SurfaceRelay execution signal aborts
         ↓
-SurfaceRelay must not call message.cancel() or request.cancel()
+no message.cancel()
+no request.cancel()
+no broad cancellation primitive
 ```
 
 ## Proposed decisions
 
-The implementation should promote these decisions to `ACCEPTED` only when corresponding behavior is proven by tests.
+Promote these to `ACCEPTED` only when implementation evidence exists.
 
 ### D-042 — Cancellation frontier
 
-A SurfaceRelay execution has a strong no-dispatch cancellation guarantee only before framework dispatch begins. WebMCP execution provides a required AbortSignal and an already-aborted signal prevents driver execution. For Livewire, the exact action's documented `onSend` hook marks the dispatch frontier. Cancellation after that frontier does not imply that server work stopped, rolled back, or reversed.
+A SurfaceRelay execution has a strong no-dispatch cancellation guarantee only before framework dispatch begins. WebMCP provides a required execution AbortSignal, and an already-aborted invocation does not perform invocation-time driver resolution/execution. For Livewire, the exact action's documented `onSend` hook marks the dispatch frontier. Cancellation after that frontier does not imply server work stopped, rolled back, or reversed.
 
 ### D-043 — Granular Livewire cancellation only
 
-The Livewire reference driver uses the documented component-scoped action interceptor and exact `action.cancel()` only before the dispatch frontier. It does not use message/request cancellation for generic SurfaceRelay action cancellation because those scopes may contain unrelated framework work. SurfaceRelay does not require `#[Async]`, `#[Isolate]`, or private Livewire request APIs to manufacture cancellability.
+The Livewire reference driver uses documented component-scoped action interception and exact `action.cancel()` only before `onSend`. It never uses message/request cancellation for generic SurfaceRelay action cancellation because those broader scopes may contain unrelated framework work. SurfaceRelay does not require `#[Async]`, `#[Isolate]`, or private Livewire request APIs to manufacture cancellability.
 
 ## TDD acceptance matrix
 
-### WebMCP boundary
+### WebMCP
 
-1. `WebMcpToolExecuteOptions.signal` is required by TypeScript contract.
-2. Already-aborted WebMCP signal prevents `DriverRegistry.requireDriver()` execution.
-3. Already-aborted WebMCP signal preserves the exact abort reason.
-4. Non-aborted signal is forwarded unchanged to `DriverExecutionContext`.
+1. `WebMcpToolExecuteOptions.signal` is required by TypeScript.
+2. Registration-time driver support preflight remains unchanged.
+3. Already-aborted execution prevents invocation-time driver lookup/execution.
+4. Already-aborted execution preserves the exact abort reason.
+5. Non-aborted signal is forwarded unchanged to `DriverExecutionContext`.
 
-### Livewire compatibility port
+### Livewire compatibility
 
-5. Exact `$wire.intercept(method, callback)` shape is represented narrowly.
-6. Runtime missing callable interceptor fails before `$call()` when signal is present.
-7. Interceptor unsubscribe is called exactly once after capture/cleanup.
+6. Narrow `$wire.intercept(method, callback)` shape is represented.
+7. Missing callable interceptor fails before `$call()` when signal is present.
+8. No-signal T-304 path remains compatible.
+
+### Exact capture / isolation
+
+9. Interceptor captures the exact component/method action created by the immediate `$call()`.
+10. Logical one-shot guard ignores any later callback invocation.
+11. Physical unsubscribe occurs after current interceptor iteration, not by mutating the Livewire interceptor array inside its callback.
+12. An unrelated interceptor registered after SurfaceRelay's interceptor still runs.
+13. A later same-method human invocation is not captured.
 
 ### Pre-dispatch
 
-8. Already-aborted driver signal performs no `find()` or `$call()`.
-9. Signal abort after action capture but before `onSend` invokes exact `action.cancel()` once.
-10. Pre-dispatch cancellation returns/throws the exact caller AbortSignal reason rather than Livewire's internal cancellation object.
-11. Deferred/queued exact action can be cancelled before dispatch.
-12. No broader request/message cancellation primitive is called.
+14. Already-aborted direct-driver signal performs no Livewire lookup/call.
+15. Abort after action capture but before `onSend` invokes exact `action.cancel()` once.
+16. Deferred/queued exact action can be cancelled before dispatch.
+17. Pre-dispatch cancellation surfaces exact caller AbortSignal reason.
+18. No request/message cancellation primitive is invoked.
 
 ### Dispatch frontier
 
-13. `onSend` marks dispatch before subsequent abort handling.
-14. Abort after `onSend` does not invoke `action.cancel()`.
-15. Abort after `onSend` does not invoke request/message cancellation.
+19. `onSend` marks dispatch before subsequent abort handling.
+20. Abort after `onSend` does not invoke `action.cancel()`.
+21. Abort after `onSend` does not invoke request/message cancellation.
 
-### Natural post-dispatch outcome
+### Natural outcome
 
-16. Post-dispatch abort followed by Livewire success resolves the exact raw Livewire result for direct driver execution.
-17. Post-dispatch abort followed by Livewire failure rejects the exact original error.
-18. No synthetic rollback/cancelled-success result is returned.
+22. Post-dispatch abort followed by success resolves exact raw Livewire result for direct driver execution.
+23. Post-dispatch abort followed by failure rejects exact original error.
+24. No synthetic rollback or cancelled-success result is emitted.
 
-### Cleanup / isolation
+### Cleanup
 
-19. AbortSignal listener is removed on success, failure and pre-dispatch cancellation.
-20. One-shot interceptor cannot capture a later unrelated same-method invocation.
-21. Existing T-304 no-signal execution remains behaviorally compatible.
-22. T-303 registration lifetime signal remains independent from execution cancellation.
+25. AbortSignal listener is removed on success, failure and pre-dispatch cancellation.
+26. Interceptor cleanup is idempotent in all terminal paths.
+27. T-303 registration signal remains independent from execution cancellation.
 
 ## Scope
 
 ### In scope
 
-- WebMCP required execution signal type correction;
-- generic already-aborted WebMCP execution gate;
-- narrow Livewire action-interceptor compatibility types;
-- exact one-shot action capture;
-- exact action cancellation before `onSend`;
-- dispatch-frontier tracking;
+- required WebMCP execution-signal type;
+- invocation-time already-aborted WebMCP gate;
+- narrow Livewire action-interceptor compatibility port;
+- exact one-shot action capture without interceptor-array mutation during callback iteration;
+- exact pre-dispatch `action.cancel()`;
+- `onSend` dispatch frontier;
 - exact abort-reason preservation;
 - post-dispatch natural-outcome preservation;
-- listener/interceptor cleanup;
-- T13 cancellation-confusion tests/documentation;
-- D-042 and D-043 after implementation evidence.
+- cleanup/isolation tests;
+- T13 documentation/tests;
+- D-042/D-043 after implementation evidence.
 
 ### Out of scope
 
-- `request.cancel()` for generic SurfaceRelay actions;
-- `message.cancel()` for generic SurfaceRelay actions;
-- claiming HTTP abort stops PHP execution;
-- transaction rollback/reversal semantics;
-- forcing Livewire `#[Async]` or `#[Isolate]`;
-- private Livewire `fireAction`, request or message internals;
-- cancellation of registration lease as a substitute for invocation cancellation;
-- server-side cooperative cancellation protocol;
+- request-level or message-level generic cancellation;
+- claiming HTTP abort stops PHP;
+- rollback/reversal semantics;
+- forcing `#[Async]` or `#[Isolate]`;
+- private Livewire action/message/request APIs;
+- server cooperative cancellation protocol;
 - queue-job cancellation;
-- external API compensation;
+- external compensation;
 - confirmation receipts;
 - idempotency persistence;
 - structured audit/final-state evidence;
@@ -599,14 +569,14 @@ The Livewire reference driver uses the documented component-scoped action interc
 
 ## Expected production touch points
 
-Likely browser-runtime files:
+Likely browser files:
 
 ```text
 packages/browser-runtime/src/webmcp-types.ts
 packages/browser-runtime/src/webmcp-registration-lifecycle.ts
 packages/browser-runtime/src/livewire-browser-runtime.ts
 packages/browser-runtime/src/livewire-browser-driver.ts
-packages/browser-runtime/src/livewire-errors.ts     (only if compatibility code is needed)
+packages/browser-runtime/src/livewire-errors.ts   (only if compatibility code is needed)
 ```
 
 Likely tests:
@@ -619,21 +589,21 @@ packages/browser-runtime/tests/livewire-browser-driver.test.ts
 packages/browser-runtime/tests/livewire-webmcp-integration.test.ts
 ```
 
-No Laravel PHP production change is expected unless implementation evidence demonstrates a real server-side contract requirement. T-305 is primarily a browser execution concern.
+No Laravel PHP production change is expected unless implementation evidence reveals an independent server-side requirement.
 
 ## Completion criteria
 
 T-305 is complete only when:
 
-1. the written design has been approved;
+1. this written design is approved;
 2. implementation follows TDD with meaningful RED evidence;
-3. WebMCP signal type/gate is proven;
-4. Livewire pre-dispatch exact-action cancellation is proven;
-5. post-dispatch no-rollback/no-broad-cancel behavior is proven;
-6. cleanup and same-method isolation are proven;
+3. required WebMCP signal and invocation gate are proven;
+4. exact Livewire pre-dispatch cancellation is proven;
+5. post-dispatch no-broad-cancel/no-rollback behavior is proven;
+6. interceptor iteration safety, same-method isolation and cleanup are proven;
 7. existing T-301 through T-304 browser tests remain green;
 8. PHP and contract baselines remain green;
-9. D-042/D-043 are recorded only after behavior exists;
-10. `spec/0.1` remains unchanged unless an independent contract-level issue is discovered;
+9. D-042/D-043 are accepted only after behavior exists;
+10. `spec/0.1` remains unchanged unless a separate contract issue is discovered;
 11. external-style review passes;
-12. T-401/M4 work does not begin automatically.
+12. T-401/M4 does not begin automatically.
