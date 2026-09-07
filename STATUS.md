@@ -6,9 +6,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/livewire-browser-driver`
+- **Branch:** `main`
 - **Reviewed main baseline before T-304:** `7ab8c2f5ef538affa4ac8f2f6224412412ca5765`
 - **Reviewed T-304 checkpoint:** `20ac963871a2ffc7730c0cd42747c8a02de72fab`
+- **Review-passed T-304 checkpoint:** `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; **M3 IN PROGRESS**
 - **Last completed/reviewed task:** `T-304 — Livewire browser driver`
 - **Next task:** `T-305 — Cancellation propagation` — **not started**
@@ -18,6 +19,8 @@
 - **PHP baseline:** **283 tests / 815 assertions**.
 - **Browser baseline:** TypeScript typecheck + **90/90 Vitest tests**.
 - **Review CI:** workflow `34067907647` on exact checkpoint `20ac963871a2ffc7730c0cd42747c8a02de72fab`, all 7 jobs green.
+- **Review-passed CI:** workflow `34068146495` on exact checkpoint `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`, all 7 jobs green.
+- **Merged-main CI:** workflow `34086042805` on exact checkpoint `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`, all 7 jobs green.
 - **Observed Livewire integration version:** `v4.4.3`.
 
 ## M3 — Browser Runtime / WebMCP — IN PROGRESS
@@ -104,6 +107,9 @@ Expiry fixture fix:     7d2783a3763a086558f19da39c618b001ec2b512
 Integration proof:      54f82762d06abb7913eb84e6f66593fd6d346146 / run 34067710238
 Review checkpoint:      20ac963871a2ffc7730c0cd42747c8a02de72fab
 Review run:             34067907647 — all 7 jobs green
+Review-passed checkpoint: bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9
+Review-passed run:      34068146495 — all 7 jobs green
+Merged-main run:        34086042805 — all 7 jobs green
 ```
 
 Final evidence:
@@ -112,7 +118,7 @@ Final evidence:
 browser:  TypeScript typecheck + 90/90 Vitest tests
 PHP:      283 tests / 815 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all 7 jobs green on exact review checkpoint
+CI:       all 7 jobs green on review-passed feature checkpoint and merged main
 ```
 
 ## Decisions
