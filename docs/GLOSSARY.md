@@ -150,7 +150,7 @@ Values (locked for v0.1):
 - `current_record` — *Example: "duplicate this order" resolves the record from the runtime's authoritative view (e.g. Filament's active record).*
 - `current_selection` — *Example: "refund selected rows" uses the table's trusted selection state (D-017).*
 - `browser_session` — short-lived, runtime-validated UI session state of the current browser surface. *Example: "resume the draft cart" binds to the session cart, not a caller-supplied cart ID.*
-- `human_confirmation` — the action requires a human confirmation flow. Declaring this is necessary but not sufficient for consequential actions: authority comes only from a runtime-issued confirmation receipt (D-015), never from caller input such as `confirmed: true`.
+- `human_confirmation` — the action requires a human confirmation flow. Declaring this is necessary but not sufficient for consequential actions: authority comes only from successful server-side verification and atomic consumption of a runtime-issued confirmation receipt (D-015/D-044), never from caller input such as `confirmed: true` or metadata.
 
 ## Discovery authorization
 
@@ -160,6 +160,10 @@ Decision whether an action should be visible/discoverable in a given surface con
 
 Decision whether a specific invocation may execute after resolving its input/resources/context.
 
+## Confirmation challenge
+
+A short-lived runtime-issued request for human approval of one exact confirmation scope. Its public `challengeId` is an opaque token while the server-side record is pending; a pending challenge is not execution authority. Trusted bridge code may approve that exact pending challenge, but it cannot rewrite its stored scope. T-504 will provide the first concrete Filament human-facing bridge.
+
 ## Confirmation receipt
 
-Opaque runtime-issued proof that a specific actor/context approved a scoped consequential action. It is not caller-generated metadata.
+A short-lived, single-use opaque bearer capability issued by the runtime after trusted human approval. The server stores only the token hash and authoritative state. The receipt is bound to exact action ID/version, validated invocation input, surface/binding reference, and relevant trusted actor/tenant/record/selection/browser-session context. It is valid only before expiry and only once; replay, mismatch, unknown, pending, or expired candidates grant no `human_confirmation` authority. Caller booleans, input, metadata, and merely constructing a `ConfirmationChallenge` never grant authority (D-015/D-044).
