@@ -6,21 +6,19 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Reviewed main baseline before T-304:** `7ab8c2f5ef538affa4ac8f2f6224412412ca5765`
-- **Reviewed T-304 checkpoint:** `20ac963871a2ffc7730c0cd42747c8a02de72fab`
-- **Review-passed T-304 checkpoint:** `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`
+- **Branch:** `feat/cancellation-propagation`
+- **Reviewed main baseline before T-305:** `a61fec3085b920f158e4c61fb74420ace706fca1`
+- **T-305 implementation/verification head:** `6cfd7d11862d51dcd6c1e2c18254b290c661e2ec`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; **M3 IN PROGRESS**
 - **Last completed/reviewed task:** `T-304 — Livewire browser driver`
-- **Next task:** `T-305 — Cancellation propagation` — **not started**
+- **Current task:** `T-305 — Cancellation propagation` — **IMPLEMENTATION COMPLETE / READY FOR EXTERNAL-STYLE REVIEW**
+- **Next task:** `T-401 — Confirmation challenge/receipt` — **not started**
 - **Contract version:** `0.1-draft`
-- **Spec status:** `spec/0.1` remains frozen and unchanged by T-304.
+- **Spec status:** `spec/0.1` remains frozen and unchanged by T-305.
 - **Contract baseline:** **52 fixture manifest entries + 12 conformance scenarios**.
 - **PHP baseline:** **283 tests / 815 assertions**.
-- **Browser baseline:** TypeScript typecheck + **90/90 Vitest tests**.
-- **Review CI:** workflow `34067907647` on exact checkpoint `20ac963871a2ffc7730c0cd42747c8a02de72fab`, all 7 jobs green.
-- **Review-passed CI:** workflow `34068146495` on exact checkpoint `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`, all 7 jobs green.
-- **Merged-main CI:** workflow `34086042805` on exact checkpoint `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`, all 7 jobs green.
+- **Browser baseline:** TypeScript typecheck + **103/103 Vitest tests**.
+- **Verification CI:** workflow `34104686684` on exact head `6cfd7d11862d51dcd6c1e2c18254b290c661e2ec`, all 7 jobs green.
 - **Observed Livewire integration version:** `v4.4.3`.
 
 ## M3 — Browser Runtime / WebMCP — IN PROGRESS
@@ -31,105 +29,100 @@ Exact explicit driver registration/lookup with fail-closed invalid/unknown handl
 
 ### T-302 — WebMCP semantic projection — DONE / REVIEWED
 
-Independent deterministic projection of the supported WebMCP hints. D-036 ACCEPTED.
+Independent deterministic projection of supported WebMCP hints. D-036 ACCEPTED.
 
 ### T-303 — Async registration lifecycle — DONE / REVIEWED
 
-Deterministic versioned tool projection, whole-snapshot preflight, sequential browser registration, one AbortController-backed lease per generation, and partial-failure cleanup. D-037/D-038 ACCEPTED.
+Deterministic versioned tool projection, whole-snapshot preflight, sequential registration, AbortController-backed registration leases, and partial-failure cleanup. D-037/D-038 ACCEPTED.
 
 ### T-304 — Livewire browser driver — DONE / REVIEWED
 
-T-304 adds the first real framework-specific browser execution adapter.
+Exact `Livewire.find(componentId)` resolution, server-issued object→positional call plan, documented `$wire.$call()` invocation, strict expiry/input validation, and no stale-target retargeting. D-039/D-040/D-041 ACCEPTED.
 
-Server side:
+### T-305 — Cancellation propagation — IMPLEMENTATION COMPLETE / READY FOR REVIEW
 
-```text
-exact ExposeAction + ActionDefinition.inputSchema
-        ↓
-LivewireMethodCallPlanBuilder
-        ↓
-inputOrder + requiredCount
-        ↓
-trusted LivewireBindingProducer
-        ↓
-RuntimeBinding.target
-```
-
-Browser side:
+Execution path:
 
 ```text
-WebMCP tool execution
-        ↓
-DriverRegistry.requireDriver("livewire")
-        ↓
-LivewireBrowserDriver
-        ├── strict descriptor/expiry/input checks
+WebMCP execute(options.signal)
+        │
+        ├── already aborted
+        │      ↓
+        │   exact signal.reason
+        │   no invocation-time driver lookup
+        │
+        ▼
+DriverRegistry → LivewireBrowserDriver
+        │
+        ├── exact target/expiry/input validation
         ├── exact Livewire.find(componentId)
-        ├── exact $wire.$id verification
-        └── documented $wire.$call(method, ...params)
+        ├── documented component-scoped intercept(method)
+        └── exact $wire.$call(method, ...params)
+                 │
+                 ├── abort before onSend → exact action.cancel() once
+                 └── onSend → dispatch frontier
+                            └── later abort does not cancel action/message/request
 ```
 
-Reviewed invariants:
+Reviewed implementation invariants pending final external-style review:
 
-1. Trusted producer emits a deterministic positional call plan derived from PHP reflection order, never JSON object/property order.
-2. Action schema top-level property set exactly matches caller-visible PHP method parameters; schema `required` exactly matches PHP parameters without defaults.
-3. Variadic, by-reference, union/intersection and method-level dependency parameters are rejected for browser-executable bindings.
-4. Livewire `$wire` reserved names and public component-property collisions fail binding issuance.
-5. `outputSchema` plus explicit `void`/`never` method return fails binding issuance; full PHP-return-type/JSON-Schema inference is intentionally not attempted.
-6. Prep List returns the shared ActionBus semantic output instead of discarding it.
-7. Browser target shape is exact: `componentId`, `method`, `inputOrder`, `requiredCount`; low-level legacy targets without a call plan are not browser-executable.
-8. Explicit `expiresAt` is checked strictly before component resolution; malformed values fail closed and `expiresAt <= now` is `binding_expired`.
-9. Caller input requires own required properties, rejects unknown keys, allows only trailing optional omission, and rejects positional holes.
-10. Component resolution uses only exact `Livewire.find(componentId)`; missing/mismatching identity is `binding_stale` with no first/name/DOM/class/record/replacement fallback.
-11. Invocation uses documented `$wire.$call(exactMethod, ...mappedParams)` exactly once and returns the raw resolved result.
-12. Arbitrary Livewire/server/network/application rejections propagate unchanged; the driver does not mislabel them as stale.
-13. `DriverExecutionContext.signal` is not passed as a fake `$call()` argument; real cancellation propagation remains T-305.
-14. Ambient Livewire access is isolated behind the browser compatibility adapter; no private `fireAction`/request internals are imported.
-15. T-303 integration proves WebMCP registration → exact DriverRegistry → LivewireBrowserDriver execution and proves old bindings do not retarget to replacement components.
-16. Browser expiry validation mirrors the frozen PHP RuntimeBinding RFC3339 acceptance boundary.
+1. WebMCP execution `signal` is required by TypeScript.
+2. Already-aborted WebMCP execution fails before invocation-time `requireDriver()` and preserves exact `signal.reason`.
+3. Registration-time driver preflight remains unchanged and separate from invocation cancellation.
+4. Livewire cancellation uses only the documented component-scoped action interceptor and exact `action.cancel()`.
+5. A cancellation-aware invocation requires documented `intercept` capability before `$call()`; no silent fallback exists.
+6. Direct-driver already-aborted signals fail before Livewire lookup/call.
+7. `onSend` is the hard dispatch frontier.
+8. Pre-dispatch caller abort cancels the exact captured action exactly once and surfaces the caller abort reason rather than Livewire's internal cancellation error.
+9. A synchronous prior interceptor abort race is handled: if abort is observed before SurfaceRelay captures the action, the action is cancelled immediately once captured.
+10. After `onSend`, SurfaceRelay does not call `action.cancel()`, `message.cancel()`, or `request.cancel()` and makes no rollback/reversal claim.
+11. Post-dispatch success/failure remains the natural exact Livewire result/error for direct driver execution.
+12. SurfaceRelay never requires `#[Async]`, `#[Isolate]`, or private Livewire request APIs to manufacture cancellability.
+13. The execution-local interceptor is logically one-shot and physically unsubscribed after the current interceptor iteration to avoid mutating Livewire's interceptor array during iteration.
+14. Unrelated trailing interceptors still run; later same-method invocations are not captured by completed SurfaceRelay executions.
+15. AbortSignal listeners are removed on natural success, natural failure and pre-dispatch cancellation.
+16. Registration lifetime and per-execution cancellation signals remain separate authorities.
+17. `livewire_cancellation_unavailable` is a focused compatibility error only; D-026 remains PROPOSED as the complete generic binding failure vocabulary.
+18. `spec/0.1`, Laravel production code, M4 trust controls and other framework drivers are unchanged.
 
 ## TDD / verification evidence
 
 ```text
-Design:                 98fda16676f667e63611a4470955195e324cf528
-Implementation plan:    76a641a226168053fa056329023e4bb3e7f00e2a
+Design:                       2d044bdde2fdf8f5b084ce5cebf888aa2c293319
+Design hardening:             961262931676d1102555cd31c6e5dafa3ad19b30
+Implementation plan:          e33b74439055dfabab40ceb99850404d420b314b
 
-Server call-plan RED:   49ca658250f7e39ab2db4ae524c3e6b51a1ec436 / run 34066761247
-Task-1 GREEN/fix:       9a1b1b302c32371429eda409e63f44a295324ea0 / run 34066974783
-Producer RED:           2d289b1cd11997fdad7b01dbf720a2ffc00cf63f / run 34067044151
-Producer GREEN:         5ce49b140866d584b1c286d543cba53aa6b8db2b / run 34067238627
-Browser boundary RED:   af39243aabea1bbe66caf2af297d39d0cb53c647 / run 34067293183
-Boundary GREEN:         1d01fb402087d28c1fa4e5d201af11e678fe5961 / run 34067343303
-Driver RED:             7532c3e018b0751972e7dcc87406023979284f63 / run 34067410382
-Driver implementation:  2fd575514ccd7a5f8f3faebbede0359da5128393
-Type-narrowing fix:     01c7a19607a54c518641b5886d270780cf3409d4
-Expiry fixture fix:     7d2783a3763a086558f19da39c618b001ec2b512
-Integration proof:      54f82762d06abb7913eb84e6f66593fd6d346146 / run 34067710238
-Review checkpoint:      20ac963871a2ffc7730c0cd42747c8a02de72fab
-Review run:             34067907647 — all 7 jobs green
-Review-passed checkpoint: bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9
-Review-passed run:      34068146495 — all 7 jobs green
-Merged-main run:        34086042805 — all 7 jobs green
+WebMCP type RED:              b270a2b26d45ba8826128c616f97d3897e857ac9 / run 34098620894
+Required-signal type fix:     fbc54873b3703aec4cbd7937214f108015aa4281
+Invocation-gate RED:          fbc54873b3703aec4cbd7937214f108015aa4281 / run 34098906333
+Invocation-gate implementation: e8a3a683866bc3a78c2354ef9ebef5256f73df76
+Task-1 fixture alignment:     cf884ed85f57f8dfeb21cf68411fd820e9979ceb / run 34099618870 — all 7 jobs green
+
+Interceptor type RED:         f8811fd3ef46a0a2616524d7499b23de926e43f6 / run 34102239036
+Interceptor port GREEN:       fb00a2123b449ba25e240cf6253856fcbcdc72e5
+
+Cancellation RED:             ba7240eee58caee2b1132802d01c4a6ef13d245d / run 34102948252
+Cancellation implementation:  fffff7b15a31d61fc1cb212598505eba044b86b2
+Fixture alignment:            35430366e8d01d17a5d936ac55050848face2bbc / run 34103990010 — all 7 jobs green
+Cleanup/isolation hardening:  6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / run 34104686684 — all 7 jobs green
 ```
 
-Final evidence:
+Final implementation evidence:
 
 ```text
-browser:  TypeScript typecheck + 90/90 Vitest tests
+browser:  TypeScript typecheck + 103/103 Vitest tests
 PHP:      283 tests / 815 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all 7 jobs green on review-passed feature checkpoint and merged main
+CI:       all 7 jobs green on exact implementation head
+Livewire: v4.4.3 observed in matrix
 ```
 
 ## Decisions
 
-- D-039 ACCEPTED — exact `Livewire.find(componentId)` resolution, exact `$wire.$id` verification, no fallback/retarget.
-- D-040 ACCEPTED — object input maps to positional Livewire calls only through a server-issued call plan; object/schema order is not authority.
-- D-041 ACCEPTED — documented `Livewire.find()` + `$wire.$call()` only; public `$wire`/component-state collisions fail closed instead of using private APIs.
-- D-026 remains PROPOSED as a complete generic error vocabulary. T-304 concretely emits proven `binding_stale` and `binding_expired` conditions but does not implement a universal revocation/not-found authority.
+- D-042 ACCEPTED — strong no-dispatch guarantee exists only before the framework dispatch frontier; WebMCP signal is required and post-frontier cancellation is not rollback.
+- D-043 ACCEPTED — Livewire cancellation is exact action-level `action.cancel()` before `onSend` only; no broad message/request cancellation or private-API workaround.
+- D-026 remains PROPOSED as a complete generic binding failure vocabulary.
 
-## Next task boundary
+## Next boundary
 
-`T-305 — Cancellation propagation`
-
-**Status: TODO / not started.** T-304 deliberately makes no claim that `$wire.$call()` accepts AbortSignal or that cancellation rolls back already-started server/application effects.
+External-style review of T-305 must pass before merge. **M4/T-401 has not started and must not begin automatically.**

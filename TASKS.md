@@ -30,59 +30,59 @@ Exact explicit driver registration/lookup with fail-closed invalid/unknown handl
 
 ### T-302 — WebMCP semantic projection — DONE / REVIEWED
 
-Independent deterministic projection of the supported WebMCP hints. Reviewed checkpoint: `b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0`.
+Independent deterministic projection of supported WebMCP hints. Reviewed checkpoint: `b8904aaf5d2d8d4f551c213c7ff1103aabb9c8d0`.
 
 ### T-303 — Async registration lifecycle — DONE / REVIEWED
 
-Whole-snapshot preflight, deterministic versioned tool identity, sequential async registration, one AbortController-backed lease per generation, partial-failure cleanup and exact driver dispatch. Reviewed/merged checkpoint: `961a1715c889cd52b814537646a50e049f1ef9d7`.
+Whole-snapshot preflight, deterministic tool identity, sequential registration, registration leases and partial-failure cleanup. Reviewed/merged checkpoint: `961a1715c889cd52b814537646a50e049f1ef9d7`.
 
 ### T-304 — Livewire browser driver — DONE / REVIEWED
 
-**Outcome:** trusted Laravel binding issuance carries a deterministic positional Livewire call plan, and the browser executes only the exact mounted target through documented `Livewire.find()` and `$wire.$call()` APIs.
+Exact Livewire binding execution through documented `Livewire.find()` + `$wire.$call()`, server-issued positional call plan, strict expiry/input checks and no stale-target retargeting. Reviewed/merged checkpoint: `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`.
+
+### T-305 — Cancellation propagation — DONE / READY FOR EXTERNAL-STYLE REVIEW
+
+**Outcome:** SurfaceRelay propagates cancellation only as far as it can make a truthful guarantee: exact action-level cancellation before Livewire dispatch, with a hard `onSend` frontier and no rollback/reversal claim after dispatch.
 
 **Acceptance:**
 
-- trusted producer emits exact `inputOrder` + `requiredCount` from ReflectionMethod order;
-- schema property/required sets exactly match caller-visible method parameters;
-- unsupported signatures and `$wire`/public-state method collisions fail binding issuance;
-- non-null Action output plus explicit `void`/`never` return fails binding issuance;
-- browser driver requires exact executable Livewire target shape and component lifecycle;
-- explicit expiry is validated/enforced before component lookup;
-- input mapping rejects unknown keys, missing required own-properties and positional holes;
-- exact `Livewire.find(componentId)` is the only target lookup and `$wire.$id` is rechecked;
-- missing/replaced component is stale; no first/name/DOM/class/record/method/replacement fallback exists;
-- invocation is exact `$wire.$call(method, ...params)` once and returns the raw result;
-- arbitrary Livewire/server failures propagate unchanged;
-- T-303 WebMCP integration reaches the exact Livewire driver/binding and never retargets to replacement components;
-- cancellation signal is not falsely appended to `$call()`; T-305 owns propagation;
-- D-039/D-040/D-041 record exact-resolution, call-plan and documented-API-only boundaries;
-- `spec/0.1` remains unchanged.
+- WebMCP `ToolExecuteCallbackOptions.signal` is required by TypeScript;
+- already-aborted WebMCP execution preserves exact abort reason and does not perform invocation-time driver lookup/execution;
+- registration-time driver preflight remains separate and unchanged;
+- direct Livewire driver execution checks already-aborted signals before runtime lookup;
+- cancellation-aware Livewire execution requires documented component-scoped `intercept(method, callback)` support before `$call()`;
+- only the exact action handle created by the immediate exact `$call()` is captured;
+- pre-`onSend` abort invokes exact `action.cancel()` once and surfaces exact caller abort reason;
+- synchronous prior-interceptor abort race is handled after exact action capture;
+- `onSend` is the dispatch frontier;
+- post-`onSend` abort never calls broad action/message/request cancellation and does not replace natural success/failure;
+- no `#[Async]`, `#[Isolate]`, private request API or synthetic rollback result is introduced;
+- interceptor cleanup avoids mutating Livewire's interceptor array during callback iteration;
+- unrelated trailing interceptors run and later same-method invocations are not captured;
+- execution-local AbortSignal listeners are cleaned on success, failure and pre-dispatch cancellation;
+- D-042/D-043 record the cancellation frontier and granular Livewire cancellation boundary;
+- `spec/0.1` and Laravel production remain unchanged.
 
 **Verification:**
 
 ```text
-Design:               98fda16676f667e63611a4470955195e324cf528
-Plan:                 76a641a226168053fa056329023e4bb3e7f00e2a
-Server RED:           49ca658250f7e39ab2db4ae524c3e6b51a1ec436 / run 34066761247
-Server GREEN:         9a1b1b302c32371429eda409e63f44a295324ea0 / run 34066974783
-Producer RED:         2d289b1cd11997fdad7b01dbf720a2ffc00cf63f / run 34067044151
-Producer GREEN:       5ce49b140866d584b1c286d543cba53aa6b8db2b / run 34067238627
-Browser boundary RED: af39243aabea1bbe66caf2af297d39d0cb53c647 / run 34067293183
-Boundary GREEN:       1d01fb402087d28c1fa4e5d201af11e678fe5961 / run 34067343303
-Driver RED:           7532c3e018b0751972e7dcc87406023979284f63 / run 34067410382
-Driver fixes:         2fd575514ccd7a5f8f3faebbede0359da5128393 → 01c7a19607a54c518641b5886d270780cf3409d4 → 7d2783a3763a086558f19da39c618b001ec2b512
-Integration proof:   54f82762d06abb7913eb84e6f66593fd6d346146 / run 34067710238
-Review checkpoint:   20ac963871a2ffc7730c0cd42747c8a02de72fab / run 34067907647 — all 7 jobs green
-Browser:              TypeScript typecheck + 90/90 Vitest tests
-PHP:                  283 tests / 815 assertions
-Contract:             52 fixture manifest entries + 12 conformance scenarios
+Design:                     2d044bdde2fdf8f5b084ce5cebf888aa2c293319
+Design hardening:           961262931676d1102555cd31c6e5dafa3ad19b30
+Plan:                       e33b74439055dfabab40ceb99850404d420b314b
+WebMCP RED:                 b270a2b26d45ba8826128c616f97d3897e857ac9 / 34098620894
+Task-1 GREEN:               cf884ed85f57f8dfeb21cf68411fd820e9979ceb / 34099618870 — 7/7 green
+Interceptor type RED:       f8811fd3ef46a0a2616524d7499b23de926e43f6 / 34102239036
+Interceptor port:           fb00a2123b449ba25e240cf6253856fcbcdc72e5
+Cancellation RED:           ba7240eee58caee2b1132802d01c4a6ef13d245d / 34102948252
+Cancellation implementation: fffff7b15a31d61fc1cb212598505eba044b86b2
+Implementation GREEN:       35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
+Coverage hardening:         6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / 34104686684 — 7/7 green
+Browser:                    TypeScript typecheck + 103/103 Vitest tests
+PHP:                        283 tests / 815 assertions
+Contract:                   52 fixture entries + 12 conformance scenarios
 ```
 
-### T-305 — Cancellation propagation — TODO
-
-Propagate cancellation as far as documented browser/framework surfaces permit without claiming transactional rollback or reversal of already-started effects.
-
-**Status:** next task; not started. Separate design gate required.
+**Review status:** implementation complete; exact branch diff and fresh review-checkpoint CI still required before merge.
 
 ---
 
