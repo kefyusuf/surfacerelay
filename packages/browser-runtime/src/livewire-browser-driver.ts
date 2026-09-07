@@ -202,6 +202,109 @@ function assertCallableWire(wire: LivewireWire): void {
   }
 }
 
+function assertCancellationCapableWire(
+  wire: LivewireWire,
+): asserts wire is LivewireWire & { intercept: NonNullable<LivewireWire['intercept']> } {
+  if (typeof wire.intercept !== 'function') {
+    throw executionError(
+      'livewire_cancellation_unavailable',
+      'Resolved Livewire component does not expose documented action interception required for cancellation-aware execution.',
+    );
+  }
+}
+
+async function invokeWithCancellation(
+  wire: LivewireWire & { intercept: NonNullable<LivewireWire['intercept']> },
+  method: string,
+  params: unknown[],
+  signal: AbortSignal,
+): Promise<unknown> {
+  if (signal.aborted) throw signal.reason;
+
+  let captured = false;
+  let capturedAction: { cancel(): void } | undefined;
+  let dispatched = false;
+  let callerCancelledPreDispatch = false;
+  let cancelIssued = false;
+  let unsubscribe: (() => void) | undefined;
+  let unsubscribeScheduled = false;
+
+  const cleanupInterceptor = (): void => {
+    if (unsubscribe === undefined) return;
+    const current = unsubscribe;
+    unsubscribe = undefined;
+    current();
+  };
+
+  const scheduleInterceptorCleanup = (): void => {
+    if (unsubscribeScheduled) return;
+    unsubscribeScheduled = true;
+    queueMicrotask(() => {
+      unsubscribeScheduled = false;
+      cleanupInterceptor();
+    });
+  };
+
+  const cancelCapturedAction = (): void => {
+    if (dispatched || cancelIssued || capturedAction === undefined) return;
+    cancelIssued = true;
+    callerCancelledPreDispatch = true;
+    capturedAction.cancel();
+  };
+
+  const onAbort = (): void => {
+    if (dispatched) return;
+    cancelCapturedAction();
+  };
+
+  signal.addEventListener('abort', onAbort, { once: true });
+
+  try {
+    unsubscribe = wire.intercept(method, ({ action, onSend }) => {
+      if (captured) return;
+      captured = true;
+      capturedAction = action;
+      onSend(() => {
+        dispatched = true;
+      });
+      scheduleInterceptorCleanup();
+
+      // A previously registered synchronous interceptor may have aborted the
+      // caller before SurfaceRelay's exact-action interceptor gets its turn.
+      if (signal.aborted) cancelCapturedAction();
+    });
+
+    // If the runtime synchronously aborted during interceptor registration,
+    // do not initiate the Livewire call at all.
+    if (signal.aborted) throw signal.reason;
+
+    const callPromise = wire.$call(method, ...params);
+
+    if (!captured) {
+      // The runtime claimed interceptor support but did not expose the action
+      // created by this synchronous call initiation. Do not guess at a broader
+      // message/request scope; fail the compatibility boundary instead.
+      void callPromise.catch(() => {});
+      throw executionError(
+        'livewire_cancellation_unavailable',
+        'Livewire action interceptor did not capture the exact action synchronously.',
+      );
+    }
+
+    try {
+      const result = await callPromise;
+      if (callerCancelledPreDispatch) throw signal.reason;
+      return result;
+    } catch (error) {
+      if (callerCancelledPreDispatch) throw signal.reason;
+      throw error;
+    }
+  } finally {
+    signal.removeEventListener('abort', onAbort);
+    cleanupInterceptor();
+  }
+}
+
 export class LivewireBrowserDriver implements BindingDriver {
   constructor(
     private readonly livewire: LivewireBrowserRuntime,
@@ -211,7 +314,7 @@ export class LivewireBrowserDriver implements BindingDriver {
   async execute(
     binding: RuntimeBinding,
     input: Record<string, unknown>,
-    _context: DriverExecutionContext,
+    context: DriverExecutionContext,
   ): Promise<unknown> {
     const target = parseTarget(binding);
     assertNotExpired(binding, this.clock.now());
@@ -221,6 +324,9 @@ export class LivewireBrowserDriver implements BindingDriver {
     }
 
     const params = mapInput(target, input);
+
+    if (context.signal?.aborted) throw context.signal.reason;
+
     const resolved = this.livewire.find(target.componentId);
     if (resolved === undefined) {
       throw executionError('binding_stale', 'Exact Livewire component is no longer mounted.');
@@ -230,6 +336,12 @@ export class LivewireBrowserDriver implements BindingDriver {
     }
 
     assertCallableWire(resolved);
-    return resolved.$call(target.method, ...params);
+
+    if (context.signal === undefined) {
+      return resolved.$call(target.method, ...params);
+    }
+
+    assertCancellationCapableWire(resolved);
+    return invokeWithCancellation(resolved, target.method, params, context.signal);
   }
 }

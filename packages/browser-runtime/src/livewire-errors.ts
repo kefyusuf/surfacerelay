@@ -4,7 +4,8 @@ export type LivewireBindingExecutionErrorCode =
   | 'binding_target_invalid'
   | 'binding_input_unmappable'
   | 'livewire_runtime_unavailable'
-  | 'livewire_method_unsupported';
+  | 'livewire_method_unsupported'
+  | 'livewire_cancellation_unavailable';
 
 export class LivewireBindingExecutionError extends Error {
   constructor(
