@@ -4,16 +4,15 @@
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Scope:** `T-401 — Confirmation challenge/receipt`
-- **Base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
-- **Candidate branch:** `feat/confirmation-challenge-receipt`
-- **Pull request:** `#1 — feat(laravel): add scoped confirmation challenge and receipt trust controls`
-- **Reviewed code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
-- **Final PR workflow:** `34135906728` — **all 7 jobs success**
+- **Original base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
+- **Pull request:** `#1 — merged`
+- **Final code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
+- **Review-passed checkpoint:** `b169ad81d9f603e18b0cf47c7097a575c83d806c`
+- **Merged-main checkpoint:** `a6c92a8b75b17196f7667c22b4b323fe25d3427f`
+- **Merged-main workflow:** `34137414074` — **all 7 jobs success**
 - **External automated reviewer:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f`
 - **Review result:** **PASSED WITH ONE TRIVIAL FINDING, FIXED AND REVERIFIED**
-- **CodeRabbit status on final code head:** success
-- **Open review threads:** 0
-- **Merge status:** **MERGE READY / NOT MERGED AT THIS CHECKPOINT**
+- **Merge result:** **PASSED / MERGED TO MAIN**
 - **M4 status:** IN PROGRESS; T-402..T-404 remain TODO
 
 ## Reviewed trust boundary
@@ -83,18 +82,17 @@ This hardening changes availability under brief contention only; confirmation au
 ## Verification evidence
 
 ```text
-Design checkpoint:          13437eec846bc2410125f7e7648d4a3034c8abfe
-Implementation plan:        76a92dd65131d58c3833f9415ff03984910bf8ac
 Implementation GREEN:       7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
 Review-prep checkpoint:      d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
 Initial PR validation:       d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
 CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99f
 Review-finding RED:          37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
 Review-finding GREEN:        f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
+Review-passed docs:          b169ad81d9f603e18b0cf47c7097a575c83d806c / 34137102693 — 7/7 green
+Merged main:                 a6c92a8b75b17196f7667c22b4b323fe25d3427f / 34137414074 — 7/7 green
 PHP:                         344 tests / 1300 assertions
 Browser:                     TypeScript typecheck + 103/103 Vitest tests
 Contract:                    python scripts/validate.py green; frozen spec/0.1 unchanged
-CodeRabbit final head status: success
 Open review threads:          0
 ```
 
@@ -110,4 +108,4 @@ T-401 does **not** claim idempotent/exactly-once business execution, output reda
 
 ## Review outcome
 
-**T-401 external automated review passed after its only finding was verified, fixed TDD-first, and revalidated on the exact code head. PR #1 is merge-ready; merge remains a separate explicit operation.**
+**T-401 external automated review passed, the only finding was fixed TDD-first, PR #1 was merged to `main`, and the exact merged commit was independently revalidated with all 7 CI jobs green.**

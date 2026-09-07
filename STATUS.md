@@ -6,20 +6,19 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
-- **Working branch:** `feat/confirmation-challenge-receipt`
-- **PR:** `#1 — feat(laravel): add scoped confirmation challenge and receipt trust controls`
+- **Branch:** `main`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
-- **Current task:** `T-401 — Confirmation challenge/receipt` — **DONE / REVIEWED / MERGE READY**
-- **Final code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
-- **Final PR workflow:** `34135906728` — **all 7 jobs green**
+- **Last completed/reviewed/merged task:** `T-401 — Confirmation challenge/receipt`
+- **T-401 final code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
+- **T-401 review-passed checkpoint:** `b169ad81d9f603e18b0cf47c7097a575c83d806c`
+- **PR:** `#1 — merged`
+- **Merged-main checkpoint:** `a6c92a8b75b17196f7667c22b4b323fe25d3427f`
+- **Merged-main workflow:** `34137414074` — **all 7 jobs green**
 - **PHP evidence:** **344 tests / 1300 assertions** across PHP 8.3/8.4 and Illuminate 12/13 matrix
 - **Browser isolation evidence:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract evidence:** `python scripts/validate.py` green; `spec/0.1` is frozen and unchanged; fixture/scenario baseline remains **52 + 12**
 - **External automated review:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f` — no blocker; one trivial bounded-lock-wait finding, verified and fixed TDD-first
-- **CodeRabbit head status:** success on `f94340947b00f06707451590f1bef9fcc980479d`
 - **Next task:** `T-402 — Idempotency store` — **not started**
-- **Merge status:** PR #1 is merge-ready but **not merged at this checkpoint**
 
 ## T-401 — Implemented trust boundary
 
@@ -82,14 +81,14 @@ Implementation GREEN:      7db7d54fd1af9387c3cb408ec472c949168ed569 / 3413094190
 Review-prep checkpoint:    d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
 PR validation:             d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
 CodeRabbit full review:    e1364e16-d11d-4fe9-85d5-5f6675a2d99f — 1 trivial lock-wait finding, no blocker
-Review finding RED:        37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223 — expected lock.block(2) failures
+Review finding RED:        37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
 Review finding GREEN:      f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
+Review-passed docs:        b169ad81d9f603e18b0cf47c7097a575c83d806c / 34137102693 — 7/7 green
+Merged main:               a6c92a8b75b17196f7667c22b4b323fe25d3427f / 34137414074 — 7/7 green
 Final PHP:                 344 tests / 1300 assertions
 Final browser:             TypeScript typecheck + 103/103 Vitest tests
 Final contract:            frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
 ```
-
-The external review finding was availability-only: a non-blocking lock acquisition could reject a concurrent request immediately. The production store now waits at most two seconds for the same per-token lock and still fails closed on timeout or any acquisition failure. No confirmation authority semantics changed.
 
 ## Decisions
 
@@ -107,4 +106,4 @@ The external review finding was availability-only: a non-blocking lock acquisiti
 
 ## Next boundary
 
-**T-401 is reviewed and merge-ready. Stop after merge closure; do not begin T-402 automatically.**
+**T-401 is DONE / REVIEWED / MERGED on `main`. T-402 remains not started and must not begin automatically.**
