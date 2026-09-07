@@ -210,12 +210,11 @@ describe('LivewireBrowserDriver', () => {
     await expect(fixture.driver.execute(binding(), { name: 'passport' }, {})).rejects.toBe(original);
   });
 
-  it('does not pass the T-305 cancellation signal into documented $call arguments', async () => {
+  it('keeps no-signal invocation on the documented $call argument shape', async () => {
     const targetWire = wire();
     const fixture = driver(targetWire);
-    const signal = new AbortController().signal;
 
-    await fixture.driver.execute(binding(), { name: 'passport' }, { signal });
+    await fixture.driver.execute(binding(), { name: 'passport' }, {});
 
     expect(targetWire.$call).toHaveBeenCalledExactlyOnceWith('addItem', 'passport');
   });

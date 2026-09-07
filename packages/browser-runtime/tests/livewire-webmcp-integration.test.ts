@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { DriverRegistry } from '../src/driver-registry.js';
 import { LivewireBrowserDriver } from '../src/livewire-browser-driver.js';
 import { LivewireBindingExecutionError } from '../src/livewire-errors.js';
-import type { LivewireBrowserRuntime, LivewireWire } from '../src/livewire-browser-runtime.js';
+import type {
+  LivewireActionInterceptorContext,
+  LivewireBrowserRuntime,
+  LivewireWire,
+} from '../src/livewire-browser-runtime.js';
 import { WebMcpRegistrationLifecycle } from '../src/webmcp-registration-lifecycle.js';
 import type { WebMcpModelContext, WebMcpTool } from '../src/webmcp-types.js';
 import type { ActionDefinition, RuntimeBinding } from '../src/types.js';
@@ -54,6 +58,35 @@ function executionOptions(): { signal: AbortSignal } {
   return { signal: new AbortController().signal };
 }
 
+function cancellableWire(id: string, result: unknown): LivewireWire {
+  let interceptor:
+    | { method: string; callback: (context: LivewireActionInterceptorContext) => void }
+    | undefined;
+
+  return {
+    $id: id,
+    intercept(method, callback) {
+      interceptor = { method, callback };
+      return () => {
+        interceptor = undefined;
+      };
+    },
+    $call: vi.fn(async (method: string, ..._params: unknown[]) => {
+      if (interceptor?.method === method) {
+        const onSendCallbacks: Array<() => void> = [];
+        interceptor.callback({
+          action: { cancel: vi.fn() },
+          onSend(callback) {
+            onSendCallbacks.push(callback);
+          },
+        });
+        for (const callback of onSendCallbacks) callback();
+      }
+      return result;
+    }),
+  };
+}
+
 class RecordingModelContext implements WebMcpModelContext {
   readonly tools: WebMcpTool[] = [];
 
@@ -71,10 +104,7 @@ describe('Livewire WebMCP integration', () => {
   it('dispatches a registered WebMCP tool through DriverRegistry to the exact Livewire binding', async () => {
     const runtime = new MutableLivewireRuntime();
     const output = { itemId: 'item-1', name: 'passport' };
-    const wire: LivewireWire = {
-      $id: 'component-old',
-      $call: vi.fn(async () => output),
-    };
+    const wire = cancellableWire('component-old', output);
     runtime.wires.set('component-old', wire);
 
     const drivers = new DriverRegistry();
@@ -96,10 +126,7 @@ describe('Livewire WebMCP integration', () => {
 
   it('does not retarget an old binding to a replacement component', async () => {
     const runtime = new MutableLivewireRuntime();
-    const replacement: LivewireWire = {
-      $id: 'component-new',
-      $call: vi.fn(async () => ({ itemId: 'replacement' })),
-    };
+    const replacement = cancellableWire('component-new', { itemId: 'replacement' });
     runtime.wires.set('component-new', replacement);
 
     const drivers = new DriverRegistry();
