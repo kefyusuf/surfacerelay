@@ -6,6 +6,7 @@ namespace SurfaceRelay\Laravel\Tests\Unit;
 
 use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Cache\Store;
 use PHPUnit\Framework\TestCase;
 use SurfaceRelay\Laravel\Confirmation\CacheConfirmationStore;
@@ -179,6 +180,7 @@ final class CacheConfirmationStoreTest extends TestCase
             self::assertStringNotContainsString(self::HASH, $exception->getMessage());
         }
 
+        self::assertSame('lock.block:2', $store->operations[1] ?? null);
         self::assertSame(0, $store->getCalls);
         self::assertSame(0, $store->putCalls);
         self::assertSame(0, $store->forgetCalls);
@@ -215,12 +217,12 @@ final class CacheConfirmationStoreTest extends TestCase
     {
         $lock = 'lock:surfacerelay:confirmation:lock:' . self::HASH;
         self::assertSame($lock, $store->operations[0] ?? null);
-        self::assertSame('lock.get', $store->operations[1] ?? null);
+        self::assertSame('lock.block:2', $store->operations[1] ?? null);
         self::assertSame('lock.release', $store->operations[array_key_last($store->operations)] ?? null);
 
         if ($mutation !== null) {
             $mutationIndex = array_search($mutation, $store->operations, true);
-            $acquireIndex = array_search('lock.get', $store->operations, true);
+            $acquireIndex = array_search('lock.block:2', $store->operations, true);
             $releaseIndex = array_search('lock.release', $store->operations, true);
             self::assertIsInt($mutationIndex);
             self::assertIsInt($acquireIndex);
@@ -383,7 +385,18 @@ final class TestCacheLock implements Lock
 
     public function block($seconds, $callback = null)
     {
-        return $this->get($callback);
+        $this->operations[] = 'lock.block:' . $seconds;
+        if (!$this->canAcquire) {
+            throw new LockTimeoutException();
+        }
+        if ($callback !== null) {
+            try {
+                return $callback();
+            } finally {
+                $this->release();
+            }
+        }
+        return true;
     }
 
     public function release()
