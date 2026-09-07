@@ -18,6 +18,7 @@ use Illuminate\Contracts\Cache\Store;
 final class CacheConfirmationStore implements ConfirmationStore
 {
     private const int LOCK_TTL_SECONDS = 10;
+    private const int LOCK_WAIT_SECONDS = 2;
 
     private readonly Store $store;
     private readonly LockProvider $locks;
@@ -136,7 +137,7 @@ final class CacheConfirmationStore implements ConfirmationStore
         }
 
         try {
-            $acquired = $lock->get();
+            $acquired = $lock->block(self::LOCK_WAIT_SECONDS);
         } catch (\Throwable $exception) {
             throw ConfirmationStoreUnavailable::lockUnavailable($exception);
         }
