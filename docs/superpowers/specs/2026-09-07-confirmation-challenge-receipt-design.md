@@ -6,13 +6,13 @@
 - Milestone: `M4 — Production Trust Controls`
 - Base: `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
 - Branch: `feat/confirmation-challenge-receipt`
-- Design state: approved in chat; this document records the implementation contract before code changes.
+- Design state: approved in chat; self-reviewed and hardened before implementation.
 
 ## Goal
 
 Implement real server-side confirmation authority for SurfaceRelay consequential / human-confirmation actions without changing the frozen `spec/0.1` wire shapes.
 
-The runtime must issue an opaque confirmation challenge, allow a trusted human-facing bridge to exchange that challenge for an opaque receipt, and accept that receipt exactly once only when it matches the exact invocation intent and trusted runtime scope for which approval was granted.
+The runtime must issue an opaque confirmation challenge, allow a trusted human-facing bridge to approve that exact challenge, and accept the resulting receipt exactly once only when it matches the exact invocation intent and trusted runtime scope for which approval was granted.
 
 The caller must never be able to manufacture confirmation authority with action input, metadata, `confirmed=true`, a forged token, a stale token, or a token issued for another action, actor, tenant, binding, record, selection, session, or input.
 
@@ -49,22 +49,36 @@ T-401 does not implement:
 
 ## Core Security Model
 
-A confirmation receipt is a **single-use opaque bearer capability**.
+A confirmation receipt is a **single-use opaque bearer capability** whose authority exists only in server-side state.
 
-The only public value is a high-entropy random token. The token is never self-describing and never contains actor IDs, tenant IDs, action IDs, input, binding data, expiry, signatures, or other claims.
+One 32-byte random token is created when the challenge is issued and encoded with unpadded base64url. The public `challengeId` is that token while its server-side record is `pending`. After trusted human approval the same opaque token becomes the `confirmationReceipt` while the server-side record is `approved`.
 
-Server-side storage owns all receipt semantics. Raw receipt tokens are not stored; only a one-way SHA-256 token hash is stored. A stolen server-side confirmation record must therefore not directly reveal a usable receipt token.
+This state-transition model is deliberate:
+
+```text
+random opaque token
+      │
+      ├─ pending  → public meaning: challengeId; no execution authority
+      │
+      ├─ approved → public meaning: confirmationReceipt; single-use authority
+      │
+      └─ consumed / expired → no authority
+```
+
+The token is never self-describing and never contains actor IDs, tenant IDs, action IDs, input, binding data, expiry, signatures, or other claims. Raw tokens are never stored server-side; storage uses `sha256(token)` as the lookup key.
+
+Using one stateful token avoids a two-record challenge→receipt handoff that could otherwise require an atomic multi-key transaction to prevent crash-induced duplicate receipts. Approval changes one locked record from `pending` to `approved`; consumption changes/deletes that same locked record. A crash cannot manufacture a second independent receipt from one approval.
 
 The receipt grants authority only when all of the following are true:
 
-1. it was issued by the configured SurfaceRelay confirmation service;
-2. it exists in the server-side store;
+1. its hashed record exists in the configured SurfaceRelay confirmation store;
+2. the record is `approved`;
 3. it has not expired;
 4. it has not already been consumed;
 5. its stored scope fingerprint exactly matches the current invocation scope fingerprint;
 6. consumption succeeds atomically, so concurrent replay cannot execute twice.
 
-Unknown, malformed, expired, already-consumed, or scope-mismatched receipts never produce `human_confirmation` trusted authority.
+Unknown, pending, malformed, expired, consumed, or scope-mismatched tokens never produce `human_confirmation` trusted authority.
 
 ## Confirmation Requirement Rule
 
@@ -83,8 +97,9 @@ This deliberately prevents a misconfigured consequential action from becoming ex
 The ActionBus's pre-stage required-context gate therefore changes narrowly:
 
 - every declared trusted context requirement except `human_confirmation` is still checked before pipeline stages;
-- `human_confirmation` is never accepted merely because a caller or earlier generic composer inserted a value;
-- real `human_confirmation` authority is materialized only by the confirmation stage after successful receipt consumption.
+- `human_confirmation` is never satisfied by action input, metadata, or mere presence of a prebuilt `TrustedContextEntry`;
+- if a confirmation-required invocation reaches the confirmation stage with a pre-existing `HumanConfirmation` trusted entry, that is a runtime configuration violation and fails closed;
+- real `human_confirmation` authority is materialized only by the confirmation stage after successful atomic receipt consumption.
 
 The generic context gate remains fail-closed for actor, tenant, record, selection, and browser-session requirements.
 
@@ -92,18 +107,18 @@ The generic context gate remains fail-closed for actor, tenant, record, selectio
 
 `confirmationReceipt` is a caller-supplied **candidate**, not trusted context.
 
-Runtime wiring must carry it separately from trusted authority. T-401 may extend the internal invocation request/context model with dedicated non-authoritative fields such as:
+Runtime wiring must carry it separately from trusted authority. T-401 may extend the internal invocation request/context model with dedicated non-authoritative fields:
 
 ```text
 bindingId: ?string
 confirmationReceipt: ?string
 ```
 
-These fields must not be stored as `TrustedContextEntry` values and must not be recoverable from generic metadata keys.
+These fields must not be stored as `TrustedContextEntry` values and must not be recovered from generic metadata keys.
 
-`bindingId` remains a reference, not authorization proof. When an invocation has an exact validated binding reference, that value participates in confirmation scope binding; `null` remains a distinct scope value for headless/non-binding invocations.
+`bindingId` remains a reference, not authorization proof. T-401 does not validate binding existence/lifecycle; it binds confirmation to the exact binding reference already selected/validated by the invoking runtime/adapter. `null` remains a distinct scope value for headless/non-binding invocations.
 
-`correlationId` and `idempotencyKey` do not participate in the confirmation scope. They identify diagnostics/retries, not the business intent being approved.
+`correlationId` and `idempotencyKey` do not participate in confirmation scope. They identify diagnostics/retries, not the business intent being approved.
 
 ## Confirmation Scope
 
@@ -136,24 +151,24 @@ The canonical encoder accepts only deterministic values:
 - `null`;
 - booleans;
 - integers;
-- finite floats using deterministic JSON encoding;
+- finite floats encoded deterministically with JSON and `JSON_PRESERVE_ZERO_FRACTION`;
 - strings;
 - lists whose elements are canonical values;
 - associative arrays with string keys sorted lexicographically and canonical values.
 
-Unsupported values, including arbitrary objects/resources/closures, fail closed instead of being guessed.
+Unsupported values, including arbitrary objects/resources/closures and non-finite floats, fail closed instead of being guessed.
 
-Trusted context may therefore carry an optional stable **confirmation scope key** supplied by a trusted resolver/adapter. When present, this stable key is used instead of inspecting the domain value. When absent, the value may be used only if it is canonically encodable by the rules above.
+Trusted context may carry an optional stable **confirmation scope key** supplied by a trusted resolver/adapter. When present, this stable key is used instead of inspecting the domain value. When absent, the value may be used only if it is canonically encodable by the rules above.
 
-The default Laravel authenticated-actor resolver should provide a stable scope key derived from trusted Laravel `Authenticatable` identity rather than serializing the user object. Application tenant/current-record/current-selection/browser-session adapters are responsible for producing stable non-secret scope keys whenever their runtime value is not canonically encodable.
+The default Laravel authenticated-actor resolver provides a stable scope key derived from the trusted Laravel `Authenticatable` implementation: actor class plus `getAuthIdentifierName()` plus scalar/stringable `getAuthIdentifier()`. It never serializes the user object or records credentials/tokens.
 
-Failure to derive a deterministic confirmation scope is a runtime configuration/security failure and must occur before challenge issuance or receipt acceptance.
+Application tenant/current-record/current-selection/browser-session adapters are responsible for producing stable non-secret scope keys whenever their runtime value is not canonically encodable. Failure to derive a deterministic confirmation scope is a runtime configuration/security failure and occurs before challenge issuance or receipt acceptance.
 
 ### Fingerprint format
 
 The canonical scope structure is JSON encoded without pretty printing and hashed with SHA-256. The stored authority value is the hash, not the raw canonical scope document.
 
-A versioned internal domain separator must be included, for example:
+The hash input begins with this internal domain separator:
 
 ```text
 surfacerelay.confirmation.scope.v1\n<canonical-json>
@@ -163,23 +178,25 @@ This permits future internal hash evolution without silently reinterpreting old 
 
 ## Challenge Lifecycle
 
-When confirmation is required and no valid receipt is consumed, the confirmation stage returns `confirmation_required` with a real `ConfirmationChallenge`.
+When confirmation is required and no valid approved receipt is consumed, the confirmation stage returns `confirmation_required` with a real `ConfirmationChallenge`.
 
 A newly issued challenge contains:
 
-- a cryptographically random opaque `challengeId`;
+- a 32-byte cryptographically random opaque token encoded as unpadded base64url in `challengeId`;
 - a static application-authored summary; T-401's default is the exact `ActionDefinition.title` and does not interpolate untrusted input;
-- an RFC3339 `expiresAt` generated from a configured short challenge TTL.
+- an RFC3339 UTC `expiresAt` generated from the challenge TTL.
 
-The server-side challenge record contains at minimum:
+Default challenge TTL is **300 seconds (5 minutes)**. It is configurable as a positive integer number of seconds; zero and negative values are invalid configuration.
 
-- hashed/opaque challenge lookup identity as appropriate for the selected store;
+The server stores one pending record keyed by `sha256(challengeId)` containing at minimum:
+
+- state `pending`;
 - exact scope fingerprint;
-- issuance timestamp;
-- expiry timestamp;
-- challenge state required to guarantee one approval exchange.
+- issued timestamp;
+- challenge expiry timestamp;
+- static summary required to reproduce the same challenge if needed.
 
-A challenge is not authority and cannot be supplied as a receipt.
+A pending challenge token is not execution authority. Supplying it through `confirmationReceipt` before approval does not satisfy confirmation.
 
 ## Human Approval Exchange
 
@@ -187,29 +204,27 @@ T-401 exposes a server-side confirmation service for a **trusted human-facing br
 
 That service is not an ActionDefinition, WebMCP tool, browser driver method, or generic public HTTP endpoint. T-504 will provide the Filament bridge later.
 
-Approval exchange rules:
+Approval rules:
 
-1. challenge must exist;
-2. challenge must be unexpired;
-3. challenge may be exchanged at most once;
-4. the bridge must execute in trusted application/runtime code, not from generic caller input;
-5. successful exchange deletes/consumes the challenge atomically and returns one new random opaque receipt token;
-6. only the SHA-256 hash of that receipt token is stored with the challenge's original scope fingerprint and receipt expiry.
+1. hash the supplied challenge token and acquire the record's atomic lock;
+2. record must exist and be `pending`;
+3. `now < challengeExpiresAt` must hold; equality is expired;
+4. approval cannot supply or override action/input/actor/tenant/binding/scope fields;
+5. transition that exact record to `approved` under the lock;
+6. set receipt expiry to `now + 120 seconds`;
+7. return the same opaque token as the receipt value.
 
-The bridge does not get an API that can override the stored scope. Approval means "approve the exact scope recorded by this challenge", not "approve this challenge ID for new caller-supplied parameters".
+Default approved-receipt TTL is **120 seconds (2 minutes)**. It is configurable as a positive integer number of seconds; zero and negative values are invalid configuration.
 
-T-401 deliberately does not expose a machine-callable `approve=true` path. Human-presence UX belongs to the concrete bridge (T-504), but the core service API is designed so the bridge cannot rewrite the approval scope.
+Because approval mutates one locked record and does not create a second bearer token, retrying an already-approved challenge cannot mint additional capabilities. The service may return an explicit already-approved/invalid outcome to trusted bridge code, but it must never reset expiry or widen scope on repeat approval.
+
+The bridge does not get an API that can rewrite stored scope. Approval means "approve the exact scope recorded by this challenge".
+
+T-401 deliberately does not expose a machine-callable `approve=true` path. Human-presence UX belongs to the concrete bridge (T-504), but the core service API is designed so that bridge cannot rewrite approval scope.
 
 ## Receipt Lifecycle
 
-Receipt tokens use `random_bytes()` with enough entropy to make online guessing infeasible and are encoded as URL-safe text that fits well below the existing 4096-byte invocation limit.
-
-Receipt storage records at minimum:
-
-- SHA-256 token hash;
-- exact confirmation scope fingerprint;
-- issued timestamp;
-- expiry timestamp.
+The approved token is presented on the next invocation as `confirmationReceipt`.
 
 Consumption semantics are atomic and destructive:
 
@@ -218,30 +233,29 @@ consume(tokenHash, expectedScopeHash, now)
   -> consumed | not_valid
 ```
 
-The store must guarantee that exactly one concurrent consumer can obtain `consumed` for one receipt.
+The store must guarantee that exactly one concurrent consumer can obtain `consumed` for one approved token.
 
-A scope mismatch does **not** consume a still-valid receipt. This avoids turning an accidental wrong-scope attempt into a denial-of-service against the legitimate invocation. The mismatch nevertheless grants no authority and returns the same external confirmation-required behavior as other invalid receipts.
+A scope mismatch does **not** consume a still-valid approved receipt. This avoids turning an accidental wrong-scope attempt into a denial-of-service against the legitimate invocation. The mismatch nevertheless grants no authority and produces the same external confirmation-required behavior as other invalid candidates.
 
-An exact-scope successful consumption removes/marks the receipt consumed before downstream execution proceeds. If later stages fail, the receipt is still spent. Confirmation is approval for one execution attempt, not a reusable capability until success.
+An exact-scope successful consumption deletes or irreversibly marks the record consumed before downstream idempotency/execution proceeds. If a later stage or executor fails, the receipt remains spent. Confirmation is approval for one execution attempt, not a reusable capability until success.
 
 This single-use policy is separate from T-402 idempotency. A network/client retry after receipt consumption must obtain fresh confirmation unless T-402 later proves a safe prior-result replay path.
 
 ## Store Contract
 
-The core confirmation logic depends on a focused `ConfirmationStore` contract rather than a concrete cache facade.
+The core confirmation logic depends on a focused `ConfirmationStore` contract rather than a facade.
 
 The contract must support atomic operations for:
 
-- storing an expiring challenge;
-- atomically taking/exchanging one unexpired challenge;
-- storing an expiring receipt record;
-- atomically consuming one exact-scope unexpired receipt.
+- storing one expiring pending record by token hash;
+- atomically approving one exact pending record;
+- atomically consuming one exact-scope approved record.
 
-A Laravel cache-backed adapter is the reference production implementation. It uses an application-provided cache repository/store and distributed atomic locks for challenge exchange / receipt consumption. Laravel's documented atomic-lock requirement means multi-node deployments must use a supported shared cache backend; per-process or independent node caches are not sufficient production authority stores.
+A Laravel cache-backed adapter is the reference production implementation. It is constructed with an `Illuminate\Contracts\Cache\Store`; construction fails unless that store also implements `Illuminate\Contracts\Cache\LockProvider`. This keeps the package on its existing `illuminate/contracts` dependency while requiring documented lock semantics at runtime.
 
-The adapter must fail closed when the configured cache store cannot provide the required lock semantics rather than silently degrading to a non-atomic get/delete sequence.
+Every approve/consume mutation is performed while holding a per-token distributed lock. The adapter never degrades to an unlocked get/delete sequence.
 
-An in-memory fake may exist only under tests; it is not the production default.
+Multi-node deployments must use one shared lock-capable cache backend. Per-process or independent node caches are not sufficient production confirmation authority stores. An in-memory fake may exist only under tests; it is not the production default.
 
 ## Pipeline Integration
 
@@ -264,24 +278,27 @@ Detailed confirmation-stage behavior:
 if action does not require confirmation:
     continue unchanged
 
-build exact confirmation scope from current validated state
+if context already contains HumanConfirmation:
+    fail closed as runtime configuration violation
+
+build exact confirmation scope from current validated/authorized state
 
 if candidate receipt exists:
     hash candidate
-    atomically consume only if receipt is unexpired and scope matches
+    atomically consume only if record is approved, unexpired, and scope matches
     if consumed:
         add runtime-verified HumanConfirmation trusted entry
         continue
 
-issue a fresh challenge for current exact scope
+issue a fresh pending challenge for current exact scope
 halt at confirmation stage with the real ConfirmationChallenge
 ```
 
 A receipt is never verified before input validation or authorization.
 
-The stage may create a new immutable `InvocationContext` / `ActionPipelineState` containing the verified `HumanConfirmation` entry. Existing trusted entries remain exact and unchanged.
+The stage creates a new immutable `InvocationContext` / `ActionPipelineState` containing the verified `HumanConfirmation` entry. Existing trusted entries remain exact and unchanged.
 
-The provenance of this entry is runtime-generated, for example provider `surfacerelay.confirmation`; it contains no raw receipt token.
+The verified entry's value is a narrow runtime-owned marker/value object rather than the raw receipt. Its provenance provider is `surfacerelay.confirmation`; provenance contains no raw token, token hash, or scope hash.
 
 ## Result Normalization
 
@@ -293,7 +310,7 @@ The internal confirmation halt carries the real `ConfirmationChallenge` object t
 ActionResult::confirmationRequired(correlationId, challenge)
 ```
 
-It must not reconstruct a fake challenge from arbitrary halt details and must not expose receipt hashes, scope hashes, actor identifiers, tenant identifiers, input fingerprints, provenance secrets, or cache keys in public result metadata.
+It must not reconstruct a fake challenge from arbitrary halt details and must not expose token hashes, scope hashes, actor identifiers, tenant identifiers, input fingerprints, provenance secrets, or cache keys in public result metadata.
 
 Unknown/malformed confirmation halts continue to fail loudly as programming/configuration errors.
 
@@ -301,13 +318,14 @@ Unknown/malformed confirmation halts continue to fail loudly as programming/conf
 
 Caller-visible behavior intentionally avoids becoming a confirmation-token oracle.
 
-The following conditions all grant no authority and result in a fresh `confirmation_required` challenge after authorization succeeds:
+After authorization succeeds, the following conditions all grant no authority and produce `confirmation_required` with a valid challenge for the current exact scope:
 
 - missing receipt;
-- syntactically non-empty but unknown receipt;
-- expired receipt;
-- already-consumed/replayed receipt;
-- receipt issued for another action/version;
+- unknown token;
+- pending/unapproved token;
+- expired token;
+- already-consumed/replayed token;
+- token approved for another action/version;
 - input mismatch;
 - actor mismatch;
 - tenant mismatch;
@@ -316,13 +334,18 @@ The following conditions all grant no authority and result in a fresh `confirmat
 - current-selection mismatch;
 - browser-session mismatch.
 
-Malformed runtime configuration, inability to derive deterministic trusted scope, unavailable required store atomicity, random-source failure, or corrupt stored records are not ordinary caller mistakes. They fail closed as runtime exceptions and must not be converted into a fake approval challenge.
+Malformed runtime configuration, pre-materialized `HumanConfirmation`, inability to derive deterministic trusted scope, unavailable required store atomicity, random-source failure, or corrupt stored records are not ordinary caller mistakes. They fail closed as runtime exceptions and must not be converted into a fake approval challenge.
 
 ## Expiry and Clock
 
 Clock access is injected behind a tiny runtime clock contract or equivalent deterministic callable so unit tests never depend on wall time.
 
-Default TTLs should be conservative and configurable by constructor/config rather than protocol fields. The implementation plan will choose exact defaults and test boundaries explicitly.
+Defaults are fixed for T-401 and remain constructor/config overrides rather than protocol fields:
+
+```text
+challenge TTL = 300 seconds
+receipt TTL   = 120 seconds
+```
 
 Expiry comparison semantics are exact:
 
@@ -332,20 +355,21 @@ valid only when now < expiresAt
 
 At `now == expiresAt`, the challenge/receipt is expired.
 
-Public `ConfirmationChallenge.expiresAt` remains RFC3339 and preserves the existing contract shape.
+Public `ConfirmationChallenge.expiresAt` is UTC RFC3339 with second precision and preserves the existing contract shape.
 
 ## Secret Handling
 
-Raw receipt tokens are treated as secrets/bearer credentials:
+Raw tokens are bearer credentials after approval and are treated as secrets:
 
+- never stored in server-side confirmation records; only SHA-256 lookup hashes are stored;
 - never stored in logs/audit metadata;
 - never added to `ActionResult.meta`;
 - never added to trusted-context provenance/reference;
 - never included in exceptions;
-- never included in challenge records after hashing where storage can avoid it;
+- never included in halt details;
 - compared through token-hash lookup rather than logging/debugging values.
 
-Challenge IDs are opaque identifiers but are not execution authority.
+The token is visible as `challengeId` while pending because that is required by the existing public contract, but pending state grants no execution authority.
 
 ## Compatibility
 
@@ -357,7 +381,7 @@ T-401 must preserve:
 - Livewire driver behavior;
 - T-305 cancellation frontier;
 - all non-confirmation action behavior;
-- `spec/0.1` schema/fixture counts unless an executable runtime-conformance fixture is intentionally added without changing schemas;
+- `spec/0.1` schemas and wire shapes;
 - D-030 extensible ActionError code semantics;
 - T-402/T-403/T-404 as separate tasks.
 
@@ -367,9 +391,9 @@ No browser-specific or Filament-specific code belongs in confirmation core.
 
 T-401 should add an accepted decision, expected as D-044 unless another decision is allocated first:
 
-> Confirmation grants are single-use opaque bearer capabilities bound to exact action version, validated invocation intent, binding/surface, and relevant trusted runtime context. Only successful server-side receipt verification/consumption may materialize `human_confirmation` authority; challenge IDs and caller fields are never authority.
+> Confirmation grants are single-use opaque bearer capabilities represented by a runtime-issued token whose server-side state transitions from pending challenge to approved receipt. Authority is bound to exact action version, validated invocation intent, binding/surface, and relevant trusted runtime context. Only successful atomic server-side receipt consumption may materialize `human_confirmation`; challenge IDs, caller fields, and prebuilt trusted entries are never sufficient authority.
 
-A second decision is warranted only if implementation needs to freeze a general trusted-context scope-key contract. Avoid creating additional ADR vocabulary unless the code genuinely exposes that concept to adapters.
+A second decision is warranted only if implementation freezes a general trusted-context scope-key contract for adapters. Avoid additional ADR vocabulary unless the code genuinely exposes that concept.
 
 ## Security Tests
 
@@ -378,25 +402,29 @@ At minimum T-401 must prove these negative/positive behaviors with executable te
 1. consequential action without receipt does not execute and returns a real challenge;
 2. action declaring `human_confirmation` without consequential risk follows the same gate;
 3. consequential action that accidentally omits `human_confirmation` still requires confirmation;
-4. caller input/metadata containing `confirmed=true` or a fake human-confirmation value grants no authority;
-5. unknown receipt does not execute;
-6. expired receipt does not execute;
-7. already-consumed receipt cannot execute a second time;
-8. two concurrent consumers cannot both consume one receipt;
-9. receipt for another action ID fails;
-10. receipt for another action version fails;
-11. changed validated input fails;
-12. changed actor fails;
-13. changed tenant fails;
-14. changed binding fails;
-15. changed current record fails;
-16. changed current selection fails;
-17. changed browser session fails;
-18. unsupported/non-deterministic scope value fails closed;
-19. valid exact receipt executes once and executor observes runtime-verified `HumanConfirmation` trusted context;
-20. receipt is spent even when a later stage/executor fails;
-21. non-confirmation low-risk actions remain unchanged;
-22. raw receipt tokens do not appear in results, halt details, or provenance.
+4. caller input/metadata containing `confirmed=true` grants no authority;
+5. prebuilt `HumanConfirmation` trusted context cannot bypass receipt verification;
+6. unknown token does not execute;
+7. pending/unapproved token does not execute;
+8. expired pending challenge cannot be approved;
+9. expired approved receipt does not execute;
+10. already-consumed receipt cannot execute a second time;
+11. two concurrent consumers cannot both consume one receipt;
+12. re-approving one challenge cannot mint/reset a second receipt authority;
+13. receipt for another action ID fails;
+14. receipt for another action version fails;
+15. changed validated input fails;
+16. changed actor fails;
+17. changed tenant fails;
+18. changed binding fails;
+19. changed current record fails;
+20. changed current selection fails;
+21. changed browser session fails;
+22. unsupported/non-deterministic scope value fails closed;
+23. valid exact receipt executes once and executor observes runtime-verified `HumanConfirmation` trusted context;
+24. receipt is spent even when a later stage/executor fails;
+25. non-confirmation low-risk actions remain unchanged;
+26. raw tokens do not appear in stored records, results, halt details, exceptions, or provenance.
 
 The implementation must use TDD: each production behavior begins with a failing test whose failure proves the missing behavior.
 
@@ -416,6 +444,6 @@ Before T-401 can be marked DONE:
 
 T-401 is complete when SurfaceRelay can truthfully make this statement:
 
-> After authorization, an invocation that requires human confirmation can proceed only by presenting one unexpired, previously human-approved, runtime-issued opaque receipt whose exact stored scope matches the current validated invocation and trusted runtime context, and whose single-use authority is atomically consumed before execution.
+> After authorization, an invocation that requires human confirmation can proceed only by presenting one unexpired, human-approved, runtime-issued opaque token whose exact stored scope matches the current validated invocation and trusted runtime context, and whose single-use authority is atomically consumed before execution.
 
 Anything broader belongs to a later task.
