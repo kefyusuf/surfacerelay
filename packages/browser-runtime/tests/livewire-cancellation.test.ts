@@ -297,4 +297,68 @@ describe('Livewire cancellation propagation', () => {
 
     expect(remove).toHaveBeenCalledWith('abort', expect.any(Function));
   });
+
+  it('removes the execution-local abort listener after pre-dispatch cancellation', async () => {
+    const targetWire = new InterceptingWire();
+    const fixture = driver(targetWire);
+    const controller = new AbortController();
+    const reason = new Error('caller stopped queued action');
+    const remove = vi.spyOn(controller.signal, 'removeEventListener');
+
+    const pending = fixture.driver.execute(
+      binding(),
+      { name: 'passport' },
+      { signal: controller.signal },
+    );
+
+    controller.abort(reason);
+
+    await expect(pending).rejects.toBe(reason);
+    expect(remove).toHaveBeenCalledWith('abort', expect.any(Function));
+  });
+
+  it('removes the execution-local abort listener after natural failure', async () => {
+    const targetWire = new InterceptingWire();
+    const fixture = driver(targetWire);
+    const controller = new AbortController();
+    const remove = vi.spyOn(controller.signal, 'removeEventListener');
+    const original = new Error('server failure');
+
+    const pending = fixture.driver.execute(
+      binding(),
+      { name: 'passport' },
+      { signal: controller.signal },
+    );
+
+    targetWire.send();
+    targetWire.callResult.reject(original);
+
+    await expect(pending).rejects.toBe(original);
+    expect(remove).toHaveBeenCalledWith('abort', expect.any(Function));
+  });
+
+  it('does not retain its interceptor or signal authority for a later same-method invocation', async () => {
+    const targetWire = new InterceptingWire();
+    const fixture = driver(targetWire);
+    const controller = new AbortController();
+
+    const pending = fixture.driver.execute(
+      binding(),
+      { name: 'passport' },
+      { signal: controller.signal },
+    );
+
+    targetWire.send();
+    targetWire.callResult.resolve({ ok: true });
+    await pending;
+    await nextMicrotask();
+
+    expect(targetWire.interceptors).toHaveLength(0);
+    expect(targetWire.cancel).not.toHaveBeenCalled();
+
+    await targetWire.$call('addItem', 'later-human-call');
+    controller.abort(new Error('late abort from completed execution'));
+
+    expect(targetWire.cancel).not.toHaveBeenCalled();
+  });
 });
