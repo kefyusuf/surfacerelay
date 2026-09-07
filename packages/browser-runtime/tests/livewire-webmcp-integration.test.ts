@@ -50,6 +50,10 @@ function binding(componentId = 'component-old'): RuntimeBinding {
   };
 }
 
+function executionOptions(): { signal: AbortSignal } {
+  return { signal: new AbortController().signal };
+}
+
 class RecordingModelContext implements WebMcpModelContext {
   readonly tools: WebMcpTool[] = [];
 
@@ -83,7 +87,7 @@ describe('Livewire WebMCP integration', () => {
 
     expect(modelContext.tools).toHaveLength(1);
     expect(modelContext.tools[0].name).toBe('prep_list.add_item.v1');
-    await expect(modelContext.tools[0].execute({ name: 'passport' }, {})).resolves.toBe(output);
+    await expect(modelContext.tools[0].execute({ name: 'passport' }, executionOptions())).resolves.toBe(output);
     expect(runtime.find).toHaveBeenCalledExactlyOnceWith('component-old');
     expect(wire.$call).toHaveBeenCalledExactlyOnceWith('addItem', 'passport');
 
@@ -106,7 +110,7 @@ describe('Livewire WebMCP integration', () => {
     await lifecycle.register([{ definition: definition(), binding: binding('component-old') }]);
 
     try {
-      await modelContext.tools[0].execute({ name: 'passport' }, {});
+      await modelContext.tools[0].execute({ name: 'passport' }, executionOptions());
       throw new Error('expected stale binding failure');
     } catch (error) {
       expect(error).toBeInstanceOf(LivewireBindingExecutionError);
