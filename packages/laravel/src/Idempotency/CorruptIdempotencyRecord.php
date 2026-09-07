@@ -12,9 +12,24 @@ final class CorruptIdempotencyRecord extends \RuntimeException
         return new self('Corrupt idempotency replay payload.');
     }
 
+    public static function persistedShape(): self
+    {
+        return new self('Corrupt idempotency record shape.');
+    }
+
     public static function invalidHashShape(): self
     {
         return new self('Corrupt idempotency record hash shape.');
+    }
+
+    public static function invalidState(): self
+    {
+        return new self('Corrupt idempotency record state.');
+    }
+
+    public static function invalidTimestamp(): self
+    {
+        return new self('Corrupt idempotency record timestamp.');
     }
 
     public static function invalidExpiry(): self
