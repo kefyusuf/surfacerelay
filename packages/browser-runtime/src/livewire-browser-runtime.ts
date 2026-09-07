@@ -1,8 +1,21 @@
 import { LivewireBindingExecutionError } from './livewire-errors.js';
 
+export interface LivewireActionHandle {
+  cancel(): void;
+}
+
+export interface LivewireActionInterceptorContext {
+  action: LivewireActionHandle;
+  onSend(callback: () => void): void;
+}
+
 export interface LivewireWire {
   readonly $id: string;
   $call(method: string, ...params: unknown[]): Promise<unknown>;
+  intercept?(
+    method: string,
+    callback: (context: LivewireActionInterceptorContext) => void,
+  ): () => void;
 }
 
 export interface LivewireBrowserRuntime {
