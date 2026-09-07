@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   GlobalLivewireBrowserRuntime,
+  type LivewireActionHandle,
+  type LivewireActionInterceptorContext,
   type LivewireBrowserRuntime,
   type LivewireWire,
 } from '../src/livewire-browser-runtime.js';
@@ -20,6 +22,37 @@ describe('Livewire browser compatibility boundary', () => {
 
     expect(runtime.find('component-1')).toBe(wire);
     expect(runtime.find('other')).toBeUndefined();
+  });
+
+  it('models only the documented component-scoped action interceptor needed for cancellation', () => {
+    const cancel = vi.fn();
+    const action: LivewireActionHandle = { cancel };
+    let capturedMethod: string | undefined;
+    let capturedCallback: ((context: LivewireActionInterceptorContext) => void) | undefined;
+    const unsubscribe = vi.fn();
+    const wire: LivewireWire = {
+      $id: 'component-1',
+      $call: vi.fn(async () => ({ ok: true })),
+      intercept(method, callback) {
+        capturedMethod = method;
+        capturedCallback = callback;
+        return unsubscribe;
+      },
+    };
+
+    const off = wire.intercept?.('addItem', ({ action: capturedAction, onSend }) => {
+      onSend(() => capturedAction.cancel());
+    });
+    capturedCallback?.({
+      action,
+      onSend(callback) {
+        callback();
+      },
+    });
+
+    expect(capturedMethod).toBe('addItem');
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(off).toBe(unsubscribe);
   });
 
   it('wraps the ambient Livewire.find API without alternate lookup behavior', () => {
