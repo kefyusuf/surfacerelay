@@ -175,7 +175,7 @@ The lookup partition is derived from trusted context only:
 
 Current record and current selection are deliberately not partition dimensions. They are invocation intent and must cause conflict when the same scoped key is reused for another target/selection.
 
-When actor and/or tenant authority exists, browser session is not used as the lookup partition. This lets an authenticated business retry find the same key across browser-session changes and then evaluate whether the changed session is an allowed exact-intent replay or a conflict.
+When actor and/or tenant authority exists, browser session is not used as the lookup partition. This lets an authenticated retry find the same scoped key after a browser-session change; because browser session remains an intent dimension, such a change fails closed as `idempotency_conflict` instead of silently permitting a second business execution.
 
 ### Lookup hash
 
@@ -335,6 +335,8 @@ Replay invariants:
 - output policy runs again on the replayed pre-policy output;
 - the current invocation correlation ID is used in the eventual `ActionResult`;
 - retention is not extended.
+
+A completed record is not confirmation authority. For a confirmation-required action, a pre-materialized `HumanConfirmation` trusted entry remains the same T-401 runtime configuration violation even on a completed replay path. T-402 must enforce that invariant before replay skips `ConfirmationStage`, preferably through a narrow shared/kernel guard rather than by teaching idempotency code to trust or manufacture confirmation state.
 
 This is the safe T-402 path anticipated by the T-401 design for a lost-response retry.
 
@@ -554,6 +556,7 @@ This does not weaken T-401:
 - confirmation authority is never reconstructed from idempotency state;
 - replay does not create `HumanConfirmation`;
 - a consumed receipt remains consumed;
+- a pre-materialized `HumanConfirmation` remains a configuration violation even on replay;
 - a conflicting/non-completed idempotency record never bypasses confirmation into execution.
 
 ## Decision Update
@@ -604,10 +607,11 @@ At minimum executable tests must prove:
 34. T-401 confirmation scope fingerprints remain regression-identical after canonicalizer reuse;
 35. full ActionBus integration proves consequential success + lost-response retry executes exactly once and replays safely;
 36. full integration proves conflict/in-progress/indeterminate cannot bypass into confirmation/execution;
-37. `spec/0.1` remains byte-for-byte unchanged;
-38. browser production code remains untouched unless a test fixture needs only non-production adaptation;
-39. T-403 output-redaction implementation is not introduced;
-40. T-404 structured audit persistence is not introduced.
+37. completed replay for a confirmation-required action still fails closed on pre-materialized `HumanConfirmation` configuration;
+38. `spec/0.1` remains byte-for-byte unchanged;
+39. browser production code remains untouched unless a test fixture needs only non-production adaptation;
+40. T-403 output-redaction implementation is not introduced;
+41. T-404 structured audit persistence is not introduced.
 
 ## Documentation Updates at Completion
 
@@ -629,7 +633,7 @@ T-402 must preserve:
 
 - frozen `spec/0.1` wire contracts;
 - protocol-neutral Action Definition semantics;
-- T-401 confirmation capability behavior for fresh execution;
+- T-401 confirmation capability behavior for fresh execution and configuration-invalid pre-materialized authority;
 - T-305 cancellation claims/frontier;
 - existing Livewire/browser driver behavior;
 - current output-policy stage ownership;
