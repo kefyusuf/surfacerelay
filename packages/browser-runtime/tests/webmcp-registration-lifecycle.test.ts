@@ -278,4 +278,25 @@ describe('WebMCP registration lifecycle', () => {
     expect(executionController.signal).not.toBe(registrationSignal);
     lease.dispose();
   });
+
+  it('rejects an already-aborted execution before invocation-time driver resolution', async () => {
+    const context = new RecordingModelContext();
+    const { driver, execute } = registeredDriver();
+    const registry = registryWithLivewire(driver);
+    const lifecycle = new WebMcpRegistrationLifecycle(context, registry);
+    const value = candidate('prep_list.add_item', 1);
+    const lease = await lifecycle.register([value]);
+    const requireDriver = vi.spyOn(registry, 'requireDriver');
+    const reason = new DOMException('stopped', 'AbortError');
+    const controller = new AbortController();
+    controller.abort(reason);
+
+    await expect(context.calls[0].tool.execute({}, {
+      signal: controller.signal,
+    })).rejects.toBe(reason);
+
+    expect(requireDriver).not.toHaveBeenCalled();
+    expect(execute).not.toHaveBeenCalled();
+    lease.dispose();
+  });
 });
