@@ -9,8 +9,9 @@ use SurfaceRelay\Laravel\Runtime\InvocationContext;
 
 /**
  * Immutable per-invocation pipeline state. Trusted authority lives
- * exclusively in the InvocationContext; the state adds no authority-bearing
- * scratch bag. Output presence is tracked explicitly because null is a
+ * exclusively in the InvocationContext; binding identity and confirmation
+ * receipt are invocation candidates/references and never become authority by
+ * presence alone. Output presence is tracked explicitly because null is a
  * legitimate execution result.
  */
 final readonly class ActionPipelineState
@@ -24,6 +25,8 @@ final readonly class ActionPipelineState
         public InvocationContext $context,
         public bool $hasOutput = false,
         public mixed $output = null,
+        public ?string $bindingId = null,
+        public ?string $confirmationReceipt = null,
     ) {}
 
     /**
@@ -31,11 +34,40 @@ final readonly class ActionPipelineState
      */
     public function withInput(array $input): self
     {
-        return new self($this->definition, $input, $this->context, $this->hasOutput, $this->output);
+        return new self(
+            $this->definition,
+            $input,
+            $this->context,
+            $this->hasOutput,
+            $this->output,
+            $this->bindingId,
+            $this->confirmationReceipt,
+        );
     }
 
     public function withOutput(mixed $output): self
     {
-        return new self($this->definition, $this->input, $this->context, true, $output);
+        return new self(
+            $this->definition,
+            $this->input,
+            $this->context,
+            true,
+            $output,
+            $this->bindingId,
+            $this->confirmationReceipt,
+        );
+    }
+
+    public function withContext(InvocationContext $context): self
+    {
+        return new self(
+            $this->definition,
+            $this->input,
+            $context,
+            $this->hasOutput,
+            $this->output,
+            $this->bindingId,
+            $this->confirmationReceipt,
+        );
     }
 }

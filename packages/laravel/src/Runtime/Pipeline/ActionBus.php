@@ -69,7 +69,13 @@ final class ActionBus
         // another version. Failure throws before any stage executes.
         $definition = $this->registry->get($call->actionId, $call->actionVersion);
 
-        $state = new ActionPipelineState($definition, $call->input, $call->context);
+        $state = new ActionPipelineState(
+            definition: $definition,
+            input: $call->input,
+            context: $call->context,
+            bindingId: $call->bindingId,
+            confirmationReceipt: $call->confirmationReceipt,
+        );
 
         // Kernel step 2: trusted context requirement check — presence only,
         // no domain validation, no fallback from input or metadata (D-007,
