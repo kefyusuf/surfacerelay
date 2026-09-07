@@ -89,12 +89,66 @@ Contract:                    52 fixture entries + 12 conformance scenarios
 
 ---
 
-## M4 — Production Trust Controls — TODO
+## M4 — Production Trust Controls — IN PROGRESS
 
-- T-401 — Confirmation challenge/receipt.
-- T-402 — Idempotency store.
-- T-403 — Output policy/redaction.
-- T-404 — Structured audit events.
+### T-401 — Confirmation challenge/receipt — DONE / REVIEWED
+
+**Outcome:** Consequential or explicitly `human_confirmation`-gated actions require a real server-issued opaque confirmation capability. The Laravel reference runtime issues a pending challenge after validation and authorization, permits trusted bridge code to approve that exact scope, atomically consumes an exact-scope approved receipt once, and only then materializes trusted `HumanConfirmation` before execution.
+
+**Acceptance:**
+
+- confirmation is mandatory when `risk=consequential` OR `human_confirmation` is declared;
+- caller `confirmed=true`, action input, client metadata, pending challenge IDs and prebuilt `HumanConfirmation` entries cannot manufacture authority;
+- `bindingId` and `confirmationReceipt` are explicit non-authoritative invocation candidates, never metadata fallbacks;
+- confirmation scope is deterministic and binds exact action ID/version, validated input, surface, binding reference and relevant actor/tenant/current-record/current-selection/browser-session context;
+- correlation ID, idempotency key, generic metadata and `human_confirmation` itself are excluded from scope;
+- arbitrary unrepresentable trusted objects fail closed unless their trusted resolver supplies a stable non-secret confirmation scope key;
+- challenges use opaque 32-byte random base64url tokens; server records are addressed only by SHA-256 token hash;
+- challenge and approved-receipt expiry are strict (`now < expiresAt`), with default TTLs of 300s and 120s respectively;
+- approval cannot rewrite scope and returns the same opaque token as the receipt;
+- receipt consumption is single-use and occurs before downstream execution; later execution failure does not restore the receipt;
+- scope mismatch grants no authority but does not spend an otherwise-valid approved receipt;
+- the production cache store requires Laravel `Store` + `LockProvider`, protects every confirmation-record mutation with an exact per-token lock, waits at most 2 seconds for acquisition, fails closed on timeout/store failure, and has no unlocked mutation fallback;
+- only successful receipt consumption creates `VerifiedConfirmation` with non-secret `surfacerelay.confirmation` provenance;
+- real typed `ConfirmationChallenge` halts normalize to `confirmation_required`; generic halt details can never fabricate a challenge;
+- full integration tests cover validation→authorization→confirmation→execution ordering, replay, expiry, scope mismatch, secret non-leakage and caller spoofing;
+- D-044 records the implemented single-use scoped capability model;
+- `spec/0.1` wire schemas remain unchanged;
+- T-402 idempotency, T-403 output policy, T-404 structured audit and T-504 human UI remain out of scope.
+
+**TDD / verification evidence:**
+
+```text
+Design checkpoint:          13437eec846bc2410125f7e7648d4a3034c8abfe
+Implementation plan:        76a92dd65131d58c3833f9415ff03984910bf8ac / 34121419395 — 7/7 green
+Task 1 RED:                 e0e6b5fee4752d0655a95fa72dfd7c9f0b1fd7d8 / 34121703510
+Task 1 GREEN:               d39d9985109f50c2501bd058420d1be6cb3b6ac6 / 34122361725 — 7/7 green
+Task 2 RED:                 9bd56e1ea7c93d2acdf4f353e663b7ff21e0e5ab / 34122730746
+Task 2 GREEN:               02faf1e105691acbd19221662972cc1d3c347ffa / 34123455314 — 7/7 green
+Task 3 RED:                 d21f8a26b7e0bebbebe4aeb105449718eff4f29b / 34125236616
+State-machine GREEN:         cc7eb1a0bb6a0ea2d715826cbed7db1ed5d062f5 / 34125961974 — green
+Pipeline gate checkpoint:    c10f06c16384c5d53f28ea38fa0f64903a4a37ab / 34127948471 — green
+Full integration RED:        de78135f5df344aae4f2ab8bdf846130ed008c82 / 34130583026 — expected unmapped confirmation halt only
+Implementation GREEN:        7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
+Review-prep checkpoint:      d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
+Initial PR validation:       d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
+CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99f — no blocker; one trivial bounded-lock-wait finding
+Review finding RED:          37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223 — expected block-vs-get failures in all PHP matrices
+Review finding GREEN:        f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
+PHP:                         344 tests / 1300 assertions
+Browser isolation:           TypeScript typecheck + 103/103 Vitest tests
+Contract:                    frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
+CodeRabbit final head status: success
+Open review threads:          0
+```
+
+**Review result:** PASSED after the only external automated review finding was verified against Laravel 12/13, fixed TDD-first, and revalidated on the exact code head. Merge remains a separate explicit gate.
+
+### Remaining M4 tasks
+
+- T-402 — Idempotency store — TODO / **not started**.
+- T-403 — Output policy/redaction — TODO.
+- T-404 — Structured audit events — TODO.
 
 ## M5 — Filament Vertical — TODO
 

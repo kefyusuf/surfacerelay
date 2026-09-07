@@ -86,17 +86,17 @@ Tools become available to unintended frames/origins.
 
 **Mitigation:** secure-context and Permissions Policy awareness; explicit origin exposure; least privilege; never infer trust from embedding alone.
 
-### T11 — Confirmation spoofing
+### T11 — Confirmation spoofing / receipt replay
 
-Caller sends `confirmed=true` or replays an old approval.
+Caller sends `confirmed=true`, supplies a challenge before human approval, forges a receipt, replays a consumed receipt, or reuses approval for a different action/input/runtime context.
 
-**Mitigation:** opaque runtime-issued confirmation receipt bound to actor, tenant, action, relevant input/binding, expiry, and single-use/replay policy.
+**Mitigation (T-401 implemented in the Laravel reference runtime):** confirmation authority is a server-side `pending → approved → consumed/expired` state machine addressed by an opaque 32-byte random bearer token. Only SHA-256 token hashes are stored. Approval cannot rewrite the stored scope. Receipts are short-lived and single-use, and are bound to exact action ID/version, validated input, surface/binding, and relevant trusted actor/tenant/current-record/current-selection/browser-session context. Scope mismatch grants no authority and does not spend an otherwise-valid receipt; successful exact-scope consumption spends it before execution. The production cache adapter requires a shared lock-capable Laravel cache store and fails closed rather than performing an unlocked mutation. Caller input, metadata, `confirmed=true`, pending challenge IDs, and pre-materialized `human_confirmation` entries never grant authority.
 
 ### T12 — Replay / double execution
 
 Network retries or agent retries repeat a write/external side effect.
 
-**Mitigation:** action-declared idempotency policy; server idempotency key/store; duplicate returns prior outcome or safe rejection.
+**Mitigation:** action-declared idempotency policy; server idempotency key/store; duplicate returns prior outcome or safe rejection. T-402 owns this separate protection; T-401 receipt single-use does not replace idempotency.
 
 ### T13 — Cancellation confusion
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\Laravel\Auth;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use SurfaceRelay\Laravel\Contracts\AuthenticatedActorResolver;
 use SurfaceRelay\Laravel\Runtime\Context\ContextProvenance;
@@ -18,7 +19,10 @@ use SurfaceRelay\Laravel\Runtime\Context\ResolvedTrustedValue;
  * Unauthenticated state resolves to null (absence), not to a placeholder
  * actor. The authenticated Laravel user object itself is the trusted value.
  * Provenance is diagnostic: provider `laravel.auth` with the configured guard
- * name as reference; no tokens, cookies, headers, or secrets are recorded.
+ * name as reference; no tokens, cookies, headers, passwords, or secrets are
+ * recorded. When the user implements Laravel Authenticatable and exposes a
+ * stable scalar/stringable identifier, a non-secret confirmation scope key is
+ * derived from class + identifier-name + identifier.
  */
 final class LaravelAuthenticatedActorResolver implements AuthenticatedActorResolver
 {
@@ -34,9 +38,26 @@ final class LaravelAuthenticatedActorResolver implements AuthenticatedActorResol
             return null;
         }
 
+        $confirmationScopeKey = null;
+        if ($user instanceof Authenticatable) {
+            $identifierName = $user->getAuthIdentifierName();
+            $identifier = $user->getAuthIdentifier();
+
+            if (is_string($identifierName)
+                && $identifierName !== ''
+                && (is_scalar($identifier) || $identifier instanceof \Stringable)) {
+                $confirmationScopeKey = implode(':', [
+                    $user::class,
+                    $identifierName,
+                    (string) $identifier,
+                ]);
+            }
+        }
+
         return new ResolvedTrustedValue(
             value: $user,
             provenance: new ContextProvenance(provider: 'laravel.auth', reference: $this->guard),
+            confirmationScopeKey: $confirmationScopeKey,
         );
     }
 }

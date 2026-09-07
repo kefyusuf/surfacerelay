@@ -17,10 +17,10 @@ use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineOutcome;
  * Halt details are never trusted as-is: for each reserved core code the
  * normalizer reconstructs public details from an expected narrow shape and
  * discards everything else, so a misbehaving stage cannot leak arbitrary
- * data through a recognized halt code. Only the implemented codes below are
- * mapped; unknown halt codes fail loudly (UnmappedPipelineOutcome) instead
- * of being guessed. Configuration/programming exceptions are never converted
- * into caller-visible results.
+ * data through a recognized halt code. Confirmation is stricter still: a
+ * public confirmation_required result is emitted only from the typed
+ * ConfirmationChallenge carried by the halt, never reconstructed from
+ * generic details. Unknown or malformed halts fail loudly.
  */
 final class ActionResultNormalizer
 {
@@ -61,6 +61,9 @@ final class ActionResultNormalizer
                     'Authorization denied.',
                 ),
             ),
+            CoreActionErrorCode::CONFIRMATION_REQUIRED => $halt->confirmation !== null
+                ? ActionResult::confirmationRequired($correlationId, $halt->confirmation)
+                : throw UnmappedPipelineOutcome::forHaltCode($halt->code),
             default => throw UnmappedPipelineOutcome::forHaltCode($halt->code),
         };
     }

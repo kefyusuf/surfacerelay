@@ -5,9 +5,11 @@ These are SurfaceRelay adapter/runtime scenarios, not W3C WebMCP browser conform
 Scenario IDs referenced below are registered in `spec/0.1/fixtures/conformance-scenarios.json`, which distinguishes:
 
 - `kind=schema` / `status=executable` — provable today by `scripts/validate.py` through the fixture manifest;
-- `kind=runtime` / `status=documented` — semantic scenarios that are **schema-valid but not executable/permitted**; they become executable in T-604/T-701 when real runtimes exist.
+- `kind=runtime` / `status=documented` — schema-valid semantic scenarios whose shared cross-runtime execution remains future work in T-604/T-701.
 
-This distinction is normative: **schema-invalid is not the same as schema-valid but runtime-invalid/stale.** JSON Schema validates structure only; binding authority is a runtime property.
+Some documented runtime scenarios are already exercised by package-level reference-runtime tests before the shared T-701 runner exists. That package test coverage does not change the fixture-manifest status or claim cross-runtime conformance.
+
+This distinction is normative: **schema-invalid is not the same as schema-valid but runtime-invalid/stale.** JSON Schema validates structure only; runtime authority is an execution property.
 
 ## Definition
 
@@ -24,7 +26,7 @@ This distinction is normative: **schema-invalid is not the same as schema-valid 
 6. Valid page/component/session/persistent bindings are structurally valid (`BIND-PAGE-VALID`, `BIND-COMPONENT-VALID`, `BIND-SESSION-VALID`, `BIND-PERSISTENT-VALID`).
 7. Binding name collision never silently overwrites another action (registry-level; concretely exercised in T-102).
 
-### Runtime semantics (fail closed; documented until T-604/T-701)
+### Runtime semantics (fail closed; shared runner pending T-604/T-701)
 
 8. Unknown binding ID fails closed (`BIND-ID-UNKNOWN`, recommended code `binding_not_found`). A binding ID is a reference, never proof of authorization by itself.
 9. Unknown driver fails closed (`BIND-DRIVER-UNKNOWN`, `driver_unsupported`). Drivers are extensible identifiers with an explicit registry (D-016); JSON Schema deliberately cannot express registry membership. No fallback driver is permitted.
@@ -51,6 +53,8 @@ Recommended provisional binding error codes (D-026, not a closed enum): `binding
 13. `confirmed=true` does not satisfy `human_confirmation`.
 14. Confirmation receipt is scoped and expiration/replay is enforced.
 15. Required idempotency key prevents duplicate side effect.
+
+**Laravel reference-runtime coverage:** T-401 now exercises Trust scenarios 13 and 14 with unit and full ActionBus integration tests, including caller boolean/metadata spoofing, exact action/version/input/actor/tenant/binding/record/selection/session scope mismatches, expiry equality, replay, and single-use consumption. The shared T-701 conformance runner remains unimplemented.
 
 ## Output
 

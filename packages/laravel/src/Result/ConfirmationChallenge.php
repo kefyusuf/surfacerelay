@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Result;
 
 /**
- * Frozen public confirmation challenge object (spec/0.1). This is a data
- * model only: receipt issuance/verification, signatures, scope binding,
- * expiry enforcement, and storage belong to a later task (T-401).
+ * Frozen public confirmation challenge object (spec/0.1). This remains a data
+ * model only: T-401's confirmation runtime owns issuance, approval, scoped
+ * receipt verification, expiry and storage. Constructing this value object by
+ * itself never grants human-confirmation authority.
  *
  * `expiresAt` is an optional RFC3339 date-time string (offset or `Z`, with
  * optional fractional seconds). Validation mirrors the repository's JSON

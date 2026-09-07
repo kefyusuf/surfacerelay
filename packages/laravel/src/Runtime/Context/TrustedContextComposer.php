@@ -15,6 +15,10 @@ use SurfaceRelay\Laravel\Enums\ContextRequirement;
  * metadata — and a null resolver result simply omits the entry (absence is
  * not exceptional; the ActionBus context-requirement gate enforces policy).
  *
+ * Resolver-supplied stable confirmation scope keys are forwarded verbatim;
+ * they help deterministic confirmation scoping but never grant authority by
+ * themselves.
+ *
  * Output is deterministic: canonical ContextRequirement declaration order
  * (authenticated_actor, tenant). No duplicate/merge handling beyond what
  * InvocationContext enforces, because this composer owns exactly one
@@ -38,6 +42,7 @@ final readonly class TrustedContextComposer
                 ContextRequirement::AuthenticatedActor,
                 $actor->value,
                 $actor->provenance,
+                confirmationScopeKey: $actor->confirmationScopeKey,
             );
         }
 
@@ -47,6 +52,7 @@ final readonly class TrustedContextComposer
                 ContextRequirement::Tenant,
                 $tenant->value,
                 $tenant->provenance,
+                confirmationScopeKey: $tenant->confirmationScopeKey,
             );
         }
 

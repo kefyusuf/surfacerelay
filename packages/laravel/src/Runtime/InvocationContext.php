@@ -27,8 +27,8 @@ use SurfaceRelay\Laravel\Runtime\Context\TrustedContextNotAvailable;
  * `metadata` is non-authoritative invocation metadata: a metadata key named
  * `tenant` does not make ContextRequirement::Tenant available.
  *
- * Confirmation, when present, is opaque trusted runtime data; real receipt
- * semantics (issuance, signing, expiry, replay) belong to a later task.
+ * Trusted entries may be extended only by trusted runtime code through
+ * `withTrustedEntry()`; constructor duplicate checks remain authoritative.
  * Browser-session values remain runtime-defined opaque context.
  */
 final readonly class InvocationContext
@@ -101,5 +101,16 @@ final readonly class InvocationContext
     public function allTrusted(): array
     {
         return $this->trustedOrder;
+    }
+
+    public function withTrustedEntry(TrustedContextEntry $entry): self
+    {
+        return new self(
+            surface: $this->surface,
+            correlationId: $this->correlationId,
+            trustedContext: [...$this->trustedOrder, $entry],
+            idempotencyKey: $this->idempotencyKey,
+            metadata: $this->metadata,
+        );
     }
 }

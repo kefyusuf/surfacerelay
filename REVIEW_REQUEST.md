@@ -3,109 +3,111 @@
 ## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Reviewed scope:** `T-305 — Cancellation propagation`
-- **Base:** `main@a61fec3085b920f158e4c61fb74420ace706fca1`
-- **Implementation head:** `6cfd7d11862d51dcd6c1e2c18254b290c661e2ec`
-- **Review checkpoint:** `0a883ffd819144298e864b1a6e5beea87cb1b984`
-- **Review workflow:** `34112709513` — all 7 jobs success
-- **Review-passed / merged checkpoint:** `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`
-- **Review-passed feature workflow:** `34113173623` — all 7 jobs success
-- **Merged-main workflow:** `34113562938` — all 7 jobs success
-- **Result:** **PASSED / MERGED TO MAIN**
-- **M3 status:** DONE / REVIEWED
-- **M4/T-401:** has **not** started.
+- **Scope:** `T-401 — Confirmation challenge/receipt`
+- **Base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
+- **Candidate branch:** `feat/confirmation-challenge-receipt`
+- **Pull request:** `#1 — feat(laravel): add scoped confirmation challenge and receipt trust controls`
+- **Reviewed code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
+- **Final PR workflow:** `34135906728` — **all 7 jobs success**
+- **External automated reviewer:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f`
+- **Review result:** **PASSED WITH ONE TRIVIAL FINDING, FIXED AND REVERIFIED**
+- **CodeRabbit status on final code head:** success
+- **Open review threads:** 0
+- **Merge status:** **MERGE READY / NOT MERGED AT THIS CHECKPOINT**
+- **M4 status:** IN PROGRESS; T-402..T-404 remain TODO
 
-## Reviewed execution boundary
+## Reviewed trust boundary
+
+T-401 implements real Laravel runtime confirmation authority without changing `spec/0.1` wire shapes:
 
 ```text
-WebMCP execute(required signal)
-        │
-        ├── already aborted
-        │      ↓
-        │   exact abort reason
-        │   no invocation-time driver lookup
-        │
-        ▼
-DriverRegistry
+validated + authorized consequential invocation
         ↓
-LivewireBrowserDriver
+exact confirmation scope fingerprint
         ↓
-exact target + expiry + input checks
+opaque pending challenge
+        ↓ trusted bridge approval
+same opaque token becomes approved receipt
+        ↓ next exact invocation
+atomic single-use consume
         ↓
-Livewire.find(exact componentId)
+runtime-owned HumanConfirmation trusted entry
         ↓
-documented component method interceptor
-        ↓
-exact $wire.$call(method, ...params)
-        │
-        ├── abort before onSend → exact action.cancel() once
-        └── onSend → dispatch frontier
-                   └── later abort does not cancel broader framework work
+execution
 ```
 
-## Review findings
+The production confirmation store persists only scalar/cache-safe records keyed by SHA-256 token hash. Raw bearer tokens are not persisted. A Laravel cache store must implement both `Store` and `LockProvider`; every confirmation-record mutation is protected by a per-token lock with a bounded two-second acquisition wait and no unlocked fallback.
 
-No blocker found.
+## External review finding
 
-1. WebMCP execution signal is required and registration-time authority remains separate from execution cancellation.
-2. Already-aborted WebMCP invocation fails before invocation-time `DriverRegistry.requireDriver()` and preserves exact `signal.reason`.
-3. Direct Livewire execution also rejects already-aborted signals before runtime lookup.
-4. Cancellation-aware Livewire execution fails before `$call()` if documented action interception is unavailable.
-5. The reference driver uses only component-scoped action interception and exact `action.cancel()`; message/request cancellation primitives are not modeled or invoked.
-6. The exact action created by the immediate exact `$call()` is the only cancellation target; no global lookup or replacement fallback exists.
-7. `onSend` is the hard dispatch frontier.
-8. Caller abort before `onSend` produces exact action cancellation once and surfaces the caller abort reason instead of Livewire's internal cancellation object.
-9. Synchronous prior-interceptor abort is handled without losing the exact action after capture.
-10. Post-dispatch abort does not imply server stop, rollback, reversal or compensation.
-11. Post-dispatch direct-driver success/failure remains the exact natural Livewire result/error.
-12. No `#[Async]`, `#[Isolate]`, private Livewire request internals or synthetic rollback result are introduced.
-13. The execution-local interceptor is logically one-shot; physical unsubscribe is deferred until after the current interceptor iteration, so unrelated trailing interceptors are not skipped.
-14. Later same-method invocations are not captured by a completed SurfaceRelay execution.
-15. Execution-local abort listeners and interceptor subscriptions are cleaned on success, failure and pre-dispatch cancellation.
-16. `livewire_cancellation_unavailable` is a focused compatibility error only and does not redefine D-026.
-17. `spec/0.1`, Laravel production behavior, M4 trust controls and other framework drivers are unchanged.
-18. The final diff contains no accidental temp/INVALID files and no broad/private cancellation implementation.
-19. The exact review-passed checkpoint was fast-forward merged to `main` and independently revalidated there with all 7 jobs green.
+CodeRabbit found no blocker/security defect and reported one **trivial Stability & Availability** issue in `CacheConfirmationStore::withTokenLock()`:
 
-## TDD / verification evidence
+- the original implementation used a single non-blocking `Lock::get()` attempt;
+- short contention on the same token could therefore surface `ConfirmationStoreUnavailable` immediately;
+- Laravel 12/13 support bounded `Lock::block()` acquisition, with timeout represented as a lock acquisition failure.
+
+The finding was verified against the current Laravel cache lock contracts before changing code. It was then fixed test-first:
 
 ```text
-Design:                       2d044bdde2fdf8f5b084ce5cebf888aa2c293319
-Design hardening:             961262931676d1102555cd31c6e5dafa3ad19b30
-Plan:                         e33b74439055dfabab40ceb99850404d420b314b
-WebMCP type RED:              b270a2b26d45ba8826128c616f97d3897e857ac9 / run 34098620894
-Task-1 GREEN:                 cf884ed85f57f8dfeb21cf68411fd820e9979ceb / run 34099618870 — 7/7 green
-Interceptor type RED:         f8811fd3ef46a0a2616524d7499b23de926e43f6 / run 34102239036
-Interceptor port:             fb00a2123b449ba25e240cf6253856fcbcdc72e5
-Cancellation RED:             ba7240eee58caee2b1132802d01c4a6ef13d245d / run 34102948252
-Cancellation implementation:  fffff7b15a31d61fc1cb212598505eba044b86b2
-Implementation GREEN:         35430366e8d01d17a5d936ac55050848face2bbc / run 34103990010 — 7/7 green
-Cleanup/isolation hardening:  6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / run 34104686684 — 7/7 green
-Review checkpoint:            0a883ffd819144298e864b1a6e5beea87cb1b984 / run 34112709513 — 7/7 green
-Review-passed checkpoint:     dbb200cec4e194f73aa4cefb064bf0aaf15a7781 / run 34113173623 — 7/7 green
-Merged-main run:              34113562938 — 7/7 green
+Review RED:   37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
+              four PHP matrix jobs failed only because lock.get was still used
+
+Review GREEN: f94340947b00f06707451590f1bef9fcc980479d / 34135906728
+              all 7 jobs success; 344 tests / 1300 assertions
 ```
 
-Final review evidence:
+The final behavior is:
 
 ```text
-browser:  TypeScript typecheck + 103/103 Vitest tests
-PHP:      283 tests / 815 assertions
-contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all 7 jobs success on review-passed feature checkpoint and merged main
-Livewire: observed v4.4.3 in matrix
+per-token lock TTL:  10s
+bounded wait:         2s
+wait timeout/error:   ConfirmationStoreUnavailable
+unlocked fallback:    forbidden
+```
+
+This hardening changes availability under brief contention only; confirmation authority, scope, expiry, replay and single-use semantics remain unchanged.
+
+## Review conclusions
+
+1. **Authority boundary:** action input, metadata, `confirmed=true`, pending challenge IDs and prebuilt HumanConfirmation cannot satisfy the gate.
+2. **Exact scope:** action ID/version, validated input, surface, binding, actor, tenant, record, selection and browser session are bound; correlation/idempotency/metadata are excluded intentionally.
+3. **Stable context representation:** arbitrary objects fail closed unless a trusted resolver supplies a non-secret confirmation scope key; Laravel `Authenticatable` identity derives a stable actor key without credentials/tokens.
+4. **State machine:** pending → approved → consumed/expired is server-side, approval cannot rewrite scope, and the same opaque token is used across challenge/receipt states.
+5. **Replay/expiry:** expiry equality fails closed, successful consumption is single-use, and downstream execution failure does not restore a receipt.
+6. **Mismatch behavior:** wrong-scope attempts cannot execute and do not consume the legitimate exact-scope receipt.
+7. **Cache atomicity:** every authority mutation is under the exact per-token lock; acquisition waits are bounded and timeout/store failures fail closed.
+8. **Secret handling:** raw receipt, token hash, scope hash and trusted actor/tenant values do not leak through halt details, result metadata, provenance or exceptions.
+9. **Result semantics:** `confirmation_required` is produced only from a typed real `ConfirmationChallenge`, never fabricated from generic halt details.
+10. **Scope discipline:** no T-402 idempotency, T-403 redaction, T-404 audit persistence, T-504 UI, rollback semantics, or `spec/0.1` change was introduced.
+
+## Verification evidence
+
+```text
+Design checkpoint:          13437eec846bc2410125f7e7648d4a3034c8abfe
+Implementation plan:        76a92dd65131d58c3833f9415ff03984910bf8ac
+Implementation GREEN:       7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
+Review-prep checkpoint:      d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
+Initial PR validation:       d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
+CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99f
+Review-finding RED:          37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
+Review-finding GREEN:        f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
+PHP:                         344 tests / 1300 assertions
+Browser:                     TypeScript typecheck + 103/103 Vitest tests
+Contract:                    python scripts/validate.py green; frozen spec/0.1 unchanged
+CodeRabbit final head status: success
+Open review threads:          0
 ```
 
 ## Decision status
 
-- D-042 ACCEPTED — strong no-dispatch cancellation guarantee ends at the framework dispatch frontier; post-frontier abort is not rollback.
-- D-043 ACCEPTED — Livewire cancellation is exact action-level `action.cancel()` before `onSend`; broad message/request cancellation and private-API workarounds are prohibited.
-- D-026 remains PROPOSED as a complete generic binding-failure vocabulary.
+- D-014 ACCEPTED — consequential is a categorical confirmation gate.
+- D-015 ACCEPTED — receipt authority is opaque, scoped, expiring and runtime-issued.
+- D-044 ACCEPTED — confirmation grants are single-use exact-scope bearer capabilities and only successful server-side consumption materializes HumanConfirmation.
 
 ## Explicit non-claims
 
-T-305 does **not** claim that browser cancellation stops PHP execution, rolls back a database transaction, reverses an external side effect, cancels queue work, compensates a dispatched mutation, or establishes final-state evidence. Those concerns remain separate and belong to later idempotency/audit/trust-control work.
+T-401 does **not** claim idempotent/exactly-once business execution, output redaction, structured audit persistence, a generic approval HTTP endpoint, browser/Filament confirmation UX, rollback, compensation, or post-dispatch cancellation. Those remain T-402/T-403/T-404/T-504 or separate concerns.
 
-## Explicit statement
+## Review outcome
 
-**T-305 REVIEW PASSED and is merged to `main` at checkpoint `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`. M3 is DONE / REVIEWED. M4/T-401 is TODO and has NOT started.**
+**T-401 external automated review passed after its only finding was verified, fixed TDD-first, and revalidated on the exact code head. PR #1 is merge-ready; merge remains a separate explicit operation.**
