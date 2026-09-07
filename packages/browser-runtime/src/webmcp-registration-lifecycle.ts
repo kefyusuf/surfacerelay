@@ -38,6 +38,10 @@ export class WebMcpRegistrationLifecycle {
   ): Promise<WebMcpRegistrationLease> {
     const projected = candidates.map((candidate) => {
       const tool = projectBoundActionTool(candidate, async (input, options) => {
+        if (options.signal.aborted) {
+          throw options.signal.reason;
+        }
+
         const driver = this.drivers.requireDriver(candidate.binding.driver);
         return driver.execute(candidate.binding, input, {
           signal: options.signal,
