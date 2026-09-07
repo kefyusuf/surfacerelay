@@ -259,7 +259,9 @@ final class ConfirmationServiceTest extends TestCase
         self::assertSame($record->state, ConfirmationRecord::fromArray($array)->state);
         self::assertSame(str_repeat('a', 64), $array['scopeFingerprint']);
         self::assertSame('approved', $array['state']);
-        self::assertContainsOnly('string|int|null', array_values($array));
+        foreach ($array as $value) {
+            self::assertTrue(is_string($value) || is_int($value) || $value === null);
+        }
 
         $this->expectException(\UnexpectedValueException::class);
         ConfirmationRecord::fromArray([
