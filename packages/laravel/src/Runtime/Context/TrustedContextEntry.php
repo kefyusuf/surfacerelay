@@ -14,6 +14,10 @@ use SurfaceRelay\Laravel\Enums\ContextRequirement;
  * a requirement is represented by the absence of its entry, never by a
  * present entry holding null; this keeps resolved-empty states (e.g. an
  * empty current selection) distinguishable from "not resolved".
+ *
+ * `confirmationScopeKey` is optional stable trusted adapter identity for
+ * deterministic confirmation scoping. The key does not grant authority by
+ * itself and is never sourced from generic caller input/metadata.
  */
 final readonly class TrustedContextEntry
 {
@@ -21,10 +25,17 @@ final readonly class TrustedContextEntry
         public readonly ContextRequirement $requirement,
         public readonly mixed $value,
         public readonly ContextProvenance $provenance,
+        public readonly ?string $confirmationScopeKey = null,
     ) {
         if ($this->value === null) {
             throw new \InvalidArgumentException(sprintf(
                 'TrustedContextEntry for "%s" must not hold null; represent absence by omitting the entry.',
+                $this->requirement->value,
+            ));
+        }
+        if ($this->confirmationScopeKey === '') {
+            throw new \InvalidArgumentException(sprintf(
+                'TrustedContextEntry for "%s" confirmationScopeKey must be null or a non-empty string.',
                 $this->requirement->value,
             ));
         }
