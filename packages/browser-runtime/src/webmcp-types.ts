@@ -1,7 +1,7 @@
 import type { WebMcpAnnotations } from './webmcp-projection.js';
 
 export interface WebMcpToolExecuteOptions {
-  signal?: AbortSignal;
+  signal: AbortSignal;
 }
 
 export interface WebMcpTool {
