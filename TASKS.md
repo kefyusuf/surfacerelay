@@ -22,7 +22,7 @@ T-201 through T-204 DONE / REVIEWED. Reviewed M2 checkpoint: `068347ac6d1bba645a
 
 ---
 
-## M3 — Browser Runtime / WebMCP — IN PROGRESS
+## M3 — Browser Runtime / WebMCP — DONE / REVIEWED
 
 ### T-301 — DriverRegistry — DONE / REVIEWED
 
@@ -40,7 +40,7 @@ Whole-snapshot preflight, deterministic tool identity, sequential registration, 
 
 Exact Livewire binding execution through documented `Livewire.find()` + `$wire.$call()`, server-issued positional call plan, strict expiry/input checks and no stale-target retargeting. Reviewed/merged checkpoint: `bd1f20397a6a3f24000abb73ac7eedb6ed48fdb9`.
 
-### T-305 — Cancellation propagation — DONE / READY FOR EXTERNAL-STYLE REVIEW
+### T-305 — Cancellation propagation — DONE / REVIEWED
 
 **Outcome:** SurfaceRelay propagates cancellation only as far as it can make a truthful guarantee: exact action-level cancellation before Livewire dispatch, with a hard `onSend` frontier and no rollback/reversal claim after dispatch.
 
@@ -51,11 +51,11 @@ Exact Livewire binding execution through documented `Livewire.find()` + `$wire.$
 - registration-time driver preflight remains separate and unchanged;
 - direct Livewire driver execution checks already-aborted signals before runtime lookup;
 - cancellation-aware Livewire execution requires documented component-scoped `intercept(method, callback)` support before `$call()`;
-- only the exact action handle created by the immediate exact `$call()` is captured;
+- only the exact action created by the immediate exact `$call()` is cancellation authority;
 - pre-`onSend` abort invokes exact `action.cancel()` once and surfaces exact caller abort reason;
-- synchronous prior-interceptor abort race is handled after exact action capture;
+- synchronous prior-interceptor abort race is handled after action capture;
 - `onSend` is the dispatch frontier;
-- post-`onSend` abort never calls broad action/message/request cancellation and does not replace natural success/failure;
+- post-`onSend` abort never invokes action/message/request broad cancellation and does not replace natural success/failure;
 - no `#[Async]`, `#[Isolate]`, private request API or synthetic rollback result is introduced;
 - interceptor cleanup avoids mutating Livewire's interceptor array during callback iteration;
 - unrelated trailing interceptors run and later same-method invocations are not captured;
@@ -66,23 +66,24 @@ Exact Livewire binding execution through documented `Livewire.find()` + `$wire.$
 **Verification:**
 
 ```text
-Design:                     2d044bdde2fdf8f5b084ce5cebf888aa2c293319
-Design hardening:           961262931676d1102555cd31c6e5dafa3ad19b30
-Plan:                       e33b74439055dfabab40ceb99850404d420b314b
-WebMCP RED:                 b270a2b26d45ba8826128c616f97d3897e857ac9 / 34098620894
-Task-1 GREEN:               cf884ed85f57f8dfeb21cf68411fd820e9979ceb / 34099618870 — 7/7 green
-Interceptor type RED:       f8811fd3ef46a0a2616524d7499b23de926e43f6 / 34102239036
-Interceptor port:           fb00a2123b449ba25e240cf6253856fcbcdc72e5
-Cancellation RED:           ba7240eee58caee2b1132802d01c4a6ef13d245d / 34102948252
+Design:                      2d044bdde2fdf8f5b084ce5cebf888aa2c293319
+Design hardening:            961262931676d1102555cd31c6e5dafa3ad19b30
+Plan:                        e33b74439055dfabab40ceb99850404d420b314b
+WebMCP RED:                  b270a2b26d45ba8826128c616f97d3897e857ac9 / 34098620894
+Task-1 GREEN:                cf884ed85f57f8dfeb21cf68411fd820e9979ceb / 34099618870 — 7/7 green
+Interceptor type RED:        f8811fd3ef46a0a2616524d7499b23de926e43f6 / 34102239036
+Interceptor port:            fb00a2123b449ba25e240cf6253856fcbcdc72e5
+Cancellation RED:            ba7240eee58caee2b1132802d01c4a6ef13d245d / 34102948252
 Cancellation implementation: fffff7b15a31d61fc1cb212598505eba044b86b2
-Implementation GREEN:       35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
-Coverage hardening:         6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / 34104686684 — 7/7 green
-Browser:                    TypeScript typecheck + 103/103 Vitest tests
-PHP:                        283 tests / 815 assertions
-Contract:                   52 fixture entries + 12 conformance scenarios
+Implementation GREEN:        35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
+Coverage hardening:          6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / 34104686684 — 7/7 green
+Review checkpoint:           0a883ffd819144298e864b1a6e5beea87cb1b984 / 34112709513 — 7/7 green
+Browser:                     TypeScript typecheck + 103/103 Vitest tests
+PHP:                         283 tests / 815 assertions
+Contract:                    52 fixture entries + 12 conformance scenarios
 ```
 
-**Review status:** implementation complete; exact branch diff and fresh review-checkpoint CI still required before merge.
+**Review result:** PASSED. No blocker found; M3 is complete/reviewed.
 
 ---
 
