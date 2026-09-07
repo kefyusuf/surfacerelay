@@ -6,10 +6,11 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/cancellation-propagation`
+- **Branch:** `main`
 - **Reviewed main baseline before T-305:** `a61fec3085b920f158e4c61fb74420ace706fca1`
 - **T-305 implementation head:** `6cfd7d11862d51dcd6c1e2c18254b290c661e2ec`
-- **T-305 reviewed checkpoint:** `0a883ffd819144298e864b1a6e5beea87cb1b984`
+- **T-305 review checkpoint:** `0a883ffd819144298e864b1a6e5beea87cb1b984`
+- **T-305 review-passed / merged-main checkpoint:** `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; **M3 DONE / REVIEWED**
 - **Last completed/reviewed task:** `T-305 — Cancellation propagation`
 - **Next task:** `T-401 — Confirmation challenge/receipt` — **not started**
@@ -19,7 +20,9 @@
 - **PHP baseline:** **283 tests / 815 assertions**.
 - **Browser baseline:** TypeScript typecheck + **103/103 Vitest tests**.
 - **Implementation CI:** workflow `34104686684` on `6cfd7d11862d51dcd6c1e2c18254b290c661e2ec`, all 7 jobs green.
-- **Review CI:** workflow `34112709513` on exact reviewed checkpoint `0a883ffd819144298e864b1a6e5beea87cb1b984`, all 7 jobs green.
+- **Review CI:** workflow `34112709513` on `0a883ffd819144298e864b1a6e5beea87cb1b984`, all 7 jobs green.
+- **Review-passed feature CI:** workflow `34113173623` on `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`, all 7 jobs green.
+- **Merged-main CI:** workflow `34113562938` on `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`, all 7 jobs green.
 - **Observed Livewire integration version:** `v4.4.3`.
 
 ## M3 — Browser Runtime / WebMCP — DONE / REVIEWED
@@ -92,7 +95,6 @@ Reviewed invariants:
 Design:                       2d044bdde2fdf8f5b084ce5cebf888aa2c293319
 Design hardening:             961262931676d1102555cd31c6e5dafa3ad19b30
 Implementation plan:          e33b74439055dfabab40ceb99850404d420b314b
-
 WebMCP type RED:              b270a2b26d45ba8826128c616f97d3897e857ac9 / 34098620894
 Task-1 GREEN:                 cf884ed85f57f8dfeb21cf68411fd820e9979ceb / 34099618870 — 7/7 green
 Interceptor type RED:         f8811fd3ef46a0a2616524d7499b23de926e43f6 / 34102239036
@@ -102,6 +104,8 @@ Cancellation implementation:  fffff7b15a31d61fc1cb212598505eba044b86b2
 Implementation GREEN:         35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
 Cleanup/isolation hardening:  6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / 34104686684 — 7/7 green
 Review checkpoint:            0a883ffd819144298e864b1a6e5beea87cb1b984 / 34112709513 — 7/7 green
+Review-passed checkpoint:     dbb200cec4e194f73aa4cefb064bf0aaf15a7781 / 34113173623 — 7/7 green
+Merged-main run:              34113562938 — 7/7 green
 ```
 
 Final reviewed evidence:
@@ -110,7 +114,7 @@ Final reviewed evidence:
 browser:  TypeScript typecheck + 103/103 Vitest tests
 PHP:      283 tests / 815 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all 7 jobs green on exact reviewed checkpoint
+CI:       all 7 jobs green on review-passed feature checkpoint and merged main
 Livewire: v4.4.3 observed in matrix
 ```
 
@@ -122,4 +126,4 @@ Livewire: v4.4.3 observed in matrix
 
 ## Next boundary
 
-M3 is complete/reviewed. **M4/T-401 has not started and must not begin automatically.**
+M3 is complete/reviewed and merged to `main`. **M4/T-401 has not started and must not begin automatically.**

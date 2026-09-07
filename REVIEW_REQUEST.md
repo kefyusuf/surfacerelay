@@ -6,9 +6,12 @@
 - **Reviewed scope:** `T-305 — Cancellation propagation`
 - **Base:** `main@a61fec3085b920f158e4c61fb74420ace706fca1`
 - **Implementation head:** `6cfd7d11862d51dcd6c1e2c18254b290c661e2ec`
-- **Reviewed checkpoint:** `0a883ffd819144298e864b1a6e5beea87cb1b984`
+- **Review checkpoint:** `0a883ffd819144298e864b1a6e5beea87cb1b984`
 - **Review workflow:** `34112709513` — all 7 jobs success
-- **Result:** **PASSED**
+- **Review-passed / merged checkpoint:** `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`
+- **Review-passed feature workflow:** `34113173623` — all 7 jobs success
+- **Merged-main workflow:** `34113562938` — all 7 jobs success
+- **Result:** **PASSED / MERGED TO MAIN**
 - **M3 status:** DONE / REVIEWED
 - **M4/T-401:** has **not** started.
 
@@ -61,7 +64,8 @@ No blocker found.
 15. Execution-local abort listeners and interceptor subscriptions are cleaned on success, failure and pre-dispatch cancellation.
 16. `livewire_cancellation_unavailable` is a focused compatibility error only and does not redefine D-026.
 17. `spec/0.1`, Laravel production behavior, M4 trust controls and other framework drivers are unchanged.
-18. The final branch diff contains no accidental temp/INVALID files and no broad/private cancellation implementation.
+18. The final diff contains no accidental temp/INVALID files and no broad/private cancellation implementation.
+19. The exact review-passed checkpoint was fast-forward merged to `main` and independently revalidated there with all 7 jobs green.
 
 ## TDD / verification evidence
 
@@ -69,7 +73,6 @@ No blocker found.
 Design:                       2d044bdde2fdf8f5b084ce5cebf888aa2c293319
 Design hardening:             961262931676d1102555cd31c6e5dafa3ad19b30
 Plan:                         e33b74439055dfabab40ceb99850404d420b314b
-
 WebMCP type RED:              b270a2b26d45ba8826128c616f97d3897e857ac9 / run 34098620894
 Task-1 GREEN:                 cf884ed85f57f8dfeb21cf68411fd820e9979ceb / run 34099618870 — 7/7 green
 Interceptor type RED:         f8811fd3ef46a0a2616524d7499b23de926e43f6 / run 34102239036
@@ -79,6 +82,8 @@ Cancellation implementation:  fffff7b15a31d61fc1cb212598505eba044b86b2
 Implementation GREEN:         35430366e8d01d17a5d936ac55050848face2bbc / run 34103990010 — 7/7 green
 Cleanup/isolation hardening:  6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / run 34104686684 — 7/7 green
 Review checkpoint:            0a883ffd819144298e864b1a6e5beea87cb1b984 / run 34112709513 — 7/7 green
+Review-passed checkpoint:     dbb200cec4e194f73aa4cefb064bf0aaf15a7781 / run 34113173623 — 7/7 green
+Merged-main run:              34113562938 — 7/7 green
 ```
 
 Final review evidence:
@@ -87,7 +92,7 @@ Final review evidence:
 browser:  TypeScript typecheck + 103/103 Vitest tests
 PHP:      283 tests / 815 assertions
 contract: 52 fixture manifest entries + 12 conformance scenarios
-CI:       all 7 jobs success on exact reviewed checkpoint
+CI:       all 7 jobs success on review-passed feature checkpoint and merged main
 Livewire: observed v4.4.3 in matrix
 ```
 
@@ -103,4 +108,4 @@ T-305 does **not** claim that browser cancellation stops PHP execution, rolls ba
 
 ## Explicit statement
 
-**T-305 REVIEW PASSED on checkpoint `0a883ffd819144298e864b1a6e5beea87cb1b984`. M3 is DONE / REVIEWED. M4/T-401 is TODO and has NOT started.**
+**T-305 REVIEW PASSED and is merged to `main` at checkpoint `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`. M3 is DONE / REVIEWED. M4/T-401 is TODO and has NOT started.**

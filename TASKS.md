@@ -78,12 +78,14 @@ Cancellation implementation: fffff7b15a31d61fc1cb212598505eba044b86b2
 Implementation GREEN:        35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
 Coverage hardening:          6cfd7d11862d51dcd6c1e2c18254b290c661e2ec / 34104686684 — 7/7 green
 Review checkpoint:           0a883ffd819144298e864b1a6e5beea87cb1b984 / 34112709513 — 7/7 green
+Review-passed checkpoint:    dbb200cec4e194f73aa4cefb064bf0aaf15a7781 / 34113173623 — 7/7 green
+Merged-main run:             34113562938 — 7/7 green
 Browser:                     TypeScript typecheck + 103/103 Vitest tests
 PHP:                         283 tests / 815 assertions
 Contract:                    52 fixture entries + 12 conformance scenarios
 ```
 
-**Review result:** PASSED. No blocker found; M3 is complete/reviewed.
+**Review result:** PASSED. Reviewed/merged checkpoint: `dbb200cec4e194f73aa4cefb064bf0aaf15a7781`. M3 is complete/reviewed on `main`.
 
 ---
 
