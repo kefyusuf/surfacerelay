@@ -20,6 +20,16 @@ final class CoreActionErrorCode
 
     public const CONFIRMATION_REQUIRED = 'confirmation_required';
 
+    public const IDEMPOTENCY_KEY_REQUIRED = 'idempotency_key_required';
+
+    public const IDEMPOTENCY_KEY_INVALID = 'idempotency_key_invalid';
+
+    public const IDEMPOTENCY_CONFLICT = 'idempotency_conflict';
+
+    public const IDEMPOTENCY_IN_PROGRESS = 'idempotency_in_progress';
+
+    public const IDEMPOTENCY_INDETERMINATE = 'idempotency_indeterminate';
+
     private function __construct()
     {
     }
