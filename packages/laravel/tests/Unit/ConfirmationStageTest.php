@@ -184,7 +184,7 @@ final class ConfirmationStageTest extends TestCase
         self::assertSame(0, $store->recordCount(), 'Successful verification must consume the approved record before continuation.');
     }
 
-    public function test_bus_confirmation_halt_short_circuits_idempotency_and_execution(): void
+    public function test_bus_confirmation_halt_occurs_after_idempotency_preflight_and_before_execution(): void
     {
         $this->requireTypes();
         [$confirmationStage] = $this->stage();
@@ -195,8 +195,8 @@ final class ConfirmationStageTest extends TestCase
         $handlers = [
             new ConfirmationGateProbeHandler(ActionPipelineStage::InputValidation, $log),
             new ConfirmationGateProbeHandler(ActionPipelineStage::Authorization, $log),
-            $confirmationStage,
             new ConfirmationGateProbeHandler(ActionPipelineStage::Idempotency, $log),
+            $confirmationStage,
             new ConfirmationGateProbeHandler(ActionPipelineStage::Execution, $log),
             new ConfirmationGateProbeHandler(ActionPipelineStage::OutputPolicy, $log),
         ];
@@ -212,8 +212,8 @@ final class ConfirmationStageTest extends TestCase
 
         self::assertFalse($outcome->completed);
         self::assertSame(ActionPipelineStage::Confirmation, $outcome->haltedAt);
-        self::assertSame(['input_validation', 'authorization'], $log,
-            'No idempotency/execution/output stage may run after confirmation_required.');
+        self::assertSame(['input_validation', 'authorization', 'idempotency'], $log,
+            'Idempotency preflight runs before confirmation; execution/output must not run after confirmation_required.');
     }
 
     /** @return array{ConfirmationStage, StageConfirmationStore, ConfirmationService, ConfirmationScopeHasher} */
