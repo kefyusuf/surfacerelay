@@ -53,7 +53,7 @@ final class ActionBusTest extends TestCase
         $outcome = $bus->dispatch($this->makeCall());
 
         self::assertSame(
-            ['input_validation', 'authorization', 'confirmation', 'idempotency', 'execution', 'output_policy', 'audit'],
+            ['input_validation', 'authorization', 'idempotency', 'confirmation', 'execution', 'output_policy', 'audit'],
             $log,
             'Canonical stage order is imposed by the kernel; audit observes the final outcome last.',
         );
@@ -94,7 +94,7 @@ final class ActionBusTest extends TestCase
         $confirmation = new FakeStageHandler(ActionPipelineStage::Confirmation, $log);
         $idempotency = new FakeStageHandler(ActionPipelineStage::Idempotency, $log);
 
-        $bus = $this->makeBus([$validation, $authorization, $confirmation, $idempotency, $execution, $outputPolicy]);
+        $bus = $this->makeBus([$validation, $authorization, $idempotency, $confirmation, $execution, $outputPolicy]);
         $outcome = $bus->dispatch($this->makeCall());
 
         self::assertSame(['query' => 'normalized'], $seenByAuthorization,
@@ -321,8 +321,8 @@ final class ActionBusTest extends TestCase
             new FakeStageHandler(ActionPipelineStage::InputValidation, $log),
             new FakeStageHandler(ActionPipelineStage::OutputPolicy, $log),
             new FakeStageHandler(ActionPipelineStage::Authorization, $log),
-            new FakeStageHandler(ActionPipelineStage::Idempotency, $log),
             new FakeStageHandler(ActionPipelineStage::Confirmation, $log),
+            new FakeStageHandler(ActionPipelineStage::Idempotency, $log),
         ];
     }
 
