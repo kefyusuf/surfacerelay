@@ -15,7 +15,7 @@ use SurfaceRelay\Laravel\Result\CoreActionErrorCode;
  *
  *     exact registry resolution (kernel)
  *     → trusted context requirement check (kernel, except human_confirmation)
- *     → input_validation → authorization → confirmation → idempotency
+ *     → input_validation → authorization → idempotency → confirmation
  *     → execution → output_policy
  *     → audit finalizer (exactly once, after the final outcome is known)
  *
