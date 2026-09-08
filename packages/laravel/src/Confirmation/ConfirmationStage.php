@@ -16,7 +16,7 @@ use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineStage;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineStageHandler;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineState;
 
-/** Canonical confirmation gate between authorization and idempotency. */
+/** Canonical confirmation gate after idempotency preflight and before execution. */
 final readonly class ConfirmationStage implements ActionPipelineStageHandler
 {
     public function __construct(
