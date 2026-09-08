@@ -322,8 +322,8 @@ final class ConfirmationIntegrationHarness
             [
                 new LaravelInputValidationStage($validatorFactory, $rules),
                 new AuthorizationStage($this->authorizer),
-                new ConfirmationStage($this->service, new ConfirmationScopeHasher()),
                 new ConfirmationIntegrationPassthroughStage(ActionPipelineStage::Idempotency),
+                new ConfirmationStage($this->service, new ConfirmationScopeHasher()),
                 new ActionExecutionStage($this->executor),
                 new ConfirmationIntegrationPassthroughStage(ActionPipelineStage::OutputPolicy),
             ],
