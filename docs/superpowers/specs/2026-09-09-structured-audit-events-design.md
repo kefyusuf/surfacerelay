@@ -217,7 +217,7 @@ Implements the existing `ActionPipelineAuditor` signature unchanged. It builds e
 
 ### `AuditEventFactory`
 
-Owns the allowlist projection. It reads only the explicit fields defined above and never serializes whole runtime objects.
+Owns the semantic allowlist projection. It reads only the explicit event fields defined above and never serializes whole runtime objects. Database-only index helper hashes are deliberately not part of `AuditEvent`.
 
 ### `AuditClock`
 
@@ -240,6 +240,8 @@ No update, delete, upsert or query operation belongs to the T-404 core write con
 Uses `Illuminate\Database\ConnectionInterface`, mirroring the narrow database boundary used by T-402.
 
 Each `append()` is one insert. There is no upsert/update fallback. Duplicate IDs fail.
+
+The database adapter derives the domain-separated `correlation_hash` and nullable `halt_code_hash` equality-index helper values from the semantic event immediately before insert. Those hashes are persistence/index artifacts only and never become audit-event fields or runtime authority.
 
 Raw `QueryException`/driver diagnostics are not propagated directly. The adapter converts database failures to a static `AuditStoreUnavailable` runtime exception without SQL/row diagnostics or a chained database exception, matching the existing T-402 secrecy pattern. The auditor itself does not catch that domain failure.
 
@@ -370,8 +372,13 @@ Prove event factory:
 - canonical trusted-context manifest order;
 - provider included while value/reference/scope key excluded;
 - opaque 32-char lowercase hex event ID;
-- UTC clock requirement and microsecond preservation;
-- domain-separated correlation/halt hashes.
+- UTC clock requirement and microsecond preservation.
+
+Prove database persistence projection separately:
+
+- `correlation_hash` uses the exact domain-separated SHA-256 input;
+- completed events persist `halt_code_hash=null`;
+- halted events use the exact domain-separated halt-code SHA-256 input.
 
 ### Adversarial secrecy
 
@@ -430,6 +437,7 @@ T-404 is complete when:
 - **Identity minimization:** trusted values and provenance references are excluded; requirement + provider is the maximum persisted trusted-context detail.
 - **Database diagnostic correction:** raw SQL/driver exceptions are wrapped in static non-chained domain errors.
 - **Compatibility correction:** open-length correlation/surface/halt values are stored without adding new runtime validation limits; equality indexes use domain-separated hashes where needed.
+- **Responsibility correction:** equality-index hashes are persistence-only and do not pollute the semantic `AuditEvent` contract.
 - **Exception honesty:** arbitrary thrown exceptions are explicitly outside the current final-outcome boundary.
 - **Retry restraint:** no blind audit retry/outbox semantics are introduced.
 - **Scope check:** no event sourcing, telemetry platform, query API, retention system or UI is introduced.
