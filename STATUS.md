@@ -6,104 +6,122 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Base:** `main@b94ed83497e213c155ae0276264e954b9acd3ac3`
+- **Working branch:** `feat/idempotency-store`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
 - **Last completed/reviewed/merged task:** `T-401 — Confirmation challenge/receipt`
-- **T-401 final code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
-- **T-401 review-passed checkpoint:** `b169ad81d9f603e18b0cf47c7097a575c83d806c`
-- **PR:** `#1 — merged`
-- **Merged-main checkpoint:** `a6c92a8b75b17196f7667c22b4b323fe25d3427f`
-- **Merged-main workflow:** `34137414074` — **all 7 jobs green**
-- **PHP evidence:** **344 tests / 1300 assertions** across PHP 8.3/8.4 and Illuminate 12/13 matrix
+- **Current task:** `T-402 — Idempotency store` — **DONE / REVIEW PENDING / NOT MERGED**
+- **T-402 final code checkpoint:** `d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2`
+- **T-402 code workflow:** `34329096188` — **all 7 jobs green**
+- **PHP evidence:** **411 tests / 1893 assertions** across PHP 8.3/8.4 and Illuminate 12/13 matrix
 - **Browser isolation evidence:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract evidence:** `python scripts/validate.py` green; `spec/0.1` is frozen and unchanged; fixture/scenario baseline remains **52 + 12**
-- **External automated review:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f` — no blocker; one trivial bounded-lock-wait finding, verified and fixed TDD-first
-- **Next task:** `T-402 — Idempotency store` — **not started**
+- **Branch relation at code checkpoint:** ahead-only from exact base; no `main` drift observed
+- **Decision:** `D-045 — ACCEPTED`
+- **Next gate:** exact-head documentation CI + final compare, then external review/PR as a separate explicit operation
+- **Next implementation task:** `T-403 — Output policy/redaction` — **must not begin before T-402 review/merge closure**
 
-## T-401 — Implemented trust boundary
+## T-402 — Implemented trust boundary
 
 ```text
-caller invocation candidate
+caller invocation
         │
         ├── input validation
         ├── invocation authorization
         ▼
-confirmation stage
+idempotency preflight
         │
-        ├── no confirmation required → continue
-        │
-        ├── no valid receipt
+        ├── policy=none / recommended without key
         │       ↓
-        │   issue opaque pending challenge
-        │       ↓
-        │   confirmation_required
+        │   bypass deduplication
         │
-        └── exact approved receipt
-                ├── deterministic exact-scope fingerprint
-                ├── strict expiry check
-                ├── atomic single-use consume
+        ├── invalid/missing required key
+        │       ↓
+        │   rejected
+        │
+        ├── active same-key different intent
+        │       ↓
+        │   idempotency_conflict
+        │
+        ├── active in_progress / indeterminate
+        │       ↓
+        │   fail closed
+        │
+        ├── exact active completed
+        │       ↓
+        │   stored raw executor output
+        │       ↓
+        │   skip confirmation + execution
+        │       ↓
+        │   current output policy → audit → success
+        │
+        └── fresh intent
                 ↓
-        trusted HumanConfirmation
+          confirmation if required
                 ↓
-        idempotency → execution → output policy
+          atomic in_progress claim
+                ↓
+          application executor
+                ↓
+          persist completed raw output
+                ↓
+          output policy → audit → success
 ```
 
 ### Locked invariants
 
-1. Confirmation is required for `risk=consequential` even if the definition omitted `human_confirmation`; explicit `human_confirmation` also requires it.
-2. Caller input, metadata, `confirmed=true`, a pending challenge, a forged receipt, or a pre-materialized HumanConfirmation entry never grants authority.
-3. The receipt scope binds exact action ID/version, validated input, surface, binding and present trusted actor/tenant/current-record/current-selection/browser-session context.
-4. Correlation ID, idempotency key, generic metadata and HumanConfirmation are not scope dimensions.
-5. Raw bearer tokens are never persisted; the store is keyed by SHA-256 token hash.
-6. Challenges are pending authority requests, not receipts. Trusted approval changes the same server-side token record from pending to approved without allowing scope rewrite.
-7. Default challenge TTL is 300s and approved-receipt TTL is 120s; validity requires `now < expiresAt`.
-8. Exact-scope successful consumption is atomic and single-use. Receipt replay fails. Downstream failure does not restore a consumed receipt.
-9. Scope mismatch does not grant authority and does not spend an otherwise-valid approved receipt.
-10. `CacheConfirmationStore` requires a shared lock-capable Laravel cache (`Store` + `LockProvider`), uses a per-token lock with a bounded **2 second** wait and a **10 second** lock TTL, maps timeout/acquisition failure to `ConfirmationStoreUnavailable`, and never degrades to unlocked mutation.
-11. Only successful receipt consumption creates a runtime-owned `VerifiedConfirmation` trusted entry; provenance contains no receipt/token/scope secret.
-12. `ActionResultNormalizer` maps only a typed real ConfirmationChallenge. Generic halt details cannot fabricate a challenge.
-13. T-402 idempotency remains separate; T-401 single-use receipt semantics are not a duplicate-side-effect solution.
+1. Idempotency is server-side retry/deduplication state, never authorization authority.
+2. Runtime keys are 1..240 Unicode characters and are not normalized before hashing.
+3. Raw caller idempotency keys are never persisted. The database primary key is a SHA-256 digest namespaced by exact action ID/version plus trusted authority partition and the raw token.
+4. The authority partition uses present tenant/actor identities; when both are absent it falls back to browser-session identity, otherwise an explicit global partition.
+5. The intent fingerprint binds exact action ID/version, validated input and present actor/tenant/current-record/current-selection/browser-session identities. Correlation ID, generic metadata, raw key, confirmation receipt, runtime HumanConfirmation, surface and binding ID are excluded.
+6. Current validation and authorization always run before idempotency preflight. A completed replay therefore cannot bypass a new authorization denial.
+7. Idempotency preflight happens before confirmation, but a fresh execution claim happens only after successful confirmation and immediately before application execution.
+8. A completed exact retry replays stored **pre-output-policy** executor output. It skips confirmation/execution but reruns current output policy and audit and keeps the retry's current correlation ID.
+9. A replay does not manufacture `human_confirmation`; pre-materialized caller/runtime confirmation authority remains invalid.
+10. Atomic claim races allow exactly one claimant into application execution for one active key/intent. A losing completed race replays; conflict/in-progress/indeterminate races fail closed.
+11. Executor exceptions do not prove the side effect did not happen. After claim, such failures best-effort transition to `indeterminate`, and the original exception remains primary.
+12. Successful executor output must be deterministically JSON/canonical replayable. Unreplayable output becomes `indeterminate` rather than reopening execution.
+13. Public success is impossible until the completed replay payload has been durably persisted. Completion-persistence failure leaves the active claim closed as `in_progress`.
+14. `DatabaseIdempotencyStore` uses hashed primary-key insert/short row-lock claim transitions and conditional `in_progress` state updates. No DB transaction/row lock spans application executor code.
+15. Default retention is 86,400 seconds; active means strict `now < expiresAt`. Equality ends the bounded guarantee and permits a new claim.
+16. Public idempotency rejections expose only static codes/messages. Raw key, key hash, intent fingerprint and replay payload are never emitted through `ActionResultNormalizer` details.
+17. T-402 is bounded deduplication, not a distributed transaction and not a proof of globally exactly-once external business effects.
+18. `spec/0.1` remains unchanged.
 
 ## TDD / verification evidence
 
 ```text
-Design:                    13437eec846bc2410125f7e7648d4a3034c8abfe
-Plan:                      76a92dd65131d58c3833f9415ff03984910bf8ac / 34121419395
-Invocation RED:            e0e6b5fee4752d0655a95fa72dfd7c9f0b1fd7d8 / 34121703510
-Invocation GREEN:          d39d9985109f50c2501bd058420d1be6cb3b6ac6 / 34122361725
-Scope RED:                 9bd56e1ea7c93d2acdf4f353e663b7ff21e0e5ab / 34122730746
-Scope GREEN:               02faf1e105691acbd19221662972cc1d3c347ffa / 34123455314
-State-machine RED:         d21f8a26b7e0bebbebe4aeb105449718eff4f29b / 34125236616
-State-machine GREEN:       cc7eb1a0bb6a0ea2d715826cbed7db1ed5d062f5 / 34125961974
-Pipeline checkpoint:       c10f06c16384c5d53f28ea38fa0f64903a4a37ab / 34127948471
-Full integration RED:      de78135f5df344aae4f2ab8bdf846130ed008c82 / 34130583026
-Implementation GREEN:      7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
-Review-prep checkpoint:    d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
-PR validation:             d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
-CodeRabbit full review:    e1364e16-d11d-4fe9-85d5-5f6675a2d99f — 1 trivial lock-wait finding, no blocker
-Review finding RED:        37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
-Review finding GREEN:      f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
-Review-passed docs:        b169ad81d9f603e18b0cf47c7097a575c83d806c / 34137102693 — 7/7 green
-Merged main:               a6c92a8b75b17196f7667c22b4b323fe25d3427f / 34137414074 — 7/7 green
-Final PHP:                 344 tests / 1300 assertions
-Final browser:             TypeScript typecheck + 103/103 Vitest tests
-Final contract:            frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
+Pre-Task-5 checkpoint:       d2b30474a2f4a1ce07bc0aa6041ca0b44ef17232 / 34203602150 — 7/7 green
+Execution ownership RED:     159740749aa73da201ffdbb496fffc6ec650f60d / 34326974127
+Failure-boundary RED:        ebc98af93d25e31ff85b6742e8614a6b1a0d72d5 / 34327261695
+Task-5 GREEN:                1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
+Replay orchestration RED:    88c1922f0d2ccf9aec22fd22d55989bd286b1502 / 34327691831
+Result mapping RED:          b7c72ccb8db9452809e6003a11e7226062b9ab24 / 34327726665
+Task-6 GREEN:                144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
+Integration harness RED:     87d6e4764f0f017f086620dbe62e836a50353a1a / 34328505015 — test-harness-only errors
+Integration GREEN:           f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
+Livewire real-stage proof:    d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
+Final code PHP:              411 tests / 1893 assertions
+Final code browser:          TypeScript typecheck + 103/103 Vitest tests
+Final code contract:         frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
 ```
 
 ## Decisions
 
 - D-014 ACCEPTED — consequential risk is a categorical confirmation gate.
 - D-015 ACCEPTED — confirmation authority is opaque, scoped, expiring and runtime-issued.
-- D-044 ACCEPTED — grants are single-use exact-scope bearer capabilities; only successful server-side consumption materializes `human_confirmation`.
+- D-044 ACCEPTED — confirmation grants are single-use exact-scope bearer capabilities.
+- **D-045 ACCEPTED — server-side idempotency is bounded, partitioned exact-intent deduplication with post-confirmation atomic claim and pre-output-policy completed replay.**
 
 ## Known boundaries / non-claims
 
-- T-401 does not provide an HTTP approval endpoint, browser modal, or Filament UI; T-504 owns the first concrete human-facing bridge.
-- T-401 does not implement idempotency/deduplication; T-402 remains next.
-- T-401 does not implement output redaction (T-403) or structured audit persistence (T-404).
-- T-401 does not claim rollback, reversal, cancellation-after-dispatch or exactly-once business side effects.
-- Shared cross-runtime conformance execution remains T-604/T-701; the Laravel package tests currently prove the T-401 trust scenarios for the reference runtime only.
+- T-402 does not implement output policy/redaction itself; T-403 owns that behavior. Replay deliberately feeds stored raw executor output back through the current output-policy stage.
+- T-402 does not implement structured audit persistence; T-404 remains separate. Existing audit finalization still runs once per invocation outcome.
+- T-402 does not provide distributed transactions, compensation, rollback, or proof of exactly-once behavior in external systems.
+- Retention is bounded. Once `expiresAt` is reached, the prior deduplication guarantee intentionally ends and a fresh claim is allowed.
+- Shared cross-runtime conformance execution remains T-604/T-701; the current package tests prove Laravel reference-runtime behavior only.
 
 ## Next boundary
 
-**T-401 is DONE / REVIEWED / MERGED on `main`. T-402 remains not started and must not begin automatically.**
+**T-402 implementation is DONE and repository code verification is green. It is not REVIEWED and not merged. Finish exact-head documentation validation and final compare, then open external review/PR as a separate gate. Do not begin T-403 automatically.**
