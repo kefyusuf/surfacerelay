@@ -7,6 +7,7 @@ namespace SurfaceRelay\Laravel\Tests\Integration;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory as ValidatorFactory;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use SurfaceRelay\Laravel\Confirmation\ConfirmationClock;
 use SurfaceRelay\Laravel\Confirmation\ConfirmationRecord;
@@ -111,29 +112,28 @@ final class IdempotencyPipelineIntegrationTest extends TestCase
     public function test_same_partition_changes_to_exact_intent_dimensions_conflict_before_confirmation_or_execution(): void
     {
         $mutations = [
-            'validated input' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(input: ['amount' => 101]),
-            'current record' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(context: $h->context(record: 43)),
-            'current selection' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(context: $h->context(selection: [10, 12])),
-            'browser session' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(context: $h->context(session: 'session-B')),
+            'validated input' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                input: ['amount' => 101],
+                idempotencyKey: 'same-partition-key',
+            ),
+            'current record' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                context: $h->context(record: 43, idempotencyKey: 'same-partition-key'),
+            ),
+            'current selection' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                context: $h->context(selection: [10, 12], idempotencyKey: 'same-partition-key'),
+            ),
+            'browser session' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                context: $h->context(session: 'session-B', idempotencyKey: 'same-partition-key'),
+            ),
         ];
 
         foreach ($mutations as $name => $mutate) {
             $harness = new IdempotencyIntegrationHarness();
-            $key = 'same-partition-key';
-            $harness->executeConsequential($key);
+            $harness->executeConsequential('same-partition-key');
             $executorCalls = $harness->executor->calls;
             $confirmationConsumes = $harness->confirmationStore->consumeApprovedCalls;
 
-            $changed = $mutate($harness);
-            $changed = new ActionCall(
-                actionId: $changed->actionId,
-                actionVersion: $changed->actionVersion,
-                input: $changed->input,
-                context: $changed->context->withIdempotencyKey($key),
-                bindingId: $changed->bindingId,
-                confirmationReceipt: null,
-            );
-            $outcome = $harness->bus->dispatch($changed);
+            $outcome = $harness->bus->dispatch($mutate($harness));
 
             self::assertFalse($outcome->completed, $name);
             self::assertSame(ActionPipelineStage::Idempotency, $outcome->haltedAt, $name);
@@ -146,25 +146,27 @@ final class IdempotencyPipelineIntegrationTest extends TestCase
     public function test_trusted_partition_or_action_identity_changes_allow_independent_reuse_of_same_raw_key(): void
     {
         $cases = [
-            'actor partition' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(context: $h->context(actor: 'user-B')),
-            'tenant partition' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(context: $h->context(tenant: 'tenant-B')),
-            'action id' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(actionId: 'orders.refund_alt'),
-            'action version' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(actionVersion: 2),
+            'actor partition' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                context: $h->context(actor: 'user-B', idempotencyKey: 'partition-reuse-key'),
+            ),
+            'tenant partition' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                context: $h->context(tenant: 'tenant-B', idempotencyKey: 'partition-reuse-key'),
+            ),
+            'action id' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                actionId: 'orders.refund_alt',
+                idempotencyKey: 'partition-reuse-key',
+            ),
+            'action version' => static fn (IdempotencyIntegrationHarness $h): ActionCall => $h->call(
+                actionVersion: 2,
+                idempotencyKey: 'partition-reuse-key',
+            ),
         ];
 
         foreach ($cases as $name => $mutate) {
             $harness = new IdempotencyIntegrationHarness();
-            $key = 'partition-reuse-key';
-            $harness->executeConsequential($key);
+            $harness->executeConsequential('partition-reuse-key');
 
             $candidate = $mutate($harness);
-            $candidate = new ActionCall(
-                actionId: $candidate->actionId,
-                actionVersion: $candidate->actionVersion,
-                input: $candidate->input,
-                context: $candidate->context->withIdempotencyKey($key),
-                bindingId: $candidate->bindingId,
-            );
             $challengeOutcome = $harness->bus->dispatch($candidate);
             self::assertSame(CoreActionErrorCode::CONFIRMATION_REQUIRED, $challengeOutcome->halt?->code, $name);
             $challenge = $challengeOutcome->halt?->confirmation;
@@ -194,8 +196,15 @@ final class IdempotencyPipelineIntegrationTest extends TestCase
             $harness->executeConsequential($key);
 
             $context = $dimension === 'surface'
-                ? $harness->context(surface: 'alternate-surface', correlationId: 'corr-replay')->withIdempotencyKey($key)
-                : $harness->context(correlationId: 'corr-replay')->withIdempotencyKey($key);
+                ? $harness->context(
+                    surface: 'alternate-surface',
+                    correlationId: 'corr-replay',
+                    idempotencyKey: $key,
+                )
+                : $harness->context(
+                    correlationId: 'corr-replay',
+                    idempotencyKey: $key,
+                );
             $outcome = $harness->bus->dispatch($harness->call(
                 context: $context,
                 bindingId: $dimension === 'binding' ? 'binding-B' : 'binding-A',
@@ -477,7 +486,7 @@ final class IdempotencyIntegrationHarness
             receipt: $receipt,
             correlationId: 'corr-execute',
         ));
-        self::assertTrue($outcome->completed);
+        Assert::assertTrue($outcome->completed);
         return $outcome;
     }
 
@@ -487,11 +496,11 @@ final class IdempotencyIntegrationHarness
             idempotencyKey: $key,
             correlationId: 'corr-challenge',
         ));
-        self::assertSame(CoreActionErrorCode::CONFIRMATION_REQUIRED, $pending->halt?->code);
+        Assert::assertSame(CoreActionErrorCode::CONFIRMATION_REQUIRED, $pending->halt?->code);
         $challenge = $pending->halt?->confirmation;
-        self::assertNotNull($challenge);
+        Assert::assertNotNull($challenge);
         $receipt = $this->confirmationService->approveChallenge($challenge->challengeId);
-        self::assertNotNull($receipt);
+        Assert::assertNotNull($receipt);
         return $receipt;
     }
 
