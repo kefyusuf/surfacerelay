@@ -11,14 +11,15 @@
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
 - **Last merged/revalidated task:** `T-403 — Output policy/redaction`
 - **Current task:** `T-404 — Structured audit events` — **IMPLEMENTED / SELF-REVIEWED / EXTERNAL REVIEW PENDING**
-- **Pull request:** `#4` — open; merge remains a separate explicit gate
+- **Pull request:** `#4` — open and mergeable; merge remains a separate explicit gate
 - **Exact production/test-code checkpoint:** `79df19c3a95f1a95b03e4b5c6578d8195903d22a`
 - **Exact code workflow:** `34384669898` — **7/7 green**
+- **Final review head before this status record:** `0da9836ce900e598504ac246939317ef37199d7d`
+- **Final review-head workflow:** `34385801934` — **7/7 green**
 - **PHP evidence:** **452 tests / 2414 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Decision:** `D-047 — ACCEPTED`
-- **Code-checkpoint diff:** **18 ahead / 0 behind**, 22 changed files; no `spec/0.1/**` diff
 - **External review:** pending
 - **Merge:** not requested
 
@@ -91,6 +92,7 @@ Task-4 pipeline RED:         08a4a14797078584f4deed95231612966024cd28 / 34383610
 Task-4 GREEN:                da37400c14e558438b84ea9a140eb06fd50e1f69 / 34383939887 — 7/7 green
 Task-5 replay/secrecy RED:   7a9adb89bd7ab8cc525a19bf061e37886bb36527 / 34384242487
 Task-5 GREEN/code checkpoint:79df19c3a95f1a95b03e4b5c6578d8195903d22a / 34384669898 — 7/7 green
+Final review head:           0da9836ce900e598504ac246939317ef37199d7d / 34385801934 — 7/7 green
 PHP:                         452 tests / 2414 assertions
 Browser:                     TypeScript typecheck + 103/103 Vitest tests
 Contract:                    green; frozen spec/0.1 unchanged
@@ -98,8 +100,7 @@ Contract:                    green; frozen spec/0.1 unchanged
 
 ## Self-review
 
-- Diff remains ahead-only from the exact merged T-403 closure base.
-- Production changes are confined to a dedicated `Audit` namespace, one append-only migration, and a documentation-only update to the existing auditor port comment.
+- Production/test code has not changed since `79df19c3…`; later commits are review/status documentation only.
 - Semantic event projection cannot read ActionCall input/binding/receipt because the factory does not receive `ActionCall`.
 - Durable secrecy tests place unique markers in raw/validated input, normal/released output, metadata, idempotency plan data, binding/confirmation material, trusted values/references/scope keys, halt details, challenge fields and schemas/extensions; persisted rows contain none of them.
 - Real consequential confirmation proves only trusted authority presence is recorded after receipt consumption.
@@ -117,4 +118,4 @@ Contract:                    green; frozen spec/0.1 unchanged
 
 ## Next boundary
 
-**T-404 production/test implementation is complete and self-reviewed at `79df19c3…`. PR #4 is open for external review. Merge is a separate explicit gate and is not authorized by this status.**
+**T-404 implementation is internally verified. PR #4 is open for external review. Merge is a separate explicit gate and is not authorized by this status.**
