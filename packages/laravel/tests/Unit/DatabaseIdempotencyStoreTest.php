@@ -8,6 +8,7 @@ use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\MySqlBuilder;
 use Illuminate\Support\Facades\Facade;
 use PHPUnit\Framework\TestCase;
 use SurfaceRelay\Laravel\Idempotency\CorruptIdempotencyRecord;
@@ -22,6 +23,7 @@ final class DatabaseIdempotencyStoreTest extends TestCase
 
     protected function tearDown(): void
     {
+        MySqlBuilder::defaultTimePrecision(null);
         Facade::clearResolvedInstances();
         Facade::setFacadeApplication(null);
         parent::tearDown();
@@ -250,6 +252,42 @@ final class DatabaseIdempotencyStoreTest extends TestCase
         self::assertFalse($connection->getSchemaBuilder()->hasTable(self::TABLE));
     }
 
+    public function test_package_migration_round_trips_mysql_with_global_fractional_precision_enabled(): void
+    {
+        $connection = $this->mysqlConnection();
+        MySqlBuilder::defaultTimePrecision(6);
+
+        $container = new Container();
+        $container->instance('db.schema', $connection->getSchemaBuilder());
+        Facade::setFacadeApplication($container);
+
+        $path = dirname(__DIR__, 2)
+            . '/database/migrations/0000_00_00_000000_create_surfacerelay_idempotency_records.php';
+        self::assertFileExists($path);
+        $migration = require $path;
+
+        $connection->getSchemaBuilder()->dropIfExists(self::TABLE);
+        $migration->up();
+
+        try {
+            $store = $this->store($connection);
+            $createdAt = 1788944400;
+            $expiresAt = $createdAt + 86400;
+            $fresh = $this->record('a', 'b', IdempotencyRecordState::InProgress, $createdAt, $expiresAt);
+
+            self::assertTrue($store->claim($fresh, $createdAt)->claimed);
+
+            $row = $connection->table(self::TABLE)->where('key_hash', $fresh->keyHash)->first();
+            self::assertNotNull($row);
+            self::assertSame(gmdate('Y-m-d H:i:s', $createdAt), $row->created_at);
+            self::assertSame(gmdate('Y-m-d H:i:s', $expiresAt), $row->expires_at);
+            self::assertEquals($fresh, $store->find($fresh->keyHash));
+        } finally {
+            $migration->down();
+            $connection->disconnect();
+        }
+    }
+
     private function store(
         ConnectionInterface $connection,
         string $table = self::TABLE,
@@ -277,6 +315,31 @@ final class DatabaseIdempotencyStoreTest extends TestCase
         }
 
         return $connection;
+    }
+
+    private function mysqlConnection(): ConnectionInterface
+    {
+        $host = getenv('SURFACERELAY_TEST_MYSQL_HOST');
+        if ($host === false || $host === '') {
+            self::markTestSkipped('MySQL integration environment is not configured.');
+        }
+
+        $capsule = new Capsule();
+        $capsule->addConnection([
+            'driver' => 'mysql',
+            'host' => $host,
+            'port' => (int) (getenv('SURFACERELAY_TEST_MYSQL_PORT') ?: 3306),
+            'database' => getenv('SURFACERELAY_TEST_MYSQL_DATABASE') ?: 'surfacerelay_test',
+            'username' => getenv('SURFACERELAY_TEST_MYSQL_USERNAME') ?: 'root',
+            'password' => getenv('SURFACERELAY_TEST_MYSQL_PASSWORD') ?: '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'timezone' => '+00:00',
+        ]);
+
+        return $capsule->getConnection();
     }
 
     private function createSchema(ConnectionInterface $connection): void
