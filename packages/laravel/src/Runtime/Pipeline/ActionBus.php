@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\Laravel\Runtime\Pipeline;
 
+use SurfaceRelay\Laravel\Confirmation\ConfirmationConfigurationViolation;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationRequirement;
 use SurfaceRelay\Laravel\Contracts\ActionRegistry;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyExecutionPlanKind;
 use SurfaceRelay\Laravel\Result\CoreActionErrorCode;
 
 /**
@@ -19,11 +22,11 @@ use SurfaceRelay\Laravel\Result\CoreActionErrorCode;
  *     → execution → output_policy
  *     → audit finalizer (exactly once, after the final outcome is known)
  *
- * Human confirmation is deliberately delegated to the confirmation stage:
- * caller/prebuilt presence is never sufficient authority, and consequential
- * risk is also a confirmation gate even when a definition omitted the context
- * requirement. Every other trusted context requirement remains a fail-closed
- * pre-stage presence check with no input/metadata fallback.
+ * A completed exact idempotency replay is the only internal plan allowed to
+ * skip confirmation and execution. Validation and authorization have already
+ * rerun for the current invocation; output policy still reruns over the stored
+ * pre-policy executor output. Completed replay never manufactures or consumes
+ * confirmation authority.
  */
 final class ActionBus
 {
@@ -90,6 +93,10 @@ final class ActionBus
         }
 
         foreach (ActionPipelineStage::cases() as $stage) {
+            if ($this->shouldSkipCompletedReplayStage($stage, $state)) {
+                continue;
+            }
+
             $decision = $this->handlers[$stage->value]->process($state);
             if (!$decision->continue) {
                 return $this->finalize($call, ActionPipelineOutcome::halted(
@@ -106,6 +113,28 @@ final class ActionBus
         }
 
         return $this->finalize($call, ActionPipelineOutcome::completed($state));
+    }
+
+    private function shouldSkipCompletedReplayStage(
+        ActionPipelineStage $stage,
+        ActionPipelineState $state,
+    ): bool {
+        if ($state->idempotencyPlan?->kind !== IdempotencyExecutionPlanKind::Replay) {
+            return false;
+        }
+
+        if ($stage === ActionPipelineStage::Confirmation) {
+            if (
+                ConfirmationRequirement::isRequired($state->definition)
+                && $state->context->has(ContextRequirement::HumanConfirmation)
+            ) {
+                throw ConfirmationConfigurationViolation::preMaterializedAuthority();
+            }
+
+            return true;
+        }
+
+        return $stage === ActionPipelineStage::Execution;
     }
 
     private function finalize(ActionCall $call, ActionPipelineOutcome $outcome): ActionPipelineOutcome
