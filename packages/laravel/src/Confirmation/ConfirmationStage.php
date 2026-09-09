@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\Laravel\Confirmation;
 
-use SurfaceRelay\Laravel\Definition\ActionDefinition;
-use SurfaceRelay\Laravel\Enums\ActionRisk;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Result\CoreActionErrorCode;
 use SurfaceRelay\Laravel\Runtime\Context\ContextProvenance;
@@ -31,7 +29,7 @@ final readonly class ConfirmationStage implements ActionPipelineStageHandler
 
     public function process(ActionPipelineState $state): ActionPipelineDecision
     {
-        if (!$this->requiresConfirmation($state->definition)) {
+        if (!ConfirmationRequirement::isRequired($state->definition)) {
             return ActionPipelineDecision::continueWith($state);
         }
 
@@ -64,11 +62,5 @@ final readonly class ConfirmationStage implements ActionPipelineStageHandler
             ),
             $state,
         );
-    }
-
-    private function requiresConfirmation(ActionDefinition $definition): bool
-    {
-        return $definition->risk === ActionRisk::Consequential
-            || in_array(ContextRequirement::HumanConfirmation, $definition->contextRequirements, true);
     }
 }
