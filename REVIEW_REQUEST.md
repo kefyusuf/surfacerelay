@@ -4,12 +4,12 @@
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Scope:** `T-402 — Idempotency store`
-- **Exact base / merge-base:** `main@b94ed83497e213c155ae0276264e954b9acd3ac3`
-- **Candidate branch:** `feat/idempotency-store`
-- **Pull request:** `#2 — feat(laravel): add bounded idempotency replay controls`
+- **Original base / merge-base:** `main@b94ed83497e213c155ae0276264e954b9acd3ac3`
+- **Pull request:** `#2 — merged`
 - **Final reviewed code checkpoint:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc`
-- **Review finding RED:** `58fb0abb304398931d215dda5d079e5269ac4748` / `34333385345`
-- **Review finding GREEN:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc` / `34333528637` — **all 7 jobs success**
+- **Review-passed branch checkpoint:** `ff6bc3c07567b4e0e84fd4f57cd0006236658c7d`
+- **Merge commit:** `b4a43ff2526f680656762671a1eee67b4135ee03`
+- **Merged-main workflow:** `34335064423` — **all 7 jobs success**
 - **PHP evidence:** **412 tests / 1900 assertions** across PHP 8.3/8.4 and Illuminate 12/13, including real MySQL 8.4 round-trip coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1` unchanged; **52 fixture entries + 12 scenarios** unchanged
@@ -17,7 +17,7 @@
 - **External automated reviewer:** CodeRabbit full PR review
 - **External review result:** **PASSED WITH ONE MAJOR FINDING, FIXED TDD-FIRST AND REVERIFIED**
 - **Open review threads:** **0**
-- **Merge status:** **MERGE READY / NOT MERGED AT THIS CHECKPOINT**
+- **Merge result:** **PASSED / MERGED TO MAIN / MERGED MAIN REVALIDATED**
 - **M4 status:** IN PROGRESS; T-403/T-404 remain TODO
 
 ## Reviewed trust boundary
@@ -69,7 +69,7 @@ The production database adapter persists only hashed lookup/fingerprint state an
 
 ## External review finding
 
-CodeRabbit identified one **Major — Data Integrity & Integration** issue: the migration originally omitted explicit timestamp precision while `DatabaseIdempotencyStore::parseTimestamp()` accepts only second-precision `Y-m-d H:i:s`. Laravel 12/13 allow global time precision to be configured; under precision `6`, MySQL returns values such as `2026-09-09 09:00:00.000000`, which the strict hydrator correctly rejects.
+CodeRabbit identified one **Major — Data Integrity & Integration** issue: the migration originally omitted explicit timestamp precision while `DatabaseIdempotencyStore::parseTimestamp()` accepts only second-precision `Y-m-d H:i:s`. Laravel 12/13 allow global time precision to be configured; under precision `6`, MySQL returns values such as `2026-09-09 09:00:00.000000`, which the strict hydrator rejects.
 
 The finding was verified rather than accepted speculatively. A real MySQL 8.4 regression test was added and run across all four PHP/Illuminate matrix combinations with `MySqlBuilder::defaultTimePrecision(6)`.
 
@@ -83,7 +83,7 @@ Review GREEN: 3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637
               all 7 jobs success; 412 tests / 1900 assertions per PHP matrix job
 ```
 
-The hydrator was not relaxed and no alternate timestamp format was accepted. The persistence schema was aligned to the existing exact runtime representation instead.
+The hydrator was not relaxed and no alternate timestamp format was accepted. The persistence schema was aligned to the existing exact runtime representation instead. CodeRabbit confirmed the finding as addressed and resolved the review thread.
 
 ## Failure-safety evidence
 
@@ -107,17 +107,19 @@ The test suite covers:
 ## Verification evidence
 
 ```text
-Task-5 GREEN:                1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
-Task-6 GREEN:                144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
-Integration GREEN:           f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
-Livewire real-stage proof:    d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
-Initial review head:          a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
-Review finding RED:          58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
-Review finding GREEN:        3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
-PHP:                         412 tests / 1900 assertions, PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
-Browser:                     TypeScript typecheck + 103/103 Vitest tests
-Contract:                    frozen spec/0.1 unchanged; 52 fixture entries + 12 scenarios unchanged
-Open review threads:         0
+Task-5 GREEN:                 1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
+Task-6 GREEN:                 144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
+Integration GREEN:            f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
+Livewire real-stage proof:     d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
+Initial review head:           a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
+Review finding RED:           58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
+Review finding GREEN:         3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
+Review-passed branch head:    ff6bc3c07567b4e0e84fd4f57cd0006236658c7d / 34334459976 — 7/7 green
+Merged main:                  b4a43ff2526f680656762671a1eee67b4135ee03 / 34335064423 — 7/7 green
+PHP:                          412 tests / 1900 assertions, PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
+Browser:                      TypeScript typecheck + 103/103 Vitest tests
+Contract:                     frozen spec/0.1 unchanged; 52 fixture entries + 12 scenarios unchanged
+Open review threads:          0
 ```
 
 ## Explicit non-claims
@@ -126,4 +128,4 @@ T-402 does **not** provide a distributed transaction, external-system compensati
 
 ## Review outcome
 
-**T-402 external automated review passed after its only actionable finding was reproduced on real MySQL, fixed TDD-first, and revalidated across the full PHP/Illuminate matrix. PR #2 is merge-ready; merge remains a separate explicit operation.**
+**T-402 external review passed, its only actionable finding was reproduced on real MySQL and fixed TDD-first, PR #2 was merged to `main`, and the exact merged commit was independently revalidated with all 7 CI jobs green.**

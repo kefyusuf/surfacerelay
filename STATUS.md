@@ -6,23 +6,21 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Base / merge-base:** `main@b94ed83497e213c155ae0276264e954b9acd3ac3`
-- **Working branch:** `feat/idempotency-store`
-- **Pull request:** `#2 — feat(laravel): add bounded idempotency replay controls`
+- **Branch:** `main`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
-- **Last completed/reviewed/merged task:** `T-401 — Confirmation challenge/receipt`
-- **Current task:** `T-402 — Idempotency store` — **DONE / REVIEWED / MERGE READY / NOT MERGED**
-- **Reviewed code checkpoint:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc`
-- **Review finding RED:** `58fb0abb304398931d215dda5d079e5269ac4748` / `34333385345`
-- **Review finding GREEN:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc` / `34333528637` — **all 7 jobs green**
+- **Last completed/reviewed/merged task:** `T-402 — Idempotency store`
+- **Pull request:** `#2 — merged`
+- **Final reviewed code checkpoint:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc`
+- **Review-passed branch checkpoint:** `ff6bc3c07567b4e0e84fd4f57cd0006236658c7d`
+- **Merge commit:** `b4a43ff2526f680656762671a1eee67b4135ee03`
+- **Merged-main workflow:** `34335064423` — **all 7 jobs green**
 - **PHP evidence:** **412 tests / 1900 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with real MySQL 8.4 migration round-trip coverage
 - **Browser isolation evidence:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract evidence:** `python scripts/validate.py` green; `spec/0.1` frozen and unchanged; fixture/scenario baseline **52 + 12**
-- **External automated review:** CodeRabbit — one Major timestamp-precision finding, reproduced and fixed TDD-first
+- **Contract evidence:** `python scripts/validate.py` green; frozen `spec/0.1` unchanged; fixture/scenario baseline **52 + 12**
+- **External automated review:** CodeRabbit — one Major timestamp-precision finding, reproduced on real MySQL and fixed TDD-first
 - **Open review threads:** **0**
 - **Decision:** `D-045 — ACCEPTED`
-- **Next gate:** exact-head documentation CI, final compare, then merge PR #2 with expected-head protection
-- **Next implementation task:** `T-403 — Output policy/redaction` — **must not begin before T-402 merge closure**
+- **Next task:** `T-403 — Output policy/redaction` — **not started**
 
 ## T-402 — Implemented trust boundary
 
@@ -103,17 +101,19 @@ The hydrator was not weakened. MySQL 8.4 round-trip coverage now runs in every P
 ## Verification evidence
 
 ```text
-Task-5 GREEN:                1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
-Task-6 GREEN:                144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
-Integration GREEN:           f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
-Livewire real-stage proof:    d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
-Initial PR head:             a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
-Review finding RED:          58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
-Review finding GREEN:        3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
-Final reviewed PHP:          412 tests / 1900 assertions, PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
-Final reviewed browser:      TypeScript typecheck + 103/103 Vitest tests
-Final reviewed contract:     frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
-Open review threads:         0
+Task-5 GREEN:                 1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
+Task-6 GREEN:                 144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
+Integration GREEN:            f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
+Livewire real-stage proof:     d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
+Initial PR head:              a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
+Review finding RED:           58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
+Review finding GREEN:         3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
+Review-passed branch head:    ff6bc3c07567b4e0e84fd4f57cd0006236658c7d / 34334459976 — 7/7 green
+Merged main:                  b4a43ff2526f680656762671a1eee67b4135ee03 / 34335064423 — 7/7 green
+Final PHP:                    412 tests / 1900 assertions, PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
+Final browser:                TypeScript typecheck + 103/103 Vitest tests
+Final contract:               frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
+Open review threads:          0
 ```
 
 ## Decisions
@@ -133,4 +133,4 @@ Open review threads:         0
 
 ## Next boundary
 
-**T-402 is DONE / REVIEWED / MERGE READY on PR #2. Run exact-head documentation validation and final compare, then merge with expected-head protection. Stop after merge closure; do not begin T-403 automatically.**
+**T-402 is DONE / REVIEWED / MERGED and independently revalidated on `main`. T-403 remains not started and must not begin automatically.**
