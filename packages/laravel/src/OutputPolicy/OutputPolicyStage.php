@@ -12,8 +12,8 @@ use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineState;
 
 /**
  * Production output-policy stage. Normal output is an exact pass-through;
- * sensitive disclosure is added incrementally by T-403 under fail-closed
- * tests and never falls back to implicit raw release.
+ * sensitive output is releasable only through an explicit trusted redactor
+ * decision and never through an implicit raw-output fallback.
  */
 final class OutputPolicyStage implements ActionPipelineStageHandler
 {
@@ -32,6 +32,20 @@ final class OutputPolicyStage implements ActionPipelineStageHandler
             return ActionPipelineDecision::continueWith($state);
         }
 
-        throw new \LogicException('Sensitive output policy is not implemented yet.');
+        if ($this->sensitiveRedactor === null) {
+            throw new \LogicException('Sensitive output requires a configured redactor.');
+        }
+
+        $result = $this->sensitiveRedactor->redact(
+            $state->definition,
+            $state->output,
+            OutputPolicyContext::fromInvocationContext($state->context),
+        );
+
+        if (!$result->isReleased()) {
+            throw new \LogicException('Sensitive output was withheld.');
+        }
+
+        return ActionPipelineDecision::continueWith($state->withOutput($result->output()));
     }
 }
