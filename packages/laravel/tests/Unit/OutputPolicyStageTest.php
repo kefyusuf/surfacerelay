@@ -53,7 +53,7 @@ final class OutputPolicyStageTest extends TestCase
             inputSchema: ['type' => 'object'],
             scope: ActionScope::PageScoped,
             effect: ActionEffect::Read,
-            risk: ActionRisk::Routine,
+            risk: ActionRisk::Low,
             idempotency: IdempotencyPolicy::None,
             outputSensitivity: $sensitivity,
             outputContentTrust: OutputContentTrust::TrustedApplicationData,
