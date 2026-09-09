@@ -60,6 +60,7 @@ final class OutputPolicyReplayFailureRecoveryIntegrationTest extends TestCase
                 idempotency: IdempotencyPolicy::RequiredKey,
                 outputSensitivity: OutputSensitivity::Sensitive,
                 outputContentTrust: OutputContentTrust::TrustedApplicationData,
+                contextRequirements: [],
             );
 
             $registry = new InMemoryActionRegistry();
