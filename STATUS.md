@@ -12,15 +12,16 @@
 - **Last merged/revalidated task:** `T-402 — Idempotency store`
 - **Current task:** `T-403 — Output policy/redaction` — **DONE / exact-head external review pending**
 - **Initial implementation checkpoint:** `0195875b5f2d5d9646407337ea54df52fe4c8bb3`
-- **Initial implementation workflow:** `34356958945` — **7/7 green**
 - **Exact verified code checkpoint:** `d58230d2f91f5d3ae89f9bd89d479dbaf27784e6`
-- **Exact-head workflow:** `34368063289` — **7/7 green**
+- **Exact code workflow:** `34368063289` — **7/7 green**
+- **Final review-prep checkpoint before this status record:** `6282c282404ea08aaffa893fc63c6ed78555e807`
+- **Final review-prep workflow:** `34369402517` — **7/7 green**
 - **PHP evidence:** **431 tests / 2072 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Decision:** `D-046 — ACCEPTED`
 - **External review:** CodeRabbit reviewed through `d98f1394f3ccbafe99016dd9cf1b4a3b5e1a4b70` with no actionable comments; exact-head review still required after later replay hardening
-- **Next gate:** exact-head external review on PR #3; merge remains a separate explicit gate
+- **Next gate:** external review on PR #3 covering the current branch head; merge remains a separate explicit gate
 - **T-404:** not started
 
 ## T-403 — Implemented trust boundary
@@ -92,18 +93,19 @@ Implementation checkpoint:   0195875b5f2d5d9646407337ea54df52fe4c8bb3 / 34356958
 Initial PR review head:      d98f1394f3ccbafe99016dd9cf1b4a3b5e1a4b70 — CodeRabbit: no actionable comments
 Hardening CI RED:            9b255cade7e60261e9a3407a579dd40bd06586d4 / 34361584554 — PHP matrix failed in new replay-recovery fixture
 Fixture fix GREEN:           d58230d2f91f5d3ae89f9bd89d479dbaf27784e6 / 34368063289 — 7/7 green
-PHP exact-head:              431 tests / 2072 assertions
-Browser exact-head:          TypeScript typecheck + 103/103 Vitest tests
-Contract exact-head:         green; frozen spec/0.1 unchanged
+Final review-prep GREEN:     6282c282404ea08aaffa893fc63c6ed78555e807 / 34369402517 — 7/7 green
+PHP:                         431 tests / 2072 assertions
+Browser:                     TypeScript typecheck + 103/103 Vitest tests
+Contract:                    green; frozen spec/0.1 unchanged
 ```
 
 ## Hardening failure and closure
 
 The replay-recovery hardening added after the first external review exposed a test-fixture construction error rather than a production redaction defect. `OutputPolicyReplayFailureRecoveryIntegrationTest` instantiated `ActionDefinition` without the mandatory `contextRequirements` argument, so every PHP matrix job failed before the new scenario reached production code.
 
-The fixture was aligned with the canonical constructor using `contextRequirements: []` only. No production behavior changed. The next exact-head run passed all seven jobs and the PHP suite increased to 431 tests / 2072 assertions.
+The fixture was aligned with the canonical constructor using `contextRequirements: []` only. No production behavior changed. The exact code run then passed all seven jobs and the PHP suite increased to 431 tests / 2072 assertions. A subsequent review-prep documentation-only head also passed all seven jobs.
 
-The added recovery scenario now proves both `withhold()` and redactor-exception paths on a completed idempotency replay: the failed disclosure does not re-execute the application action or reopen/downgrade the completed idempotency record, while a later retry can reapply current policy and release a safe projection from stored pre-policy output.
+The added recovery scenario proves both `withhold()` and redactor-exception paths on a completed idempotency replay: the failed disclosure does not re-execute the application action or reopen/downgrade the completed idempotency record, while a later retry can reapply current policy and release a safe projection from stored pre-policy output.
 
 ## Self-review
 
@@ -132,4 +134,4 @@ The added recovery scenario now proves both `withhold()` and redactor-exception 
 
 ## Next boundary
 
-**T-403 implementation and exact-head CI are green. PR #3 remains open. The next action is external review covering the current branch head; merge is a separate explicit gate and T-404 must not start automatically.**
+**T-403 implementation and final review-prep CI are green. PR #3 remains open. The next action is external review covering the current branch head; merge is a separate explicit gate and T-404 must not start automatically.**
