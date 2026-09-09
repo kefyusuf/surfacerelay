@@ -6,31 +6,18 @@
 - Milestone: `M4 — Production Trust Controls`
 - Base: `main@a3112dea3f965e27db8e6904650c97f89d2261fe`
 - Branch: `feat/structured-audit-events`
-- Design state: approved in chat; this document is the implementation contract for the Laravel reference runtime.
+- Design state: approved in chat and self-reviewed
 - Decision: `D-047 — ACCEPTED`
 
 ## Goal
 
-Persist one structured, append-only, payload-minimized audit record for every ActionBus dispatch that reaches the existing finalization boundary.
+Persist one structured, append-only, payload-minimized audit record for every `ActionBus` dispatch that reaches the existing finalization boundary.
 
-T-404 turns the existing `ActionPipelineAuditor` finalizer port into a production trust control without turning SurfaceRelay into an event-sourcing, SIEM, analytics, or business-payload archive.
+T-404 is a production trust control, not an event-sourcing, analytics, SIEM, or business-payload archive. A record must identify the exact Action/version, invocation labels, declared trust semantics, final completed/halted state, explicit halt location/code, trusted-context provenance classes, trusted confirmation presence, and server finalization time without persisting invocation/business payloads or bearer capabilities.
 
-The audit record must answer:
+## Existing Boundary
 
-1. which exact Action/version was finalized;
-2. which surface/correlation ID the finalized invocation belonged to;
-3. which declared trust semantics applied;
-4. whether the pipeline completed or halted;
-5. where and why an explicit halt occurred;
-6. which trusted context requirements were present and which trusted provider supplied each one;
-7. whether trusted human-confirmation authority was present at finalization;
-8. when SurfaceRelay persisted the record.
-
-It must not persist invocation/business payloads or bearer capabilities.
-
-## Existing Runtime Boundary
-
-`ActionBus` already has an exactly-once finalizer for outcomes that are represented as `ActionPipelineOutcome`:
+The current canonical flow ends with exactly one auditor call for outcomes represented as `ActionPipelineOutcome`:
 
 ```text
 exact action resolution
@@ -44,76 +31,50 @@ exact action resolution
 → ActionPipelineAuditor::record(call, outcome)
 ```
 
-`ActionPipelineAuditor::record()` is invoked exactly once when the dispatch reaches either:
+The finalizer is reached for completed outcomes and explicit halted outcomes. T-403 already removes raw sensitive output before a failed output-policy outcome reaches it.
 
-- `ActionPipelineOutcome::completed(...)`; or
-- an explicit `ActionPipelineOutcome::halted(...)` path.
+A PHP exception that escapes before `ActionBus::finalize()` currently has no `ActionPipelineOutcome` and is outside this contract. T-404 does not redefine arbitrary exceptions as audit events.
 
-T-403 already guarantees that raw sensitive output is removed before a failed output-policy outcome reaches this finalizer.
+## D-047
 
-A PHP exception thrown before `ActionBus::finalize()` is currently outside this final-outcome contract. T-404 does not silently broaden that semantic into a universal exception-event system.
+**Structured audit is an append-only, payload-minimized final-dispatch record. Only explicitly allowlisted action/outcome/provenance facts are persisted; raw invocation/business payloads, trusted identity values, and bearer capabilities are never audit persistence data. Audit-store failure propagates rather than being downgraded to best-effort logging.**
+
+Adding fields to `ActionCall`, `InvocationContext`, `ActionPipelineState`, or `ActionDefinition` must never implicitly add persisted audit fields.
 
 ## Non-goals
 
 T-404 does not implement:
 
-- stage-by-stage audit/event streaming;
+- stage-by-stage event streaming;
 - event sourcing or state reconstruction;
 - a generic domain-event bus;
 - business payload history;
 - raw input/output persistence;
-- exception-message or stack-trace persistence;
+- exception text or stack-trace persistence;
 - SIEM/OpenTelemetry/export pipelines;
-- audit signing, hash chains, transparency logs, or non-repudiation;
+- audit signing/hash chains/non-repudiation;
 - custom encryption/KMS;
-- automatic retention/cleanup policy;
-- audit querying/reporting APIs;
-- a UI for audit records;
-- cross-service distributed tracing;
-- changes to frozen `spec/0.1/**` wire schemas;
-- changing ActionResult public taxonomy;
-- converting every arbitrary thrown PHP exception into a durable audit event.
+- retention cleanup;
+- audit query/reporting APIs or UI;
+- automatic audit retry/outbox;
+- changes to `spec/0.1/**`, ActionResult taxonomy, WebMCP or browser contracts;
+- durable records for every arbitrary PHP `Throwable`.
 
-These may be layered later only when product requirements justify them.
+## Approaches
 
-## Approaches Considered
+### Stage-by-stage event stream — rejected
 
-### 1. Stage-by-stage event stream
+This would require ordering, duplicate, exception, retention and replay semantics and would turn T-404 into a separate event subsystem.
 
-Rejected for T-404.
+### Persist whole runtime snapshots — rejected
 
-Recording every stage transition would require event ordering semantics, duplicate handling, exception-path semantics, retention, replay interpretation and substantially more persistence volume. That is a different subsystem and would expand M4 beyond its trust-control objective.
+`ActionCall`/`ActionPipelineOutcome` transitively expose raw input/output, metadata, idempotency candidates, confirmation receipts, binding references and trusted context values. Snapshot serialization makes leakage the default.
 
-### 2. Persist `ActionCall` and `ActionPipelineOutcome` snapshots directly
+### Explicit allowlist projection — accepted
 
-Rejected.
+A dedicated factory projects only approved facts into an immutable `AuditEvent`; an append-only store persists it.
 
-Those runtime objects contain or reference raw input/output, caller metadata, idempotency candidates, confirmation receipts, binding references and trusted context values. Serializing them would make sensitive-data leakage the default rather than the exception.
-
-### 3. Explicit allowlist projection into one final audit event
-
-Accepted.
-
-A dedicated factory projects only approved fields from the final call/outcome into a narrow immutable `AuditEvent`, then an append-only store persists it.
-
-This keeps persistence semantics explicit, testable and independent from future additions to `ActionCall`, `InvocationContext`, `ActionPipelineState` or `ActionDefinition`.
-
-## D-047
-
-**Structured audit is an append-only, payload-minimized final-dispatch record. Raw invocation/business payloads and bearer capabilities are never audit persistence data.**
-
-Consequences:
-
-- the audit event is built from an explicit allowlist;
-- adding a field to a runtime object never automatically adds it to persisted audit data;
-- audit persistence records final execution/control evidence, not business-object history;
-- persistence failure is a trust-control failure and is not swallowed as best effort.
-
-## Audit Event Model
-
-The implementation introduces an immutable audit event under a dedicated Laravel runtime audit namespace.
-
-Conceptually:
+## Event Model
 
 ```text
 AuditEvent
@@ -132,8 +93,8 @@ AuditEvent
   outputContentTrust
 
   outcomeKind          // completed | halted
-  haltedAt             // stage value | null
-  haltCode             // extensible machine code | null
+  haltedAt             // pipeline stage | null
+  haltCode             // machine code | null
 
   humanConfirmationPresent
   trustedContextManifest[]
@@ -141,65 +102,50 @@ AuditEvent
 
 ### Event ID
 
-`eventId` is a server-generated opaque identifier independent from correlation ID.
-
-The reference implementation uses 128 bits from `random_bytes(16)`, encoded as 32 lowercase hexadecimal characters. The identifier carries no time, action, user, tenant or payload meaning.
-
-The database enforces uniqueness.
+`eventId` is server-generated with `random_bytes(16)` and encoded as exactly 32 lowercase hexadecimal characters. It is opaque and contains no time, user, tenant, action, payload or authority meaning. The database primary key enforces uniqueness.
 
 ### Timestamp
 
-`recordedAt` is generated by trusted server runtime in UTC.
+`recordedAt` is produced by an injected `AuditClock` as a UTC `DateTimeImmutable`. `SystemAuditClock` uses current UTC wall-clock time. Persistence writes explicit UTC `Y-m-d H:i:s.u` into a `DATETIME(6)` column so storage does not depend on the database session timezone.
 
-The persisted column uses microsecond precision (`timestamp(6)`/equivalent supported by the existing Laravel/MySQL test matrix). Tests pin UTC handling and round-trip precision.
-
-The timestamp describes audit persistence/finalization time, not application-business-event time.
+`IdempotencyClock` is not reused: it is deliberately idempotency-specific and second-based, while audit has independent finalization-time and microsecond-precision semantics.
 
 ### Invocation labels
 
-Persist:
+Persist exact final `correlationId` and `surface` as diagnostic labels. They remain non-authoritative.
 
-- `correlationId`;
-- `surface`.
+They have no existing runtime max length, so the database stores them as `LONGTEXT` rather than introducing a new invocation-validation limit. Equality-query helper hashes are stored separately for correlation ID only.
 
-They remain diagnostic labels, not authorization evidence.
-
-Do not persist generic `InvocationContext::metadata`.
+Generic `InvocationContext::metadata` is never persisted.
 
 ### Action identity and declared trust semantics
 
-Persist exact final resolved definition values:
+Persist from the exact resolved final `ActionDefinition`:
 
-- action ID;
-- action version;
-- scope;
-- effect;
-- risk;
-- idempotency policy;
-- output sensitivity;
-- output content trust.
+- `id`, `version`;
+- `scope`, `effect`, `risk`;
+- `idempotency`;
+- `outputSensitivity`;
+- `outputContentTrust`.
 
-Do not persist title, description, input/output schemas or extensions. They add storage volume and may become application-defined data containers without improving the T-404 trust boundary.
+Do not persist title, description, schemas, extensions or other application-defined containers.
 
 ### Outcome
 
-`outcomeKind` is exactly one of:
+`outcomeKind` is exactly `completed` or `halted`.
 
-- `completed`;
-- `halted`.
-
-For `completed`:
+For completed events:
 
 - `haltedAt = null`;
 - `haltCode = null`.
 
-For `halted`:
+For halted events:
 
-- `haltCode` is the exact internal machine-readable halt code;
-- `haltedAt` is the canonical pipeline stage value when a stage halted;
-- `haltedAt = null` remains valid for the built-in pre-stage trusted-context gate.
+- `haltCode` is the exact machine-readable internal halt code;
+- `haltedAt` is the canonical pipeline-stage value when a stage halted;
+- `haltedAt = null` is valid for the built-in pre-stage trusted-context gate.
 
-No halt `details`, confirmation challenge content, public message, exception text or arbitrary diagnostic payload is persisted.
+Halt `details`, confirmation challenge content, public messages and exception diagnostics are not persisted.
 
 ### Confirmation evidence
 
@@ -209,374 +155,285 @@ Persist only:
 humanConfirmationPresent: bool
 ```
 
-It is derived from final trusted context presence of `ContextRequirement::HumanConfirmation`.
+It is derived from final trusted context presence of `ContextRequirement::HumanConfirmation`. It is evidence only and never reusable authority.
 
-Do not persist:
-
-- caller confirmation receipt;
-- challenge ID/token;
-- confirmation scope key;
-- `VerifiedConfirmation` object/data;
-- receipt hashes or capability material.
-
-This boolean is evidence that trusted runtime authority was present at finalization; it is not reusable confirmation authority.
+Do not persist receipt, challenge token/ID/payload, confirmation scope key, receipt hash, or `VerifiedConfirmation` value.
 
 ### Trusted context manifest
 
-For each trusted context entry present in final pipeline state, persist only:
+Persist one entry per final trusted context entry, in the canonical order already provided by `InvocationContext::allTrusted()`:
 
-```text
-{
-  requirement: <canonical ContextRequirement value>,
-  provider: <ContextProvenance provider>
-}
+```json
+{"requirement":"authenticated_actor","provider":"laravel.auth"}
 ```
 
-The manifest follows canonical `ContextRequirement::cases()` ordering already guaranteed by `InvocationContext::allTrusted()`.
+Only `requirement` and `ContextProvenance::provider` are allowed.
 
-Do not persist:
+Never persist:
 
-- trusted context values;
+- trusted context value;
 - `ContextProvenance::reference`;
 - `confirmationScopeKey`;
-- canonicalized scope/identity values;
-- actor/tenant/record/selection/session identifiers.
-
-Provider strings are already explicit trusted-runtime provenance labels. The manifest therefore proves which authority classes were present and which resolver/provider supplied them without turning the audit table into a copy of application identity data.
+- canonicalized identity/scope value;
+- actor, tenant, record, selection or browser-session identifiers.
 
 ## Explicit Forbidden Persistence Set
 
-The T-404 reference auditor must never persist any of the following:
+Adversarial tests must prove that persisted columns/JSON contain none of these sources:
 
-- `ActionCall::input` or final validated input;
-- `ActionPipelineState::output`, even after T-403 redaction/release;
-- generic invocation metadata;
-- raw idempotency key;
-- idempotency lookup hash;
-- idempotency intent fingerprint;
-- idempotency replay payload;
+- raw or validated action input;
+- normal output;
+- sensitive raw or released output;
+- generic metadata;
+- raw idempotency key, lookup hash, intent fingerprint or replay payload;
 - binding ID;
-- confirmation receipt;
-- confirmation challenge token/identifier/payload;
+- confirmation receipt/challenge material;
 - trusted context values;
-- trusted context provenance reference;
-- trusted stable confirmation/scope key;
+- provenance reference;
+- confirmation/scope key;
 - halt details;
-- exception message/stack trace;
+- exception text/stack trace;
 - ActionDefinition schemas/extensions.
-
-Tests use adversarial marker strings in each reachable forbidden source and assert that no persisted column/JSON document contains them.
 
 ## Components
 
 ```text
 ActionBus final outcome
-        |
-        v
+        ↓
 StructuredActionPipelineAuditor
-        |
-        v
-AuditEventFactory
-   |            |
-   |            +--> AuditClock
-   |
-   +--> allowlist projection
-        |
-        v
+        ↓
+AuditEventFactory ── AuditClock
+        ↓
 AuditEventStore::append(AuditEvent)
-        |
-        v
+        ↓
 DatabaseAuditEventStore
-        |
-        v
+        ↓
 surfacerelay_audit_events
 ```
 
 ### `StructuredActionPipelineAuditor`
 
-Implements the existing `ActionPipelineAuditor` interface.
-
-Responsibilities:
-
-1. build one event from the provided call/outcome;
-2. append it once;
-3. return nothing;
-4. never modify the pipeline outcome;
-5. never catch/suppress persistence failure.
-
-It does not know SQL/table structure.
+Implements the existing `ActionPipelineAuditor` signature unchanged. It builds exactly one event and appends it exactly once per finalizer call. It never mutates the outcome and never suppresses factory/store failure.
 
 ### `AuditEventFactory`
 
-Owns the persistence allowlist projection.
-
-It reads:
-
-- invocation labels from the call/final state context;
-- resolved exact definition from final state;
-- completed/halted metadata from outcome;
-- trusted context requirement/provider manifest from final state.
-
-It must never serialize whole runtime objects.
+Owns the allowlist projection. It reads only the explicit fields defined above and never serializes whole runtime objects.
 
 ### `AuditClock`
 
-A narrow injectable clock returns a UTC `DateTimeImmutable` for deterministic tests.
+```php
+public function now(): DateTimeImmutable;
+```
 
-A default system implementation produces current UTC time. T-404 does not reuse `IdempotencyClock`: that interface is intentionally subsystem-specific and second-based, while audit persistence requires an independent wall-clock timestamp with microsecond-capable representation.
+The factory rejects a non-UTC clock result as an internal configuration violation rather than silently interpreting an ambiguous timestamp.
 
 ### `AuditEventStore`
-
-Core contract:
 
 ```php
 public function append(AuditEvent $event): void;
 ```
 
-No update/delete/query method is part of the core write contract.
+No update, delete, upsert or query operation belongs to the T-404 core write contract.
 
 ### `DatabaseAuditEventStore`
 
-Laravel database implementation using the same `illuminate/database` dependency and MySQL 8.4 integration matrix already used by T-402.
+Uses `Illuminate\Database\ConnectionInterface`, mirroring the narrow database boundary used by T-402.
 
-One `append()` call performs one insert. Duplicate `eventId` or database failure propagates as a persistence/runtime failure.
+Each `append()` is one insert. There is no upsert/update fallback. Duplicate IDs fail.
 
-No upsert, overwrite, retry-as-update or delete-on-conflict behavior is allowed.
+Raw `QueryException`/driver diagnostics are not propagated directly. The adapter converts database failures to a static `AuditStoreUnavailable` runtime exception without SQL/row diagnostics or a chained database exception, matching the existing T-402 secrecy pattern. The auditor itself does not catch that domain failure.
 
 ## Database Schema
 
-New table:
+Table: `surfacerelay_audit_events`.
 
 ```text
-surfacerelay_audit_events
+event_id                       CHAR(32) PRIMARY KEY
+recorded_at                    DATETIME(6) NOT NULL
+correlation_id                 LONGTEXT NOT NULL
+correlation_hash               CHAR(64) NOT NULL
+surface                        LONGTEXT NOT NULL
+action_id                      VARCHAR(160) NOT NULL
+action_version                 INTEGER UNSIGNED NOT NULL
+action_scope                   VARCHAR(32) NOT NULL
+action_effect                  VARCHAR(32) NOT NULL
+action_risk                    VARCHAR(32) NOT NULL
+idempotency_policy             VARCHAR(32) NOT NULL
+output_sensitivity             VARCHAR(32) NOT NULL
+output_content_trust           VARCHAR(64) NOT NULL
+outcome_kind                   VARCHAR(16) NOT NULL
+halted_at                      VARCHAR(32) NULL
+halt_code                      LONGTEXT NULL
+halt_code_hash                 CHAR(64) NULL
+human_confirmation_present     BOOLEAN NOT NULL
+trusted_context_manifest       JSON NOT NULL
 ```
 
-Columns:
+`correlation_hash` is an equality-index helper only:
 
 ```text
-event_id                       char(32) primary key
-recorded_at                    timestamp(6)
-correlation_id                 varchar(...)
-surface                        varchar(...)
-action_id                      varchar(160)
-action_version                 unsigned integer
-action_scope                   varchar(...)
-action_effect                  varchar(...)
-action_risk                    varchar(...)
-idempotency_policy             varchar(...)
-output_sensitivity             varchar(...)
-output_content_trust           varchar(...)
-outcome_kind                   varchar(...)
-halted_at                      varchar(...) nullable
-halt_code                      varchar(...) nullable
-human_confirmation_present     boolean
-trusted_context_manifest       json
+SHA-256("surfacerelay.audit.correlation.v1\n" + correlationId)
 ```
 
-The exact varchar lengths should reuse/enforce known runtime limits where they exist and use conservative bounded lengths for open machine-code/provider vocabularies.
+`halt_code_hash` is null for completed events and otherwise:
 
-Required indexes beyond the primary key:
+```text
+SHA-256("surfacerelay.audit.halt-code.v1\n" + haltCode)
+```
 
-- `(recorded_at)`;
-- `(correlation_id)`;
+These hashes do not confer authority and are not idempotency/identity fingerprints. They avoid adding length limits merely to make open-length diagnostic strings indexable.
+
+Indexes beyond the primary key:
+
+- `recorded_at`;
+- `correlation_hash`;
 - `(action_id, action_version, recorded_at)`;
-- `(outcome_kind, halt_code, recorded_at)`.
+- `(outcome_kind, halt_code_hash, recorded_at)`.
 
-No input/output/business identity indexes exist because those values are not stored.
+`trusted_context_manifest` is JSON containing only a list of `{requirement, provider}` string pairs. Encoding failure is a runtime failure; no PHP serialization or silent entry dropping is allowed.
 
-### Manifest encoding
+No ORM model is introduced solely for insert-only persistence.
 
-`trusted_context_manifest` is JSON containing only a list of `{requirement, provider}` string pairs.
+## Append-only Meaning
 
-Encoding failure is a runtime failure; the implementation must not fall back to PHP serialization or silently drop entries.
+SurfaceRelay exposes only insertion of new audit events. It does not expose prior-event mutation or deletion APIs.
 
-Hydration/query APIs are not required by T-404, so the reference write store does not introduce a general ORM model merely to insert rows.
-
-## Append-only Semantics
-
-Append-only means SurfaceRelay's T-404 write API has exactly one operation: insert a new event.
-
-The package does not expose mutation or deletion methods for prior events.
-
-This is an application-level contract, not a claim that a database administrator can never alter/delete rows. Database/WORM policy, regulatory retention and tamper-evident storage are deployment concerns outside T-404.
+This is an application-level contract, not a claim that a database administrator, retention job or backup operator can never alter rows. WORM storage, regulatory retention and tamper evidence remain deployment/future concerns.
 
 ## Failure Semantics
 
-Audit persistence is a production trust control, not optional logging.
+Audit persistence is a trust control, not best-effort logging.
 
-If `ActionPipelineAuditor::record()` fails:
+If audit construction/persistence fails:
 
-- the exception propagates;
-- SurfaceRelay must not return the original outcome as an ordinary successful finalized result;
-- the runtime must not pretend application execution was rolled back;
-- T-402 idempotency state remains whatever authoritative state was already persisted;
-- a completed external/business side effect may already have occurred.
+- the failure propagates;
+- `ActionBus` does not return the original finalized outcome as if audit succeeded;
+- SurfaceRelay does not claim the application side effect was rolled back;
+- T-402 durable idempotency state remains authoritative and unchanged;
+- a business/external side effect may already have occurred.
 
-This follows the existing post-execution trust model: failure after execution changes what SurfaceRelay may safely claim, not what has already happened in the application/external system.
+T-404 adds no automatic internal retry. A database commit may be ambiguous; blind retry can create duplicate evidence. Retry/outbox semantics need a separate design.
 
-T-404 does not add an automatic second audit retry inside `ActionBus`; blind retry could create duplicate records when database commit outcome is ambiguous. Operational retry/outbox strategies require a separate explicit design.
-
-## Finalization and Exception Boundary
+## Finalization / Throwable Boundary
 
 T-404 guarantees:
 
-> Every ActionBus dispatch that reaches the existing completed/explicit-halt finalization boundary attempts exactly one structured audit append.
+> Every dispatch that reaches the existing completed/explicit-halt finalization boundary attempts exactly one structured audit append.
 
-It does not guarantee:
+It does **not** guarantee durable audit for every PHP `Throwable`. Exceptions that escape before `ActionBus::finalize()` remain outside this event model.
 
-> Every PHP Throwable thrown anywhere during action resolution/stages is durably audited.
+Broadening this would require a safe exception taxonomy, execution-occurrence semantics and different orchestration. That work is deliberately excluded rather than partially implemented.
 
-Today, executor/stage/configuration exceptions that escape before `ActionBus::finalize()` do not produce `ActionPipelineOutcome` and therefore do not reach the auditor.
+## Idempotency Replay
 
-Changing that would require defining an exception taxonomy, safe exception projection, execution-occurrence semantics and likely `try/finally` orchestration changes. That is deliberately excluded from T-404 rather than being implemented implicitly.
+A completed replay is a new invocation/finalization, so it creates a new audit event with a new event ID/time and the current correlation ID/surface.
 
-A future task may introduce an independent runtime-failure telemetry/audit boundary without changing the meaning of T-404 final-dispatch events.
-
-## Replay Semantics
-
-A completed idempotency replay is a new invocation/finalization and therefore produces a new audit event.
-
-The replay event:
-
-- has a new `eventId` and `recordedAt`;
-- uses the current invocation correlation ID/surface;
-- records exact action/version and final outcome;
-- may show no human-confirmation authority because completed replay skips confirmation by design;
-- does not expose the replay payload, lookup hash, intent fingerprint or prior audit record ID.
-
-This correctly records two finalized invocation attempts while T-402 still guarantees one protected application execution.
+The replay event records no replay payload, key/hash/fingerprint or prior audit ID. It may correctly have `humanConfirmationPresent=false` because exact completed replay skips confirmation. Thus two finalized invocation attempts may have two audit events while T-402 still guarantees one protected application execution.
 
 ## T-403 Interaction
 
-T-404 never persists output, so it cannot become an alternate disclosure path around T-403.
+T-404 never persists output, so audit cannot become a secondary disclosure path.
 
-For an `output_policy_failed` halt:
+For `output_policy_failed`:
 
-- final state is already output-free by D-046;
-- event records `outcomeKind=halted`, `haltedAt=output_policy`, `haltCode=output_policy_failed`;
-- no raw or redacted output is stored.
+```text
+outcomeKind = halted
+haltedAt    = output_policy
+haltCode    = output_policy_failed
+```
 
-Even for successful sensitive release, the released value is not persisted by T-404.
+No raw or released output is persisted. The same rule applies to successful sensitive releases.
 
-## Compatibility / Frozen Contracts
+## Compatibility
 
-T-404 changes only the Laravel reference runtime persistence layer and internal audit implementation.
-
-It does not modify:
+T-404 does not change:
 
 - `spec/0.1/**`;
-- ActionDefinition wire shape;
-- Invocation wire shape;
-- ActionResult wire shape/taxonomy;
-- WebMCP annotations;
-- browser runtime contracts.
+- ActionDefinition/Invocation/ActionResult wire shapes;
+- public result taxonomy;
+- WebMCP/browser contracts;
+- `ActionPipelineAuditor::record(ActionCall, ActionPipelineOutcome)` signature.
 
-`ActionPipelineAuditor` keeps its existing method signature so existing test doubles/custom auditors remain source-compatible.
+Existing custom/test auditors remain source-compatible. The structured auditor is a new implementation of the existing port.
 
-The production structured auditor is a new implementation of that port rather than a signature-breaking replacement.
+## Testing
 
-## Testing Strategy
+### Unit
 
-### Unit tests
+Prove event factory:
 
-Prove `AuditEventFactory`:
+- exact action/version/trust enum projection;
+- completed/halted consistency;
+- pre-stage `haltedAt=null` support;
+- halt code included but details excluded;
+- confirmation boolean derived only from trusted final context;
+- canonical trusted-context manifest order;
+- provider included while value/reference/scope key excluded;
+- opaque 32-char lowercase hex event ID;
+- UTC clock requirement and microsecond preservation;
+- domain-separated correlation/halt hashes.
 
-- projects exact action identity and declarative trust enums;
-- maps completed/halted correctly;
-- preserves `haltedAt=null` for pre-stage context failure;
-- records halt code but never halt details;
-- derives `humanConfirmationPresent` only from trusted final context;
-- emits trusted-context manifest in canonical requirement order;
-- includes provider but excludes value/reference/scope key;
-- generates opaque 32-character lowercase hex event IDs;
-- uses UTC clock output.
+### Adversarial secrecy
 
-### Adversarial secrecy tests
+Place unique markers in every forbidden source and assert that no inserted scalar/JSON value contains any marker.
 
-Place unique secret markers in:
+### Auditor
 
-- raw/validated input;
-- normal output;
-- sensitive released output;
-- generic metadata;
-- idempotency key;
-- binding ID;
-- confirmation receipt/challenge fields where reachable;
-- trusted actor/tenant/record/selection/session values;
-- provenance reference;
-- confirmation scope key;
-- halt details.
+Prove one finalizer call causes one append, completed and halted each append once, and a store/factory failure propagates without outcome mutation.
 
-Assert persisted row/manifest contains none of them.
+### MySQL integration
 
-### Auditor tests
+Across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4:
 
-Prove:
-
-- one finalizer call appends exactly one event;
-- completed and explicit halt each append once;
-- store exception propagates unchanged;
-- auditor does not mutate/replace the outcome.
-
-Existing ActionBus tests continue proving finalizer exactly-once orchestration.
-
-### Integration tests
-
-With real MySQL 8.4 across PHP 8.3/8.4 × Illuminate 12/13:
-
-- migration up/down round-trip;
+- migration up/down;
 - completed append;
-- halt append;
-- output-policy failure append without output leak;
-- consequential confirmed fresh execution records confirmation presence;
-- exact completed idempotency replay creates a second audit event but does not re-execute application code;
-- duplicate `event_id` fails rather than updates;
-- JSON manifest round-trips only allowlisted fields;
-- timestamp microseconds/UTC round-trip;
-- required indexes/table shape exist where practical to assert portably.
+- explicit halt append;
+- output-policy-failure append with no output leak;
+- consequential confirmed fresh execution shows confirmation presence;
+- exact completed idempotency replay creates a second event without re-execution;
+- duplicate event ID fails instead of mutating;
+- manifest contains only allowlisted keys;
+- UTC microsecond timestamp round-trip;
+- defined indexes/schema exist.
 
 ### Full regression
 
-Run:
-
-- PHP unit/integration suite;
+- PHP tests;
 - PHP lint;
-- browser TypeScript typecheck and Vitest suite;
+- browser TypeScript typecheck + Vitest;
 - `python scripts/validate.py`;
-- frozen `spec/0.1/**` diff check.
+- `spec/0.1/**` unchanged.
 
 ## Acceptance Criteria
 
 T-404 is complete when:
 
-1. an immutable allowlisted `AuditEvent` model exists;
-2. production `ActionPipelineAuditor` projects and appends one event for each existing finalization path;
-3. an append-only `AuditEventStore` contract exists;
-4. a MySQL/Laravel database store and migration persist the event;
-5. raw input/output/business payloads and bearer/identity material are absent from persistence;
-6. completed/halted/halt-stage/halt-code semantics are preserved;
-7. trusted context persistence is limited to requirement + provider manifest;
-8. confirmation persistence is limited to a boolean authority-presence fact;
-9. idempotency replay generates a separate invocation audit event without storing replay data;
-10. output-policy failure cannot leak raw output through audit;
-11. audit-store failure propagates and is never downgraded to best-effort logging;
-12. append collision does not mutate an existing event;
-13. `ActionPipelineAuditor` signature and frozen `spec/0.1/**` remain unchanged;
-14. the full CI matrix is green.
+1. immutable allowlisted `AuditEvent` exists;
+2. structured auditor implements the existing finalizer port;
+3. append-only store contract exists;
+4. database store + migration persist records on MySQL 8.4;
+5. forbidden payload/authority sources are absent from persistence;
+6. completed/halted/stage/code semantics are exact;
+7. trusted context is limited to requirement + provider;
+8. confirmation persistence is only authority-presence boolean;
+9. replay creates a separate audit event without replay/business payload;
+10. T-403 output cannot leak through audit;
+11. audit failures propagate through static safe domain errors;
+12. collision never mutates an existing record;
+13. auditor signature and frozen wire contracts remain unchanged;
+14. full CI matrix is green.
 
-## Self-review Corrections Built Into This Spec
+## Self-review
 
-The chat-approved direction said “append-only structured final audit event.” This written design tightens several points to prevent accidental scope or secrecy expansion:
-
-1. **No sanitized output either.** Persisting T-403's released value would still turn audit into a second business-data store and create retention/confidentiality obligations.
-2. **No trusted identity values.** Actor/tenant/etc. values are omitted; only requirement + provider provenance class is stored.
-3. **No provenance reference.** A provider reference can itself contain application/user identifiers, so only provider name is allowed.
-4. **No automatic exception auditing.** The current finalizer contract does not see arbitrary thrown exceptions; T-404 states that boundary rather than manufacturing an incomplete exception-event model.
-5. **No blind audit retry.** Ambiguous database commit + retry can duplicate evidence; retry/outbox needs a separate contract.
-6. **No update/delete core API.** Append-only is enforced structurally at the SurfaceRelay store interface.
-7. **No ActionDefinition extensions/schemas.** They are open/application-defined data containers and are unnecessary for trust evidence.
-8. **No reuse of `IdempotencyClock`.** Audit has independent timestamp semantics and precision requirements; cross-subsystem reuse would create misleading coupling.
+- **Placeholder scan:** exact schema types/lengths/index strategy are specified; no `TBD`/`TODO`/placeholder lengths remain.
+- **Secrecy correction:** even T-403 released output is excluded; audit is not a second business-data store.
+- **Identity minimization:** trusted values and provenance references are excluded; requirement + provider is the maximum persisted trusted-context detail.
+- **Database diagnostic correction:** raw SQL/driver exceptions are wrapped in static non-chained domain errors.
+- **Compatibility correction:** open-length correlation/surface/halt values are stored without adding new runtime validation limits; equality indexes use domain-separated hashes where needed.
+- **Exception honesty:** arbitrary thrown exceptions are explicitly outside the current final-outcome boundary.
+- **Retry restraint:** no blind audit retry/outbox semantics are introduced.
+- **Scope check:** no event sourcing, telemetry platform, query API, retention system or UI is introduced.
 
 ## Next Step
 
-After user review of this written spec, create the detailed implementation plan. No production code should be written before that review gate.
+After user review of this written spec, create the detailed T-404 implementation plan. Production code starts only after that review gate.
