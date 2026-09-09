@@ -25,6 +25,7 @@ use SurfaceRelay\Laravel\Idempotency\IdempotencyService;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyStage;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyStore;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyStoreClaimResult;
+use SurfaceRelay\Laravel\OutputPolicy\OutputPolicyStage;
 use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionBus;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionCall;
@@ -83,7 +84,7 @@ final readonly class PrepListTestPipeline
             ),
             self::passThrough(ActionPipelineStage::Confirmation),
             new ActionExecutionStage($executor, $idempotencyService),
-            self::passThrough(ActionPipelineStage::OutputPolicy),
+            new OutputPolicyStage(),
         ];
 
         $auditor = new class implements ActionPipelineAuditor {

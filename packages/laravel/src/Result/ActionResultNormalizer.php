@@ -89,6 +89,13 @@ final class ActionResultNormalizer
                 $halt->code,
                 'The prior invocation outcome is indeterminate and will not be retried automatically.',
             ),
+            CoreActionErrorCode::OUTPUT_POLICY_FAILED => ActionResult::failed(
+                $correlationId,
+                new ActionError(
+                    $halt->code,
+                    'The action completed, but its output could not be safely disclosed.',
+                ),
+            ),
             default => throw UnmappedPipelineOutcome::forHaltCode($halt->code),
         };
     }

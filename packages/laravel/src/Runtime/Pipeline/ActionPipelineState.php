@@ -63,6 +63,25 @@ final readonly class ActionPipelineState
         );
     }
 
+    /**
+     * Removes an execution/replay output while preserving every other piece
+     * of immutable invocation state. Used by post-execution trust controls so
+     * sensitive raw output cannot reach finalizers after disclosure failure.
+     */
+    public function withoutOutput(): self
+    {
+        return new self(
+            $this->definition,
+            $this->input,
+            $this->context,
+            false,
+            null,
+            $this->bindingId,
+            $this->confirmationReceipt,
+            $this->idempotencyPlan,
+        );
+    }
+
     public function withContext(InvocationContext $context): self
     {
         return new self(
