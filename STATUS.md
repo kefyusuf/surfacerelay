@@ -10,15 +10,17 @@
 - **Base / merge-base:** `main@08a9862923d60f4e08b1732c3e11053e5b7bb74e`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
 - **Last merged/revalidated task:** `T-402 — Idempotency store`
-- **Current task:** `T-403 — Output policy/redaction` — **DONE / external review pending**
-- **Implementation checkpoint:** `0195875b5f2d5d9646407337ea54df52fe4c8bb3`
-- **Implementation workflow:** `34356958945` — **all 7 jobs green**
-- **PHP evidence:** **430 tests / 2034 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with MySQL 8.4 service coverage
+- **Current task:** `T-403 — Output policy/redaction` — **DONE / exact-head external review pending**
+- **Initial implementation checkpoint:** `0195875b5f2d5d9646407337ea54df52fe4c8bb3`
+- **Initial implementation workflow:** `34356958945` — **7/7 green**
+- **Exact verified code checkpoint:** `d58230d2f91f5d3ae89f9bd89d479dbaf27784e6`
+- **Exact-head workflow:** `34368063289` — **7/7 green**
+- **PHP evidence:** **431 tests / 2072 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Decision:** `D-046 — ACCEPTED`
-- **External review:** pending
-- **Next gate:** exact-head review-prep CI, then PR/external review
+- **External review:** CodeRabbit reviewed through `d98f1394f3ccbafe99016dd9cf1b4a3b5e1a4b70` with no actionable comments; exact-head review still required after later replay hardening
+- **Next gate:** exact-head external review on PR #3; merge remains a separate explicit gate
 - **T-404:** not started
 
 ## T-403 — Implemented trust boundary
@@ -67,9 +69,10 @@ output policy
 10. Confidentiality and content trust remain independent. `outputContentTrust=contains_untrusted_content` is preserved rather than inferred from redaction outcome.
 11. T-402 completed replay remains pre-policy: it skips confirmation/execution but reruns the **current** output policy over stored pre-policy executor output.
 12. Replay therefore does not freeze or replay a previously disclosed/redacted payload; current policy can produce a different safe projection.
-13. Audit observes only the released post-policy value on success or output-free state on disclosure failure.
-14. `spec/0.1/**` remains unchanged.
-15. T-404 structured audit persistence remains a separate task.
+13. A completed replay whose current policy withholds or throws remains idempotency-`completed`, does not re-execute application code, and may later recover through a policy-only retry when the current policy releases a safe projection.
+14. Audit observes only the released post-policy value on success or output-free state on disclosure failure.
+15. `spec/0.1/**` remains unchanged.
+16. T-404 structured audit persistence remains a separate task.
 
 ## Verification evidence
 
@@ -86,19 +89,32 @@ Result mapping RED:          c0d2cad4ecd7870b9464dcb2933cdf189b35ec0d / 34347679
 Result mapping GREEN:        0399ef03f42001f3c5e913fda5687e74e9ba5a90 / 34347966075 — 7/7 green
 Audit sanitization proof:    bb3506076f579fb6ee637c12e6dc68bea3800b07 / 34348300687 — 7/7 green
 Implementation checkpoint:   0195875b5f2d5d9646407337ea54df52fe4c8bb3 / 34356958945 — 7/7 green
-PHP:                         430 tests / 2034 assertions
-Browser:                     TypeScript typecheck + 103/103 Vitest tests
-Contract:                    green; frozen spec/0.1 unchanged
+Initial PR review head:      d98f1394f3ccbafe99016dd9cf1b4a3b5e1a4b70 — CodeRabbit: no actionable comments
+Hardening CI RED:            9b255cade7e60261e9a3407a579dd40bd06586d4 / 34361584554 — PHP matrix failed in new replay-recovery fixture
+Fixture fix GREEN:           d58230d2f91f5d3ae89f9bd89d479dbaf27784e6 / 34368063289 — 7/7 green
+PHP exact-head:              431 tests / 2072 assertions
+Browser exact-head:          TypeScript typecheck + 103/103 Vitest tests
+Contract exact-head:         green; frozen spec/0.1 unchanged
 ```
+
+## Hardening failure and closure
+
+The replay-recovery hardening added after the first external review exposed a test-fixture construction error rather than a production redaction defect. `OutputPolicyReplayFailureRecoveryIntegrationTest` instantiated `ActionDefinition` without the mandatory `contextRequirements` argument, so every PHP matrix job failed before the new scenario reached production code.
+
+The fixture was aligned with the canonical constructor using `contextRequirements: []` only. No production behavior changed. The next exact-head run passed all seven jobs and the PHP suite increased to 431 tests / 2072 assertions.
+
+The added recovery scenario now proves both `withhold()` and redactor-exception paths on a completed idempotency replay: the failed disclosure does not re-execute the application action or reopen/downgrade the completed idempotency record, while a later retry can reapply current policy and release a safe projection from stored pre-policy output.
 
 ## Self-review
 
-- Branch is ahead-only from exact T-402 closure base; no merge-base drift was found.
-- Diff is limited to D-046/design-plan documentation, Laravel output-policy contracts/stage/result mapping/state sanitization, and focused unit/integration tests.
+- Branch remains ahead-only from exact T-402 closure base; no merge-base drift was found.
+- Diff remains limited to D-046/design-plan/status documentation, Laravel output-policy contracts/stage/result mapping/state sanitization, and focused unit/integration tests.
 - `spec/0.1/**` has no diff.
 - Fail-closed raw-output removal occurs before the pipeline constructs the halted outcome observed by the auditor.
 - Redactor exception handling is intentionally scoped to the redactor invocation and does not broadly swallow unrelated pipeline failures.
-- Existing T-402 replay orchestration is preserved; production integration proves current policy reruns over stored pre-policy output.
+- Existing T-402 replay orchestration is preserved; integration proves current policy reruns over stored pre-policy output.
+- Replay disclosure failure recovery is policy-only: idempotency remains completed and the executor call count remains one.
+- The final CI defect was isolated to test setup and fixed without changing production code.
 
 ## Decisions
 
@@ -112,8 +128,8 @@ Contract:                    green; frozen spec/0.1 unchanged
 - T-403 does not persist structured audit events; T-404 remains separate.
 - T-403 does not change wire schemas or promote new `spec/0.1` fields.
 - The output-policy context is a trusted typed runtime view, not caller metadata authority.
-- External review has not yet passed; T-403 is not marked REVIEWED or merge-ready until that gate completes.
+- CodeRabbit's previous review coverage ended at `d98f1394…`; the later replay-recovery hardening and its fixture correction require exact-head review before T-403 can be marked REVIEWED or merge-ready.
 
 ## Next boundary
 
-**T-403 implementation is DONE and self-reviewed. The next action is review-prep validation and external PR review. T-404 must not start automatically.**
+**T-403 implementation and exact-head CI are green. PR #3 remains open. The next action is external review covering the current branch head; merge is a separate explicit gate and T-404 must not start automatically.**
