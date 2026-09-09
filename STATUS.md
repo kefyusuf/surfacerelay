@@ -6,131 +6,114 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/output-policy-redaction`
+- **Base / merge-base:** `main@08a9862923d60f4e08b1732c3e11053e5b7bb74e`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
-- **Last completed/reviewed/merged task:** `T-402 — Idempotency store`
-- **Pull request:** `#2 — merged`
-- **Final reviewed code checkpoint:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc`
-- **Review-passed branch checkpoint:** `ff6bc3c07567b4e0e84fd4f57cd0006236658c7d`
-- **Merge commit:** `b4a43ff2526f680656762671a1eee67b4135ee03`
-- **Merged-main workflow:** `34335064423` — **all 7 jobs green**
-- **PHP evidence:** **412 tests / 1900 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with real MySQL 8.4 migration round-trip coverage
-- **Browser isolation evidence:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract evidence:** `python scripts/validate.py` green; frozen `spec/0.1` unchanged; fixture/scenario baseline **52 + 12**
-- **External automated review:** CodeRabbit — one Major timestamp-precision finding, reproduced on real MySQL and fixed TDD-first
-- **Open review threads:** **0**
-- **Decision:** `D-045 — ACCEPTED`
-- **Next task:** `T-403 — Output policy/redaction` — **not started**
+- **Last merged/revalidated task:** `T-402 — Idempotency store`
+- **Current task:** `T-403 — Output policy/redaction` — **DONE / external review pending**
+- **Implementation checkpoint:** `0195875b5f2d5d9646407337ea54df52fe4c8bb3`
+- **Implementation workflow:** `34356958945` — **all 7 jobs green**
+- **PHP evidence:** **430 tests / 2034 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with MySQL 8.4 service coverage
+- **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
+- **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
+- **Decision:** `D-046 — ACCEPTED`
+- **External review:** pending
+- **Next gate:** exact-head review-prep CI, then PR/external review
+- **T-404:** not started
 
-## T-402 — Implemented trust boundary
+## T-403 — Implemented trust boundary
 
 ```text
-caller invocation
+execution or completed idempotency replay
         │
-        ├── input validation
-        ├── current invocation authorization
         ▼
-idempotency preflight
+output policy
         │
-        ├── policy bypass → continue normally
-        ├── invalid/missing required key → rejected
-        ├── conflict / in_progress / indeterminate → fail closed
-        ├── exact active completed
-        │       ↓
-        │   stored pre-policy executor output
-        │       ↓
-        │   skip confirmation + execution
-        │       ↓
-        │   current output policy → audit → success
+        ├── normal output
+        │       └── exact pass-through
         │
-        └── fresh intent
-                ↓
-          confirmation if required
-                ↓
-          atomic in_progress claim
-                ↓
-          application executor
-                ↓
-          persist completed replay output
-                ↓
-          output policy → audit → success
+        └── sensitive output
+                │
+                ├── no redactor ───────────────┐
+                ├── explicit withhold ─────────┤
+                ├── redactor exception ────────┤
+                │                               ▼
+                │                         remove raw output
+                │                               ↓
+                │                     output_policy_failed
+                │                               ↓
+                │                      static public failed
+                │                               ↓
+                │                            audit
+                │
+                └── explicit release(value)
+                        ↓
+                  released value only
+                        ↓
+                       audit
 ```
 
 ### Locked invariants
 
-1. Idempotency state is retry/deduplication state, never authorization authority.
-2. Runtime keys are exact 1..240 Unicode-character strings and are not normalized before hashing.
-3. Raw caller keys are never persisted. The database primary key is a SHA-256 digest over exact action ID/version, trusted authority partition, and raw retry key.
-4. Authority partitioning uses present tenant/actor identities; when both are absent it falls back to browser-session identity, otherwise an explicit global partition.
-5. Intent fingerprinting binds exact action ID/version, validated input and present actor/tenant/current-record/current-selection/browser-session identities. Correlation ID, generic metadata, raw key, confirmation receipt, runtime `HumanConfirmation`, surface, and binding ID are excluded.
-6. Current validation and authorization always run before idempotency preflight; completed replay cannot bypass a new authorization denial.
-7. Fresh execution ownership is claimed only after required confirmation and immediately before application execution.
-8. Exact completed replay uses stored **pre-output-policy** executor output, skips confirmation/execution, reruns current output policy and audit, and preserves the retry's current correlation ID.
-9. Replay never manufactures `human_confirmation` authority and consumes no second confirmation receipt.
-10. Atomic claim races permit only one claimant to enter application execution for one active key/intent. Conflict/in-progress/indeterminate races fail closed; a completed race replays.
-11. Executor exceptions after claim are conservatively best-effort marked `indeterminate`; SurfaceRelay never assumes an exception proves no side effect occurred.
-12. Replay output must be deterministic JSON/canonical data. Unreplayable successful output becomes `indeterminate`, never a reopened key.
-13. Public success is impossible until completed replay payload persistence succeeds. Completion persistence failure leaves the key closed as `in_progress`.
-14. `DatabaseIdempotencyStore` uses hashed primary-key insert and short row-lock claim transitions only; no DB transaction or row lock spans application executor code.
-15. Default retention is 86,400 seconds; active means strict `now < expiresAt`. Equality ends the bounded guarantee and allows a new claim.
-16. Public idempotency rejections expose only static codes/messages; raw key, key hash, intent fingerprint, and replay payload are not emitted.
-17. Idempotency persistence timestamps are explicitly pinned to second precision (`precision: 0`) to match the strict UTC `Y-m-d H:i:s` hydrator contract even if the host application configures Laravel fractional time precision.
-18. T-402 is bounded deduplication, not a distributed transaction and not proof of globally exactly-once external effects.
-19. `spec/0.1` remains unchanged.
-
-## External review finding and closure
-
-CodeRabbit identified one Major data-integrity issue: migration timestamp columns inherited Laravel's configurable global time precision, while `DatabaseIdempotencyStore` intentionally hydrates only exact second-precision UTC strings.
-
-The issue was reproduced with a real MySQL 8.4 service and `MySqlBuilder::defaultTimePrecision(6)` before production code changed:
-
-```text
-RED:   58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
-       expected 2026-09-09 09:00:00
-       actual   2026-09-09 09:00:00.000000
-       all four PHP/Illuminate matrix jobs failed the new regression
-
-GREEN: 3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637
-       created_at and expires_at explicitly use precision: 0
-       all 7 jobs green
-       PHP: 412 tests / 1900 assertions per matrix job
-```
-
-The hydrator was not weakened. MySQL 8.4 round-trip coverage now runs in every PHP 8.3/8.4 × Illuminate 12/13 CI matrix combination.
+1. Core does not guess sensitive fields or perform heuristic redaction.
+2. `outputSensitivity=normal` is an exact pass-through and does not invoke the sensitive redactor.
+3. `outputSensitivity=sensitive` has no implicit raw-output fallback. Disclosure requires an explicit trusted `OutputRedactionResult::release(...)` decision.
+4. `release(null)` is a valid successful output and remains distinct from `withhold()` through explicit output presence tracking.
+5. Missing redactor, `withhold()`, and redactor exceptions fail closed as `output_policy_failed`.
+6. Fail-closed handling removes raw output from immutable pipeline state before the halted outcome reaches audit/finalization.
+7. Output-policy entry without an execution/replay output is an internal pipeline invariant violation, not a public policy result.
+8. The redactor receives exact `ActionDefinition`, raw execution/replay output, and restricted `OutputPolicyContext`; generic invocation metadata and the full `InvocationContext` are not exposed through that policy port.
+9. Public `output_policy_failed` maps to `failed`, with a static message and no propagated halt details, raw output, or exception text.
+10. Confidentiality and content trust remain independent. `outputContentTrust=contains_untrusted_content` is preserved rather than inferred from redaction outcome.
+11. T-402 completed replay remains pre-policy: it skips confirmation/execution but reruns the **current** output policy over stored pre-policy executor output.
+12. Replay therefore does not freeze or replay a previously disclosed/redacted payload; current policy can produce a different safe projection.
+13. Audit observes only the released post-policy value on success or output-free state on disclosure failure.
+14. `spec/0.1/**` remains unchanged.
+15. T-404 structured audit persistence remains a separate task.
 
 ## Verification evidence
 
 ```text
-Task-5 GREEN:                 1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
-Task-6 GREEN:                 144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
-Integration GREEN:            f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
-Livewire real-stage proof:     d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
-Initial PR head:              a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
-Review finding RED:           58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
-Review finding GREEN:         3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
-Review-passed branch head:    ff6bc3c07567b4e0e84fd4f57cd0006236658c7d / 34334459976 — 7/7 green
-Merged main:                  b4a43ff2526f680656762671a1eee67b4135ee03 / 34335064423 — 7/7 green
-Final PHP:                    412 tests / 1900 assertions, PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
-Final browser:                TypeScript typecheck + 103/103 Vitest tests
-Final contract:               frozen spec/0.1 validator green; 52 fixture entries + 12 scenarios unchanged
-Open review threads:          0
+Contract/context RED:        0bb9e430… / 34345104742
+Task-1 GREEN:                a7f58d90… / 34345494908 — 7/7 green
+Stage RED:                   321b32ef… / 34345640741
+Normal pass-through GREEN:   433eafa9… / 34346073018 — 7/7 green
+Sensitive release RED:       ff18fa96f9bb36d9d03f7cf148220fafe4cfa056 / 34346351525
+Sensitive release GREEN:     d993d32037936fd9132743ccac39b7228a6e87b4 / 34346513087 — 7/7 green
+Fail-closed RED:             57315af9e183ac2fd63ec88a59c9aabc2cae2559 / 34346906520
+Fail-closed GREEN:           df2667dc2a34fa4316ccccbfb2c23a27bb9ca9ff / 34347231312 — 7/7 green
+Result mapping RED:          c0d2cad4ecd7870b9464dcb2933cdf189b35ec0d / 34347679997
+Result mapping GREEN:        0399ef03f42001f3c5e913fda5687e74e9ba5a90 / 34347966075 — 7/7 green
+Audit sanitization proof:    bb3506076f579fb6ee637c12e6dc68bea3800b07 / 34348300687 — 7/7 green
+Implementation checkpoint:   0195875b5f2d5d9646407337ea54df52fe4c8bb3 / 34356958945 — 7/7 green
+PHP:                         430 tests / 2034 assertions
+Browser:                     TypeScript typecheck + 103/103 Vitest tests
+Contract:                    green; frozen spec/0.1 unchanged
 ```
+
+## Self-review
+
+- Branch is ahead-only from exact T-402 closure base; no merge-base drift was found.
+- Diff is limited to D-046/design-plan documentation, Laravel output-policy contracts/stage/result mapping/state sanitization, and focused unit/integration tests.
+- `spec/0.1/**` has no diff.
+- Fail-closed raw-output removal occurs before the pipeline constructs the halted outcome observed by the auditor.
+- Redactor exception handling is intentionally scoped to the redactor invocation and does not broadly swallow unrelated pipeline failures.
+- Existing T-402 replay orchestration is preserved; production integration proves current policy reruns over stored pre-policy output.
 
 ## Decisions
 
-- D-014 ACCEPTED — consequential risk is a categorical confirmation gate.
-- D-015 ACCEPTED — confirmation authority is opaque, scoped, expiring and runtime-issued.
-- D-044 ACCEPTED — confirmation grants are single-use exact-scope bearer capabilities.
-- **D-045 ACCEPTED — server-side idempotency is bounded, partitioned exact-intent deduplication with post-confirmation atomic claim and pre-output-policy completed replay.**
+- D-032 ACCEPTED — confidentiality and content trust are independent output dimensions.
+- D-045 ACCEPTED — idempotency persists/replays pre-output-policy executor output and reruns current output policy.
+- **D-046 ACCEPTED — sensitive disclosure is explicit, trusted, fail-closed, and raw output is removed before audit/finalization on policy failure.**
 
 ## Known boundaries / non-claims
 
-- T-402 does not implement output policy/redaction itself; T-403 owns that behavior. Replay deliberately feeds stored pre-policy executor output back through the current output-policy stage.
-- T-402 does not implement structured audit persistence; T-404 remains separate.
-- T-402 does not provide distributed transactions, compensation, rollback, or proof of exactly-once behavior in external systems.
-- Retention is bounded. At `expiresAt`, the prior deduplication guarantee intentionally ends and a fresh claim is allowed.
-- Shared cross-runtime conformance execution remains T-604/T-701; current tests prove Laravel reference-runtime behavior only.
+- T-403 does not define application-specific sensitive fields or a generic heuristic masking algorithm; applications implement `SensitiveOutputRedactor`.
+- T-403 does not persist structured audit events; T-404 remains separate.
+- T-403 does not change wire schemas or promote new `spec/0.1` fields.
+- The output-policy context is a trusted typed runtime view, not caller metadata authority.
+- External review has not yet passed; T-403 is not marked REVIEWED or merge-ready until that gate completes.
 
 ## Next boundary
 
-**T-402 is DONE / REVIEWED / MERGED and independently revalidated on `main`. T-403 remains not started and must not begin automatically.**
+**T-403 implementation is DONE and self-reviewed. The next action is review-prep validation and external PR review. T-404 must not start automatically.**
