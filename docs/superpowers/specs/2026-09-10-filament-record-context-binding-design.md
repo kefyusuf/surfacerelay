@@ -15,8 +15,6 @@ T-501 provides the first production-oriented Filament trusted-context adapter. I
 
 Filament is not treated as a separate execution framework. Filament resource pages are Livewire-backed surfaces, so action execution continues through the existing exact `livewire` RuntimeBinding path. The Filament layer contributes runtime-authoritative page context only.
 
-This preserves SurfaceRelay's four-way separation:
-
 ```text
 Action Definition  = WHAT can be done
 Runtime Binding    = HOW the existing Livewire target executes it
@@ -34,9 +32,9 @@ D-019 is promoted from `PROPOSED` to `ACCEPTED`: Filament is the first productio
 
 Filament is a trusted-context/UI adapter layered on the existing Livewire execution binding. `current_record` comes only from the exact active record-aware Filament page through supported public Filament APIs; it is never reconstructed from caller input, route/query parameters, generic invocation metadata, or a second model lookup.
 
-## Why Filament does not get a new RuntimeBinding driver
+## No Filament RuntimeBinding driver
 
-A new `filament` binding driver would duplicate the runtime target already represented by the mounted Livewire component and would create a second execution path for the same business action. That would weaken D-022/D-025 and D-034 by making it possible for the Filament adapter and Livewire driver to disagree about exact target identity or lifecycle.
+A new `filament` binding driver would duplicate the runtime target already represented by the mounted Livewire component and create a second execution path for the same business action. That would weaken D-022/D-025 and D-034 by allowing the Filament adapter and Livewire driver to disagree about exact target identity or lifecycle.
 
 T-501 therefore does not:
 
@@ -45,25 +43,25 @@ T-501 therefore does not:
 - invoke Filament actions directly;
 - create an agent-only Filament endpoint;
 - bypass the existing Livewire browser driver;
-- resolve a replacement page/component/record when the original target is stale.
+- resolve a replacement page/component/record when an earlier target is stale.
 
-The existing Livewire binding remains the exact execution reference. Filament contributes trusted record context before ActionBus dispatch.
+The existing Livewire binding remains the execution reference. Filament contributes trusted record context before ActionBus dispatch.
 
-## Supported Filament surface
+## Supported Filament source
 
-The trusted source is an exact active Filament resource page instance supplied by trusted adapter code.
+The trusted source is an exact active Filament resource page instance supplied by trusted adapter/application code.
 
-The resolver accepts a concrete page object at construction time. It does not discover a page through route names, request globals, container scans, Livewire component-name searches, DOM state, or other heuristic lookup.
+The resolver accepts that concrete page object at construction time. It does not discover a page through route names, request globals, container scans, Livewire component-name searches, DOM state, or heuristic lookup.
 
-The resolver recognizes record capability only through Filament's public resource-page API surface:
+Record capability is recognized only through Filament's public resource-page API surface:
 
-1. the object must be a Filament resource page;
-2. it must expose a callable public `getRecord()` method;
-3. `getRecord()` must return an `Illuminate\\Database\\Eloquent\\Model` instance.
+1. the object is a Filament resource page;
+2. it exposes a callable public `getRecord()` method;
+3. `getRecord()` returns an `Illuminate\\Database\\Eloquent\\Model` instance.
 
-Filament's documented Edit/View resource pages expose their active record through `getRecord()`. Record-aware custom resource pages that use Filament's supported record interaction API are eligible under the same rule.
+Filament 5's official resource documentation uses public `getRecord()` on record pages. SurfaceRelay may rely on the page-owned record state that Filament established during its own lifecycle, but SurfaceRelay must not independently call `resolveRecord()` or repeat route-model binding from caller/request values.
 
-A normal resource page that is not record-aware is not an error; it simply produces no `current_record` entry.
+A normal Filament resource page that is not record-aware is legitimate absence and produces no `current_record` entry.
 
 ## Components
 
@@ -73,10 +71,10 @@ exact active Filament resource page
         ▼
 FilamentRecordContextResolver
         │
-        ├── getRecord() via public Filament API
+        ├── public getRecord()
         ├── exact Eloquent Model instance
         ├── ContextProvenance("filament.current_record")
-        └── stable non-secret confirmationScopeKey
+        └── stable confirmationScopeKey
                     │
                     ▼
 ResolvedTrustedValue
@@ -97,41 +95,43 @@ existing ActionBus + Livewire binding/execution
 
 ### `FilamentRecordContextResolver`
 
-Namespace target:
+Target namespace:
 
 `SurfaceRelay\\Laravel\\Filament\\Context\\FilamentRecordContextResolver`
 
 Responsibilities:
 
-- hold the exact trusted active Filament page instance;
-- determine whether that page has supported record capability;
+- hold the exact trusted active page instance;
+- determine whether the page has supported record capability;
 - call public `getRecord()` only;
-- return `null` when the page is legitimately non-record-aware;
+- return `null` for a legitimately non-record-aware page;
 - return `ResolvedTrustedValue` for a valid active Eloquent record;
-- generate stable record identity for confirmation/idempotency scope;
+- derive stable record identity for confirmation/idempotency scope;
 - provide non-secret provenance;
-- fail closed on an inconsistent record-aware page.
+- fail closed on inconsistent record-aware state.
 
-It must not:
+The constructor accepts `object`, not caller record identifiers. The implementation should avoid making Filament a mandatory dependency for loading unrelated core classes; Filament-specific type checks stay inside the optional adapter boundary.
+
+The resolver must not:
 
 - accept record ID/model class from action input;
 - accept route/query/request parameters;
 - call `resolveRecord()` using caller-controlled values;
 - query the database for a replacement record;
-- silently convert a malformed record-aware page to context absence;
-- serialize the model or copy its attributes into trusted metadata.
+- silently convert malformed record-aware state to ordinary absence;
+- serialize the model or copy its attributes into metadata.
 
 ### `FilamentTrustedContextComposer`
 
-Namespace target:
+Target namespace:
 
 `SurfaceRelay\\Laravel\\Filament\\Context\\FilamentTrustedContextComposer`
 
 The existing `TrustedContextComposer` remains source-compatible and continues to own actor + tenant composition.
 
-The Filament composer wraps/delegates to that existing composer and appends the Filament record entry when present. It does not refactor the core composer into a generic plugin container in T-501.
+The Filament composer delegates to that existing composer and adds the record entry when available. T-501 does not refactor core trusted-context composition into a generic plugin registry.
 
-Expected canonical `InvocationContext` order remains governed by `ContextRequirement::cases()`, so adding the entry through trusted runtime code produces:
+Canonical `InvocationContext` ordering remains governed by `ContextRequirement::cases()`:
 
 ```text
 authenticated_actor
@@ -139,29 +139,27 @@ authenticated_actor
 → current_record
 ```
 
-when all three are available.
+when all are present.
 
-This narrow wrapper leaves T-502 free to add `current_selection` without destabilizing actor/tenant behavior now.
+This narrow wrapper leaves T-502 free to add `current_selection` without destabilizing actor/tenant behavior.
 
 ## Trusted record value
 
-`ResolvedTrustedValue::value` is the exact Eloquent model object returned by the active Filament page.
+`ResolvedTrustedValue::value` is the exact Eloquent model object returned by the active page.
 
-SurfaceRelay does not turn the record into:
+SurfaceRelay does not convert it to:
 
-- an array of attributes;
+- model attributes;
 - a resource payload;
 - `{model, id}` caller data;
 - serialized JSON;
 - a cloned/reloaded model.
 
-This is deliberate. Application authorization/execution may need the actual domain model instance, and re-resolving by ID would introduce a second authority path and a stale/retarget race.
+Application authorization/execution may need the real model instance, and re-resolving by ID would introduce a second authority path and stale/retarget races.
 
 ## Stable record identity
 
-The generic runtime intentionally cannot serialize arbitrary objects for confirmation/idempotency scope. Therefore the Filament resolver supplies a trusted `confirmationScopeKey`.
-
-The key is a domain-separated SHA-256 digest over canonical record identity, not over business attributes:
+The generic runtime intentionally cannot serialize arbitrary model objects for confirmation/idempotency scope. The Filament resolver therefore supplies a trusted `confirmationScopeKey`.
 
 ```text
 DOMAIN = "surfacerelay.filament.current_record.v1\n"
@@ -179,90 +177,103 @@ confirmationScopeKey = hex(
 
 Rules:
 
-- model class is the exact PHP class, not morph-map alias or resource class;
-- key name must be a non-empty string;
-- key value must be a persisted scalar identity supported by Eloquent for this adapter (`int|string`);
-- an empty string key is invalid;
-- integer `0` is representable and must not be rejected by truthiness checks;
+- model class is the exact PHP class, not morph-map alias or Filament resource class;
+- key name is a non-empty string;
+- key value is `int|string`;
+- empty-string key value is invalid;
+- integer `0` is valid and must not be lost through truthiness;
 - unsaved models (`exists=false`) are invalid;
 - `getKey() === null` is invalid;
-- no record attributes, tenant IDs, user IDs, route values, timestamps, or model serialization participate in the key;
-- the raw key value is not copied to provenance, audit metadata, or generic invocation metadata.
+- no business attributes, timestamps, route values, user identity, or tenant identity participate in the record key;
+- raw primary-key value is not copied to provenance, audit metadata, or generic invocation metadata.
 
-The hash is an identity aid only. It does not itself authorize execution.
+The scope key is an identity aid only. It grants no authorization.
 
-Because T-401 confirmation scope and T-402 idempotency intent already consume trusted context identities through the shared runtime scope canonicalizer, T-501 does not change their algorithms. It supplies an adapter-owned stable identity that makes the exact model object safely representable to those existing trust controls.
+### Tenant separation is a separate trusted dimension
+
+T-501 must **not** smuggle tenant identity into the current-record hash. In database-per-tenant or other partitioned systems, the same model class and primary key may legitimately exist under different tenants. The existing confirmation and idempotency scope machinery already combines present trusted dimensions, including `tenant` and `current_record`.
+
+Therefore:
+
+```text
+record identity = model class + primary-key identity
+Tenant identity = separate ContextRequirement::Tenant entry
+Combined trust scope = existing runtime combines both when present
+```
+
+If tenancy matters to an action, the runtime/application must provide and require trusted tenant context. Filament record resolution does not manufacture tenant authority from model attributes, connection names, route prefixes, resource classes, or global Filament state.
+
+Integration tests should prove that identical record identity under different trusted tenants yields different overall confirmation/idempotency scope when tenant context is present.
+
+### Logical-record identity non-claim
+
+The generic identity represents the application's logical Eloquent record (`class + primary key`), not a cryptographic database-row incarnation. Applications that intentionally reuse a primary key for a semantically different entity within an active idempotency window must supply stronger application-level identity semantics in a future explicit adapter extension; T-501 does not guess from mutable business attributes such as `created_at`.
 
 ## Provenance
-
-The entry uses:
 
 ```text
 provider  = "filament.current_record"
 reference = null
 ```
 
-The primary key, resource name, URL, route key, page class and model attributes are not placed into provenance.
+Primary key, resource name, URL, route key, page class and model attributes are not placed into provenance.
 
-This keeps T-404 audit behavior payload-minimized: audit may record that `current_record` came from `filament.current_record`, but it must not persist the model value, raw key, hash/scope key, route or provenance reference.
+T-404 may record that `current_record` came from `filament.current_record`, but never persists the model value, raw key, identity hash/scope key, route or provenance reference.
 
 ## Absence vs invariant failure
 
-The adapter distinguishes two cases.
-
 ### Legitimate absence
 
-A Filament resource page that is not record-aware produces `null` from the resolver. No `current_record` trusted entry is created.
+A Filament resource page without record capability returns `null` from the resolver. No current-record trusted entry is created.
 
 If an ActionDefinition requires `current_record`, the existing ActionBus context-requirement gate rejects before validation/execution.
 
-### Inconsistent record-aware page
+### Inconsistent record-aware state
 
-If a page advertises/contains callable `getRecord()` but the returned state is unusable, the adapter fails closed with an internal static-safe Filament context exception.
+If a page exposes callable `getRecord()` but record state is unusable, the adapter fails closed with an internal static-safe Filament context exception.
 
 Examples:
 
 - `getRecord()` returns `null`;
 - result is not an Eloquent Model;
 - model is unsaved;
-- model key name is empty/invalid;
-- model key is null or an unsupported type;
-- `getRecord()` throws an underlying exception.
+- key name is invalid;
+- key is null/empty/unsupported;
+- `getRecord()` throws.
 
-The adapter must not silently reinterpret those cases as ordinary absence, because that would hide a runtime invariant violation. Error messages must not contain the record key, model attributes, SQL diagnostics, route parameters or the underlying exception message. Exception chaining is not needed for the public/runtime-facing failure type.
+These are not silently converted to ordinary absence. Error messages must not contain record keys, model attributes, SQL diagnostics, route parameters, or underlying exception messages. Public/runtime-facing exception chaining is unnecessary.
 
 ## Caller-spoofing boundary
 
-The following inputs never influence `current_record` resolution:
+The following never influence current-record resolution:
 
-- action input keys named `record`, `record_id`, `recordId`, `id`, `model`, etc.;
+- action input keys such as `record`, `record_id`, `recordId`, `id`, `model`;
 - `InvocationContext::metadata`;
-- query string values;
-- route parameters supplied to SurfaceRelay invocation;
+- SurfaceRelay query/route parameters;
 - `bindingId`;
 - confirmation receipt;
 - idempotency key;
 - WebMCP tool arguments.
 
-The only record authority is the exact active Filament page instance supplied by trusted adapter code and the model object returned by that page's public record API.
+Only the exact active Filament page instance supplied by trusted adapter code and its public page-owned record API provide authority.
 
 ## Interaction with existing trust controls
 
 ### Context requirement gate
 
-An action declaring `current_record` executes only when the Filament adapter has produced a trusted entry. Caller input cannot satisfy the requirement.
+An action declaring `current_record` executes only when the adapter produced a trusted entry. Caller input cannot satisfy it.
 
 ### Authorization
 
-T-501 does not change ActionAuthorizer behavior. Authorization can read the exact `current_record` trusted entry and evaluate application policy as required by later vertical code.
+T-501 does not change ActionAuthorizer behavior. Application authorization may inspect the exact current-record trusted value.
 
 ### Confirmation
 
-For consequential actions, confirmation scope binds the exact stable Filament record identity through the existing `confirmationScopeKey` mechanism. Changing the active record changes the scope and invalidates a receipt created for another record.
+Existing T-401 confirmation scope consumes the resolver-supplied `confirmationScopeKey`. Record A and record B therefore produce different scopes. Binding/surface authority remains independently represented by the existing confirmation model.
 
 ### Idempotency
 
-The existing idempotency intent fingerprint includes `current_record`. Two otherwise identical invocations on different Filament records produce different intent fingerprints. Same record identity remains stable across equivalent model instances/pages.
+Existing T-402 intent fingerprint includes current-record identity. Different records differ; equivalent instances of the same logical record remain stable. Tenant remains an independent trusted dimension as described above.
 
 ### Output policy
 
@@ -270,13 +281,13 @@ No change.
 
 ### Structured audit
 
-T-404 records only `{requirement, provider}` for trusted context. The record object, model key, identity hash, route and resource/page details remain excluded.
+T-404 persists only `{requirement, provider}` for trusted context. The record object, raw key, scope key, tenant value, route and page/resource details remain excluded.
 
 ## Dependency policy
 
-Filament is optional for consumers of the Laravel core package.
+Filament remains optional for consumers of `surfacerelay/laravel`.
 
-T-501 will add Filament 5 only as a development/test dependency:
+T-501 adds Filament only as a development/test dependency:
 
 ```json
 "require-dev": {
@@ -284,23 +295,30 @@ T-501 will add Filament 5 only as a development/test dependency:
 }
 ```
 
-The production package must remain installable without Filament.
+The production package stays installable without Filament.
 
-Any production Filament adapter classes will reference Filament types only when those classes are actually autoloaded/used. The base `SurfaceRelayServiceProvider` must not eagerly instantiate or register Filament services when Filament is absent.
+The base `SurfaceRelayServiceProvider` does not eagerly instantiate/register Filament services when Filament is absent. Optional adapter code is only relevant when consumers use the Filament namespace.
 
-No hard production `require` on `filament/filament` is introduced by T-501.
+A Composer `suggest` entry may be added if useful, but no production `require` on `filament/filament` is introduced.
 
 ## Filament API compatibility target
 
 T-501 targets Filament 5.x public APIs only.
 
-The design is verified against current official Filament 5 documentation, which shows record resource pages using public `getRecord()` and Filament 5's Livewire 4 integration. SurfaceRelay will not inspect Filament private properties, internal Livewire snapshots, protected `$record` state, private request payloads or undocumented component internals.
+Official Filament 5 documentation currently requires PHP 8.2+ and Laravel 11.28+, installs `filament/filament:^5.0`, and documents record-page use of public `getRecord()`. Filament v5 is the Livewire v4 generation.
 
-If Filament 5.x does not provide the expected public API in the test matrix, T-501 fails closed rather than adding reflection/private-state fallbacks.
+References:
 
-## Production file plan
+- https://filamentphp.com/docs/5.x/introduction/installation
+- https://filamentphp.com/docs/5.x/resources/editing-records
+- https://filamentphp.com/docs/5.x/resources/viewing-records
+- https://filamentphp.com/docs/5.x/resources/custom-pages
 
-Expected new files:
+SurfaceRelay does not inspect protected `$record` state, Filament private properties, internal Livewire snapshots, private request payloads, or undocumented component internals.
+
+If supported public APIs are unavailable in a claimed matrix combination, stop and redesign the compatibility policy instead of adding reflection/private-state fallbacks.
+
+## Expected production files
 
 ```text
 packages/laravel/src/Filament/Context/
@@ -309,13 +327,7 @@ packages/laravel/src/Filament/Context/
 └── InvalidFilamentRecordContext.php
 ```
 
-Potential shared helper only if tests prove it is useful:
-
-```text
-packages/laravel/src/Filament/Context/FilamentRecordIdentity.php
-```
-
-Do not create the helper pre-emptively if the resolver remains cohesive.
+A small identity helper may be extracted only if TDD shows the resolver would otherwise mix unrelated responsibilities. Do not add abstractions pre-emptively.
 
 Expected modified file:
 
@@ -331,96 +343,99 @@ packages/browser-runtime/**
 packages/laravel/src/Livewire/**
 ```
 
-unless implementation evidence exposes a true incompatibility that requires a new design gate.
+unless implementation evidence reveals a real incompatibility requiring a new design gate.
 
 ## Testing strategy
 
-### Unit tests — record resolution
+### Record-resolution unit tests
 
 Prove:
 
-1. a supported record-aware Filament page returns `ResolvedTrustedValue` containing the exact same Eloquent model object;
-2. provider is exactly `filament.current_record` and provenance reference is null;
-3. a non-record-aware Filament resource page returns null;
+1. supported record-aware page returns `ResolvedTrustedValue` with the exact same Eloquent object;
+2. provider is exactly `filament.current_record`; reference is null;
+3. non-record-aware resource page returns null;
 4. callable `getRecord()` returning null fails closed;
 5. non-Model return fails closed;
-6. unsaved Model fails closed;
+6. unsaved model fails closed;
 7. null/unsupported/empty identity components fail closed;
-8. integer `0` key is handled explicitly rather than lost through truthiness;
-9. `getRecord()` exception is replaced by a static safe adapter failure with no sensitive message propagation.
+8. integer `0` key is handled explicitly;
+9. underlying `getRecord()` exception is replaced by a static safe failure without message leakage;
+10. action input/metadata/request values are not resolver inputs.
 
-### Unit tests — identity
+### Identity unit tests
 
 Prove:
 
-1. same model class + key name + typed key value => same scope key;
+1. same class + key name + typed key => same scope key;
 2. different key => different scope key;
 3. different model class with same key => different scope key;
-4. integer `123` and string `"123"` remain distinct if canonical encoding distinguishes them;
-5. model attribute changes do not affect the identity key;
-6. no raw model key appears in provenance or exception messages.
+4. integer `123` and string `"123"` remain distinct under canonical encoding;
+5. model attribute changes do not affect record identity;
+6. raw key never appears in provenance or errors.
 
 ### Composer tests
 
 Prove:
 
 1. existing actor + tenant composition remains unchanged;
-2. current record is appended when available;
-3. no record entry is added for a non-record page;
-4. final InvocationContext ordering remains canonical;
-5. caller metadata cannot override or duplicate `current_record`.
+2. current record is added when available;
+3. non-record page adds no record entry;
+4. InvocationContext ordering remains canonical;
+5. non-authoritative metadata cannot override or manufacture current record.
 
 ### Trust-control integration
 
-Use real existing hashers/pipeline state to prove:
+Using existing real hashers/stages, prove:
 
-1. confirmation scope changes when current record changes;
-2. a receipt scoped to record A cannot grant authority for record B;
+1. confirmation scope changes when record changes;
+2. confirmation for record A cannot authorize record B;
 3. idempotency intent differs for record A vs B;
-4. exact same persisted record identity remains stable across distinct Eloquent object instances;
-5. T-404 structured audit sees `current_record` provider only and never model key/attributes/scope key.
+4. same logical record identity stays stable across distinct Eloquent object instances;
+5. same logical record under tenant A vs tenant B yields distinct overall scope when trusted tenant context is present;
+6. T-404 sees provider presence only, never model key/attributes/scope key/tenant value.
 
 ### Real Filament/Testbench integration
 
-Create a minimal test Eloquent model/resource/page fixture and exercise a real Filament 5 record page through Orchestra Testbench enough to prove the adapter receives a page whose public `getRecord()` returns the active model.
+Create a minimal test Eloquent model/resource/record-page fixture and exercise a real Filament 5 page through Orchestra Testbench enough to prove public `getRecord()` exposes the active model to the adapter.
 
-This test is the compatibility proof that T-501 is not merely passing against a hand-written object with a `getRecord()` method.
+This prevents T-501 from passing only against a hand-written duck type.
 
-No browser test is required for T-501 because execution remains on the already-tested Livewire browser driver and this task is server-side trusted-context resolution.
+No browser behavior is added by T-501, so no new browser feature test is required. Existing browser typecheck/Vitest remains a regression gate.
 
 ### Full regression matrix
 
-Retain current repository verification:
+Retain:
 
 - PHP 8.3 / 8.4;
 - Illuminate 12 / 13;
 - Orchestra Testbench 10 / 11;
 - MySQL 8.4 service checks;
 - existing Livewire 4 tests;
-- browser TypeScript + Vitest isolation;
+- browser TypeScript + Vitest;
 - contract validator;
-- frozen `spec/0.1/**` no-diff assertion.
+- frozen `spec/0.1/**` no-diff.
 
-Filament 5 dependency resolution must succeed in the existing PHP/Illuminate matrix. If Filament's supported matrix proves narrower than SurfaceRelay's current matrix, stop and redesign CI/dependency policy rather than silently dropping an existing Laravel combination.
+Filament 5 dependency resolution must succeed across the current supported PHP/Illuminate matrix. If Filament proves incompatible with one combination, stop and redesign CI/dependency policy rather than silently deleting an existing Laravel support cell.
 
 ## Security invariants
 
-1. Caller/request data never chooses `current_record`.
-2. No model re-query or route-model-binding lookup is performed by SurfaceRelay.
-3. The exact active Filament page is the only adapter source of record authority.
-4. The exact Eloquent model object is retained for authorization/execution context.
+1. Caller/request data never chooses current record.
+2. SurfaceRelay performs no second model query/route-model binding.
+3. Exact active Filament page is the adapter source of record authority.
+4. Exact Eloquent model object is retained as trusted value.
 5. Generic runtime code does not serialize the model object.
-6. Stable record identity contains only model class + primary-key identity and is domain-separated + hashed before becoming a scope key.
-7. The hash is not authorization and is not persisted by T-404.
-8. Record identity changes invalidate confirmation/idempotency equivalence as expected.
-9. Inconsistent record-aware state fails closed and does not silently become absence.
-10. Filament private/internal state is never read.
-11. Filament does not introduce a second execution driver/path.
-12. `spec/0.1/**` remains unchanged.
+6. Stable record identity uses model class + primary-key identity only and is domain-separated + hashed before becoming a scope key.
+7. Tenant remains a separate trusted context dimension and is never inferred from record data.
+8. Record scope key is not authorization and is not persisted by T-404.
+9. Record/tenant identity changes affect confirmation/idempotency equivalence through existing trust-control composition.
+10. Inconsistent record-aware state fails closed rather than becoming absence.
+11. Filament private/internal state is never read.
+12. Filament does not introduce a second execution driver/path.
+13. `spec/0.1/**` remains unchanged.
 
 ## Out of scope
 
-T-501 explicitly does not implement:
+T-501 does not implement:
 
 - `current_selection` — T-502;
 - active filter context — T-503;
@@ -429,44 +444,45 @@ T-501 explicitly does not implement:
 - Filament table/bulk-action execution adapters;
 - a Filament browser driver;
 - a new RuntimeBinding schema/driver;
-- automatic page discovery from route/request globals;
-- record history/audit payload storage;
+- automatic page discovery from request/route globals;
+- business-history/audit payload storage;
 - model serialization;
 - arbitrary record lookup by ID;
 - Filament 4 compatibility;
 - generic framework-neutral `CurrentRecordResolver` refactor;
-- changes to the browser runtime or public wire spec.
+- stronger application-specific row-incarnation identity;
+- browser-runtime or public wire-spec changes.
 
 ## Acceptance criteria
 
-T-501 is complete only when all of the following are proven:
+T-501 is complete only when:
 
-1. Filament 5 is the first accepted production-oriented reference vertical (D-019).
-2. D-048 records that Filament contributes trusted context over existing Livewire execution, not a second driver.
-3. A real active Filament record page yields exact `current_record` trusted context through public `getRecord()`.
-4. Non-record pages produce absence, while inconsistent record-aware pages fail closed.
-5. Caller/request/metadata values cannot manufacture or retarget current-record authority.
-6. The exact Eloquent model instance is preserved as trusted value.
-7. Stable record identity is deterministic, domain-separated, hashed and does not include business attributes.
-8. Existing confirmation scope distinguishes records correctly.
-9. Existing idempotency intent distinguishes records correctly.
-10. Structured audit persists provider presence only, never record identity/value/scope key.
+1. D-019 is `ACCEPTED`.
+2. D-048 records Filament trusted context over existing Livewire execution.
+3. A real active Filament record page yields exact current-record trusted context through public `getRecord()`.
+4. Non-record pages produce absence; inconsistent record-aware pages fail closed.
+5. Caller/request/metadata values cannot manufacture or retarget record authority.
+6. Exact Eloquent model instance is preserved as trusted value.
+7. Stable record identity is deterministic, domain-separated, hashed, and excludes business attributes/tenant inference.
+8. Confirmation distinguishes records and tenants correctly through existing trusted-context composition.
+9. Idempotency distinguishes records and tenants correctly through existing trusted-context composition.
+10. Structured audit persists provider presence only, never record/tenant identity values or scope keys.
 11. Existing `TrustedContextComposer` remains source-compatible.
-12. No new Filament RuntimeBinding driver or duplicate execution path is introduced.
-13. Filament remains an optional consumer dependency; the Laravel core remains usable without it.
-14. PHP/Illuminate/Testbench/Filament compatibility is validated across the supported CI matrix.
-15. Browser and existing Laravel regressions stay green.
+12. No new Filament RuntimeBinding driver or duplicate execution path exists.
+13. Filament remains optional to package consumers.
+14. Current PHP/Illuminate/Testbench matrix remains supported with Filament 5.
+15. Existing Laravel/browser regressions remain green.
 16. `spec/0.1/**` remains unchanged.
 
 ## Implementation sequencing constraint
 
-After this design is approved in written form, implementation planning should proceed TDD-first in this order:
+After written-spec approval, implementation planning proceeds TDD-first:
 
-1. dependency/real-Filament compatibility proof;
+1. dependency + real-Filament compatibility proof;
 2. resolver + safe failure semantics;
 3. stable identity projection;
 4. Filament trusted-context composer;
 5. confirmation/idempotency/audit integration proofs;
-6. full regression and external review preparation.
+6. full regression and external-review preparation.
 
-No T-502 work should begin until T-501 is merged/revalidated.
+No T-502 work begins until T-501 is merged and `main` is revalidated.
