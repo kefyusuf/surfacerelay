@@ -96,7 +96,11 @@ Caller sends `confirmed=true`, supplies a challenge before human approval, forge
 
 Network retries or agent retries repeat a write/external side effect.
 
-**Mitigation:** action-declared idempotency policy; server idempotency key/store; duplicate returns prior outcome or safe rejection. T-402 owns this separate protection; T-401 receipt single-use does not replace idempotency.
+**Mitigation (T-402 implemented in the Laravel reference runtime):** idempotency is enforced server-side after current validation/authorization and before confirmation. `required_key` rejects missing keys; runtime keys are 1..240 Unicode characters and are not normalized. Raw keys are never persisted: SHA-256 lookup hashes bind the exact action ID/version to a trusted authority partition (tenant/actor when present; otherwise browser session; otherwise explicit global) and the caller token. A separate SHA-256 intent fingerprint binds validated input plus present actor/tenant/current-record/current-selection/browser-session identities.
+
+An exact active `completed` retry reuses persisted deterministic pre-output-policy executor output, skips confirmation and application execution, and still reruns current validation, authorization, output policy and audit. A fresh attempt is only atomically claimed as `in_progress` after any required confirmation succeeds and immediately before application code executes. Same-key different-intent conflicts, active `in_progress`, and `indeterminate` states fail closed before confirmation/execution. Executor failure after claim is conservatively marked `indeterminate`; unreplayable successful output also becomes `indeterminate`; failure to persist successful completion leaves `in_progress` closed rather than reporting success. The database adapter uses a primary hashed key, unique-insert/short row-lock claim transitions, and never holds a database transaction across executor code. The default retention is 86,400 seconds and validity is strict `now < expiresAt`; at equality the bounded deduplication guarantee ends and a fresh claim is allowed.
+
+T-402 does not turn SurfaceRelay into a distributed transaction and does not prove globally exactly-once business effects. External systems may still require their own idempotency/transaction semantics. T-401 receipt single-use remains a separate confirmation-authority protection and is not a substitute for T-402 deduplication.
 
 ### T13 — Cancellation confusion
 
