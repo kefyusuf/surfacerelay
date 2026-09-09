@@ -3,109 +3,127 @@
 ## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Scope:** `T-401 — Confirmation challenge/receipt`
-- **Original base:** `main@5eb33c203fb40fc2ff744f2f4a57cbce4c704b80`
-- **Pull request:** `#1 — merged`
-- **Final code checkpoint:** `f94340947b00f06707451590f1bef9fcc980479d`
-- **Review-passed checkpoint:** `b169ad81d9f603e18b0cf47c7097a575c83d806c`
-- **Merged-main checkpoint:** `a6c92a8b75b17196f7667c22b4b323fe25d3427f`
-- **Merged-main workflow:** `34137414074` — **all 7 jobs success**
-- **External automated reviewer:** CodeRabbit full review run `e1364e16-d11d-4fe9-85d5-5f6675a2d99f`
-- **Review result:** **PASSED WITH ONE TRIVIAL FINDING, FIXED AND REVERIFIED**
-- **Merge result:** **PASSED / MERGED TO MAIN**
-- **M4 status:** IN PROGRESS; T-402..T-404 remain TODO
+- **Scope:** `T-402 — Idempotency store`
+- **Exact base / merge-base:** `main@b94ed83497e213c155ae0276264e954b9acd3ac3`
+- **Candidate branch:** `feat/idempotency-store`
+- **Pull request:** `#2 — feat(laravel): add bounded idempotency replay controls`
+- **Final reviewed code checkpoint:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc`
+- **Review finding RED:** `58fb0abb304398931d215dda5d079e5269ac4748` / `34333385345`
+- **Review finding GREEN:** `3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc` / `34333528637` — **all 7 jobs success**
+- **PHP evidence:** **412 tests / 1900 assertions** across PHP 8.3/8.4 and Illuminate 12/13, including real MySQL 8.4 round-trip coverage
+- **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
+- **Contract:** `python scripts/validate.py` green; frozen `spec/0.1` unchanged; **52 fixture entries + 12 scenarios** unchanged
+- **Decision:** `D-045 — ACCEPTED`
+- **External automated reviewer:** CodeRabbit full PR review
+- **External review result:** **PASSED WITH ONE MAJOR FINDING, FIXED TDD-FIRST AND REVERIFIED**
+- **Open review threads:** **0**
+- **Merge status:** **MERGE READY / NOT MERGED AT THIS CHECKPOINT**
+- **M4 status:** IN PROGRESS; T-403/T-404 remain TODO
 
 ## Reviewed trust boundary
 
-T-401 implements real Laravel runtime confirmation authority without changing `spec/0.1` wire shapes:
+T-402 adds bounded server-side retry/deduplication to the Laravel reference runtime without changing `spec/0.1` wire shapes:
 
 ```text
-validated + authorized consequential invocation
+validated + currently authorized invocation
         ↓
-exact confirmation scope fingerprint
-        ↓
-opaque pending challenge
-        ↓ trusted bridge approval
-same opaque token becomes approved receipt
-        ↓ next exact invocation
-atomic single-use consume
-        ↓
-runtime-owned HumanConfirmation trusted entry
-        ↓
-execution
+idempotency preflight
+        ├── safe refusal → rejected
+        ├── exact completed → replay stored pre-policy executor output
+        │                       ↓
+        │                 output policy + audit
+        │
+        └── fresh → confirmation if required
+                        ↓
+                 atomic in_progress claim
+                        ↓
+                  application executor
+                        ↓
+               durable completed payload
+                        ↓
+                 output policy + audit
 ```
 
-The production confirmation store persists only scalar/cache-safe records keyed by SHA-256 token hash. Raw bearer tokens are not persisted. A Laravel cache store must implement both `Store` and `LockProvider`; every confirmation-record mutation is protected by a per-token lock with a bounded two-second acquisition wait and no unlocked fallback.
+The production database adapter persists only hashed lookup/fingerprint state and deterministic replay payload. The raw caller idempotency key is never stored. No database transaction or row lock spans application executor code.
+
+## Locked implemented semantics
+
+1. `none`, `recommended_key`, and `required_key` are enforced server-side; required missing/invalid keys reject before confirmation/execution.
+2. Runtime keys are exact 1..240 Unicode-character strings with no trimming, case folding, or normalization.
+3. Raw caller keys are never persisted. A SHA-256 lookup hash binds exact action ID/version, trusted authority partition, and the raw retry key.
+4. Authority partitioning uses present tenant/actor identities; if both are absent it falls back to browser-session identity, otherwise an explicit global partition.
+5. A separate intent fingerprint binds exact action ID/version, validated input, and present actor/tenant/current-record/current-selection/browser-session identities.
+6. Correlation ID, generic metadata, the raw key, confirmation receipt, runtime `HumanConfirmation`, surface, and `bindingId` do not alter the intent fingerprint.
+7. Validation and current authorization always precede idempotency replay. Fresh ownership is claimed only after required confirmation and immediately before application execution.
+8. Exact completed replay skips confirmation/execution but reruns current output policy and audit and uses the retry's current correlation ID.
+9. One atomic fresh claimant reaches application execution; conflict, active `in_progress`, and active `indeterminate` reuse fail closed.
+10. Executor uncertainty is never treated as proof of no side effect. Executor failure after claim is best-effort marked `indeterminate`.
+11. Replay payload is deterministic JSON/canonical data, never PHP serialization. Unreplayable successful output becomes `indeterminate`.
+12. Public success is impossible until the completed replay payload persists; completion-store failure leaves the active claim closed as `in_progress`.
+13. `DatabaseIdempotencyStore` uses hashed primary-key insert, a short row-lock transaction only for existing/expired claim resolution, and exact conditional state transitions. Executor code runs outside DB locks/transactions.
+14. Default retention is 86,400 seconds with strict `now < expiresAt`; equality ends the bounded guarantee and allows a fresh claim.
+15. Public idempotency refusals expose only static codes/messages; raw keys, hashes, intent fingerprints, and replay payloads do not appear in public result details.
+16. T-401 confirmation receipt single-use semantics remain separate from T-402 deduplication. Lost-response replay consumes no second receipt and executes no second side effect.
+17. This is bounded deduplication, not a distributed transaction and not a globally exactly-once external-side-effect guarantee.
+18. Idempotency timestamps are explicitly schema-pinned to second precision (`precision: 0`) so persistence matches the strict UTC `Y-m-d H:i:s` hydrator contract even when an application sets Laravel global time precision to a fractional value.
 
 ## External review finding
 
-CodeRabbit found no blocker/security defect and reported one **trivial Stability & Availability** issue in `CacheConfirmationStore::withTokenLock()`:
+CodeRabbit identified one **Major — Data Integrity & Integration** issue: the migration originally omitted explicit timestamp precision while `DatabaseIdempotencyStore::parseTimestamp()` accepts only second-precision `Y-m-d H:i:s`. Laravel 12/13 allow global time precision to be configured; under precision `6`, MySQL returns values such as `2026-09-09 09:00:00.000000`, which the strict hydrator correctly rejects.
 
-- the original implementation used a single non-blocking `Lock::get()` attempt;
-- short contention on the same token could therefore surface `ConfirmationStoreUnavailable` immediately;
-- Laravel 12/13 support bounded `Lock::block()` acquisition, with timeout represented as a lock acquisition failure.
-
-The finding was verified against the current Laravel cache lock contracts before changing code. It was then fixed test-first:
+The finding was verified rather than accepted speculatively. A real MySQL 8.4 regression test was added and run across all four PHP/Illuminate matrix combinations with `MySqlBuilder::defaultTimePrecision(6)`.
 
 ```text
-Review RED:   37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
-              four PHP matrix jobs failed only because lock.get was still used
+Review RED:   58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
+              all four PHP matrix jobs failed on the MySQL migration round-trip;
+              expected second precision, received `.000000` fractional precision
 
-Review GREEN: f94340947b00f06707451590f1bef9fcc980479d / 34135906728
-              all 7 jobs success; 344 tests / 1300 assertions
+Review GREEN: 3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637
+              both migration timestamps explicitly use precision: 0;
+              all 7 jobs success; 412 tests / 1900 assertions per PHP matrix job
 ```
 
-The final behavior is:
+The hydrator was not relaxed and no alternate timestamp format was accepted. The persistence schema was aligned to the existing exact runtime representation instead.
 
-```text
-per-token lock TTL:  10s
-bounded wait:         2s
-wait timeout/error:   ConfirmationStoreUnavailable
-unlocked fallback:    forbidden
-```
+## Failure-safety evidence
 
-This hardening changes availability under brief contention only; confirmation authority, scope, expiry, replay and single-use semantics remain unchanged.
+The test suite covers:
 
-## Review conclusions
-
-1. **Authority boundary:** action input, metadata, `confirmed=true`, pending challenge IDs and prebuilt HumanConfirmation cannot satisfy the gate.
-2. **Exact scope:** action ID/version, validated input, surface, binding, actor, tenant, record, selection and browser session are bound; correlation/idempotency/metadata are excluded intentionally.
-3. **Stable context representation:** arbitrary objects fail closed unless a trusted resolver supplies a non-secret confirmation scope key; Laravel `Authenticatable` identity derives a stable actor key without credentials/tokens.
-4. **State machine:** pending → approved → consumed/expired is server-side, approval cannot rewrite scope, and the same opaque token is used across challenge/receipt states.
-5. **Replay/expiry:** expiry equality fails closed, successful consumption is single-use, and downstream execution failure does not restore a receipt.
-6. **Mismatch behavior:** wrong-scope attempts cannot execute and do not consume the legitimate exact-scope receipt.
-7. **Cache atomicity:** every authority mutation is under the exact per-token lock; acquisition waits are bounded and timeout/store failures fail closed.
-8. **Secret handling:** raw receipt, token hash, scope hash and trusted actor/tenant values do not leak through halt details, result metadata, provenance or exceptions.
-9. **Result semantics:** `confirmation_required` is produced only from a typed real `ConfirmationChallenge`, never fabricated from generic halt details.
-10. **Scope discipline:** no T-402 idempotency, T-403 redaction, T-404 audit persistence, T-504 UI, rollback semantics, or `spec/0.1` change was introduced.
+- lost successful response followed by exact consequential retry → executor total calls remain 1;
+- same-key changed validated input/record/selection/browser session → `idempotency_conflict` before confirmation/execution;
+- different actor/tenant/action ID/action version → independent reuse of the same raw key;
+- changed surface or binding alone → completed replay;
+- current authorization denial → halts before replay;
+- missing required key → halts before confirmation/execution;
+- active `in_progress` / `indeterminate` → no re-execution;
+- policy `none` → two calls execute twice;
+- executor side-effect boundary then throw → same active key cannot execute again;
+- unreplayable successful output → `indeterminate`;
+- completion persistence failure → no success and retry remains `in_progress`;
+- expiry equality → bounded guarantee ends and a new claim can execute after fresh confirmation;
+- public normalization discards deliberately injected raw-key/hash/fingerprint details;
+- package migration → MySQL 8.4 → claim → raw timestamp read → strict store hydration under global fractional precision.
 
 ## Verification evidence
 
 ```text
-Implementation GREEN:       7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
-Review-prep checkpoint:      d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
-Initial PR validation:       d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
-CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99f
-Review-finding RED:          37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223
-Review-finding GREEN:        f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
-Review-passed docs:          b169ad81d9f603e18b0cf47c7097a575c83d806c / 34137102693 — 7/7 green
-Merged main:                 a6c92a8b75b17196f7667c22b4b323fe25d3427f / 34137414074 — 7/7 green
-PHP:                         344 tests / 1300 assertions
+Task-5 GREEN:                1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
+Task-6 GREEN:                144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
+Integration GREEN:           f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
+Livewire real-stage proof:    d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
+Initial review head:          a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
+Review finding RED:          58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
+Review finding GREEN:        3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
+PHP:                         412 tests / 1900 assertions, PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
 Browser:                     TypeScript typecheck + 103/103 Vitest tests
-Contract:                    python scripts/validate.py green; frozen spec/0.1 unchanged
-Open review threads:          0
+Contract:                    frozen spec/0.1 unchanged; 52 fixture entries + 12 scenarios unchanged
+Open review threads:         0
 ```
-
-## Decision status
-
-- D-014 ACCEPTED — consequential is a categorical confirmation gate.
-- D-015 ACCEPTED — receipt authority is opaque, scoped, expiring and runtime-issued.
-- D-044 ACCEPTED — confirmation grants are single-use exact-scope bearer capabilities and only successful server-side consumption materializes HumanConfirmation.
 
 ## Explicit non-claims
 
-T-401 does **not** claim idempotent/exactly-once business execution, output redaction, structured audit persistence, a generic approval HTTP endpoint, browser/Filament confirmation UX, rollback, compensation, or post-dispatch cancellation. Those remain T-402/T-403/T-404/T-504 or separate concerns.
+T-402 does **not** provide a distributed transaction, external-system compensation, rollback, globally exactly-once effects, T-403 output redaction, T-404 structured audit persistence, T-504 human UI, or shared T-701 cross-runtime conformance execution.
 
 ## Review outcome
 
-**T-401 external automated review passed, the only finding was fixed TDD-first, PR #1 was merged to `main`, and the exact merged commit was independently revalidated with all 7 CI jobs green.**
+**T-402 external automated review passed after its only actionable finding was reproduced on real MySQL, fixed TDD-first, and revalidated across the full PHP/Illuminate matrix. PR #2 is merge-ready; merge remains a separate explicit operation.**

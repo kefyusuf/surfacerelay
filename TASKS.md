@@ -144,9 +144,59 @@ Open review threads:          0
 
 **Review result:** PASSED after the only external automated review finding was verified against Laravel 12/13, fixed TDD-first, and revalidated on the exact code head. Merge remains a separate explicit gate.
 
+### T-402 — Idempotency store — DONE / REVIEWED
+
+**Outcome:** The Laravel reference runtime now enforces bounded server-side idempotency for Action invocations. Exact completed retries reuse durable pre-output-policy executor output without consuming a second confirmation receipt or executing application code twice, while current validation, authorization, output policy and audit still run.
+
+**Acceptance:**
+
+- `none`, `recommended_key`, and `required_key` are enforced server-side without changing `spec/0.1`;
+- runtime keys are 1..240 Unicode characters with no normalization; required missing/invalid keys reject before confirmation/execution;
+- raw caller keys are never persisted; SHA-256 lookup hashes bind exact action ID/version, raw key, and trusted authority partition (tenant/actor when present, otherwise browser session, otherwise explicit global);
+- intent fingerprints bind exact action ID/version, validated input and present actor/tenant/current-record/current-selection/browser-session identities while excluding correlation ID, generic metadata, raw key, confirmation receipt, runtime `HumanConfirmation`, surface and `bindingId`;
+- preflight order is validation → authorization → idempotency → confirmation; completed replay still reruns current validation/authorization;
+- fresh attempts are claimed atomically as `in_progress` only after any required confirmation and immediately before application execution;
+- successful executor output must be deterministically replayable and is persisted before output policy as `completed` before public success;
+- exact active completed retry skips confirmation/execution, reruns output policy, keeps the retry's correlation ID and never manufactures confirmation authority;
+- same-key different-intent conflict, active `in_progress`, and active `indeterminate` reuse fail closed before confirmation/execution;
+- executor failure after claim is best-effort `indeterminate`; unreplayable successful output becomes `indeterminate`; completion-persistence failure remains closed as `in_progress` and never returns success;
+- production `DatabaseIdempotencyStore` uses a hashed primary key, unique insert plus short row-lock transaction for claim/expiry replacement, and conditional `in_progress` state transitions; no transaction/row lock spans executor code;
+- default retention is 86,400 seconds with strict `now < expiresAt`; equality ends the bounded guarantee and permits a new claim;
+- persistence timestamps are explicitly pinned to second precision (`precision: 0`) so the strict UTC hydrator remains valid even when host applications configure Laravel fractional time precision;
+- public idempotency refusals normalize to static `rejected` errors with no raw key, key hash, intent fingerprint or replay payload details;
+- lost-response integration proves one consequential external-side-effect execution across exact retry after the original successful response is lost;
+- actor/tenant/action-version partition isolation, changed-intent conflicts, authorization-before-replay, policy `none`, expiry, race and failure boundaries have negative/integration coverage;
+- real MySQL 8.4 migration round-trip is verified across PHP 8.3/8.4 and Illuminate 12/13 with global time precision forced to 6;
+- D-045 records the implemented bounded deduplication model;
+- T-403 output redaction and T-404 structured audit persistence remain unstarted.
+
+**TDD / verification evidence:**
+
+```text
+Pre-Task-5 checkpoint:       d2b30474a2f4a1ce07bc0aa6041ca0b44ef17232 / 34203602150 — 7/7 green
+Execution ownership RED:     159740749aa73da201ffdbb496fffc6ec650f60d / 34326974127
+Failure-boundary RED:        ebc98af93d25e31ff85b6742e8614a6b1a0d72d5 / 34327261695
+Task-5 GREEN:                1f370b487bc5e05618a3b057b4ab44cd97791555 / 34327446638 — 7/7 green
+Replay orchestration RED:    88c1922f0d2ccf9aec22fd22d55989bd286b1502 / 34327691831
+Result mapping RED:          b7c72ccb8db9452809e6003a11e7226062b9ab24 / 34327726665
+Task-6 GREEN:                144142c88b591c96838f6b5834a4dcfa29e437d0 / 34327917164 — 7/7 green
+Integration harness RED:     87d6e4764f0f017f086620dbe62e836a50353a1a / 34328505015 — test-harness-only errors
+Integration GREEN:           f1ee38285330c5d49af661e4bd0d9bdb10fe88b3 / 34328897541 — 7/7 green
+Livewire real-stage proof:    d7dca5d5f4670ab6b0c9684f68c2e85dfed30cd2 / 34329096188 — 7/7 green
+Initial PR head:             a46297f8edc18d3485ff9822ded5e6207c1888c3 / 34331545331 — PR CI green
+Review finding RED:          58fb0abb304398931d215dda5d079e5269ac4748 / 34333385345
+Review finding GREEN:        3a7ab03f821fad4ddee02b2d3ecb9ede0943dbdc / 34333528637 — 7/7 green
+PHP:                         412 tests / 1900 assertions across PHP 8.3/8.4 and Illuminate 12/13 + MySQL 8.4
+Browser isolation:           TypeScript typecheck + 103/103 Vitest tests
+Contract:                    python scripts/validate.py green; frozen spec/0.1 unchanged; 52 fixture entries + 12 scenarios unchanged
+Open review threads:         0
+Branch/base:                 main@b94ed83497e213c155ae0276264e954b9acd3ac3; ahead-only
+```
+
+**Review result:** PASSED. CodeRabbit's only actionable finding was reproduced on real MySQL, fixed TDD-first by pinning both migration timestamps to second precision, and revalidated across the full PHP/Illuminate matrix. PR #2 is merge-ready; merge remains a separate explicit gate.
+
 ### Remaining M4 tasks
 
-- T-402 — Idempotency store — TODO / **not started**.
 - T-403 — Output policy/redaction — TODO.
 - T-404 — Structured audit events — TODO.
 

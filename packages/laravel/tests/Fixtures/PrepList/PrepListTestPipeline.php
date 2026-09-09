@@ -14,6 +14,17 @@ use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
 use SurfaceRelay\Laravel\Enums\OutputContentTrust;
 use SurfaceRelay\Laravel\Enums\OutputSensitivity;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyClock;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyIntentHasher;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyKeyHasher;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyKeyValidator;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyRecord;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyRecordState;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyReplayCodec;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyService;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyStage;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyStore;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyStoreClaimResult;
 use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionBus;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionCall;
@@ -55,13 +66,23 @@ final readonly class PrepListTestPipeline
         $authorizer = new PrepListAuthorizer();
         $executor = new PrepListActionExecutor($addItem);
         $contextFactory = new PrepListInvocationContextFactory();
+        $idempotencyService = new IdempotencyService(
+            new PrepListIdempotencyStore(),
+            new PrepListIdempotencyClock(),
+            new IdempotencyReplayCodec(),
+        );
 
         $handlers = [
             new LaravelInputValidationStage($app->make(ValidationFactory::class), $rules),
             new AuthorizationStage($authorizer),
+            new IdempotencyStage(
+                new IdempotencyKeyValidator(),
+                new IdempotencyKeyHasher(),
+                new IdempotencyIntentHasher(),
+                $idempotencyService,
+            ),
             self::passThrough(ActionPipelineStage::Confirmation),
-            self::passThrough(ActionPipelineStage::Idempotency),
-            new ActionExecutionStage($executor),
+            new ActionExecutionStage($executor, $idempotencyService),
             self::passThrough(ActionPipelineStage::OutputPolicy),
         ];
 
@@ -132,6 +153,70 @@ final readonly class PrepListTestPipeline
             outputSensitivity: OutputSensitivity::Normal,
             outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [ContextRequirement::BrowserSession],
+        );
+    }
+}
+
+final class PrepListIdempotencyClock implements IdempotencyClock
+{
+    public function now(): int
+    {
+        return time();
+    }
+}
+
+final class PrepListIdempotencyStore implements IdempotencyStore
+{
+    /** @var array<string, IdempotencyRecord> */
+    private array $records = [];
+
+    public function find(string $keyHash): ?IdempotencyRecord
+    {
+        return $this->records[$keyHash] ?? null;
+    }
+
+    public function claim(IdempotencyRecord $fresh, int $now): IdempotencyStoreClaimResult
+    {
+        $existing = $this->records[$fresh->keyHash] ?? null;
+        if ($existing !== null && $existing->isActiveAt($now)) {
+            return IdempotencyStoreClaimResult::existing($existing);
+        }
+
+        $this->records[$fresh->keyHash] = $fresh;
+        return IdempotencyStoreClaimResult::claimed($fresh);
+    }
+
+    public function complete(string $keyHash, string $intentFingerprint, string $outputPayload): void
+    {
+        $record = $this->records[$keyHash] ?? throw new \RuntimeException('Missing PrepList idempotency claim.');
+        if (!hash_equals($record->intentFingerprint, $intentFingerprint)) {
+            throw new \RuntimeException('PrepList idempotency intent mismatch.');
+        }
+
+        $this->records[$keyHash] = new IdempotencyRecord(
+            $record->keyHash,
+            $record->intentFingerprint,
+            IdempotencyRecordState::Completed,
+            $outputPayload,
+            $record->createdAt,
+            $record->expiresAt,
+        );
+    }
+
+    public function markIndeterminate(string $keyHash, string $intentFingerprint): void
+    {
+        $record = $this->records[$keyHash] ?? throw new \RuntimeException('Missing PrepList idempotency claim.');
+        if (!hash_equals($record->intentFingerprint, $intentFingerprint)) {
+            throw new \RuntimeException('PrepList idempotency intent mismatch.');
+        }
+
+        $this->records[$keyHash] = new IdempotencyRecord(
+            $record->keyHash,
+            $record->intentFingerprint,
+            IdempotencyRecordState::Indeterminate,
+            null,
+            $record->createdAt,
+            $record->expiresAt,
         );
     }
 }

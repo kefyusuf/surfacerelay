@@ -14,8 +14,8 @@ enum ActionPipelineStage: string
 {
     case InputValidation = 'input_validation';
     case Authorization = 'authorization';
-    case Confirmation = 'confirmation';
     case Idempotency = 'idempotency';
+    case Confirmation = 'confirmation';
     case Execution = 'execution';
     case OutputPolicy = 'output_policy';
 }

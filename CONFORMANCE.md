@@ -54,7 +54,7 @@ Recommended provisional binding error codes (D-026, not a closed enum): `binding
 14. Confirmation receipt is scoped and expiration/replay is enforced.
 15. Required idempotency key prevents duplicate side effect.
 
-**Laravel reference-runtime coverage:** T-401 now exercises Trust scenarios 13 and 14 with unit and full ActionBus integration tests, including caller boolean/metadata spoofing, exact action/version/input/actor/tenant/binding/record/selection/session scope mismatches, expiry equality, replay, and single-use consumption. The shared T-701 conformance runner remains unimplemented.
+**Laravel reference-runtime coverage:** T-401 exercises Trust scenarios 13 and 14 with unit and full ActionBus integration tests, including caller boolean/metadata spoofing, exact action/version/input/actor/tenant/binding/record/selection/session scope mismatches, expiry equality, replay, and single-use consumption. T-402 exercises Trust scenario 15 with server-side required/recommended/none policy enforcement, raw-key hashing, exact validated-intent fingerprints, authority partition isolation, same-key intent conflicts, atomic execution claims, lost-response completed replay, authorization-before-replay, active in-progress/indeterminate refusal, executor/codec/completion-persistence failure safety, and exact retention-expiry behavior. These are Laravel package/reference-runtime proofs only; the shared T-701 conformance runner remains unimplemented and no cross-runtime conformance claim is made.
 
 ## Output
 

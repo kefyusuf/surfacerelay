@@ -121,6 +121,20 @@ Values (locked for v0.1):
 - `recommended_key` — if the caller supplies an idempotency key, the runtime deduplicates on it; if omitted, the invocation proceeds without deduplication. *Example: retry-safe "send welcome email".*
 - `required_key` — an invocation without a valid idempotency key is rejected before execution. *Example: "create subscription charge" refuses to run twice on the same key. Enforcement is server-side (rule 9).*
 
+T-402 implements the Laravel reference-runtime semantics behind these policies:
+
+- An idempotency key is a caller-supplied retry token, not authorization. Runtime lexical validity is 1..240 Unicode characters; the runtime does not normalize the string before hashing.
+- The raw key is never persisted. Its lookup key is a SHA-256 digest over exact Action ID/version, a trusted authority partition, and the raw key. The partition uses present tenant/actor identity; if both are absent it falls back to present browser-session identity, otherwise an explicit global partition.
+- A separate intent fingerprint binds exact Action ID/version, validated input, and any present trusted actor, tenant, current-record, current-selection, and browser-session identities. Correlation ID, generic metadata, the raw idempotency key, confirmation receipt, runtime `human_confirmation`, surface, and `bindingId` are intentionally excluded.
+- Idempotency preflight runs after current validation and authorization but before confirmation. A missing/invalid required key, same-key different-intent conflict, active `in_progress`, or active `indeterminate` record fails closed before confirmation/execution.
+- A fresh intent is not claimed during preflight. After any required confirmation succeeds, execution atomically claims an `in_progress` record immediately before application code runs.
+- Successful executor output is persisted in deterministic JSON/canonical form **before output policy/redaction** and the record becomes `completed` before the invocation may return success. Output that cannot be represented for deterministic replay becomes `indeterminate` instead of reopening execution.
+- An exact active `completed` retry reruns validation and authorization, reuses the stored pre-output-policy executor output, skips confirmation and application execution, then reruns the current output policy and audit path. The retry keeps its own current correlation ID and never manufactures `human_confirmation` authority.
+- Executor failure after ownership is claimed becomes `indeterminate` on a best-effort durable transition; failure to persist successful completion leaves the claim closed as `in_progress`. Neither case is automatically re-executed while active.
+- The reference retention window defaults to 86,400 seconds. A record is active only while `now < expiresAt`; equality ends the bounded deduplication guarantee and permits a new claim.
+
+These guarantees are retry/deduplication semantics, not a distributed transaction or proof of globally exactly-once business effects. External systems still need their own idempotency/transaction semantics when applicable.
+
 ## Output sensitivity
 
 Confidentiality classification of the action's output (D-032). Drives output policy/redaction handling; independent of output content trust — a `sensitive` output may also contain untrusted content, and neither dimension suppresses the other.
