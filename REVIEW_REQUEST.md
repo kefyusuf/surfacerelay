@@ -9,13 +9,13 @@
 - **Base / merge-base:** `main@a3112dea3f965e27db8e6904650c97f89d2261fe`
 - **Exact production/test-code checkpoint:** `79df19c3a95f1a95b03e4b5c6578d8195903d22a`
 - **Exact code workflow:** `34384669898` — **7/7 green**
-- **Review-prep checkpoint before this record:** `4092616cce0a325a5130f3455bbb3c4bc16c0682`
-- **Review-prep workflow:** `34385271078` — **7/7 green**
+- **Final review-prep checkpoint:** `494fc071b0c75cedd9a22aa95ee46b7a18288558`
+- **Final review-prep workflow:** `34385507485` — **7/7 green**
 - **PHP evidence:** **452 tests / 2414 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Decision:** `D-047 — ACCEPTED`
-- **Code-checkpoint diff:** **18 ahead / 0 behind**, 22 changed files
+- **Final review-prep diff:** **21 ahead / 0 behind**, 24 changed files; production/test code unchanged after `79df19c3…`
 - **External review result:** pending
 - **Merge:** not requested; explicit permission remains required
 
@@ -76,7 +76,7 @@ Task-4 pipeline RED:         08a4a14797078584f4deed95231612966024cd28 / 34383610
 Task-4 GREEN:                da37400c14e558438b84ea9a140eb06fd50e1f69 / 34383939887 — 7/7 green
 Task-5 replay/secrecy RED:   7a9adb89bd7ab8cc525a19bf061e37886bb36527 / 34384242487
 Task-5 GREEN/code checkpoint:79df19c3a95f1a95b03e4b5c6578d8195903d22a / 34384669898 — 7/7 green
-Review-prep checkpoint:      4092616cce0a325a5130f3455bbb3c4bc16c0682 / 34385271078 — 7/7 green
+Final review-prep head:      494fc071b0c75cedd9a22aa95ee46b7a18288558 / 34385507485 — 7/7 green
 PHP:                         452 tests / 2414 assertions
 Browser:                     TypeScript typecheck + 103/103 Vitest tests
 Contract:                    green; frozen spec/0.1 unchanged
@@ -105,4 +105,4 @@ Please prioritize:
 
 ## Review gate
 
-**Implementation and internal verification are complete at the exact code checkpoint above. Review-prep was revalidated on the exact PR head before this documentation record. External review is the current gate. Merge remains a separate explicit decision and is not requested by this document.**
+**Implementation and internal verification are complete at `79df19c3…`; the final docs-only review-prep head `494fc071…` is also exact-head green. External review is the current gate. Merge remains a separate explicit decision and is not requested by this document.**
