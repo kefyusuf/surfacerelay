@@ -10,19 +10,22 @@
 - **Base / merge-base:** `main@a3112dea3f965e27db8e6904650c97f89d2261fe`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
 - **Last merged/revalidated task:** `T-403 — Output policy/redaction`
-- **Current task:** `T-404 — Structured audit events` — **IMPLEMENTED / REVIEW HARDENED / INCREMENTAL REVIEW PENDING**
+- **Current task:** `T-404 — Structured audit events` — **DONE / REVIEWED; MERGE PENDING**
 - **Pull request:** `#4` — open; merge remains a separate explicit gate
 - **Original T-404 code checkpoint:** `79df19c3a95f1a95b03e4b5c6578d8195903d22a`
 - **Original code workflow:** `34384669898` — **7/7 green**
 - **Pre-finding external-review head:** `52aaee0e5e446311fb4554c67789ebefbbf116fb`
 - **Pre-finding review-head workflow:** `34385980442` — **7/7 green**
-- **CodeRabbit review:** `cad69fe7-6838-42a2-8fca-496f9f592309` — 2 actionable findings + 1 trivial test-refactor nitpick
+- **CodeRabbit full review:** `cad69fe7-6838-42a2-8fca-496f9f592309` — 2 actionable findings + 1 trivial test-refactor nitpick
 - **Review-hardening code checkpoint:** `403927a0f2fdb60170f24c3d02756cb41e87965e`
 - **Review-hardening workflow:** `34401520520` — **7/7 green**
+- **Review-evidence checkpoint:** `5544d5db98b7441e009a57e523b6cc7ccefb1e45`
+- **Review-evidence workflow:** `34401943831` — **7/7 green**
 - **PHP evidence after hardening:** **453 tests / 2418 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Decision:** `D-047 — ACCEPTED`
+- **External review result:** **PASSED after review hardening; 0 unresolved review threads**
 - **Merge:** not requested
 
 ## T-404 — Implemented trust boundary
@@ -96,20 +99,23 @@ Task-4 GREEN:                  da37400c14e558438b84ea9a140eb06fd50e1f69 / 343839
 Task-5 replay/secrecy RED:     7a9adb89bd7ab8cc525a19bf061e37886bb36527 / 34384242487
 Task-5 GREEN/code checkpoint:  79df19c3a95f1a95b03e4b5c6578d8195903d22a / 34384669898 — 7/7 green
 Pre-finding review head:       52aaee0e5e446311fb4554c67789ebefbbf116fb / 34385980442 — 7/7 green
-CodeRabbit review:             cad69fe7-6838-42a2-8fca-496f9f592309 — 2 actionable + 1 trivial nitpick
+CodeRabbit full review:        cad69fe7-6838-42a2-8fca-496f9f592309 — 2 actionable + 1 trivial nitpick
 Provider-wiring RED:           4115df2f64aa4c6eae9abbd33f0d9fe418500a28 / 34401342660 — 453 tests / 2415 assertions, 1 expected failure
 Provider-wiring GREEN:         403927a0f2fdb60170f24c3d02756cb41e87965e / 34401520520 — 7/7 green
+Review-evidence checkpoint:    5544d5db98b7441e009a57e523b6cc7ccefb1e45 / 34401943831 — 7/7 green
 PHP after hardening:           453 tests / 2418 assertions
 Browser:                       TypeScript typecheck + 103/103 Vitest tests
 Contract:                      green; frozen spec/0.1 unchanged
 ```
 
-## External-review assessment
+## External-review closure
 
 CodeRabbit's first full review was bound to `main@a3112dea… → 52aaee0e…` and produced two actionable findings:
 
-1. **Package migration installation path — valid and fixed.** The migration previously shipped and was tested directly, but the package exposed no Laravel service provider/auto-discovery registration. RED `4115df2f…` failed solely because `SurfaceRelayServiceProvider` did not exist. GREEN `403927a0…` adds a provider that calls `loadMigrationsFrom(...)`, registers it through Composer Laravel auto-discovery metadata, and verifies the package migration through Testbench `migrate`.
-2. **Review evidence drift — valid documentation issue.** Records are now expressed as stable code/review checkpoints instead of recursively trying to make a document contain its own commit SHA. The pre-finding reviewed head and the post-finding hardening checkpoint are recorded separately.
+1. **Package migration installation path — fixed and reviewer-confirmed.** RED `4115df2f…` failed solely because `SurfaceRelayServiceProvider` did not exist. GREEN `403927a0…` adds the provider, Composer Laravel auto-discovery metadata, and Testbench migration-flow coverage. CodeRabbit subsequently inspected the provider, metadata, test and commit and marked the thread addressed/resolved.
+2. **Review evidence drift — fixed and reviewer-confirmed.** Records now separate the pre-finding reviewed head, stable code-hardening checkpoint, and docs-only evidence checkpoint instead of recursively attempting to embed a document's own future SHA. CodeRabbit acknowledged the checkpoint model and marked the thread addressed/resolved.
+
+The manual post-fix CodeRabbit review command completed without creating any new actionable inline thread. The PR has **0 unresolved review threads**.
 
 CodeRabbit also suggested deduplicating integration-test scaffolding. That is a trivial maintainability refactor, not a T-404 correctness/security fix. It is intentionally deferred to avoid expanding this security-focused PR with unrelated test-support churn.
 
@@ -121,7 +127,7 @@ CodeRabbit also suggested deduplicating integration-test scaffolding. That is a 
 - Real T-403 withhold/release proves audit does not become a secondary output-disclosure channel.
 - Consequential required-key replay proves challenge + first success + replay are separate finalizations, but executor count remains one and replay has no manufactured confirmation authority.
 - Store failure is observed after one execution/one append attempt with no internal retry or rollback claim.
-- Package migration installation is now tested through Laravel/Testbench rather than only by directly requiring the migration file.
+- Package migration installation is tested through Laravel/Testbench rather than only by directly requiring the migration file.
 - No event sourcing, SIEM/export, retention system, query API/UI, signing/hash chain, KMS or generic Throwable audit subsystem was introduced.
 
 ## Known boundaries / non-claims
@@ -133,4 +139,4 @@ CodeRabbit also suggested deduplicating integration-test scaffolding. That is a 
 
 ## Next boundary
 
-**T-404 implementation and the first external-review findings are fixed and revalidated. Incremental review of the hardening delta is the current gate. Merge remains a separate explicit gate and is not authorized by this status.**
+**T-404 is DONE / REVIEWED. PR #4 remains open. The next operation is the explicit PR #4 merge gate; merge is not authorized by this status, and no M5 work should start before that gate is resolved.**
