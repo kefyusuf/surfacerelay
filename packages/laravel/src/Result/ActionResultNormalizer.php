@@ -64,8 +64,41 @@ final class ActionResultNormalizer
             CoreActionErrorCode::CONFIRMATION_REQUIRED => $halt->confirmation !== null
                 ? ActionResult::confirmationRequired($correlationId, $halt->confirmation)
                 : throw UnmappedPipelineOutcome::forHaltCode($halt->code),
+            CoreActionErrorCode::IDEMPOTENCY_KEY_REQUIRED => $this->idempotencyRejected(
+                $correlationId,
+                $halt->code,
+                'An idempotency key is required.',
+            ),
+            CoreActionErrorCode::IDEMPOTENCY_KEY_INVALID => $this->idempotencyRejected(
+                $correlationId,
+                $halt->code,
+                'The idempotency key is invalid.',
+            ),
+            CoreActionErrorCode::IDEMPOTENCY_CONFLICT => $this->idempotencyRejected(
+                $correlationId,
+                $halt->code,
+                'The idempotency key is already bound to a different invocation intent.',
+            ),
+            CoreActionErrorCode::IDEMPOTENCY_IN_PROGRESS => $this->idempotencyRejected(
+                $correlationId,
+                $halt->code,
+                'An invocation with this idempotency key is already in progress.',
+            ),
+            CoreActionErrorCode::IDEMPOTENCY_INDETERMINATE => $this->idempotencyRejected(
+                $correlationId,
+                $halt->code,
+                'The prior invocation outcome is indeterminate and will not be retried automatically.',
+            ),
             default => throw UnmappedPipelineOutcome::forHaltCode($halt->code),
         };
+    }
+
+    private function idempotencyRejected(string $correlationId, string $code, string $message): ActionResult
+    {
+        return ActionResult::rejected(
+            $correlationId,
+            new ActionError($code, $message),
+        );
     }
 
     /**
