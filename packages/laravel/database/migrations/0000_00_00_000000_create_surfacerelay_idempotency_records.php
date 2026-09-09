@@ -15,8 +15,8 @@ return new class extends Migration
             $table->char('intent_fingerprint', 64);
             $table->string('state', 32);
             $table->text('output_payload')->nullable();
-            $table->timestamp('created_at');
-            $table->timestamp('expires_at')->index();
+            $table->timestamp('created_at', precision: 0);
+            $table->timestamp('expires_at', precision: 0)->index();
         });
     }
 
