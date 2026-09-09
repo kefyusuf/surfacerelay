@@ -195,9 +195,51 @@ Branch/base:                 main@b94ed83497e213c155ae0276264e954b9acd3ac3; ahea
 
 **Review result:** PASSED. CodeRabbit's only actionable finding was reproduced on real MySQL, fixed TDD-first by pinning both migration timestamps to second precision, and revalidated across the full PHP/Illuminate matrix. PR #2 is merge-ready; merge remains a separate explicit gate.
 
+### T-403 — Output policy/redaction — DONE
+
+**Outcome:** Sensitive action output is now a fail-closed disclosure boundary. Normal output remains an exact pass-through; sensitive output leaves SurfaceRelay only after an explicit trusted redactor release decision. Disclosure failure removes raw output before audit/finalization and normalizes to a static public `failed` result.
+
+**Acceptance:**
+
+- `outputSensitivity=normal` passes execution/replay output through exactly and never invokes the sensitive redactor;
+- `outputSensitivity=sensitive` has no implicit raw-output fallback and requires an explicit `OutputRedactionResult::release(...)` decision;
+- `release(null)` is a valid successful disclosure and preserves output presence;
+- missing redactor, explicit `withhold()`, or redactor exception fails closed with `output_policy_failed`;
+- fail-closed state clears `hasOutput` and raw output before `ActionBus` audit/finalization;
+- output-policy entry without execution/replay output is an internal pipeline invariant violation;
+- the redactor receives exact `ActionDefinition`, raw output, and a restricted `OutputPolicyContext` containing trusted typed runtime entries only, not generic invocation metadata or the full `InvocationContext`;
+- public `output_policy_failed` normalization is `failed` with a static message and no propagated halt details, redactor exception text, or raw output;
+- output content trust remains independent from sensitivity/redaction per D-032;
+- exact completed idempotency replay skips confirmation/execution but re-applies the current sensitive output policy to stored pre-policy executor output; the prior disclosed payload is not replayed;
+- audit sees only the post-policy released value, or output-free state on disclosure failure;
+- D-046 records the implemented fail-closed sensitive-output disclosure model;
+- `spec/0.1/**` remains unchanged;
+- T-404 structured audit persistence remains out of scope and unstarted.
+
+**TDD / verification evidence:**
+
+```text
+Contract/context RED:        0bb9e430… / 34345104742
+Task-1 GREEN:                a7f58d90… / 34345494908 — 7/7 green
+Stage RED:                   321b32ef… / 34345640741
+Normal pass-through GREEN:   433eafa9… / 34346073018 — 7/7 green
+Sensitive release RED:       ff18fa96f9bb36d9d03f7cf148220fafe4cfa056 / 34346351525
+Sensitive release GREEN:     d993d32037936fd9132743ccac39b7228a6e87b4 / 34346513087 — 7/7 green
+Fail-closed RED:             57315af9e183ac2fd63ec88a59c9aabc2cae2559 / 34346906520
+Fail-closed GREEN:           df2667dc2a34fa4316ccccbfb2c23a27bb9ca9ff / 34347231312 — 7/7 green
+Result mapping RED:          c0d2cad4ecd7870b9464dcb2933cdf189b35ec0d / 34347679997
+Result mapping GREEN:        0399ef03f42001f3c5e913fda5687e74e9ba5a90 / 34347966075 — 7/7 green
+Audit sanitization proof:    bb3506076f579fb6ee637c12e6dc68bea3800b07 / 34348300687 — 7/7 green
+Implementation checkpoint:   0195875b5f2d5d9646407337ea54df52fe4c8bb3 / 34356958945 — 7/7 green
+PHP:                         430 tests / 2034 assertions across PHP 8.3/8.4 and Illuminate 12/13 + MySQL 8.4
+Browser isolation:           TypeScript typecheck + 103/103 Vitest tests
+Contract:                    python scripts/validate.py green; frozen spec/0.1 unchanged
+```
+
+**Review status:** implementation complete and self-reviewed; external PR review is the next gate. Merge remains separate and requires explicit permission.
+
 ### Remaining M4 tasks
 
-- T-403 — Output policy/redaction — TODO.
 - T-404 — Structured audit events — TODO.
 
 ## M5 — Filament Vertical — TODO
