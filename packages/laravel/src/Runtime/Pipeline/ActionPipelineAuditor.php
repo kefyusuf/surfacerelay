@@ -7,7 +7,8 @@ namespace SurfaceRelay\Laravel\Runtime\Pipeline;
 /**
  * Audit finalizer contract. Called exactly once per dispatch after the final
  * outcome is known — for completed pipelines AND for explicit halts — and
- * never modifies the outcome. Persistence belongs to a later task (T-404).
+ * never modifies the outcome. Implementations may persist minimized final
+ * outcome evidence; persistence policy remains behind this port.
  */
 interface ActionPipelineAuditor
 {

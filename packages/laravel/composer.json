@@ -26,6 +26,13 @@
       "SurfaceRelay\\Laravel\\Tests\\": "tests/"
     }
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "SurfaceRelay\\Laravel\\SurfaceRelayServiceProvider"
+      ]
+    }
+  },
   "scripts": {
     "test": "phpunit"
   }

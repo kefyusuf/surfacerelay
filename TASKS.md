@@ -240,7 +240,7 @@ Contract:                    python scripts/validate.py green; frozen spec/0.1 u
 
 ### Remaining M4 tasks
 
-- T-404 — Structured audit events — TODO.
+- T-404 — Structured audit events — DONE / REVIEWED.
 
 ## M5 — Filament Vertical — TODO
 
