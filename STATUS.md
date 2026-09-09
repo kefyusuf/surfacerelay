@@ -6,24 +6,19 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/output-policy-redaction`
-- **Base / merge-base:** `main@08a9862923d60f4e08b1732c3e11053e5b7bb74e`
+- **Branch:** `main`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; **M4 IN PROGRESS**
-- **Last merged/revalidated task:** `T-402 — Idempotency store`
-- **Current task:** `T-403 — Output policy/redaction` — **DONE / REVIEWED**
-- **Initial implementation checkpoint:** `0195875b5f2d5d9646407337ea54df52fe4c8bb3`
-- **Exact verified code checkpoint:** `d58230d2f91f5d3ae89f9bd89d479dbaf27784e6`
-- **Final externally reviewed checkpoint:** `010037cf79f97e5dfc0a2dba7f3387a3f246b223`
-- **Reviewed checkpoint workflow:** `34369719085` — **7/7 green**
-- **Review-result record:** `c5c3db02d159286ba1d37aa40d840703250bf887`
-- **PHP evidence:** **431 tests / 2072 assertions** across PHP 8.3/8.4 and Illuminate 12/13, with MySQL 8.4 service coverage
+- **Last merged/revalidated task:** `T-403 — Output policy/redaction` — **DONE / REVIEWED / MERGED**
+- **PR:** `#3` — merged
+- **Merged main checkpoint:** `969f65321ca7bd5e3496b081eb2d946350b3ec8f`
+- **Merged-main workflow:** `34372399222` — **7/7 green**
+- **PHP evidence:** **431 tests / 2072 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Decision:** `D-046 — ACCEPTED`
-- **External review:** CodeRabbit run `4c8e5524-25c1-4732-83d8-294b4c957cc6` — **0 actionable comments; Merge Risk Minimal; exact coverage through `010037cf…`**
-- **Open review threads:** **0**
-- **Merge:** not requested; remains a separate explicit gate
-- **T-404:** not started
+- **External review:** CodeRabbit run `4c8e5524-25c1-4732-83d8-294b4c957cc6` — **0 actionable comments; Merge Risk Minimal**
+- **Open review threads at merge:** **0**
+- **Next task:** `T-404 — Structured audit events` — **not started**
 
 ## T-403 — Implemented trust boundary
 
@@ -62,7 +57,7 @@ output policy
 1. Core does not guess sensitive fields or perform heuristic redaction.
 2. `outputSensitivity=normal` is an exact pass-through and does not invoke the sensitive redactor.
 3. `outputSensitivity=sensitive` has no implicit raw-output fallback. Disclosure requires an explicit trusted `OutputRedactionResult::release(...)` decision.
-4. `release(null)` is a valid successful output and remains distinct from `withhold()` through explicit output presence tracking.
+4. `release(null)` is a valid successful output and remains distinct from `withhold()` through explicit output-presence tracking.
 5. Missing redactor, `withhold()`, and redactor exceptions fail closed as `output_policy_failed`.
 6. Fail-closed handling removes raw output from immutable pipeline state before the halted outcome reaches audit/finalization.
 7. Output-policy entry without an execution/replay output is an internal pipeline invariant violation, not a public policy result.
@@ -96,16 +91,16 @@ Hardening CI RED:            9b255cade7e60261e9a3407a579dd40bd06586d4 / 34361584
 Fixture fix GREEN:           d58230d2f91f5d3ae89f9bd89d479dbaf27784e6 / 34368063289 — 7/7 green
 External-review checkpoint:  010037cf79f97e5dfc0a2dba7f3387a3f246b223 / 34369719085 — 7/7 green
 CodeRabbit exact-head:       4c8e5524-25c1-4732-83d8-294b4c957cc6 — 0 actionable comments; Minimal risk
-Review-result record:        c5c3db02d159286ba1d37aa40d840703250bf887
+Review closure head:         52ffb5d8071006378dd3d81fc16088394714d081 / 34371371764 — 7/7 green
+Merged main:                 969f65321ca7bd5e3496b081eb2d946350b3ec8f / 34372399222 — 7/7 green
 PHP:                         431 tests / 2072 assertions
 Browser:                     TypeScript typecheck + 103/103 Vitest tests
 Contract:                    green; frozen spec/0.1 unchanged
-Open review threads:         0
 ```
 
 ## Hardening failure and closure
 
-The replay-recovery hardening added after the first external review exposed a test-fixture construction error rather than a production redaction defect. `OutputPolicyReplayFailureRecoveryIntegrationTest` instantiated `ActionDefinition` without the mandatory `contextRequirements` argument, so every PHP matrix job failed before the new scenario reached production code.
+The replay-recovery hardening added after the first external review exposed a test-fixture construction error rather than a production redaction defect. `OutputPolicyReplayFailureRecoveryIntegrationTest` instantiated `ActionDefinition` without mandatory `contextRequirements`, so every PHP matrix job failed before the scenario reached production code.
 
 The fixture was aligned with the canonical constructor using `contextRequirements: []` only. No production behavior changed. The exact code run then passed all seven jobs and the PHP suite increased to 431 tests / 2072 assertions.
 
@@ -115,19 +110,13 @@ The added recovery scenario proves both `withhold()` and redactor-exception path
 
 CodeRabbit's incremental review explicitly covered changes after the first review through exact commit `010037cf79f97e5dfc0a2dba7f3387a3f246b223`, including replay-recovery and Prep List output-policy wiring. It produced no actionable comments and classified merge risk as Minimal.
 
-CodeRabbit also reports a generic docstring-coverage warning below its configured 80% threshold. This is not a SurfaceRelay CI/security gate and produced no actionable review comment. Expanding T-403 with docstrings across dozens of test/helper functions solely for that metric would be unrelated scope growth, so the warning is intentionally non-blocking.
+CodeRabbit's generic docstring-coverage warning is not a SurfaceRelay CI/security gate and generated no actionable review comment. Expanding T-403 across dozens of test/helper functions solely for that metric would be unrelated scope growth, so it remained non-blocking.
 
-## Self-review
+## Merge closure
 
-- Branch remains ahead-only from exact T-402 closure base; no merge-base drift was found.
-- Diff remains limited to D-046/design-plan/status documentation, Laravel output-policy contracts/stage/result mapping/state sanitization, and focused unit/integration tests.
-- `spec/0.1/**` has no diff.
-- Fail-closed raw-output removal occurs before the pipeline constructs the halted outcome observed by the auditor.
-- Redactor exception handling is intentionally scoped to the redactor invocation and does not broadly swallow unrelated pipeline failures.
-- Existing T-402 replay orchestration is preserved; integration proves current policy reruns over stored pre-policy output.
-- Replay disclosure failure recovery is policy-only: idempotency remains completed and the executor call count remains one.
-- The hardening CI defect was isolated to test setup and fixed without changing production code.
-- External review covers the final code/replay-hardening checkpoint and reports no current merge-blocking risk.
+PR #3 was merged with expected-head protection from `52ffb5d8071006378dd3d81fc16088394714d081`. GitHub created merge commit `969f65321ca7bd5e3496b081eb2d946350b3ec8f` on `main` with the expected two parents: the prior `main` checkpoint and the reviewed feature head.
+
+The post-merge `main` push workflow `34372399222` re-ran the complete validation matrix and passed all seven jobs. A PHP 8.3 / Illuminate 12 job independently reported `OK (431 tests, 2072 assertions)` against the exact merge commit.
 
 ## Decisions
 
@@ -141,8 +130,7 @@ CodeRabbit also reports a generic docstring-coverage warning below its configure
 - T-403 does not persist structured audit events; T-404 remains separate.
 - T-403 does not change wire schemas or promote new `spec/0.1` fields.
 - The output-policy context is a trusted typed runtime view, not caller metadata authority.
-- Review-result/status commits after `010037cf…` are documentation-only closure records; external code review coverage remains bound to the exact reviewed code checkpoint.
 
 ## Next boundary
 
-**T-403 is DONE / REVIEWED. The next action is the explicit PR #3 merge gate. T-404 must not start automatically.**
+**T-403 is DONE / REVIEWED / MERGED and revalidated on `main`. The next task is T-404 — Structured audit events, but it has not been started yet.**
