@@ -89,7 +89,7 @@ OutputPolicyStage
                    output_policy_failed
 ```
 
-SurfaceRelay defines the enforcement boundary, not an application-specific redaction algorithm.
+SurfaceRelay defines the enforcement boundary, not an application-specific redaction algorithm. The reference runtime guarantees that sensitive output is never automatically passed through without a redactor decision; it does not attempt to prove that a trusted redactor's released value differs from its raw input. A host-provided redactor that explicitly releases an unchanged raw value is a host-policy decision outside SurfaceRelay's ability to semantically inspect.
 
 ## 5. Components
 
@@ -157,10 +157,12 @@ For `sensitive` sensitivity:
 
 1. a redactor must be configured;
 2. the stage calls it with the raw output and restricted trusted context;
-3. `release()` replaces the pipeline output with the safe output;
+3. `release()` replaces the pipeline output with the released output;
 4. `withhold()` clears the raw output and halts with `output_policy_failed`;
 5. any redactor exception clears the raw output and halts with the same static failure code;
 6. no raw output, exception text, exception object, stack trace, redaction rule, or redactor-internal detail is copied into the halt.
+
+The stage does not attempt to compare `release()` output with raw input or infer whether application-level redaction was adequate. The security guarantee is explicit trusted release, not heuristic secret detection.
 
 ## 6. Pipeline state sanitization
 
@@ -182,7 +184,7 @@ before finalization/audit:
 
 The raw sensitive value must be unreachable from the outcome passed to the auditor.
 
-On successful sensitive redaction, the auditor sees only the released safe output.
+On successful sensitive redaction, the auditor sees only the explicitly released output.
 
 This is a T-403 requirement even though durable audit persistence belongs to T-404.
 
@@ -218,7 +220,7 @@ output_policy_failed
 
 No public details are attached.
 
-The wording intentionally communicates that execution may already have occurred. It must not imply rollback, refusal-before-execution, or safe retry of the business action.
+The wording intentionally communicates that execution may already have occurred. It must not imply rollback, refusal-before-execution, or safe retry of the business action. In particular, callers must not interpret `output_policy_failed` as evidence that application side effects did not happen. T-402 idempotency prevents re-execution only when its policy/key contract is active; T-403 itself does not manufacture a retry guarantee for actions executed without active deduplication.
 
 ## 8. Idempotency interaction
 
@@ -287,7 +289,7 @@ Whether constructor-time configuration validation can catch a missing redactor i
 
 `ActionDefinition.outputSchema` is not currently a general runtime output validator. T-403 does not create one.
 
-A configured `SensitiveOutputRedactor` is responsible for returning an application-appropriate safe representation. If an application wants the redacted value to continue satisfying its declared `outputSchema`, that requirement belongs to the application/redactor until a separate output-schema validation task is explicitly designed.
+A configured `SensitiveOutputRedactor` is responsible for returning an application-appropriate safe representation. If an application wants the released value to continue satisfying its declared `outputSchema`, that requirement belongs to the application/redactor until a separate output-schema validation task is explicitly designed.
 
 T-403 must not silently infer or mutate schema definitions.
 
@@ -312,18 +314,19 @@ Application/runtime logging outside SurfaceRelay remains the host application's 
 T-403 locks these invariants:
 
 1. `normal` output passes through exactly and never invokes the sensitive redactor.
-2. `sensitive` output is never released raw by the reference runtime.
-3. Sensitive disclosure requires an explicit trusted redactor release decision.
+2. `sensitive` output has no automatic raw pass-through path; release requires an explicit trusted redactor decision.
+3. SurfaceRelay does not heuristically decide whether a trusted redactor's released value is sufficiently transformed; host redactor behavior remains host policy.
 4. Missing redactor, withhold, or redactor failure fail closed.
 5. Caller input/metadata cannot grant disclosure authority.
 6. Generic `InvocationContext.metadata`, surface, correlation ID, idempotency key, binding ID, and confirmation receipt are absent from `OutputPolicyContext`.
 7. Policy failure after execution maps to `failed`, not `rejected`.
-8. Raw sensitive output is removed from pipeline state before audit finalization on policy failure.
-9. Successful sensitive redaction replaces raw output before audit finalization.
-10. Public `output_policy_failed` is static and contains no secret/details.
-11. D-032 content-trust classification is preserved independently.
-12. T-402 completed replay reruns current output policy without re-execution.
-13. `spec/0.1/**` remains unchanged.
+8. `output_policy_failed` does not mean side effects were rolled back or that business execution is safe to retry.
+9. Raw sensitive output is removed from pipeline state before audit finalization on policy failure.
+10. Successful sensitive redaction replaces raw output before audit finalization.
+11. Public `output_policy_failed` is static and contains no secret/details.
+12. D-032 content-trust classification is preserved independently.
+13. T-402 completed replay reruns current output policy without re-execution.
+14. `spec/0.1/**` remains unchanged.
 
 ## 14. Required verification
 
@@ -331,22 +334,23 @@ Minimum automated coverage:
 
 1. normal output exact pass-through;
 2. normal output never invokes a configured sensitive redactor;
-3. sensitive release exposes only the redacted/safe value;
+3. sensitive release exposes only the explicitly released value;
 4. sensitive release of legitimate null remains a successful released output;
 5. sensitive output with no redactor fails closed;
 6. `withhold()` produces `output_policy_failed` and no data;
 7. redactor exception produces the same static failure and leaks no exception/raw output;
-8. auditor sees only redacted output on success;
+8. auditor sees only explicitly released output on success;
 9. auditor sees no raw output on policy failure;
 10. caller metadata cannot influence trusted `OutputPolicyContext`;
 11. sensitive + untrusted-content classification remains independent;
 12. completed idempotency replay invokes current redactor again;
 13. redaction failure during replay does not re-execute the application executor;
 14. a later replay may succeed when policy/redactor becomes able to release the same stored pre-policy output;
-15. full PHP matrix remains green;
-16. browser tests remain unchanged/green;
-17. `python scripts/validate.py` remains green;
-18. `spec/0.1/**` has no diff.
+15. `output_policy_failed` tests explicitly prove no safe-retry/rollback claim is encoded in public error details;
+16. full PHP matrix remains green;
+17. browser tests remain unchanged/green;
+18. `python scripts/validate.py` remains green;
+19. `spec/0.1/**` has no diff.
 
 Because output redaction is security-sensitive under `AGENTS.md`, negative tests are mandatory.
 
