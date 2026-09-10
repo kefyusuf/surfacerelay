@@ -17,7 +17,7 @@ T-502 implements D-017 for the Filament reference vertical by providing `current
 
 The authority is the exact selection that Filament resolves from the exact active table page at invocation time. Caller-supplied record IDs, generic invocation metadata, route/query/request values and raw Livewire selection properties never satisfy `current_selection` authority.
 
-The resulting selection is a bounded, immutable-for-the-invocation snapshot represented as an unordered set of exact persisted Eloquent record identities. Application execution receives the exact selected Eloquent model instances that Filament resolved for that invocation.
+The resulting selection is a bounded invocation-time snapshot represented as an unordered set of exact persisted Eloquent record identities. The **membership and identity set** are frozen for that SurfaceRelay invocation. The Eloquent model objects themselves are not made immutable; application execution receives the exact selected model instances that Filament resolved and may interact with them normally.
 
 ```text
 Action Definition   = declares `current_selection` requirement
@@ -143,7 +143,7 @@ Responsibilities:
 - canonicalize the selection as a set;
 - return exact selected model instances in deterministic canonical order;
 - derive a non-secret stable `confirmationScopeKey`;
-- return absence for a legitimate empty selection;
+- return absence for a legitimate effective empty selection;
 - fail closed with static-safe adapter errors for inconsistent/unsupported states.
 
 The resolver must not:
@@ -201,6 +201,8 @@ Application code may rely on:
 - deterministic list order for the same identity set during one invocation.
 
 Application code must not interpret list position as user intent.
+
+The snapshot freezes **which exact identities are members of the selection** for the invocation. It does not freeze Eloquent attributes or prohibit the executor from mutating the exact model instances. Confirmation/idempotency scope is derived before execution and is not recomputed from mutable business attributes afterward.
 
 ## Stable selection identity
 
@@ -267,19 +269,21 @@ T-502 must not infer tenant authority from:
 
 ## Empty selection semantics
 
-An exact supported table page with zero selected records produces trusted-context absence.
+An exact supported table page produces trusted-context absence **only when the effective result of Filament's public `getSelectedTableRecords()` contract is empty**.
 
-No `current_selection` entry is added.
+Raw Livewire selection properties are not an emptiness test. In particular, select-all mode may legitimately have an empty `$selectedTableRecords` array while the effective selected-record set is non-empty and represented through Filament's deselection tracking semantics.
+
+No `current_selection` entry is added when the effective public selection result is empty.
 
 Therefore:
 
 ```text
 action requires current_selection
-AND exact selected record count = 0
+AND effective selected record count = 0
 → existing required_context_missing halt
 ```
 
-This prevents actions such as "refund selected rows" from executing under a fabricated empty selection authority.
+This prevents actions such as "refund selected rows" from executing under a fabricated empty selection authority while still respecting Filament's select-all semantics.
 
 An empty selection is not represented as an empty trusted list with a valid scope key.
 
@@ -303,7 +307,8 @@ Requirements:
 - count `<= max` may materialize the bounded snapshot;
 - observing record `max + 1` fails closed with `selection_limit_exceeded` semantics;
 - the adapter never silently truncates to the first `max` records;
-- the limit applies before confirmation/idempotency identity construction and before application execution.
+- the limit applies before confirmation/idempotency identity construction and before application execution;
+- the bounded count is measured over the **effective selected records returned by Filament after Filament's own selectability/query semantics**, not over raw selection-key properties.
 
 The initial default of 500 is a reference-runtime safety ceiling, not a protocol constant. It can be overridden only through trusted adapter construction/configuration.
 
@@ -333,7 +338,7 @@ T-502 initially supports exact selected persisted Eloquent model records whose i
 
 Duplicate-enabled relation rows are not silently collapsed to one model identity. Supporting pivot-row identity would require a distinct explicit authority model and is out of T-502 scope.
 
-For a table with no current selection, absence may be returned without manufacturing an error solely because an unsupported duplicate-row mode exists; unsupported identity semantics matter only when SurfaceRelay would otherwise issue non-empty selection authority.
+For a table with no current effective selection, absence may be returned without manufacturing an error solely because an unsupported duplicate-row mode exists; unsupported identity semantics matter only when SurfaceRelay would otherwise issue non-empty selection authority.
 
 ## Public API and framework-private-state boundary
 
@@ -475,7 +480,7 @@ Required proof:
 
 `current_selection` is resolved once per SurfaceRelay invocation while building trusted context before ActionBus dispatch.
 
-The snapshot is immutable for that invocation even if the human UI changes selection immediately afterward.
+The snapshot's **membership and exact identity set** remain fixed for that invocation even if the human UI changes selection immediately afterward. The Eloquent model instances in the snapshot remain normal mutable application objects; T-502 does not copy/freeze their attributes.
 
 A later invocation resolves a fresh selection snapshot.
 
@@ -486,7 +491,8 @@ Consequences:
 - confirmation issued for one selection remains bound to that selection scope;
 - if the user changes selection before confirmed retry, current trusted scope differs and the old receipt cannot authorize the new selection;
 - idempotency intent likewise tracks the current invocation snapshot;
-- no stale selection is silently rebound to a new table state.
+- no stale selection is silently rebound to a new table state;
+- changes to mutable model attributes after snapshot construction do not rewrite the already-derived selection identity for that invocation.
 
 ## T-503 separation — active filters are not selection authority
 
@@ -508,7 +514,9 @@ current_selection = WHICH exact records are selected now
 active_filters    = WHICH table-view constraints are active now
 ```
 
-T-503 owns the second concern.
+If active filters change but Filament still resolves the **same exact effective selected record set**, the T-502 selection scope key intentionally remains the same. T-503, not T-502, is responsible for representing the changed filter authority/state. If the filter change alters the effective selected record set, the T-502 scope key changes because the record set changed.
+
+T-503 owns the filter-state concern.
 
 ## Failure model
 
@@ -553,7 +561,7 @@ Prove extraction of the common identity primitive does not change T-501 behavior
 Cover:
 
 - non-table Page → absence;
-- table with zero selection → absence;
+- table with effective zero selection → absence;
 - explicit selected Eloquent records → exact model snapshot;
 - canonical selection ordering independent of source order;
 - same set produces same selection scope key;
@@ -571,7 +579,8 @@ Use real Filament `HasTable` behavior and Testbench to prove:
 
 - explicit table selections resolve through `getSelectedTableRecords()`;
 - select-all plus deselected exceptions produce the exact effective selection Filament reports;
-- selectable-record constraints are respected by the public API;
+- a raw empty `$selectedTableRecords` value does **not** imply trusted absence when Filament's effective select-all result is non-empty;
+- selectable-record constraints are respected by the public API before SurfaceRelay applies its own selection ceiling;
 - SurfaceRelay does not read raw selection properties as authority;
 - the bounded resolver does not consume more than the allowed decision window when a LazyCollection path is available.
 
@@ -579,7 +588,7 @@ Use real Filament `HasTable` behavior and Testbench to prove:
 
 Prove:
 
-- ActionDefinition requiring `current_selection` rejects an empty selection before execution;
+- ActionDefinition requiring `current_selection` rejects an effective empty selection before execution;
 - exact selected model list reaches application executor through `FilamentActionGateway → ActionBus`;
 - caller input/metadata spoofing does not substitute selection;
 - selection-order independence for confirmation/idempotency;
@@ -606,19 +615,21 @@ No matrix row is removed to make T-502 pass.
 1. Caller IDs never become `current_selection` authority.
 2. Exact active Page remains the trusted UI source.
 3. Filament's public selected-record contract, not raw Livewire properties, defines effective selection.
-4. Empty selection is absence, not an empty authority token.
-5. Selection is bounded before application execution.
-6. Over-limit selection fails rather than truncating.
-7. Selection is an unordered exact record-identity set.
-8. Duplicate exact identity fails rather than silently deduplicating.
-9. Ambiguous duplicate-row relationship semantics fail closed.
-10. Tenant remains independent of selection identity.
-11. Filter state is not smuggled into `current_selection`.
-12. Confirmation/idempotency bind the exact bounded snapshot.
-13. Audit persists no selected-record material.
-14. No new Filament execution driver/path is introduced.
-15. Framework/model exceptions are static-safe and non-chained.
-16. T-501 current-record scope identity remains byte-for-byte compatible.
+4. Empty selection means the effective public selected-record result is empty; raw selection-key arrays are not an emptiness authority.
+5. Empty effective selection is absence, not an empty authority token.
+6. Selection is bounded before application execution.
+7. Over-limit selection fails rather than truncating.
+8. Selection is an unordered exact record-identity set.
+9. Duplicate exact identity fails rather than silently deduplicating.
+10. Ambiguous duplicate-row relationship semantics fail closed.
+11. Tenant remains independent of selection identity.
+12. Filter state is not smuggled into `current_selection`.
+13. Confirmation/idempotency bind the exact bounded membership/identity snapshot.
+14. Audit persists no selected-record material.
+15. No new Filament execution driver/path is introduced.
+16. Framework/model exceptions are static-safe and non-chained.
+17. T-501 current-record scope identity remains byte-for-byte compatible.
+18. Snapshot immutability applies to selection membership/identity, not to mutable Eloquent business attributes.
 
 ## Non-goals
 
@@ -634,10 +645,11 @@ T-502 does not:
 - define a new protocol field/schema;
 - add a Filament RuntimeBinding driver;
 - infer tenant from selected models;
-- use caller-provided selection IDs as a shortcut.
+- use caller-provided selection IDs as a shortcut;
+- freeze/copy Eloquent model attributes or prevent normal application mutations.
 
 ## Acceptance summary
 
 T-502 is complete when the Laravel/Filament reference runtime can truthfully guarantee:
 
-> For one exact trusted Filament table page and one SurfaceRelay invocation, `current_selection` is either absent because no records are selected, or is a bounded fail-closed snapshot of the exact persisted Eloquent records that Filament's public table contract currently considers selected. The snapshot is an unordered exact identity set, is caller-unforgeable, binds existing confirmation/idempotency controls, leaks no selection material into audit, and reaches application execution through the existing Filament gateway / ActionBus / Livewire path without introducing a second driver or execution endpoint.
+> For one exact trusted Filament table page and one SurfaceRelay invocation, `current_selection` is either absent because Filament's public table contract resolves no effective selected records, or is a bounded fail-closed snapshot of the exact persisted Eloquent records that contract currently considers selected. The snapshot freezes an unordered exact membership/identity set for the invocation while preserving the exact normal Eloquent model instances for application use; it is caller-unforgeable, binds existing confirmation/idempotency controls, leaks no selection material into audit, and reaches application execution through the existing Filament gateway / ActionBus / Livewire path without introducing a second driver or execution endpoint.
