@@ -6,26 +6,69 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/filament-active-filter-context`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
 - **Last merged/revalidated task:** `T-502 — Current-selection trusted context`
-- **Current task:** none
+- **Current task:** `T-503 — Active-filter context` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
 - **T-502 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Original base / merge-base:** `main@ae77cbf26cbefcca478d070765386628343bec52`
-- **Final reviewed code head:** `433147274ea57fb9ae1452295bbdad143a19a507`
-- **Final pre-merge operational head:** `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a`
-- **Merge commit:** `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`
-- **Post-merge main workflows:** `34471406523`, `34471433674` — **7/7 green each**
-- **PHP:** **509 tests / 2629 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
-- **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
-- **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4** verified in the matrix
-- **Decisions:** `D-019`, `D-048`, `D-049` — **ACCEPTED**
-- **Pull request:** `#6` — **CLOSED / MERGED**
-- **External review:** **PASSED after TDD hardening**
-- **Remaining actionable findings:** **0**
-- **Unresolved review threads:** **0**
-- **Next task:** `T-503 — Active-filter context` — **NOT STARTED**
+- **T-503 base:** `main@00cf05d48b4c02e0eeaa0d8413683d39db4e0f65`
+- **T-503 design/decision checkpoint:** `be17945dac6cf2d075bd72075ee26839286b8709`
+- **T-503 design spec:** `docs/superpowers/specs/2026-09-10-filament-active-filter-context-design.md`
+- **PHP baseline:** **509 tests / 2629 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
+- **Browser isolation baseline:** TypeScript typecheck + **103/103 Vitest tests**
+- **Contract baseline:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
+- **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4** verified in the T-502 matrix
+- **Decisions:** `D-019`, `D-048`, `D-049`, `D-050` — **ACCEPTED**
+- **T-502 pull request:** `#6` — **CLOSED / MERGED**
+- **T-503 pull request:** none
+- **Implementation gate:** waiting for review of the written T-503 design before implementation-plan/TDD work
+
+## T-503 design boundary
+
+D-050 preserves the frozen core context vocabulary while allowing explicitly exposed adapter-specific trusted UI authority.
+
+```text
+exact trusted active Filament Page
+        │
+        ├── no explicit active-filter exposure
+        │       └── no trusted extension; T-502 behavior unchanged
+        │
+        └── FilamentContextExposure::activeFilters()
+                    │
+                    ▼
+        public getTable()->getFilters()
+                    │
+                    ▼
+        public getTableFilterState(name)
+                    │
+                    ▼
+        canonical applied-filter snapshot
+                    │
+                    ▼
+ trusted extension: filament/active_filters
+                    │
+                    ├── confirmation scope binding
+                    ├── idempotency intent binding
+                    └── audit manifest: extension/provider only
+                    │
+                    ▼
+ existing InvocationContext → ActionCall → ActionBus → Livewire RuntimeBinding
+```
+
+Locked design invariants:
+
+1. `active_filters` is not added to frozen `ContextRequirement` or `spec/0.1`.
+2. Adapter-specific trusted authority uses a namespaced trusted-runtime-extension channel physically separate from generic metadata.
+3. T-503 uses the exact extension key `filament/active_filters` and provider `filament.active_filters`.
+4. Exposure is explicit trusted server-side adapter wiring; action input/metadata/browser arguments cannot enable or alter it.
+5. Authority comes only from the exact active `HasTable` page and public `getFilters()` + `getTableFilterState()` APIs.
+6. Deferred `getTableFilterFormState()` / `tableDeferredFilters` state is not authority before Apply.
+7. Exposed empty filter state is a present empty snapshot, distinct from no exposure.
+8. Snapshot state is canonical and type-preserving; unrepresentable custom state fails closed without fallback casting/serialization.
+9. Present trusted extensions bind confirmation scope and idempotency intent; when none exist the hash document remains unchanged for byte-for-byte compatibility.
+10. Audit persists only the trusted extension key/provider, never raw filter state or scope material.
+11. T-502 `current_selection` remains independent; filter state is not embedded into selection identity.
+12. No Filament RuntimeBinding driver, alternate action endpoint, or browser-runtime change is introduced.
 
 ## T-502 production boundary
 
@@ -81,7 +124,7 @@ Filament remains a trusted-context/UI adapter. T-502 does **not** add a Filament
 14. Active filters remain T-503 scope.
 15. `spec/0.1/**`, `packages/browser-runtime/src/**` and `packages/laravel/src/Livewire/**` remain unchanged.
 
-## TDD / verification evidence
+## T-502 TDD / verification evidence
 
 ```text
 Plan baseline:                  a115a432dba24b7df30884b0f3fef2ed990e119f / 34450997871 — 7/7 green
@@ -109,16 +152,16 @@ Browser:                        TypeScript typecheck + 103/103 Vitest tests
 Contract:                       green; frozen spec/0.1 unchanged
 ```
 
-## External review closure
+## T-502 external review closure
 
 CodeRabbit full review run `7eadba8f-6972-444e-8e32-b5e66e776a0d` found one actionable correctness issue: the original `min(100, max + 1)` value limited each Filament `lazyById()` batch rather than total materialization. With `max=150`, the regression proved 200 records were hydrated before the limit was observed.
 
 The fix passes the exact trusted sentinel size `maxSelectionRecords + 1` to Filament's public `getSelectedTableRecords()` API. The same real Filament integration proves exactly 151 hydrated records for `max=150`. CodeRabbit incremental verification comment `5617635978` confirmed: **no remaining actionable T-502 correctness/security findings**, **0 unresolved review threads**, and the prior materialization finding is addressed.
 
-## Merge closure
+## T-502 merge closure
 
 PR #6 was merged with an expected-head guard pinned to `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a` using the repository's established merge-commit method. GitHub created merge commit `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`, whose parents are the original base and exact feature head. The merge commit became `main` and both post-merge push validation runs completed **7/7 green**.
 
 ## Next boundary
 
-**T-502 is DONE / REVIEWED / MERGED / MAIN REVALIDATED. T-503 has not started.**
+**T-503 design is written and D-050 is ACCEPTED. Production implementation has not started. The next permitted step is the dedicated T-503 implementation plan after review of the written design.**
