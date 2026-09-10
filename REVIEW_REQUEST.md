@@ -1,30 +1,25 @@
 # External Review Record
 
-## Review status
+## Final status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Scope:** `T-501 — Filament record context binding`
-- **Branch:** `feat/filament-record-context-binding`
-- **Pull request:** `#5`
-- **Base / merge-base:** `main@66afcc22704bfe3b317f2894b7737cf18d248e34`
-- **Original implementation checkpoint:** `e8e113647383f8fe294eeb046eb5c8dd152adb16` / `34435810811` — **7/7 green**
-- **Initial review-prep head:** `16821431198b454bd611e65f44da03254611ab3f` / `34436214862` — **7/7 green**
-- **CodeRabbit full-review run:** `5931182a-b621-47c3-b361-8843f450f039`
-- **Review-hardening production checkpoint:** `88967b90711d3080ad2e47ad8e47fa5a23280579` / `34438214057` — **7/7 green**
-- **PHP after hardening:** **482 tests / 2533 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
-- **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
+- **Pull request:** `#5` — **MERGED**
+- **Feature head:** `7c3b96b289540366acc1b5c916b479b8963db775`
+- **Merge commit:** `f9cc5aabc22d93edd2ebae122cc1aaf90bbda9e6`
+- **Merged-main workflow:** `34443059898` — **7/7 green**
+- **PHP:** **482 tests / 2533 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
+- **Browser:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
-- **Filament compatibility:** Filament 5.8.1 / Livewire 4.4.4 verified across the current matrix
+- **Filament compatibility:** Filament **5.8.1** / Livewire **4.4.4** verified in the current matrix
 - **Decisions:** `D-019 — ACCEPTED`; `D-048 — ACCEPTED`
 - **External review result:** **PASSED after TDD hardening**
 - **Unresolved inline review threads:** **0**
-- **Merge:** not requested; explicit permission remains required
+- **Final result:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 
 ## Review objective
 
 Challenge the Filament trusted-context boundary for caller-controlled record selection, silent record re-resolution/retargeting, unstable record identity, tenant/record authority conflation, unsafe framework exceptions, private Filament API dependence, confirmation/idempotency scope mismatch, audit leakage, and accidental creation of a second execution path.
-
-The final implementation remains narrow: exact active Filament page context is composed into the existing `InvocationContext`, a normal `ActionCall` is created, and the existing `ActionBus` / Livewire RuntimeBinding path remains authoritative.
 
 ## Final production path
 
@@ -37,14 +32,14 @@ FilamentActionGateway
         ▼
 FilamentInvocationContextFactory
         │
-        ├── TrustedContextComposer      → actor / tenant
-        └── FilamentRecordContextResolver → current_record
+        ├── TrustedContextComposer          → actor / tenant
+        └── FilamentRecordContextResolver   → current_record
         │
         ▼
 InvocationContext
         │
         ▼
-ActionCall
+normal ActionCall
         │
         ▼
 existing ActionBus
@@ -53,30 +48,26 @@ existing ActionBus
 existing Livewire RuntimeBinding execution
 ```
 
-No Filament RuntimeBinding driver, route/request record discovery, model re-query, service-provider ambient hook, or alternate business-action endpoint is introduced.
+No Filament RuntimeBinding driver, route/request record discovery, model re-query, service-provider ambient hook, or alternate business-action endpoint was introduced.
 
 ## Final implemented semantics
 
-1. `FilamentRecordContextResolver` accepts one exact trusted `Filament\Resources\Pages\Page` instance.
-2. Record capability requires a physical public/callable `getRecord()` method; Livewire magic `__call` cannot manufacture it.
-3. Non-record pages produce trusted-context absence and therefore cannot satisfy an action requiring `current_record`.
-4. Record-aware pages return the exact Eloquent model already owned by Filament; SurfaceRelay performs no replacement lookup/reload.
-5. Caller input, invocation metadata, routes, query/request values, binding ID, receipt and idempotency key do not select the record.
-6. Stable record identity is a domain-separated SHA-256 over canonical `{modelClass,keyName,keyValue}` only.
-7. Model attributes, tenant, actor, routes and timestamps do not participate in record identity.
-8. Integer/string key identities remain distinct; integer zero is valid; invalid identities fail closed.
-9. `getRecord()`, `getKeyName()` and `getKey()` exceptions become static non-chained adapter failures.
-10. Provenance is only `provider=filament.current_record`, `reference=null`.
-11. `FilamentTrustedContextComposer` preserves existing actor/tenant composition and appends typed `current_record` authority.
-12. `FilamentInvocationContextFactory` converts exact page context into the existing `InvocationContext` type.
-13. `FilamentActionGateway` is the production invocation boundary and creates the normal existing `ActionCall` before dispatching `ActionBus`.
-14. Different records change confirmation/idempotency identity; equivalent typed record identity is stable across distinct Eloquent instances.
-15. Tenant and current-record identities remain independent trusted dimensions.
-16. Record-A receipt cannot authorize record B; wrong-scope mismatch does not spend the valid record-A receipt.
-17. T-404 audit persists only `{requirement,provider}` trusted-context facts and not record key/attributes/tenant/scope-key material.
-18. Real Filament 5 `InteractsWithRecord` integration proves exact model preservation and zero SurfaceRelay record re-query.
-19. Filament remains dev-only in Composer metadata and the base service provider remains Filament-neutral.
-20. Existing Livewire production and browser-runtime production remain unchanged.
+1. The adapter accepts the exact trusted active `Filament\Resources\Pages\Page` instance.
+2. Record capability requires a physical public/callable `getRecord()` method; Livewire magic `__call` cannot manufacture authority.
+3. Non-record pages produce trusted-context absence and cannot satisfy `current_record` requirements.
+4. Record-aware pages reuse the exact Eloquent model already owned by Filament; SurfaceRelay performs no replacement lookup/reload.
+5. Caller input, metadata, route/query/request values, binding ID, confirmation receipt and idempotency key do not select the record.
+6. Stable identity is a domain-separated SHA-256 over canonical `{modelClass,keyName,keyValue}` only.
+7. Integer/string key identities remain distinct; integer zero is valid; invalid identities fail closed.
+8. `getRecord()`, `getKeyName()` and `getKey()` exceptions become static, non-chained adapter failures.
+9. Tenant and current-record identities remain independent trusted dimensions.
+10. `FilamentActionGateway` is the real production invocation boundary and feeds the existing `ActionBus` / Livewire execution path.
+11. Confirmation/idempotency identity changes across different records and remains stable across distinct model instances with equivalent typed identity.
+12. A record-A receipt cannot authorize record B; wrong-scope mismatch does not spend the valid record-A receipt.
+13. T-404 audit stores only trusted-context `{requirement,provider}` facts and excludes raw record identity/material.
+14. Real Filament 5 `InteractsWithRecord` integration proves exact-model preservation and zero SurfaceRelay database queries during record resolution.
+15. Filament remains dev-only for the reference integration surface and `SurfaceRelayServiceProvider` remains Filament-neutral.
+16. Existing Livewire production, browser-runtime production and frozen `spec/0.1/**` are unchanged.
 
 ## TDD / verification evidence
 
@@ -91,15 +82,17 @@ Composer GREEN:                 3340cf28eb57fb4fc3021ef5303da921733f184a / 34435
 Trust-control RED:              c1a02ca00089d22e0ee3872237527bce881685ae / 34435523351 — 473 / 2485, 1 expected failure
 Trust-control GREEN:            081eed99fdd4cf29ade3f7b002d8bb1c8eed38c3 / 34435672411 — 7/7 green
 Real Filament checkpoint:       e8e113647383f8fe294eeb046eb5c8dd152adb16 / 34435810811 — 7/7 green
-Review-prep head:               16821431198b454bd611e65f44da03254611ab3f / 34436214862 — 7/7 green
-Review finding #1 RED:          f7918f04f4b2a18fb38fa24b5a1f66d63aa9388f / 34437159969 — 480 / 2524, 1 unsafe identity-access error
+Review finding #1 RED:          f7918f04f4b2a18fb38fa24b5a1f66d63aa9388f / 34437159969 — unsafe identity exception escaped
 Review finding #1 GREEN:        e311201abc44ac61bddedcd22cbaf8d4802e26c7 / 34437278072 — 7/7 green
-Factory-composition RED:        b961700be7ed97cda4bb7ca423c17068700027b9 / 34437453767 — 482 / 2527, 2 expected missing-factory errors
+Factory-composition RED:        b961700be7ed97cda4bb7ca423c17068700027b9 / 34437453767 — 2 expected missing-factory errors
 Factory-composition GREEN:      031dfe4218bdaa776f40cfca073ad7ad7bc98d8b / 34437591532 — 7/7 green
-Gateway first RED attempt:      1e3e11392d62b3d9e4c400a8017d3a3d40600d6a — INVALID HARNESS EVIDENCE; filename/class mismatch prevented intended tests from executing
+Gateway first RED attempt:      1e3e11392d62b3d9e4c400a8017d3a3d40600d6a — INVALID HARNESS EVIDENCE
 Gateway valid RED:              513fa5189b907c1022a93e8da7d8df4136959952 / 34438127154 — 482 / 2527, exactly 2 missing-gateway errors
 Review-hardening GREEN:         88967b90711d3080ad2e47ad8e47fa5a23280579 / 34438214057 — 7/7 green
-PHP after hardening:            482 tests / 2533 assertions
+Final feature head:             7c3b96b289540366acc1b5c916b479b8963db775 / 34438780003 — 7/7 green
+Merge commit:                   f9cc5aabc22d93edd2ebae122cc1aaf90bbda9e6
+Merged-main validation:         34443059898 — 7/7 green
+PHP:                            482 tests / 2533 assertions
 Browser:                        TypeScript typecheck + 103/103 Vitest tests
 Contract:                       green; frozen spec/0.1 unchanged
 ```
@@ -108,68 +101,37 @@ Contract:                       green; frozen spec/0.1 unchanged
 
 ### Finding 1 — Eloquent identity accessor exceptions could escape — FIXED / CONFIRMED
 
-The full review correctly found that `getKeyName()` / `getKey()` were outside the adapter's safe exception boundary.
-
-- RED `f7918f04… / 34437159969`: custom model `getKey()` leaked `SECRET-IDENTITY-ERROR`.
-- GREEN `e311201a… / 34437278072`: both identity accessors are inside a `Throwable` boundary and map to static `invalidRecordIdentity()` with no previous exception.
-
-CodeRabbit explicitly confirmed the fix; the inline thread is resolved.
+The review correctly found `getKeyName()` / `getKey()` outside the adapter's safe exception boundary. The failure was reproduced, then both accessors were placed inside a `Throwable` boundary that returns static `invalidRecordIdentity()` without chaining application exceptions. CodeRabbit confirmed the fix and the inline thread is resolved.
 
 ### Finding 2 — trusted record context was not wired into production invocation — FIXED / CONFIRMED
 
-The first reviewed implementation had resolver/composer tests but no production path consuming the result. A first hardening step introduced `FilamentInvocationContextFactory` and a real ActionBus E2E.
+The original implementation exposed resolver/composer behavior without a production consumer. A first hardening step added `FilamentInvocationContextFactory`, but CodeRabbit correctly found an incremental blocker: the factory still had no production caller.
 
-- RED `b961700b… / 34437453767`: production factory missing.
-- GREEN `031dfe42… / 34437591532`: exact page context could be composed into `InvocationContext` and used by the existing ActionBus.
+A valid second RED required `FilamentActionGateway`. The gateway now owns exact `Page → FilamentInvocationContextFactory → InvocationContext → ActionCall → ActionBus` composition while retaining the existing Livewire execution binding.
 
-CodeRabbit's incremental review correctly found that this still left the factory without a production caller (comment `5613229905`).
+CodeRabbit directly re-checked this blocker at the GREEN head and replied in comment `5613323657`: **“Yes. This closes the specific production-wiring blocker.”**
 
-### Incremental blocker — factory still had no production caller — FIXED / CONFIRMED
+### Non-blocking warning
 
-A production `FilamentActionGateway` was then required TDD-first.
-
-The first RED attempt (`1e3e1139…`) was intentionally **not** accepted as RED evidence because PHPUnit did not execute the intended class due to a filename/class mismatch. The harness was fixed first.
-
-- Valid RED `513fa518… / 34438127154`: **482 tests / 2527 assertions**, exactly two errors because `FilamentActionGateway` did not exist.
-- GREEN `88967b90… / 34438214057`: **7/7 green**, **482 tests / 2533 assertions**.
-
-The gateway now owns exact `Page → FilamentInvocationContextFactory → InvocationContext → ActionCall → ActionBus` composition while retaining the existing Livewire execution binding.
-
-CodeRabbit directly re-checked only this blocker at the GREEN head and replied in comment `5613323657`: **“Yes. This closes the specific production-wiring blocker.”** It confirmed that the gateway is production source, constructs the factory, supplies the exact Page, creates the normal ActionCall and invokes the existing ActionBus.
-
-### Non-blocking CodeRabbit warning
-
-Generic docstring coverage remains below CodeRabbit's generic 80% threshold. This is a documentation-style metric, not a T-501 correctness/security finding, and is intentionally not expanded into this trust-control PR.
+Generic docstring coverage remains below CodeRabbit's generic threshold. This is a documentation-style metric, not a T-501 correctness/security finding, and was intentionally not expanded into the trust-control change.
 
 ## Scope audit
 
-At production hardening head `88967b90…`, base comparison is ahead-only and contains no files under:
+The merged T-501 change contains no production changes under:
 
 - `spec/0.1/**`;
 - `packages/browser-runtime/**`;
 - `packages/laravel/src/Livewire/**`.
 
-Production additions are restricted to:
+Production additions are restricted to Filament `Context/**`, `Invocation/FilamentActionGateway.php`, plus Composer/CI dependency metadata. No `filament` RuntimeBinding driver exists.
 
-```text
-packages/laravel/src/Filament/Context/FilamentRecordContextResolver.php
-packages/laravel/src/Filament/Context/FilamentTrustedContextComposer.php
-packages/laravel/src/Filament/Context/FilamentInvocationContextFactory.php
-packages/laravel/src/Filament/Context/InvalidFilamentRecordContext.php
-packages/laravel/src/Filament/Invocation/FilamentActionGateway.php
-```
+## Deferred work
 
-plus Composer/CI dependency metadata. No `filament` RuntimeBinding driver exists.
-
-## Non-claims / deferred work
-
-- T-501 does not resolve `current_selection` — T-502.
-- T-501 does not expose active table filters — T-503.
-- T-501 does not implement the Filament confirmation UI bridge — T-504.
-- T-501 does not implement the multi-tenant order-operations demo — T-505.
-- The record scope hash is an identity aid, not authorization proof.
-- The gateway requires trusted code to supply the exact active Page; it does not discover pages from ambient routes/requests.
+- `T-502 — Current-selection trusted context`
+- `T-503 — Active-filter context`
+- `T-504 — Confirmation bridge`
+- `T-505 — Multi-tenant order operations demo`
 
 ## Final result
 
-**PASSED.** T-501's exact-record resolution, trust-control binding, static-safe failure behavior and production invocation composition were reviewed and hardened. PR #5 remains open; merge is a separate explicit user gate.
+**PASSED / MERGED / MAIN REVALIDATED.** T-501 is fully closed. M5 remains in progress; T-502 has not started.
