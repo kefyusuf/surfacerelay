@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use SurfaceRelay\Laravel\Runtime\Context\ContextProvenance;
 use SurfaceRelay\Laravel\Runtime\Context\ResolvedTrustedValue;
 use SurfaceRelay\Laravel\Runtime\Scope\RuntimeScopeCanonicalizer;
-use SurfaceRelay\Laravel\Runtime\Scope\UnrepresentableRuntimeScope;
 
 final class FilamentRecordContextResolver
 {
@@ -44,28 +43,12 @@ final class FilamentRecordContextResolver
         }
 
         try {
-            $keyName = $record->getKeyName();
-            $keyValue = $record->getKey();
-        } catch (\Throwable) {
-            throw InvalidFilamentRecordContext::invalidRecordIdentity();
-        }
-
-        if (
-            ! is_string($keyName)
-            || $keyName === ''
-            || (! is_int($keyValue) && ! is_string($keyValue))
-            || $keyValue === ''
-        ) {
-            throw InvalidFilamentRecordContext::invalidRecordIdentity();
-        }
-
-        try {
-            $encodedIdentity = $this->canonicalizer->encode([
-                'modelClass' => $record::class,
-                'keyName' => $keyName,
-                'keyValue' => $keyValue,
-            ], 'filament.current_record.identity');
-        } catch (UnrepresentableRuntimeScope) {
+            $identity = FilamentRecordIdentity::fromModel($record);
+            $encodedIdentity = $identity->encode(
+                $this->canonicalizer,
+                'filament.current_record.identity',
+            );
+        } catch (InvalidFilamentRecordIdentity) {
             throw InvalidFilamentRecordContext::invalidRecordIdentity();
         }
 

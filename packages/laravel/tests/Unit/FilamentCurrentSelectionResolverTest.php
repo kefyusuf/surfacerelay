@@ -1,0 +1,333 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SurfaceRelay\Laravel\Tests\Unit;
+
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
+use Orchestra\Testbench\TestCase;
+use RuntimeException;
+use SurfaceRelay\Laravel\Filament\Context\FilamentCurrentSelectionResolver;
+use SurfaceRelay\Laravel\Filament\Context\InvalidFilamentCurrentSelection;
+use SurfaceRelay\Laravel\Tests\Fixtures\Filament\NonRecordPage;
+use SurfaceRelay\Laravel\Tests\Fixtures\Filament\TestRecord;
+use SurfaceRelay\Laravel\Tests\Fixtures\Filament\TestTablePage;
+
+final class FilamentCurrentSelectionResolverTest extends TestCase
+{
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->app['db']->connection()->getSchemaBuilder()->create(
+            'filament_test_records',
+            static function (Blueprint $table): void {
+                $table->integer('id')->primary();
+                $table->string('name');
+            },
+        );
+    }
+
+    public function test_default_selection_ceiling_is_500(): void
+    {
+        self::assertSame(500, FilamentCurrentSelectionResolver::DEFAULT_MAX_SELECTION_RECORDS);
+    }
+
+    public function test_selection_ceiling_must_be_positive(): void
+    {
+        foreach ([0, -1] as $invalidMaximum) {
+            try {
+                new FilamentCurrentSelectionResolver(
+                    new NonRecordPage(),
+                    maxSelectionRecords: $invalidMaximum,
+                );
+                self::fail('Expected InvalidFilamentCurrentSelection.');
+            } catch (InvalidFilamentCurrentSelection $e) {
+                self::assertSame(
+                    'Filament current selection configuration is invalid.',
+                    $e->getMessage(),
+                );
+                self::assertNull($e->getPrevious());
+            }
+        }
+    }
+
+    public function test_non_table_page_resolves_to_absence(): void
+    {
+        self::assertNull(
+            (new FilamentCurrentSelectionResolver(new NonRecordPage()))->resolve(),
+        );
+    }
+
+    public function test_table_with_empty_effective_selection_resolves_to_absence(): void
+    {
+        self::assertNull(
+            (new FilamentCurrentSelectionResolver($this->tablePage()))->resolve(),
+        );
+    }
+
+    public function test_explicit_effective_selection_resolves_to_canonical_trusted_snapshot(): void
+    {
+        TestRecord::query()->create(['id' => 2, 'name' => 'B']);
+        TestRecord::query()->create(['id' => 1, 'name' => 'A']);
+
+        $page = $this->tablePage();
+        $page->selectedTableRecords = [2, 1];
+
+        $resolved = (new FilamentCurrentSelectionResolver($page))->resolve();
+
+        self::assertNotNull($resolved);
+        self::assertSame([1, 2], $this->recordIds($resolved->value));
+        self::assertSame('filament.current_selection', $resolved->provenance->provider);
+        self::assertNull($resolved->provenance->reference);
+        self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $resolved->confirmationScopeKey);
+    }
+
+    public function test_same_effective_set_has_same_scope_regardless_of_source_order(): void
+    {
+        TestRecord::query()->create(['id' => 1, 'name' => 'A']);
+        TestRecord::query()->create(['id' => 2, 'name' => 'B']);
+        TestRecord::query()->create(['id' => 3, 'name' => 'C']);
+
+        $pageAB = $this->tablePage();
+        $pageAB->selectedTableRecords = [1, 2];
+        $ab = (new FilamentCurrentSelectionResolver($pageAB))->resolve();
+
+        $pageBA = $this->tablePage();
+        $pageBA->selectedTableRecords = [2, 1];
+        $ba = (new FilamentCurrentSelectionResolver($pageBA))->resolve();
+
+        $pageAC = $this->tablePage();
+        $pageAC->selectedTableRecords = [1, 3];
+        $ac = (new FilamentCurrentSelectionResolver($pageAC))->resolve();
+
+        self::assertNotNull($ab);
+        self::assertNotNull($ba);
+        self::assertNotNull($ac);
+        self::assertSame($ab->confirmationScopeKey, $ba->confirmationScopeKey);
+        self::assertNotSame($ab->confirmationScopeKey, $ac->confirmationScopeKey);
+        self::assertSame($this->recordIds($ab->value), $this->recordIds($ba->value));
+    }
+
+    public function test_filament_selectability_is_applied_before_trusted_snapshot(): void
+    {
+        TestRecord::query()->create(['id' => 1, 'name' => 'allowed']);
+        TestRecord::query()->create(['id' => 2, 'name' => 'blocked']);
+
+        $page = $this->tablePage();
+        $page->selectedTableRecords = [1, 2];
+
+        $resolved = (new FilamentCurrentSelectionResolver($page))->resolve();
+
+        self::assertNotNull($resolved);
+        self::assertSame([1], $this->recordIds($resolved->value));
+    }
+
+    public function test_exact_limit_succeeds_and_limit_plus_one_fails_without_truncation(): void
+    {
+        $record1 = $this->detachedPersistedRecord(1);
+        $record2 = $this->detachedPersistedRecord(2);
+        $record3 = $this->detachedPersistedRecord(3);
+
+        $exact = $this->controlledPage([$record2, $record1]);
+        $resolved = (new FilamentCurrentSelectionResolver($exact, maxSelectionRecords: 2))->resolve();
+
+        self::assertNotNull($resolved);
+        self::assertSame([1, 2], $this->recordIds($resolved->value));
+
+        $over = $this->controlledPage([$record1, $record2, $record3]);
+
+        try {
+            (new FilamentCurrentSelectionResolver($over, maxSelectionRecords: 2))->resolve();
+            self::fail('Expected selection limit failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection exceeds the configured limit.',
+                $e->getMessage(),
+            );
+            self::assertNull($e->getPrevious());
+        }
+    }
+
+    public function test_duplicate_effective_identity_fails_closed(): void
+    {
+        $record = $this->detachedPersistedRecord(7);
+        $page = $this->controlledPage([$record, $record]);
+
+        try {
+            (new FilamentCurrentSelectionResolver($page))->resolve();
+            self::fail('Expected duplicate identity failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection contains a duplicate record identity.',
+                $e->getMessage(),
+            );
+            self::assertNull($e->getPrevious());
+        }
+    }
+
+    public function test_duplicate_enabled_belongs_to_many_selection_fails_closed(): void
+    {
+        $record = $this->detachedPersistedRecord(7);
+        $owner = new SelectionRelationOwner();
+        $owner->setRawAttributes(['id' => 1]);
+        $owner->exists = true;
+
+        $page = $this->controlledPage([$record]);
+        $page->getTable()
+            ->relationship(static fn (): BelongsToMany => $owner->records())
+            ->allowDuplicates();
+
+        try {
+            (new FilamentCurrentSelectionResolver($page))->resolve();
+            self::fail('Expected ambiguous duplicate-row failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection uses ambiguous duplicate-row semantics.',
+                $e->getMessage(),
+            );
+            self::assertNull($e->getPrevious());
+        }
+    }
+
+    public function test_non_eloquent_effective_value_fails_closed_without_leaking_value(): void
+    {
+        $page = $this->controlledPage(['SECRET-SELECTION-VALUE']);
+
+        try {
+            (new FilamentCurrentSelectionResolver($page))->resolve();
+            self::fail('Expected unsupported selection failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection contains an unsupported value.',
+                $e->getMessage(),
+            );
+            self::assertStringNotContainsString('SECRET-SELECTION-VALUE', $e->getMessage());
+            self::assertNull($e->getPrevious());
+        }
+    }
+
+    public function test_invalid_selected_record_identity_fails_closed(): void
+    {
+        $record = new TestRecord();
+        $record->setRawAttributes(['id' => 9, 'name' => 'unsaved']);
+        $record->exists = false;
+        $page = $this->controlledPage([$record]);
+
+        try {
+            (new FilamentCurrentSelectionResolver($page))->resolve();
+            self::fail('Expected invalid identity failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection record identity is invalid.',
+                $e->getMessage(),
+            );
+            self::assertNull($e->getPrevious());
+        }
+    }
+
+    public function test_selection_resolution_exception_is_static_safe_and_non_chained(): void
+    {
+        $page = $this->controlledPage([]);
+        $page->throwOnSelection = true;
+
+        try {
+            (new FilamentCurrentSelectionResolver($page))->resolve();
+            self::fail('Expected selection resolution failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame('Filament current selection resolution failed.', $e->getMessage());
+            self::assertStringNotContainsString('SECRET-SELECTION-ERROR', $e->getMessage());
+            self::assertNull($e->getPrevious());
+        }
+    }
+
+    private function tablePage(): TestTablePage
+    {
+        $page = new TestTablePage();
+        $page->bootedInteractsWithTable();
+
+        return $page;
+    }
+
+    /** @param list<mixed> $selection */
+    private function controlledPage(array $selection): ControlledSelectionPage
+    {
+        $page = new ControlledSelectionPage();
+        $page->bootedInteractsWithTable();
+        $page->providedSelection = $selection;
+
+        return $page;
+    }
+
+    private function detachedPersistedRecord(int|string $id): TestRecord
+    {
+        $record = new TestRecord();
+        if (is_string($id)) {
+            $record->setKeyType('string');
+        }
+        $record->setRawAttributes(['id' => $id, 'name' => 'detached']);
+        $record->exists = true;
+
+        return $record;
+    }
+
+    /** @param list<TestRecord> $records @return list<int> */
+    private function recordIds(array $records): array
+    {
+        return array_map(
+            static fn (TestRecord $record): int => (int) $record->getKey(),
+            $records,
+        );
+    }
+}
+
+final class ControlledSelectionPage extends TestTablePage
+{
+    /** @var list<mixed> */
+    public array $providedSelection = [];
+
+    public bool $throwOnSelection = false;
+
+    public function getSelectedTableRecords(
+        bool $shouldFetchSelectedRecords = true,
+        ?int $chunkSize = null,
+    ): EloquentCollection | Collection | LazyCollection {
+        if ($this->throwOnSelection) {
+            throw new RuntimeException('SECRET-SELECTION-ERROR');
+        }
+
+        return new Collection($this->providedSelection);
+    }
+}
+
+final class SelectionRelationOwner extends Model
+{
+    protected $table = 'selection_relation_owners';
+
+    public $timestamps = false;
+
+    public function records(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            TestRecord::class,
+            'selection_relation_owner_records',
+            'owner_id',
+            'record_id',
+        );
+    }
+}

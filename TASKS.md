@@ -245,7 +245,7 @@ Contract:                    python scripts/validate.py green; frozen spec/0.1 u
 ## M5 — Filament Vertical — TODO
 
 - T-501 — Record context binding — DONE / REVIEWED.
-- T-502 — Current-selection trusted context.
+- T-502 — Current-selection trusted context — DONE / REVIEWED.
 - T-503 — Active-filter context.
 - T-504 — Confirmation bridge.
 - T-505 — Multi-tenant order operations demo.
