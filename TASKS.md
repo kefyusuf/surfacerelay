@@ -72,7 +72,7 @@ Plan:                        e33b74439055dfabab40ceb99850404d420b314b
 WebMCP RED:                  b270a2b26d45ba8826128c616f97d3897e857ac9 / 34098620894
 Task-1 GREEN:                cf884ed85f57f8dfeb21cf68411fd820e9979ceb / 34099618870 — 7/7 green
 Interceptor type RED:        f8811fd3ef46a0a2616524d7499b23de926e43f6 / 34102239036
-Interceptor port:            fb00a2123b449ba25e240cf6253856fcbcdc72e5
+Interceptor port:            fb00a2123b449ba25e24000abb73ac7eedb6ed48fdb9
 Cancellation RED:            ba7240eee58caee2b1132802d01c4a6ef13d245d / 34102948252
 Cancellation implementation: fffff7b15a31d61fc1cb212598505eba044b86b2
 Implementation GREEN:        35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
@@ -242,13 +242,54 @@ Contract:                    python scripts/validate.py green; frozen spec/0.1 u
 
 - T-404 — Structured audit events — DONE / REVIEWED.
 
-## M5 — Filament Vertical — TODO
+## M5 — Filament Vertical — IN PROGRESS
 
 - T-501 — Record context binding — DONE / REVIEWED.
 - T-502 — Current-selection trusted context — DONE / REVIEWED.
-- T-503 — Active-filter context.
-- T-504 — Confirmation bridge.
-- T-505 — Multi-tenant order operations demo.
+
+### T-503 — Active-filter context — DONE / REVIEWED
+
+**Outcome:** Explicit trusted Filament adapter wiring can expose the exact applied table-filter snapshot as namespaced runtime authority `filament/active_filters` without changing frozen `ContextRequirement`/`spec/0.1` or introducing a second execution path.
+
+**Acceptance:**
+
+- active-filter authority is a `TrustedContextExtension`, physically separate from caller metadata and frozen core trusted requirements;
+- exact key/provider are `filament/active_filters` / `filament.active_filters`;
+- exposure is explicit trusted server-side wiring only;
+- authority is resolved from the exact active `HasTable` page through public `getTable()->getFilters()` + `getTableFilterState()`;
+- deferred form state and raw `tableFilters` / `tableDeferredFilters` are non-authoritative;
+- explicit exposure with zero configured filters is a present empty snapshot; no exposure is absence;
+- canonicalization is deterministic and type-preserving; unsupported state fails closed with static, non-chained adapter errors;
+- every present trusted extension always binds confirmation scope and idempotency intent;
+- zero-extension confirmation/idempotency documents retain legacy-compatible shape;
+- filter-state changes invalidate prior confirmation scope and idempotency intent while pending deferred edits do not;
+- audit persists extension/provider only and never raw filter values, canonical bytes or scope keys;
+- caller input/metadata/request/query/route/WebMCP/binding/receipt/idempotency candidates cannot manufacture or replace authority;
+- T-502 `current_selection` remains an independent trusted dimension;
+- no Filament RuntimeBinding driver, alternate business endpoint, browser-runtime production change, Livewire production change or `spec/0.1` change is introduced.
+
+**Verification / review evidence:**
+
+```text
+Design / D-050:                be17945dac6cf2d075bd72075ee26839286b8709
+Implementation review head:    18b218b3c45578821028b85111c44d19da8b28b9
+Implementation validation:     34483725864 — 7/7 green
+Review-preparation validation:  34487043650 — 7/7 green
+PR #7 initial validation:       34487266417 — 7/7 green
+CodeRabbit full review:         427bcd38-3e18-46e4-b393-dbd6ca99dabb
+Review result:                  2 documentation/tracking findings; 0 production correctness/security findings
+Review-hardening checkpoint:    68c6c94cfc6250f3135c946f080d73cc08cdcf51
+Review-hardening validation:    34489567321 — 7/7 green
+PHP:                            551 tests / 2788 assertions
+Browser:                        TypeScript typecheck + 103/103 Vitest
+Contract:                       python scripts/validate.py green; frozen spec/0.1 unchanged
+Open review threads:            0
+```
+
+**Review result:** PASSED. The Major wording ambiguity and Minor tracking-document issue were fixed, explicitly confirmed by CodeRabbit, and both review threads are resolved. PR #7 remains open; merge is a separate explicit gate.
+
+- T-504 — Confirmation bridge — TODO.
+- T-505 — Multi-tenant order operations demo — TODO.
 
 ## M6 — HTMX Portability Proof — TODO
 
