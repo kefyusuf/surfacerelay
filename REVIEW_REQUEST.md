@@ -1,14 +1,16 @@
-# External Review Record
+# External Review / Merge Record
 
 ## Final status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Scope:** `T-502 — Current-selection trusted context`
-- **Branch:** `feat/filament-current-selection-context`
-- **Pull request:** `#6` — **OPEN / MERGE PENDING**
-- **Exact base / merge-base:** `main@ae77cbf26cbefcca478d070765386628343bec52`
+- **Feature branch:** `feat/filament-current-selection-context`
+- **Pull request:** `#6` — **CLOSED / MERGED**
+- **Original base / merge-base:** `main@ae77cbf26cbefcca478d070765386628343bec52`
 - **Final reviewed code head:** `433147274ea57fb9ae1452295bbdad143a19a507`
-- **Final code workflow:** `34468866367` — **7/7 green**
+- **Final pre-merge operational head:** `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a`
+- **Merge commit:** `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`
+- **Post-merge main workflows:** `34471406523`, `34471433674` — **7/7 green each**
 - **PHP:** **509 tests / 2629 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
@@ -17,11 +19,7 @@
 - **External review:** **PASSED after TDD hardening**
 - **Remaining actionable findings:** **0**
 - **Unresolved review threads:** **0**
-- **Final result:** **DONE / REVIEWED; MERGE PENDING**
-
-## Review objective
-
-Challenge effective-selection authority, raw Livewire-state dependence, select-all/deselection semantics, bounded materialization, duplicate/pivot ambiguity, T-501 identity compatibility, caller spoofing, confirmation/idempotency selection binding, audit leakage, and accidental second execution paths.
+- **Final result:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 
 ## Final production path
 
@@ -92,6 +90,10 @@ Composer-order hardening:       a89ef13ccdc4bca45eb3f2d34dea7b4cf78b06f6 / 34465
 Review-prep checkpoint:         d0432f0cc94c7d1e14960135aedc329e60f9c5dc / 34465695646 — 7/7 green
 Review finding RED:             1b9b3fdb43d05d46ff73d8f1e08cd4c0fdaef6c1 / 34468667385 — 509 / 2629, exactly 1 failure; 200 hydrated vs required 151
 Review finding GREEN:           433147274ea57fb9ae1452295bbdad143a19a507 / 34468866367 — 7/7 green; 509 / 2629
+Final pre-merge operational:    d56d0b55b5857bfefa80c043ec6d13e52ea90a4a / 34470021303 — 7/7 green; 509 / 2629
+Merge commit:                   0b78afa7d1541b34ef3b82d04c97e99d11cbb694
+Post-merge main run A:          34471406523 — 7/7 green
+Post-merge main run B:          34471433674 — 7/7 green; 509 / 2629
 Browser:                        TypeScript typecheck + 103/103 Vitest tests
 Contract:                       green; frozen spec/0.1 unchanged
 ```
@@ -100,13 +102,13 @@ Contract:                       green; frozen spec/0.1 unchanged
 
 ### Finding — `chunkSize=100` did not cap total Filament materialization — FIXED / CONFIRMED
 
-CodeRabbit full review run `7eadba8f-6972-444e-8e32-b5e66e776a0d` correctly identified that Filament's `lazyById($chunkSize)` treats the supplied chunk size as a per-query batch size, not a total materialization ceiling. The original `min(100, max + 1)` therefore allowed a selection with `max=150` to hydrate all 200 test records before SurfaceRelay observed record 151.
+CodeRabbit full review run `7eadba8f-6972-444e-8e32-b5e66e776a0d` identified that Filament's `lazyById($chunkSize)` treats the supplied chunk size as a per-query batch size, not a total materialization ceiling. The original `min(100, max + 1)` therefore allowed a selection with `max=150` to hydrate all 200 test records before SurfaceRelay observed record 151.
 
-The RED regression at `1b9b3fdb...` measured the actual Eloquent retrieval count and failed at **200 vs required 151**. The minimal production fix at `43314727...` keeps the public Filament API and supplies the exact trusted sentinel `maxSelectionRecords + 1`. The same integration test now passes with exactly **151 hydrated records**.
+The RED regression at `1b9b3fdb...` measured the actual Eloquent retrieval count and failed at **200 vs required 151**. The minimal production fix at `43314727...` keeps the public Filament API and supplies the exact trusted sentinel `maxSelectionRecords + 1`. The same integration test passes with exactly **151 hydrated records**.
 
 CodeRabbit incremental verification comment `5617635978` confirmed:
 
-- the resolver now passes `maxSelectionRecords + 1` to public `getSelectedTableRecords()`;
+- the resolver passes `maxSelectionRecords + 1` to public `getSelectedTableRecords()`;
 - the real `max=150` test rejects after exactly 151 hydrated records;
 - no alternate query/execution path or raw Livewire state read was added;
 - **no remaining actionable T-502 correctness/security findings**;
@@ -115,9 +117,9 @@ CodeRabbit incremental verification comment `5617635978` confirmed:
 
 Generic docstring/style metrics remain non-blocking because repository CI does not require them.
 
-## Scope audit
+## Merge closure
 
-Base remains `main@ae77cbf26cbefcca478d070765386628343bec52`. The reviewed production change remains limited to the Filament context/invocation vertical. Frozen protocol, browser-runtime production and Livewire production are unchanged, and no second RuntimeBinding driver exists.
+PR #6 was merged using the repository's established merge-commit method with `expected_head_sha` pinned to `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a`. GitHub created merge commit `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`. That exact merge commit became `main` and both push validation runs (`34471406523`, `34471433674`) completed **7/7 green**. PHP remained **509 tests / 2629 assertions**.
 
 ## Deferred work
 
@@ -127,4 +129,4 @@ Base remains `main@ae77cbf26cbefcca478d070765386628343bec52`. The reviewed produ
 
 ## Final result
 
-**PASSED / MERGE PENDING.** T-502 is complete/reviewed. PR #6 merge requires a separate explicit user gate.
+**PASSED / MERGED / MAIN REVALIDATED.** T-502 is closed. T-503 has not started.
