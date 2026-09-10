@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Tests\Unit;
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
@@ -179,6 +181,30 @@ final class FilamentCurrentSelectionResolverTest extends TestCase
         }
     }
 
+    public function test_duplicate_enabled_belongs_to_many_selection_fails_closed(): void
+    {
+        $record = $this->detachedPersistedRecord(7);
+        $owner = new SelectionRelationOwner();
+        $owner->setRawAttributes(['id' => 1]);
+        $owner->exists = true;
+
+        $page = $this->controlledPage([$record]);
+        $page->getTable()
+            ->relationship(static fn (): BelongsToMany => $owner->records())
+            ->allowDuplicates();
+
+        try {
+            (new FilamentCurrentSelectionResolver($page))->resolve();
+            self::fail('Expected ambiguous duplicate-row failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection uses ambiguous duplicate-row semantics.',
+                $e->getMessage(),
+            );
+            self::assertNull($e->getPrevious());
+        }
+    }
+
     public function test_non_eloquent_effective_value_fails_closed_without_leaking_value(): void
     {
         $page = $this->controlledPage(['SECRET-SELECTION-VALUE']);
@@ -286,5 +312,22 @@ final class ControlledSelectionPage extends TestTablePage
         }
 
         return new Collection($this->providedSelection);
+    }
+}
+
+final class SelectionRelationOwner extends Model
+{
+    protected $table = 'selection_relation_owners';
+
+    public $timestamps = false;
+
+    public function records(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            TestRecord::class,
+            'selection_relation_owner_records',
+            'owner_id',
+            'record_id',
+        );
     }
 }
