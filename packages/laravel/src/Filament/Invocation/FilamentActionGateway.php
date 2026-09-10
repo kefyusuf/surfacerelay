@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Filament\Invocation;
 
 use Filament\Resources\Pages\Page;
+use SurfaceRelay\Laravel\Filament\Context\FilamentCurrentSelectionResolver;
 use SurfaceRelay\Laravel\Filament\Context\FilamentInvocationContextFactory;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionBus;
@@ -26,8 +27,12 @@ final readonly class FilamentActionGateway
     public function __construct(
         private ActionBus $bus,
         TrustedContextComposer $baseComposer,
+        int $maxSelectionRecords = FilamentCurrentSelectionResolver::DEFAULT_MAX_SELECTION_RECORDS,
     ) {
-        $this->contextFactory = new FilamentInvocationContextFactory($baseComposer);
+        $this->contextFactory = new FilamentInvocationContextFactory(
+            $baseComposer,
+            maxSelectionRecords: $maxSelectionRecords,
+        );
     }
 
     /**
