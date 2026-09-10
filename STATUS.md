@@ -6,18 +6,17 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/filament-active-filter-context`
+- **Branch:** `main`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
-- **Last merged/revalidated task:** `T-502 — Current-selection trusted context`
-- **Current task:** none; `T-503 — Active-filter context` is **DONE / REVIEWED / PR #7 OPEN / MERGE PENDING**
+- **Last merged/revalidated task:** `T-503 — Active-filter context`
+- **Current task:** none
 - **T-502 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **T-503 status:** **DONE / REVIEWED / MERGE READY after final exact-head validation**
-- **T-503 base:** `main@00cf05d48b4c02e0eeaa0d8413683d39db4e0f65`
+- **T-503 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-503 original base:** `main@00cf05d48b4c02e0eeaa0d8413683d39db4e0f65`
 - **T-503 design/decision checkpoint:** `be17945dac6cf2d075bd72075ee26839286b8709`
 - **T-503 implementation review head:** `18b218b3c45578821028b85111c44d19da8b28b9`
-- **T-503 review-preparation head:** `d3e94df9fc3c541fb3df408525318ae7c3fc23eb`
-- **T-503 review-hardening checkpoint:** `68c6c94cfc6250f3135c946f080d73cc08cdcf51`
-- **T-503 closure-doc checkpoint before final status:** `b9589d0f3a8009958b617c159352f82d84b9c254`
+- **T-503 final feature head:** `a46ab15c88b32c4785279f1dc96f1c62b6ded0f6`
+- **T-503 merge commit:** `7fe9db4f1e87257b83120396cc290b7253424ad4`
 - **T-503 design spec:** `docs/superpowers/specs/2026-09-10-filament-active-filter-context-design.md`
 - **T-503 implementation plan:** `docs/superpowers/plans/2026-09-10-filament-active-filter-context.md`
 - **PHP verified:** **551 tests / 2788 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
@@ -26,10 +25,11 @@
 - **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4** verified in the T-503 matrix
 - **Decisions:** `D-019`, `D-048`, `D-049`, `D-050` — **ACCEPTED**
 - **T-502 pull request:** `#6` — **CLOSED / MERGED**
-- **T-503 pull request:** `#7` — **OPEN**
+- **T-503 pull request:** `#7` — **CLOSED / MERGED**
 - **CodeRabbit review:** run `427bcd38-3e18-46e4-b393-dbd6ca99dabb` — **2 documentation/tracking findings fixed; production-code findings: 0**
 - **Unresolved PR review threads:** **0**
-- **Next task:** `T-504 — Confirmation bridge` — **NOT STARTED; do not start before T-503 merge closure**
+- **Post-merge main validation:** `34492632652` — **7/7 green**
+- **Next task:** `T-504 — Confirmation bridge` — **NOT STARTED**
 
 ## T-503 changed files / implementation surface
 
@@ -78,8 +78,11 @@ CodeRabbit Minor:                stale tracking-plan/status wording — FIXED / 
 Review-hardening checkpoint:     68c6c94cfc6250f3135c946f080d73cc08cdcf51
 Review-hardening validation:     34489567321 — 7/7 green; 551 / 2788; browser 103/103; contract green
 Open review threads:             0
-Closure tracking checkpoint:     b9589d0f3a8009958b617c159352f82d84b9c254
-Final exact-head CI:             required after this final STATUS commit before merge-ready claim
+Final feature head:              a46ab15c88b32c4785279f1dc96f1c62b6ded0f6
+Final feature-head push CI:      34491356472 — 7/7 green; 551 / 2788; browser 103/103; contract green
+Final PR merge-ref CI:           34491366747 — 7/7 green; 551 / 2788; browser 103/103; contract green
+Merge commit:                    7fe9db4f1e87257b83120396cc290b7253424ad4
+Post-merge main validation:      34492632652 — 7/7 green; 551 / 2788; browser 103/103; contract green
 ```
 
 ## T-503 known limitations / deliberate exclusions
@@ -145,6 +148,10 @@ The Major finding identified optional-sounding “by default” language for ext
 The Minor finding identified stale pre-implementation tracking. The retained implementation plan is now explicitly labeled as a prospective/historical TDD artifact, while `STATUS.md`, `TASKS.md`, and `REVIEW_REQUEST.md` carry authoritative current state. CodeRabbit confirmed the ambiguity is resolved.
 
 Both inline review threads are resolved and outdated; unresolved review-thread count is zero.
+
+## T-503 merge closure
+
+PR #7 was merged with an expected-head guard pinned to `a46ab15c88b32c4785279f1dc96f1c62b6ded0f6` using the repository's established merge-commit method. GitHub created merge commit `7fe9db4f1e87257b83120396cc290b7253424ad4`, whose parents are the original base `00cf05d48b4c02e0eeaa0d8413683d39db4e0f65` and exact feature head. The merge commit became `main` and post-merge push validation `34492632652` completed **7/7 green** with PHP **551 tests / 2788 assertions**, browser typecheck + **103/103 Vitest**, contract validation, and PHP lint all green.
 
 ## T-502 production boundary
 
@@ -240,4 +247,4 @@ PR #6 was merged with an expected-head guard pinned to `d56d0b55b5857bfefa80c043
 
 ## Next boundary
 
-**T-503 implementation and external review are closed. Run final exact-head validation on the closure/status head. If green and PR #7 remains ahead-only with zero unresolved threads, T-503 is merge-ready. Do not start T-504 or merge PR #7 without a separate explicit user gate.**
+**T-503 is fully closed on `main`. T-504 — Confirmation bridge is the next task. Begin with design/architecture review; do not encode a new public contract or Filament authority path without an explicit design gate.**
