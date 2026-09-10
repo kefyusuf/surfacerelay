@@ -16,7 +16,7 @@ use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
 use SurfaceRelay\Laravel\Enums\OutputContentTrust;
 use SurfaceRelay\Laravel\Enums\OutputSensitivity;
-use SurfaceRelay\Laravel\Filament\Context\FilamentInvocationContextFactory;
+use SurfaceRelay\Laravel\Filament\Invocation\FilamentActionGateway;
 use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
 use SurfaceRelay\Laravel\Runtime\Context\ResolvedTrustedValue;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
@@ -34,9 +34,9 @@ use SurfaceRelay\Laravel\Tests\Fixtures\Filament\NonRecordPage;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\TestRecord;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\TestRecordPage;
 
-final class FilamentInvocationContextFactoryIntegrationTest extends TestCase
+final class FilamentActionGatewayIntegrationTest extends TestCase
 {
-    public function test_exact_filament_page_context_reaches_existing_action_bus_executor(): void
+    public function test_exact_filament_page_reaches_existing_action_bus_executor_through_production_gateway(): void
     {
         $record = new TestRecord();
         $record->setRawAttributes(['id' => 701, 'name' => 'exact-active-record']);
@@ -45,59 +45,46 @@ final class FilamentInvocationContextFactoryIntegrationTest extends TestCase
         $page = new TestRecordPage();
         $page->record = $record;
 
-        $context = $this->factory()->forPage(
-            page: $page,
-            surface: 'filament',
-            correlationId: 'corr-701',
-            metadata: ['current_record' => 'attacker-record'],
-        );
-
-        self::assertSame(
-            $record,
-            $context->require(ContextRequirement::CurrentRecord)->value,
-        );
-
         $executor = new CapturingFilamentRecordExecutor();
-        $bus = $this->bus($executor);
-        $outcome = $bus->dispatch(new ActionCall(
+        $outcome = $this->gateway($executor)->dispatch(
+            page: $page,
             actionId: 'orders.inspect_current',
             actionVersion: 1,
             input: [],
-            context: $context,
+            surface: 'filament',
+            correlationId: 'corr-701',
             bindingId: 'livewire-binding-exact-page',
-        ));
+            metadata: ['current_record' => 'attacker-record'],
+        );
 
         self::assertTrue($outcome->completed);
         self::assertSame($record, $executor->recordSeen);
         self::assertSame(['recordKey' => 701], $outcome->state->output);
     }
 
-    public function test_non_record_filament_page_cannot_satisfy_current_record_requirement(): void
+    public function test_non_record_filament_page_cannot_satisfy_current_record_requirement_through_gateway(): void
     {
         $executor = new CapturingFilamentRecordExecutor();
-        $context = $this->factory()->forPage(
+        $outcome = $this->gateway($executor)->dispatch(
             page: new NonRecordPage(),
-            surface: 'filament',
-            correlationId: 'corr-no-record',
-        );
-
-        $outcome = $this->bus($executor)->dispatch(new ActionCall(
             actionId: 'orders.inspect_current',
             actionVersion: 1,
             input: [],
-            context: $context,
+            surface: 'filament',
+            correlationId: 'corr-no-record',
             bindingId: 'livewire-binding-index-page',
-        ));
+        );
 
         self::assertFalse($outcome->completed);
         self::assertSame('required_context_missing', $outcome->halt?->code);
         self::assertNull($executor->recordSeen);
     }
 
-    private function factory(): FilamentInvocationContextFactory
+    private function gateway(ActionExecutor $executor): FilamentActionGateway
     {
-        return new FilamentInvocationContextFactory(
-            new TrustedContextComposer(
+        return new FilamentActionGateway(
+            bus: $this->bus($executor),
+            baseComposer: new TrustedContextComposer(
                 new NullFilamentActorResolver(),
                 new NullFilamentTenantResolver(),
             ),
