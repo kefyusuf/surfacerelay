@@ -6,12 +6,16 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/filament-confirmation-bridge`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
 - **Last merged/revalidated task:** `T-503 — Active-filter context`
-- **Current task:** none
+- **Current task:** `T-504 — Confirmation bridge` — **DESIGN APPROVED / WRITTEN SPEC REVIEW PENDING / IMPLEMENTATION NOT STARTED**
 - **T-502 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-503 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-504 base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
+- **T-504 design spec:** `docs/superpowers/specs/2026-09-10-filament-confirmation-bridge-design.md`
+- **T-504 design checkpoint:** `2818db88d52f1e86dda54afa20beec2251277d27`
+- **T-504 decision checkpoint:** `a3e60544308ea5f3072d5fb813e939bfe4924def`
 - **T-503 original base:** `main@00cf05d48b4c02e0eeaa0d8413683d39db4e0f65`
 - **T-503 design/decision checkpoint:** `be17945dac6cf2d075bd72075ee26839286b8709`
 - **T-503 implementation review head:** `18b218b3c45578821028b85111c44d19da8b28b9`
@@ -23,13 +27,67 @@
 - **Browser isolation verified:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract verified:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4** verified in the T-503 matrix
-- **Decisions:** `D-019`, `D-048`, `D-049`, `D-050` — **ACCEPTED**
+- **Decisions:** `D-019`, `D-048`, `D-049`, `D-050`, `D-051` — **ACCEPTED**
 - **T-502 pull request:** `#6` — **CLOSED / MERGED**
 - **T-503 pull request:** `#7` — **CLOSED / MERGED**
 - **CodeRabbit review:** run `427bcd38-3e18-46e4-b393-dbd6ca99dabb` — **2 documentation/tracking findings fixed; production-code findings: 0**
 - **Unresolved PR review threads:** **0**
 - **Post-merge main validation:** `34492632652` — **7/7 green**
-- **Next task:** `T-504 — Confirmation bridge` — **NOT STARTED**
+- **T-504 implementation plan:** **NOT WRITTEN — blocked on explicit written-spec approval**
+
+## T-504 design boundary
+
+D-051 locks T-504 as an **approval-only, explicit-retry** Filament bridge:
+
+```text
+normal SurfaceRelay invocation
+        │
+        ▼
+ActionBus → confirmation_required + typed challenge
+        │
+        ▼
+FilamentConfirmationBridge
+        │
+        ▼
+server-authored Livewire #[Locked] presentation state
+        │
+        ▼
+Filament modal: Cancel / Approve
+        │
+        ├── Cancel  → clear UI state only
+        │
+        └── Approve → ConfirmationService::approveChallenge(exact locked challenge)
+                         │
+                         └── NO business execution / NO auto-redispatch
+        │
+        ▼
+requesting caller explicitly retries original invocation
+        │
+        ▼
+fresh trusted context + intent resolution
+        │
+        ▼
+ConfirmationStage consumes exact-scope receipt once
+```
+
+Locked T-504 design invariants:
+
+1. approval never executes or redispatches the business action;
+2. challenge IDs are never accepted from Filament action arguments, metadata, query/route/request state, or arbitrary Livewire updates;
+3. presentation uses server-authored Livewire `#[Locked]` scalar state;
+4. only an exact confirmation-stage `confirmation_required` halt with a typed `ConfirmationChallenge` is presentable;
+5. the bridge does not fabricate challenges from generic halt details or result arrays;
+6. the original opaque challenge token becomes the candidate receipt only after T-401 server-side approval;
+7. the caller must retry through the normal gateway/ActionBus path so actor, tenant, record, selection, active filters, input, binding, and surface are freshly rebound;
+8. premature receipt polling/retry is not a T-504 API and may create fresh challenges under existing T-401 semantics;
+9. one page hosts at most one outstanding SurfaceRelay confirmation presentation; conflicting challenge overwrite fails closed;
+10. unrelated mounted Filament actions are never force-replaced or hijacked;
+11. Cancel clears disposable UI state but does not approve/revoke/consume the core challenge;
+12. the base ServiceProvider does not eagerly register Filament or manufacture confirmation authority;
+13. `spec/0.1/**`, confirmation core, browser-runtime production, and Livewire RuntimeBinding production are expected to remain unchanged;
+14. T-504 is a trusted human-facing UI decision boundary, not cryptographic proof-of-human or independent `approvedBy` identity evidence.
+
+Written-spec self-review additionally hardened early-retry coordination, lost-approval-response behavior, same-challenge remount semantics, and the approver-identity limitation. No production code has been changed for T-504.
 
 ## T-503 changed files / implementation surface
 
@@ -247,4 +305,4 @@ PR #6 was merged with an expected-head guard pinned to `d56d0b55b5857bfefa80c043
 
 ## Next boundary
 
-**T-503 is fully closed on `main`. T-504 — Confirmation bridge is the next task. Begin with design/architecture review; do not encode a new public contract or Filament authority path without an explicit design gate.**
+**T-504 design is approved in chat and the written spec is committed. Stop at the written-spec review gate: do not create the implementation plan or change production code until the user explicitly approves `docs/superpowers/specs/2026-09-10-filament-confirmation-bridge-design.md`.**
