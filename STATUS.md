@@ -9,12 +9,15 @@
 - **Branch:** `feat/filament-active-filter-context`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
 - **Last merged/revalidated task:** `T-502 — Current-selection trusted context`
-- **Current task:** `T-503 — Active-filter context` — **IMPLEMENTED / PR #7 OPEN / EXTERNAL REVIEW HARDENING**
+- **Current task:** none; `T-503 — Active-filter context` is **DONE / REVIEWED / PR #7 OPEN / MERGE PENDING**
 - **T-502 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-503 status:** **DONE / REVIEWED / MERGE READY after final exact-head validation**
 - **T-503 base:** `main@00cf05d48b4c02e0eeaa0d8413683d39db4e0f65`
 - **T-503 design/decision checkpoint:** `be17945dac6cf2d075bd72075ee26839286b8709`
 - **T-503 implementation review head:** `18b218b3c45578821028b85111c44d19da8b28b9`
 - **T-503 review-preparation head:** `d3e94df9fc3c541fb3df408525318ae7c3fc23eb`
+- **T-503 review-hardening checkpoint:** `68c6c94cfc6250f3135c946f080d73cc08cdcf51`
+- **T-503 closure-doc checkpoint before final status:** `b9589d0f3a8009958b617c159352f82d84b9c254`
 - **T-503 design spec:** `docs/superpowers/specs/2026-09-10-filament-active-filter-context-design.md`
 - **T-503 implementation plan:** `docs/superpowers/plans/2026-09-10-filament-active-filter-context.md`
 - **PHP verified:** **551 tests / 2788 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
@@ -24,9 +27,9 @@
 - **Decisions:** `D-019`, `D-048`, `D-049`, `D-050` — **ACCEPTED**
 - **T-502 pull request:** `#6` — **CLOSED / MERGED**
 - **T-503 pull request:** `#7` — **OPEN**
-- **CodeRabbit review:** run `427bcd38-3e18-46e4-b393-dbd6ca99dabb` — **2 actionable documentation issues; production-code issues: 0**
-- **Review hardening:** mandatory extension-binding wording fixed; tracking-plan/status synchronization in progress
-- **Next task:** `T-504 — Confirmation bridge` — **NOT STARTED; blocked on T-503 review/merge closure**
+- **CodeRabbit review:** run `427bcd38-3e18-46e4-b393-dbd6ca99dabb` — **2 documentation/tracking findings fixed; production-code findings: 0**
+- **Unresolved PR review threads:** **0**
+- **Next task:** `T-504 — Confirmation bridge` — **NOT STARTED; do not start before T-503 merge closure**
 
 ## T-503 changed files / implementation surface
 
@@ -60,7 +63,7 @@ Audit:
 
 Tests/fixtures added or hardened cover generic trusted extensions, exact Filament applied/deferred state semantics, gateway spoofing, confirmation/idempotency interaction, audit secrecy, empty-filter exposure, and dependency/boundary policy. `spec/0.1/**`, `packages/browser-runtime/src/**`, and `packages/laravel/src/Livewire/**` remain outside the production diff.
 
-## T-503 verification evidence
+## T-503 verification / review evidence
 
 ```text
 Design / D-050 checkpoint:      be17945dac6cf2d075bd72075ee26839286b8709
@@ -69,10 +72,14 @@ Implementation validation:      34483725864 — 7/7 green; 551 tests / 2788 asse
 Review-preparation head:         d3e94df9fc3c541fb3df408525318ae7c3fc23eb
 Push validation:                 34487043650 — 7/7 green; 551 / 2788; browser 103/103; contract green
 PR #7 initial validation:        34487266417 — 7/7 green
-CodeRabbit full review:          427bcd38-3e18-46e4-b393-dbd6ca99dabb — 2 documentation issues
-CodeRabbit Major:                D-050/spec “by default” wording weakened mandatory binding — FIXED
-CodeRabbit Minor:                tracking docs remained pre-implementation — BEING CLOSED BY REVIEW HARDENING
-Final post-review exact-head CI: pending after closure-document commits
+CodeRabbit full review:          427bcd38-3e18-46e4-b393-dbd6ca99dabb — 2 documentation/tracking findings; 0 production issues
+CodeRabbit Major:                optional-sounding D-050/spec binding wording — FIXED / CONFIRMED
+CodeRabbit Minor:                stale tracking-plan/status wording — FIXED / CONFIRMED
+Review-hardening checkpoint:     68c6c94cfc6250f3135c946f080d73cc08cdcf51
+Review-hardening validation:     34489567321 — 7/7 green; 551 / 2788; browser 103/103; contract green
+Open review threads:             0
+Closure tracking checkpoint:     b9589d0f3a8009958b617c159352f82d84b9c254
+Final exact-head CI:             required after this final STATUS commit before merge-ready claim
 ```
 
 ## T-503 known limitations / deliberate exclusions
@@ -128,6 +135,16 @@ Locked T-503 invariants:
 10. Audit persists only the trusted extension key/provider, never raw filter state or scope material.
 11. T-502 `current_selection` remains independent; filter state is not embedded into selection identity.
 12. No Filament RuntimeBinding driver, alternate action endpoint, or browser-runtime change is introduced.
+
+## T-503 external review closure
+
+CodeRabbit full review run `427bcd38-3e18-46e4-b393-dbd6ca99dabb` produced two actionable comments, both documentation/tracking issues rather than production-code findings.
+
+The Major finding identified optional-sounding “by default” language for extension security binding. D-050 and the design spec now state the implemented invariant unconditionally: **every present trusted runtime extension always binds confirmation scope and idempotency intent**. CodeRabbit confirmed the wording now matches the existing hasher behavior.
+
+The Minor finding identified stale pre-implementation tracking. The retained implementation plan is now explicitly labeled as a prospective/historical TDD artifact, while `STATUS.md`, `TASKS.md`, and `REVIEW_REQUEST.md` carry authoritative current state. CodeRabbit confirmed the ambiguity is resolved.
+
+Both inline review threads are resolved and outdated; unresolved review-thread count is zero.
 
 ## T-502 production boundary
 
@@ -215,7 +232,7 @@ Contract:                       green; frozen spec/0.1 unchanged
 
 CodeRabbit full review run `7eadba8f-6972-444e-8e32-b5e66e776a0d` found one actionable correctness issue: the original `min(100, max + 1)` value limited each Filament `lazyById()` batch rather than total materialization. With `max=150`, the regression proved 200 records were hydrated before the limit was observed.
 
-The fix passes the exact trusted sentinel size `maxSelectionRecords + 1` to Filament's public `getSelectedTableRecords()` API. The same real Filament integration proves exactly 151 hydrated records for `max=150`. CodeRabbit incremental verification comment `5617635978` confirmed: **no remaining actionable T-502 correctness/security findings**, **0 unresolved review threads**, and the prior materialization finding is addressed.
+The fix passes the exact trusted sentinel size `maxSelectionRecords + 1` to Filament's public `getSelectedTableRecords()` API. The same real Filament integration proves exactly 151 hydrated records for `max=150`. CodeRabbit incremental verification comment `5617635978` confirmed: **no remaining actionable T-502 correctness/security findings**, **0 unresolved review threads**, and the prior materialization-bound finding is addressed.
 
 ## T-502 merge closure
 
@@ -223,4 +240,4 @@ PR #6 was merged with an expected-head guard pinned to `d56d0b55b5857bfefa80c043
 
 ## Next boundary
 
-**Finish T-503 external-review hardening and exact-head revalidation on PR #7. Then T-503 may be marked DONE / REVIEWED and becomes merge-ready. T-504 is the next task but must not start before T-503 review/merge closure.**
+**T-503 implementation and external review are closed. Run final exact-head validation on the closure/status head. If green and PR #7 remains ahead-only with zero unresolved threads, T-503 is merge-ready. Do not start T-504 or merge PR #7 without a separate explicit user gate.**
