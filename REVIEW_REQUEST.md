@@ -1,132 +1,105 @@
 # External Review / Merge Record
 
-## Final status
+## Current status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Scope:** `T-502 — Current-selection trusted context`
-- **Feature branch:** `feat/filament-current-selection-context`
-- **Pull request:** `#6` — **CLOSED / MERGED**
-- **Original base / merge-base:** `main@ae77cbf26cbefcca478d070765386628343bec52`
-- **Final reviewed code head:** `433147274ea57fb9ae1452295bbdad143a19a507`
-- **Final pre-merge operational head:** `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a`
-- **Merge commit:** `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`
-- **Post-merge main workflows:** `34471406523`, `34471433674` — **7/7 green each**
-- **PHP:** **509 tests / 2629 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
+- **Scope:** `T-503 — Active-filter context`
+- **Feature branch:** `feat/filament-active-filter-context`
+- **Original base / merge-base:** `main@00cf05d48b4c02e0eeaa0d8413683d39db4e0f65`
+- **Implementation review head:** `18b218b3c45578821028b85111c44d19da8b28b9`
+- **Implementation verification workflow:** `34483725864` — **7/7 green**
+- **PHP:** **551 tests / 2788 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Filament compatibility:** Filament **5.8.1** / Livewire **4.4.4**
-- **Decisions:** `D-019`, `D-048`, `D-049` — **ACCEPTED**
-- **External review:** **PASSED after TDD hardening**
-- **Remaining actionable findings:** **0**
-- **Unresolved review threads:** **0**
-- **Final result:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **Decision:** `D-050` — **ACCEPTED**
+- **Pull request:** pending creation after fresh review-preparation-head validation
+- **External review:** pending
+- **Merge:** separate explicit gate; not requested
 
-## Final production path
+## Review objective
 
-```text
-exact trusted active Filament table Page
-        │
-        ▼
-public getSelectedTableRecords(true, maxSelectionRecords + 1)
-        │
-        ▼
-FilamentCurrentSelectionResolver
-        │
-        ├── exact persisted Eloquent record identities
-        ├── max+1 decision window
-        ├── duplicate / ambiguity / limit fail-closed gates
-        └── canonical unordered identity-set scope key
-        │
-        ▼
-FilamentTrustedContextComposer
-        │
-        ▼
-FilamentInvocationContextFactory
-        │
-        ▼
-FilamentActionGateway
-        │
-        ▼
-normal ActionCall → existing ActionBus → existing Livewire RuntimeBinding
-```
+Review T-503 specifically for authority confusion, caller-to-trusted promotion, stale/deferred Filament state, canonicalization ambiguity, confirmation/idempotency scope drift, audit leakage, and accidental protocol/framework coupling.
 
-No Filament RuntimeBinding driver, raw selection-property authority, route/request selection discovery, replacement model query, service-provider ambient hook, or alternate business-action endpoint was introduced.
+The implementation must preserve the existing Action execution path. Filament remains a trusted-context/UI adapter, not a RuntimeBinding driver.
 
-## Final implemented semantics
-
-1. `current_selection` is derived only from the exact trusted active Filament table page through public `getSelectedTableRecords()`.
-2. Empty effective selection is absence; caller input and invocation metadata cannot manufacture or replace authority.
-3. Selection is an unordered canonical set of exact persisted Eloquent identities.
-4. Shared `FilamentRecordIdentity` preserves T-501 current-record identity byte-for-byte; `TestRecord#41` remains `5436c4020c370bb2f495f0954332bd892a3e5f89950db287c808f292e32bfa96`.
-5. A/B and B/A share selection authority; A/B and A/C do not.
-6. Tenant and selection remain independent trusted dimensions composed by existing confirmation/idempotency controls.
-7. Wrong-selection receipt mismatch cannot authorize the wrong set and does not consume the valid receipt.
-8. Query-backed resolution requests the exact `maxSelectionRecords + 1` sentinel window and rejects rather than truncates.
-9. Filament select-all/deselection and record-selectability semantics are inherited from the public effective-selection result.
-10. Duplicate identities, non-Eloquent/unsaved values, duplicate-enabled `BelongsToMany` semantics and framework failures fail closed with static, non-chained errors.
-11. Composer order is `authenticated_actor → tenant → current_record → current_selection` when all exist.
-12. T-404 audit persists only `current_selection` requirement/provider provenance; selected IDs, model classes, attributes, counts and scope keys are excluded.
-13. `FilamentActionGateway::dispatch(...)` is unchanged and existing Livewire execution remains the sole action path.
-14. Active filters remain T-503 scope.
-15. `spec/0.1/**`, `packages/browser-runtime/src/**` and `packages/laravel/src/Livewire/**` are unchanged.
-
-## TDD / verification evidence
+## Intended production path
 
 ```text
-Plan baseline:                  a115a432dba24b7df30884b0f3fef2ed990e119f / 34450997871 — 7/7 green
-T-501 hash compatibility:      d0cf2f4c6715e93d72769eeea428a056a9d06911 / 34457594608 — 7/7 green
-Shared identity RED:            6097e312728c5f476875f7b075648080ff214673 / 34457789241 — expected missing class
-Shared identity GREEN:          0592f60ddf67dbb70d230c3c9f1263e2c7c9ae1a / 34458099131 — 7/7 green
-Selection resolver RED:         2ca035b03fd72cfd41fdbd38f54472ec0c63766f / 34458424330 — expected missing resolver
-Effective-selection RED:        d870708786b1e72732a9d57631f266b56a7b64d5 / 34458959903 — 2 expected failures
-Effective-selection GREEN:      1e51a9572387e6a63970d35d9e412d4e62053cba / 34459178353 — 7/7 green
-Resolver adversarial GREEN:     c4d5662e975d8e531df0c4ae6f1771b1da80d5ff / 34459545721 — 7/7 green
-Gateway wiring RED:             0f41550c826eb4e532da67348e272312906e6672 / 34459901925 — expected production-wiring failure
-Gateway wiring GREEN:           5365460a36c8ddcccfb6f02c5996d41aca1d99a7 / 34460166003 — 7/7 green
-Real Filament semantics:        0a33b3f58098b7a9790ef638f37cc93898ec5f30 / 34460407313 — 7/7 green
-Trust-controls checkpoint:      c859239785ccff3660e4f55741af2526989488e7 / 34460761976 — 7/7 green
-Duplicate-row hardening:        c678d6f05feb0c1e44d0ec548f28329e54dbc4e4 / 34461173145 — 7/7 green
-Composer-order hardening:       a89ef13ccdc4bca45eb3f2d34dea7b4cf78b06f6 / 34465053733 — 7/7 green
-Review-prep checkpoint:         d0432f0cc94c7d1e14960135aedc329e60f9c5dc / 34465695646 — 7/7 green
-Review finding RED:             1b9b3fdb43d05d46ff73d8f1e08cd4c0fdaef6c1 / 34468667385 — 509 / 2629, exactly 1 failure; 200 hydrated vs required 151
-Review finding GREEN:           433147274ea57fb9ae1452295bbdad143a19a507 / 34468866367 — 7/7 green; 509 / 2629
-Final pre-merge operational:    d56d0b55b5857bfefa80c043ec6d13e52ea90a4a / 34470021303 — 7/7 green; 509 / 2629
-Merge commit:                   0b78afa7d1541b34ef3b82d04c97e99d11cbb694
-Post-merge main run A:          34471406523 — 7/7 green
-Post-merge main run B:          34471433674 — 7/7 green; 509 / 2629
-Browser:                        TypeScript typecheck + 103/103 Vitest tests
-Contract:                       green; frozen spec/0.1 unchanged
+exact trusted active Filament Page
+        │
+        ├── no explicit active-filter exposure
+        │       └── no trusted extension; prior behavior unchanged
+        │
+        └── FilamentContextExposure::activeFilters()
+                    │
+                    ▼
+          public getTable()->getFilters()
+                    │
+                    ▼
+          public getTableFilterState(name)
+                    │
+                    ▼
+       canonical applied-filter snapshot
+                    │
+                    ▼
+ TrustedContextExtension: filament/active_filters
+                    │
+                    ├── confirmation scope binding
+                    ├── idempotency intent binding
+                    └── audit manifest: extension/provider only
+                    │
+                    ▼
+ existing InvocationContext → ActionCall → ActionBus → Livewire RuntimeBinding
 ```
 
-## External review finding and closure
+## Acceptance boundary under review
 
-### Finding — `chunkSize=100` did not cap total Filament materialization — FIXED / CONFIRMED
+1. `active_filters` is not added to frozen `ContextRequirement` or `spec/0.1`.
+2. Adapter-specific trusted authority uses a namespaced `TrustedContextExtension` channel physically distinct from generic metadata and core trusted context requirements.
+3. T-503 uses exact extension key `filament/active_filters` and provider `filament.active_filters`.
+4. Exposure is explicit trusted server-side wiring through `FilamentContextExposure`; action input, generic metadata, request/query/route data, WebMCP arguments, binding ID, confirmation receipt, and idempotency key cannot enable or alter it.
+5. Authority comes only from the exact active Filament `HasTable` page via public `getTable()->getFilters()` and public `getTableFilterState()`.
+6. Deferred/pending `getTableFilterFormState()`, `tableFilters`, and `tableDeferredFilters` are not authority sources.
+7. Explicit exposure with zero configured filters is a present empty snapshot; no exposure means no trusted extension.
+8. Snapshot canonicalization is deterministic and type-preserving; unrepresentable values fail closed with static adapter errors and no sensitive exception chaining.
+9. Present trusted extensions bind confirmation scope and idempotency intent; zero-extension hash documents remain structurally unchanged for compatibility.
+10. A confirmation receipt issued for filter state A cannot authorize applied filter state B, and a scope mismatch does not consume an otherwise-valid A receipt.
+11. Reuse of the same idempotency key after applied filter state changes conflicts rather than replaying the prior intent.
+12. Audit persists only `{extension, provider}` for trusted extensions; raw filter values, canonical bytes, scope keys, and sensitive exception material are excluded.
+13. `current_selection` remains a separate trusted dimension and does not absorb active-filter state.
+14. No Filament RuntimeBinding driver, alternate business endpoint, browser-runtime change, Livewire production change, or `spec/0.1` change is introduced.
 
-CodeRabbit full review run `7eadba8f-6972-444e-8e32-b5e66e776a0d` identified that Filament's `lazyById($chunkSize)` treats the supplied chunk size as a per-query batch size, not a total materialization ceiling. The original `min(100, max + 1)` therefore allowed a selection with `max=150` to hydrate all 200 test records before SurfaceRelay observed record 151.
+## Review evidence already available
 
-The RED regression at `1b9b3fdb...` measured the actual Eloquent retrieval count and failed at **200 vs required 151**. The minimal production fix at `43314727...` keeps the public Filament API and supplies the exact trusted sentinel `maxSelectionRecords + 1`. The same integration test passes with exactly **151 hydrated records**.
+```text
+Design / D-050 checkpoint:        be17945dac6cf2d075bd72075ee26839286b8709
+Implementation review head:       18b218b3c45578821028b85111c44d19da8b28b9
+Implementation validation:        34483725864 — 7/7 green
+PHP:                               551 tests / 2788 assertions
+Browser:                           TypeScript typecheck + 103/103 Vitest
+Contract:                          python scripts/validate.py green
+Merge-base:                        00cf05d48b4c02e0eeaa0d8413683d39db4e0f65
+Compare state:                     ahead-only, 34 commits
+```
 
-CodeRabbit incremental verification comment `5617635978` confirmed:
+The review-preparation documentation commit intentionally follows the implementation checkpoint. Its exact head must be independently validated before a pull request is opened; the final closure head must be revalidated again after any review findings or documentation updates.
 
-- the resolver passes `maxSelectionRecords + 1` to public `getSelectedTableRecords()`;
-- the real `max=150` test rejects after exactly 151 hydrated records;
-- no alternate query/execution path or raw Livewire state read was added;
-- **no remaining actionable T-502 correctness/security findings**;
-- **no unresolved review threads**;
-- the prior materialization-bound finding is addressed.
+## Known non-T-503 observation
 
-Generic docstring/style metrics remain non-blocking because repository CI does not require them.
-
-## Merge closure
-
-PR #6 was merged using the repository's established merge-commit method with `expected_head_sha` pinned to `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a`. GitHub created merge commit `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`. That exact merge commit became `main` and both push validation runs (`34471406523`, `34471433674`) completed **7/7 green**. PHP remained **509 tests / 2629 assertions**.
+The browser job's `npm ci` currently reports two moderate dependency advisories. T-503 does not modify `packages/browser-runtime/**` or its lockfile, so those advisories are not introduced by this change. They are not being silently fixed inside T-503 because that would mix dependency-maintenance scope into a trusted-context task.
 
 ## Deferred work
 
-- `T-503 — Active-filter context`
 - `T-504 — Confirmation bridge`
 - `T-505 — Multi-tenant order operations demo`
+- General Filament page-state rebinding across refresh/pagination/navigation remains a separate open portability/lifecycle question.
 
-## Final result
+## Merge gate
 
-**PASSED / MERGED / MAIN REVALIDATED.** T-502 is closed. T-503 has not started.
+Do not merge on self-review alone. Required next gates are:
+
+1. fresh CI on the review-preparation head;
+2. pull-request external review and resolution of any actionable correctness/security finding;
+3. final exact-head CI and review-thread check;
+4. explicit user authorization for merge.
