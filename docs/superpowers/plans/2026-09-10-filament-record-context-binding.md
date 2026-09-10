@@ -4,7 +4,7 @@
 
 **Goal:** Add a Filament 5 trusted-context adapter that supplies the exact active record page's Eloquent model as `current_record` without introducing a second execution driver or any caller-controlled record resolution path.
 
-**Architecture:** Filament remains a UI/trusted-context adapter on top of the existing Livewire RuntimeBinding execution path. `FilamentRecordContextResolver` accepts one exact trusted `Filament\Resources\Pages\Page`, reads only its public `getRecord()` capability, returns the exact Eloquent model plus a domain-separated hashed confirmation scope key, and never re-queries by route/input ID. `FilamentTrustedContextComposer` delegates existing actor/tenant resolution to `TrustedContextComposer` and appends only the resolved `current_record` entry.
+**Architecture:** Filament remains a UI/trusted-context adapter on top of the existing Livewire RuntimeBinding execution path. `FilamentRecordContextResolver` accepts one exact trusted `Filament\Resources\Pages\Page`, reads only its public `getRecord()` capability, returns the exact Eloquent model plus a domain-separated hashed confirmation scope key, and never re-queries by route/input ID. `FilamentTrustedContextComposer` delegates actor/tenant resolution to the existing `TrustedContextComposer` and appends only the resolved `current_record` entry.
 
 **Tech Stack:** PHP 8.3/8.4, Laravel/Illuminate 12/13, Livewire 4.4+, Filament 5.x, Orchestra Testbench 10/11, PHPUnit 11, MySQL 8.4 CI service.
 
@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Base implementation branch: `feat/filament-record-context-binding`, forked from `main@66afcc22704bfe3b317f2894b7737cf18d248e34`.
+- Implementation branch: `feat/filament-record-context-binding`, forked from `main@66afcc22704bfe3b317f2894b7737cf18d248e34`.
 - `spec/0.1/**` remains unchanged.
 - Do not introduce a `filament` RuntimeBinding driver; execution remains on the existing exact `livewire` binding/driver path.
 - `current_record` authority comes only from the exact trusted active Filament resource-page instance supplied to the adapter.
@@ -21,7 +21,7 @@
 - `confirmationScopeKey` is SHA-256 over domain-separated canonical `{modelClass,keyName,keyValue}` identity only; no model attributes, tenant identity, route values, timestamps, or user identity participate.
 - Tenant and current-record identity remain independent trusted dimensions. Never fold tenant identity into the record scope key.
 - Filament remains optional for production consumers: `filament/filament:^5.0` belongs in `require-dev`, not `require`.
-- Production service-provider boot must not eagerly resolve or register Filament classes when Filament is absent.
+- `SurfaceRelayServiceProvider` must not eagerly resolve/register Filament services when Filament is absent.
 - Inconsistent record-aware Filament state fails closed with static-safe adapter exceptions and no chained underlying exception.
 - T-502 selection, T-503 filters, T-504 confirmation UI bridge, and T-505 order-operations demo remain out of scope.
 
@@ -32,27 +32,28 @@
 ### New production files
 
 - `packages/laravel/src/Filament/Context/FilamentRecordContextResolver.php` — exact page → `ResolvedTrustedValue|null`; owns record identity derivation.
-- `packages/laravel/src/Filament/Context/FilamentTrustedContextComposer.php` — actor/tenant composer + Filament record resolver → canonical trusted-context entries.
+- `packages/laravel/src/Filament/Context/FilamentTrustedContextComposer.php` — actor/tenant composer + Filament record resolver → trusted-context entries.
 - `packages/laravel/src/Filament/Context/InvalidFilamentRecordContext.php` — static-safe fail-closed adapter exception factory.
 
 ### New test/support files
 
-- `packages/laravel/tests/Unit/FilamentRecordContextResolverTest.php` — record capability, identity, failure secrecy, no-requery behavior.
-- `packages/laravel/tests/Unit/FilamentTrustedContextComposerTest.php` — actor/tenant/current-record composition and metadata isolation.
-- `packages/laravel/tests/Integration/FilamentRecordTrustControlsIntegrationTest.php` — real existing confirmation/idempotency/audit semantics using Filament record context.
-- `packages/laravel/tests/Integration/FilamentRecordPageIntegrationTest.php` — real Filament 5 resource page + `InteractsWithRecord` compatibility proof.
-- `packages/laravel/tests/Fixtures/Filament/TestRecord.php` — minimal Eloquent record model for Filament/Testbench integration.
-- `packages/laravel/tests/Fixtures/Filament/TestRecordResource.php` — minimal Filament Resource.
-- `packages/laravel/tests/Fixtures/Filament/TestRecordPage.php` — minimal record-aware Resource Page using Filament's public `InteractsWithRecord` concern.
-- `packages/laravel/tests/Fixtures/Filament/NonRecordPage.php` — real Filament Resource Page without record capability.
+- `packages/laravel/tests/Unit/FilamentDependencyPolicyTest.php`
+- `packages/laravel/tests/Unit/FilamentRecordContextResolverTest.php`
+- `packages/laravel/tests/Unit/FilamentTrustedContextComposerTest.php`
+- `packages/laravel/tests/Integration/FilamentRecordTrustControlsIntegrationTest.php`
+- `packages/laravel/tests/Integration/FilamentRecordPageIntegrationTest.php`
+- `packages/laravel/tests/Fixtures/Filament/TestRecord.php`
+- `packages/laravel/tests/Fixtures/Filament/TestRecordResource.php`
+- `packages/laravel/tests/Fixtures/Filament/TestRecordPage.php`
+- `packages/laravel/tests/Fixtures/Filament/NonRecordPage.php`
 
 ### Modified files
 
-- `packages/laravel/composer.json` — add Filament 5 as dev-only dependency.
-- `.github/workflows/validate.yml` — make `intl` and Filament 5 test dependency explicit in the PHP matrix setup.
-- `STATUS.md` — move current milestone to M5/T-501 implementation/review state only after implementation is green.
-- `REVIEW_REQUEST.md` — record T-501 review scope/evidence only after implementation is green.
-- `TASKS.md` — update only the T-501 operational marker at review-prep; do not mark M5 complete.
+- `packages/laravel/composer.json`
+- `.github/workflows/validate.yml`
+- `STATUS.md`
+- `REVIEW_REQUEST.md`
+- `TASKS.md` only at the T-501 marker during review prep.
 
 ---
 
@@ -64,8 +65,8 @@
 - Create: `packages/laravel/tests/Unit/FilamentDependencyPolicyTest.php`
 
 **Interfaces:**
-- Consumes: current package Composer metadata and existing four-way PHP/Illuminate/Testbench matrix.
-- Produces: Filament 5 classes available to tests while production package metadata remains Filament-optional.
+- Consumes: current Composer package metadata and four-way PHP/Illuminate/Testbench CI matrix.
+- Produces: Filament 5 available to tests while production consumers remain free of a hard Filament dependency.
 
 - [ ] **Step 1: Write the failing dependency-policy test**
 
@@ -84,23 +85,26 @@ use PHPUnit\Framework\TestCase;
 final class FilamentDependencyPolicyTest extends TestCase
 {
     /** @throws JsonException */
-    public function test_filament_is_dev_only_and_pinned_to_major_five(): void
+    public function test_filament_is_dev_only_and_provider_remains_framework_neutral(): void
     {
+        $root = dirname(__DIR__, 2);
         $composer = json_decode(
-            file_get_contents(dirname(__DIR__, 2) . '/composer.json'),
+            file_get_contents($root . '/composer.json'),
             true,
             flags: JSON_THROW_ON_ERROR,
         );
 
         self::assertArrayNotHasKey('filament/filament', $composer['require'] ?? []);
         self::assertSame('^5.0', $composer['require-dev']['filament/filament'] ?? null);
+
+        $provider = file_get_contents($root . '/src/SurfaceRelayServiceProvider.php');
+        self::assertIsString($provider);
+        self::assertStringNotContainsString('Filament\\', $provider);
     }
 }
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
-
-Run:
+- [ ] **Step 2: Run focused RED**
 
 ```bash
 cd packages/laravel
@@ -109,19 +113,19 @@ vendor/bin/phpunit tests/Unit/FilamentDependencyPolicyTest.php
 
 Expected: FAIL because `require-dev.filament/filament` is absent.
 
-- [ ] **Step 3: Add the dev-only Filament dependency**
+- [ ] **Step 3: Add the dev-only dependency**
 
-Update `packages/laravel/composer.json` `require-dev` to include:
+Add exactly this entry to `require-dev` in `packages/laravel/composer.json`:
 
 ```json
 "filament/filament": "^5.0"
 ```
 
-Do not add Filament to `require`, `extra.laravel.providers`, or `SurfaceRelayServiceProvider`.
+Do not add Filament to `require`, Laravel provider auto-discovery metadata, or `SurfaceRelayServiceProvider`.
 
-- [ ] **Step 4: Make the CI extension/dependency setup explicit**
+- [ ] **Step 4: Make the CI dependency requirements explicit**
 
-In `.github/workflows/validate.yml`, change setup-php extensions from:
+In `.github/workflows/validate.yml`, change:
 
 ```yaml
 extensions: pdo_mysql
@@ -133,7 +137,7 @@ to:
 extensions: pdo_mysql, intl
 ```
 
-Change the dev dependency constraint step to:
+Change the dev-constraint step to:
 
 ```yaml
 - name: Constrain Testbench, Livewire and Filament integration dependencies
@@ -145,11 +149,9 @@ Change the dev dependency constraint step to:
     "filament/filament:^5.0"
 ```
 
-This keeps all four existing PHP/Illuminate matrix combinations authoritative. Do not remove or split a matrix row to make Filament resolve.
+Do not remove/split a matrix row to make Filament resolve.
 
-- [ ] **Step 5: Resolve dependencies and run the focused test**
-
-Run:
+- [ ] **Step 5: Resolve and verify locally**
 
 ```bash
 cd packages/laravel
@@ -158,11 +160,9 @@ vendor/bin/phpunit tests/Unit/FilamentDependencyPolicyTest.php
 composer validate --strict
 ```
 
-Expected: dependency resolution succeeds and the focused test PASSes.
+Expected: dependency resolution succeeds and the test PASSes. If a current matrix combination cannot resolve Filament 5, stop and return to the design gate rather than narrowing existing Laravel support.
 
-If Composer reports Filament 5 cannot resolve against any existing matrix combination, stop implementation and return to the design gate; do not silently narrow Laravel support.
-
-- [ ] **Step 6: Commit the dependency boundary**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add packages/laravel/composer.json .github/workflows/validate.yml packages/laravel/tests/Unit/FilamentDependencyPolicyTest.php
@@ -180,23 +180,41 @@ git commit -m "test(filament): lock optional Filament 5 matrix"
 
 **Interfaces:**
 - Consumes: `Filament\Resources\Pages\Page`, `Illuminate\Database\Eloquent\Model`, `RuntimeScopeCanonicalizer`, `ResolvedTrustedValue`, `ContextProvenance`.
-- Produces: `FilamentRecordContextResolver::resolve(): ?ResolvedTrustedValue` with provider `filament.current_record` and a stable 64-character lowercase SHA-256 `confirmationScopeKey`.
+- Produces: `FilamentRecordContextResolver::resolve(): ?ResolvedTrustedValue` with provider `filament.current_record` and a 64-character lowercase SHA-256 scope key.
 
-- [ ] **Step 1: Write RED tests for record capability and exact-object preservation**
+- [ ] **Step 1: Write RED exact-object/absence tests without overriding Filament constructors**
 
-Create test-local page fixtures in `FilamentRecordContextResolverTest.php`:
+Use test-local fixtures:
 
 ```php
+final class ResolverRecord extends \Illuminate\Database\Eloquent\Model
+{
+    protected $guarded = [];
+    public $timestamps = false;
+}
+
+final class ResolverResource extends \Filament\Resources\Resource
+{
+    protected static ?string $model = ResolverRecord::class;
+
+    public static function getPages(): array
+    {
+        return [];
+    }
+}
+
 final class ResolverNonRecordPage extends \Filament\Resources\Pages\Page
 {
+    protected static string $resource = ResolverResource::class;
     protected string $view = 'resolver-non-record';
 }
 
 final class ResolverRecordPage extends \Filament\Resources\Pages\Page
 {
+    protected static string $resource = ResolverResource::class;
     protected string $view = 'resolver-record';
 
-    public function __construct(private readonly mixed $resolvedRecord) {}
+    public mixed $resolvedRecord = null;
 
     public function getRecord(): mixed
     {
@@ -205,20 +223,10 @@ final class ResolverRecordPage extends \Filament\Resources\Pages\Page
 }
 ```
 
-Use a small Eloquent model fixture:
+Tests:
 
 ```php
-final class ResolverRecord extends \Illuminate\Database\Eloquent\Model
-{
-    protected $guarded = [];
-    public $timestamps = false;
-}
-```
-
-Write tests proving:
-
-```php
-public function test_non_record_filament_page_resolves_to_absence(): void
+public function test_non_record_page_resolves_to_absence(): void
 {
     self::assertNull((new FilamentRecordContextResolver(new ResolverNonRecordPage()))->resolve());
 }
@@ -226,10 +234,13 @@ public function test_non_record_filament_page_resolves_to_absence(): void
 public function test_record_page_returns_exact_model_instance_and_minimal_provenance(): void
 {
     $record = new ResolverRecord();
-    $record->setRawAttributes(['id' => 41, 'name' => 'secret-name']);
+    $record->setRawAttributes(['id' => 41, 'name' => 'SECRET-ATTRIBUTE']);
     $record->exists = true;
 
-    $resolved = (new FilamentRecordContextResolver(new ResolverRecordPage($record)))->resolve();
+    $page = new ResolverRecordPage();
+    $page->resolvedRecord = $record;
+
+    $resolved = (new FilamentRecordContextResolver($page))->resolve();
 
     self::assertNotNull($resolved);
     self::assertSame($record, $resolved->value);
@@ -239,9 +250,7 @@ public function test_record_page_returns_exact_model_instance_and_minimal_proven
 }
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
-
-Run:
+- [ ] **Step 2: Run focused RED**
 
 ```bash
 cd packages/laravel
@@ -250,7 +259,7 @@ vendor/bin/phpunit tests/Unit/FilamentRecordContextResolverTest.php
 
 Expected: FAIL because `FilamentRecordContextResolver` does not exist.
 
-- [ ] **Step 3: Add the static-safe failure type**
+- [ ] **Step 3: Add static-safe adapter failure type**
 
 Create `InvalidFilamentRecordContext.php`:
 
@@ -280,9 +289,7 @@ final class InvalidFilamentRecordContext extends \RuntimeException
 }
 ```
 
-Messages must remain static. Never pass a previous exception into these constructors.
-
-- [ ] **Step 4: Implement minimal exact-page resolution**
+- [ ] **Step 4: Implement exact-page resolution**
 
 Create `FilamentRecordContextResolver.php`:
 
@@ -342,7 +349,7 @@ final class FilamentRecordContextResolver
         }
 
         try {
-            $identity = $this->canonicalizer->encode([
+            $encodedIdentity = $this->canonicalizer->encode([
                 'modelClass' => $record::class,
                 'keyName' => $keyName,
                 'keyValue' => $keyValue,
@@ -354,70 +361,45 @@ final class FilamentRecordContextResolver
         return new ResolvedTrustedValue(
             value: $record,
             provenance: new ContextProvenance('filament.current_record'),
-            confirmationScopeKey: hash('sha256', self::IDENTITY_DOMAIN . $identity),
+            confirmationScopeKey: hash('sha256', self::IDENTITY_DOMAIN . $encodedIdentity),
         );
     }
 }
 ```
 
-Do not use route model binding, `resolveRecord()`, `request()`, `Route`, the service container, reflection, protected `$record`, or a database query.
+Forbidden implementation dependencies: `request()`, route parameters, `resolveRecord()`, database queries, reflection, protected `$record`, component-name lookup, DOM data, or model reload.
 
-- [ ] **Step 5: Run the focused tests and verify GREEN**
-
-Run:
+- [ ] **Step 5: Verify initial GREEN**
 
 ```bash
 cd packages/laravel
 vendor/bin/phpunit tests/Unit/FilamentRecordContextResolverTest.php
 ```
 
-Expected: PASS for absence and exact-object/provenance tests.
+Expected: PASS for the first two tests.
 
-- [ ] **Step 6: Add RED adversarial identity/failure tests**
+- [ ] **Step 6: Add adversarial identity/failure tests**
 
-Extend the same test file to prove:
+Add helpers that set raw attributes and `$record->exists = true`, then prove:
 
 ```php
-public function test_identity_is_stable_for_same_typed_record_identity(): void
-{
-    $a = $this->persistedRecord(123, ['name' => 'alpha']);
-    $b = $this->persistedRecord(123, ['name' => 'beta']);
-
-    self::assertSame(
-        $this->resolve($a)->confirmationScopeKey,
-        $this->resolve($b)->confirmationScopeKey,
-    );
-}
-
-public function test_identity_changes_for_different_record_key(): void
-{
-    self::assertNotSame(
-        $this->resolve($this->persistedRecord(123))->confirmationScopeKey,
-        $this->resolve($this->persistedRecord(124))->confirmationScopeKey,
-    );
-}
-
-public function test_integer_and_string_keys_are_distinct(): void
-{
-    self::assertNotSame(
-        $this->resolve($this->persistedRecord(123))->confirmationScopeKey,
-        $this->resolve($this->persistedRecord('123'))->confirmationScopeKey,
-    );
-}
+self::assertSame($this->scopeKey($this->record(123, 'alpha')), $this->scopeKey($this->record(123, 'beta')));
+self::assertNotSame($this->scopeKey($this->record(123)), $this->scopeKey($this->record(124)));
+self::assertNotSame($this->scopeKey($this->record(123)), $this->scopeKey($this->record('123')));
+self::assertNotSame($this->scopeKey($this->record(123)), $this->scopeKey($this->otherModel(123)));
+self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $this->scopeKey($this->record(0)));
 ```
 
-Add a second model class with the same key and assert a different hash. Assert attribute mutations do not change the hash. Assert key `0` is accepted.
+Add fail-closed cases for:
 
-Add failures for:
-
-- `getRecord()` returns null;
-- `getRecord()` returns non-Model;
-- `getRecord()` throws `new RuntimeException('SECRET-RECORD-ERROR')`;
-- `$record->exists === false`;
-- `getKey() === null`;
-- `getKey() === ''`;
-- unsupported array/object key;
-- empty key name.
+- `getRecord()` returns `null`;
+- non-Model return;
+- unsaved model (`exists=false`);
+- null key;
+- empty-string key;
+- array/object key;
+- empty key name;
+- `getRecord()` throws `RuntimeException('SECRET-RECORD-ERROR')`.
 
 For the throwing case:
 
@@ -432,18 +414,18 @@ try {
 }
 ```
 
-- [ ] **Step 7: Run identity/failure tests and fix only production implementation defects**
+Also assert no exception/provenance text contains the raw record key or `SECRET-ATTRIBUTE`.
 
-Run:
+- [ ] **Step 7: Run focused GREEN**
 
 ```bash
 cd packages/laravel
 vendor/bin/phpunit tests/Unit/FilamentRecordContextResolverTest.php
 ```
 
-Expected: all tests PASS without loosening the assertions.
+Expected: all tests PASS without loosening identity/failure assertions.
 
-- [ ] **Step 8: Commit exact record resolution**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add packages/laravel/src/Filament/Context/InvalidFilamentRecordContext.php \
@@ -454,7 +436,7 @@ git commit -m "feat(filament): resolve trusted current record"
 
 ---
 
-### Task 3: Compose Current Record with Existing Actor and Tenant Trusted Context
+### Task 3: Compose Current Record with Existing Actor and Tenant Context
 
 **Files:**
 - Create: `packages/laravel/src/Filament/Context/FilamentTrustedContextComposer.php`
@@ -462,11 +444,11 @@ git commit -m "feat(filament): resolve trusted current record"
 
 **Interfaces:**
 - Consumes: `TrustedContextComposer::resolve(): array`, `FilamentRecordContextResolver::resolve(): ?ResolvedTrustedValue`.
-- Produces: `FilamentTrustedContextComposer::resolve(): list<TrustedContextEntry>` preserving existing actor/tenant semantics and adding `ContextRequirement::CurrentRecord` only when present.
+- Produces: `FilamentTrustedContextComposer::resolve(): list<TrustedContextEntry>` with actor → tenant → current-record ordering when present.
 
 - [ ] **Step 1: Write RED composition tests**
 
-Create `FilamentTrustedContextComposerTest.php` with actor/tenant resolver fakes implementing the existing zero-argument contracts:
+Use zero-argument resolver fakes:
 
 ```php
 final class StaticActorResolver implements AuthenticatedActorResolver
@@ -482,24 +464,7 @@ final class StaticTenantResolver implements TenantResolver
 }
 ```
 
-Build the base composer:
-
-```php
-$base = new TrustedContextComposer(
-    new StaticActorResolver(new ResolvedTrustedValue(
-        value: 'actor-1',
-        provenance: new ContextProvenance('test.actor'),
-        confirmationScopeKey: 'actor-scope',
-    )),
-    new StaticTenantResolver(new ResolvedTrustedValue(
-        value: 'tenant-1',
-        provenance: new ContextProvenance('test.tenant'),
-        confirmationScopeKey: 'tenant-scope',
-    )),
-);
-```
-
-Assert the new composer produces requirements in exact order:
+Create the base composer with actor/tenant values and a record page/resolver. Assert:
 
 ```php
 self::assertSame(
@@ -512,11 +477,9 @@ self::assertSame(
 );
 ```
 
-Assert the record entry holds the exact model instance, provider `filament.current_record`, and resolver-produced scope key.
+Assert the current-record entry retains the exact model object, provider and scope key. A non-record page must return exactly the base actor/tenant list.
 
-Add a non-record page case and assert output is exactly the two base entries with no synthetic current-record placeholder.
-
-- [ ] **Step 2: Run the focused test and verify RED**
+- [ ] **Step 2: Run focused RED**
 
 ```bash
 cd packages/laravel
@@ -525,9 +488,7 @@ vendor/bin/phpunit tests/Unit/FilamentTrustedContextComposerTest.php
 
 Expected: FAIL because `FilamentTrustedContextComposer` does not exist.
 
-- [ ] **Step 3: Implement the narrow wrapper composer**
-
-Create:
+- [ ] **Step 3: Implement the narrow wrapper**
 
 ```php
 <?php
@@ -569,11 +530,9 @@ final readonly class FilamentTrustedContextComposer
 }
 ```
 
-Do not turn `TrustedContextComposer` into a plugin registry and do not add current-selection support.
+Do not generalize `TrustedContextComposer` into a plugin registry and do not add selection support.
 
-- [ ] **Step 4: Prove InvocationContext canonical ordering and metadata isolation**
-
-Add tests that create:
+- [ ] **Step 4: Prove InvocationContext ordering and metadata spoof resistance**
 
 ```php
 $context = new InvocationContext(
@@ -585,11 +544,7 @@ $context = new InvocationContext(
         'recordId' => 999,
     ],
 );
-```
 
-Assert:
-
-```php
 self::assertSame($record, $context->require(ContextRequirement::CurrentRecord)->value);
 self::assertSame(
     [
@@ -605,7 +560,7 @@ self::assertNotSame(
 );
 ```
 
-- [ ] **Step 5: Run focused tests and verify GREEN**
+- [ ] **Step 5: Run focused GREEN**
 
 ```bash
 cd packages/laravel
@@ -614,7 +569,7 @@ vendor/bin/phpunit tests/Unit/FilamentTrustedContextComposerTest.php
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit trusted-context composition**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add packages/laravel/src/Filament/Context/FilamentTrustedContextComposer.php \
@@ -624,19 +579,17 @@ git commit -m "feat(filament): compose current record context"
 
 ---
 
-### Task 4: Prove Existing Confirmation, Idempotency and Audit Controls Bind the Filament Record Correctly
+### Task 4: Prove Confirmation, Idempotency and Audit Bind the Filament Record Correctly
 
 **Files:**
 - Create: `packages/laravel/tests/Integration/FilamentRecordTrustControlsIntegrationTest.php`
-- No production changes expected.
+- No production modifications expected.
 
 **Interfaces:**
-- Consumes: `FilamentRecordContextResolver`, `FilamentTrustedContextComposer`, `InvocationContext`, `ActionPipelineState`, `ConfirmationScopeHasher`, `ConfirmationService`, `IdempotencyIntentHasher`, `AuditEventFactory`.
-- Produces: regression evidence that changing records changes confirmation/idempotency identity while T-404 persists only requirement/provider.
+- Consumes: `FilamentRecordContextResolver`, `InvocationContext`, `ActionPipelineState`, `ConfirmationScopeHasher`, `ConfirmationService`, `IdempotencyIntentHasher`, `AuditEventFactory`.
+- Produces: proof that record identity participates in existing trust controls without leaking record material into audit.
 
-- [ ] **Step 1: Write RED integration harness guard**
-
-Start the test file with a guard test so the new harness is visibly absent before implementation:
+- [ ] **Step 1: Write a deliberate RED harness guard**
 
 ```php
 public function test_filament_record_trust_control_harness_is_implemented(): void
@@ -648,101 +601,201 @@ public function test_filament_record_trust_control_harness_is_implemented(): voi
 }
 ```
 
-Commit/run this RED before filling the helper.
+Run it before adding the helper and record the expected single failure.
 
-- [ ] **Step 2: Run the integration test and verify RED**
-
-```bash
-cd packages/laravel
-vendor/bin/phpunit tests/Integration/FilamentRecordTrustControlsIntegrationTest.php
-```
-
-Expected: exactly one failure from the missing `stateForRecord` harness guard.
-
-- [ ] **Step 3: Build a real pipeline-state helper from Filament context**
-
-Implement helper shape:
+- [ ] **Step 2: Implement exact ActionDefinition fixture**
 
 ```php
-private function stateForRecord(Model $record): ActionPipelineState
+private function definition(): ActionDefinition
 {
-    $page = new TrustControlRecordPage($record);
-    $recordEntry = (new FilamentRecordContextResolver($page))->resolve();
-    self::assertNotNull($recordEntry);
-
-    $context = new InvocationContext(
-        surface: 'filament',
-        correlationId: 'corr-' . (string) $record->getKey(),
-        trustedContext: [
-            new TrustedContextEntry(
-                ContextRequirement::Tenant,
-                'tenant-a',
-                new ContextProvenance('test.tenant'),
-                'tenant-a-scope',
-            ),
-            new TrustedContextEntry(
-                ContextRequirement::CurrentRecord,
-                $recordEntry->value,
-                $recordEntry->provenance,
-                $recordEntry->confirmationScopeKey,
-            ),
+    return new ActionDefinition(
+        id: 'orders.refund_current',
+        version: 1,
+        title: 'Refund current order',
+        description: 'Refund the exact current Filament order record.',
+        inputSchema: [
+            'type' => 'object',
+            'properties' => [
+                'reason' => ['type' => 'string'],
+            ],
+            'required' => ['reason'],
+            'additionalProperties' => false,
+        ],
+        scope: ActionScope::PageScoped,
+        effect: ActionEffect::ExternalSideEffect,
+        risk: ActionRisk::Consequential,
+        idempotency: IdempotencyPolicy::RequiredKey,
+        outputSensitivity: OutputSensitivity::Normal,
+        outputContentTrust: OutputContentTrust::TrustedApplicationData,
+        contextRequirements: [
+            ContextRequirement::Tenant,
+            ContextRequirement::CurrentRecord,
+            ContextRequirement::HumanConfirmation,
         ],
     );
+}
+```
+
+- [ ] **Step 3: Implement the pipeline-state helper**
+
+For each record, create a trusted Page + resolver result and construct:
+
+```php
+private function stateForRecord(Model $record, string $tenant = 'tenant-a'): ActionPipelineState
+{
+    $page = new TrustControlRecordPage();
+    $page->resolvedRecord = $record;
+
+    $recordValue = (new FilamentRecordContextResolver($page))->resolve();
+    self::assertNotNull($recordValue);
 
     return new ActionPipelineState(
         definition: $this->definition(),
         input: ['reason' => 'customer-request'],
-        context: $context,
-        bindingId: 'filament-livewire-binding-1',
+        context: new InvocationContext(
+            surface: 'filament',
+            correlationId: 'corr-filament-record',
+            trustedContext: [
+                new TrustedContextEntry(
+                    ContextRequirement::Tenant,
+                    $tenant,
+                    new ContextProvenance('test.tenant'),
+                    'tenant-scope:' . $tenant,
+                ),
+                new TrustedContextEntry(
+                    ContextRequirement::CurrentRecord,
+                    $recordValue->value,
+                    $recordValue->provenance,
+                    $recordValue->confirmationScopeKey,
+                ),
+            ],
+        ),
+        bindingId: 'livewire-binding-record-page',
     );
 }
 ```
 
-The `definition()` fixture must use exact stable ActionDefinition fields and include `current_record` in `contextRequirements`; reuse the repository's existing ActionDefinition constructor pattern rather than adding test-only production APIs.
+The test-local `TrustControlRecordPage` uses the same `Page`/public `getRecord()` shape as Task 2 and no constructor override.
 
-- [ ] **Step 4: Prove confirmation and idempotency fingerprints vary only with intended record identity**
-
-Add:
+- [ ] **Step 4: Prove confirmation/idempotency identity behavior**
 
 ```php
-public function test_confirmation_and_idempotency_bind_exact_record_identity(): void
+$recordA = $this->persistedRecord(10);
+$recordB = $this->persistedRecord(11);
+$recordASecondInstance = $this->persistedRecord(10);
+
+$confirmation = new ConfirmationScopeHasher();
+$idempotency = new IdempotencyIntentHasher();
+
+self::assertNotSame(
+    $confirmation->fingerprint($this->stateForRecord($recordA)),
+    $confirmation->fingerprint($this->stateForRecord($recordB)),
+);
+self::assertSame(
+    $confirmation->fingerprint($this->stateForRecord($recordA)),
+    $confirmation->fingerprint($this->stateForRecord($recordASecondInstance)),
+);
+self::assertNotSame(
+    $idempotency->fingerprint($this->stateForRecord($recordA)),
+    $idempotency->fingerprint($this->stateForRecord($recordB)),
+);
+self::assertSame(
+    $idempotency->fingerprint($this->stateForRecord($recordA)),
+    $idempotency->fingerprint($this->stateForRecord($recordASecondInstance)),
+);
+```
+
+- [ ] **Step 5: Prove tenant is independent from record identity**
+
+Resolve the same record under tenants A and B. Assert the resolver-generated record scope key is the same, while both full confirmation and idempotency fingerprints differ because the separate tenant entry differs.
+
+- [ ] **Step 6: Implement a minimal faithful in-memory ConfirmationStore test double**
+
+```php
+final class MemoryConfirmationStore implements ConfirmationStore
 {
-    $recordA = $this->persistedRecord(10);
-    $recordB = $this->persistedRecord(11);
-    $recordASecondInstance = $this->persistedRecord(10);
+    /** @var array<string, ConfirmationRecord> */
+    private array $records = [];
 
-    $confirmation = new ConfirmationScopeHasher();
-    $idempotency = new IdempotencyIntentHasher();
+    public function createPending(string $tokenHash, ConfirmationRecord $record, int $ttlSeconds): bool
+    {
+        if (isset($this->records[$tokenHash])) {
+            return false;
+        }
+        $this->records[$tokenHash] = $record;
+        return true;
+    }
 
-    self::assertNotSame(
-        $confirmation->fingerprint($this->stateForRecord($recordA)),
-        $confirmation->fingerprint($this->stateForRecord($recordB)),
-    );
-    self::assertSame(
-        $confirmation->fingerprint($this->stateForRecord($recordA)),
-        $confirmation->fingerprint($this->stateForRecord($recordASecondInstance)),
-    );
+    public function approvePending(string $tokenHash, int $now, int $receiptExpiresAt): bool
+    {
+        $record = $this->records[$tokenHash] ?? null;
+        if (
+            $record === null
+            || $record->state !== ConfirmationRecordState::Pending
+            || $now >= $record->challengeExpiresAt
+        ) {
+            return false;
+        }
 
-    self::assertNotSame(
-        $idempotency->fingerprint($this->stateForRecord($recordA)),
-        $idempotency->fingerprint($this->stateForRecord($recordB)),
-    );
-    self::assertSame(
-        $idempotency->fingerprint($this->stateForRecord($recordA)),
-        $idempotency->fingerprint($this->stateForRecord($recordASecondInstance)),
-    );
+        $this->records[$tokenHash] = new ConfirmationRecord(
+            ConfirmationRecordState::Approved,
+            $record->scopeFingerprint,
+            $record->summary,
+            $record->issuedAt,
+            $record->challengeExpiresAt,
+            $receiptExpiresAt,
+        );
+        return true;
+    }
+
+    public function consumeApproved(string $tokenHash, string $expectedScopeFingerprint, int $now): bool
+    {
+        $record = $this->records[$tokenHash] ?? null;
+        if (
+            $record === null
+            || $record->state !== ConfirmationRecordState::Approved
+            || $record->scopeFingerprint !== $expectedScopeFingerprint
+            || $record->receiptExpiresAt === null
+            || $now >= $record->receiptExpiresAt
+        ) {
+            return false;
+        }
+
+        unset($this->records[$tokenHash]);
+        return true;
+    }
 }
 ```
 
-- [ ] **Step 5: Prove a receipt issued for record A cannot authorize record B**
+Use fixed test doubles:
 
-Use the existing `ConfirmationService` contract, not a synthetic boolean:
+```php
+final class FixedConfirmationClock implements ConfirmationClock
+{
+    public function now(): int { return 1_800_000_000; }
+}
+
+final class FixedConfirmationTokenGenerator implements ConfirmationTokenGenerator
+{
+    public function generate(): string
+    {
+        return str_repeat('A', 43);
+    }
+}
+```
+
+- [ ] **Step 7: Prove receipt A cannot authorize record B**
 
 ```php
 $scopeA = (new ConfirmationScopeHasher())->fingerprint($this->stateForRecord($recordA));
 $scopeB = (new ConfirmationScopeHasher())->fingerprint($this->stateForRecord($recordB));
 
-$service = $this->confirmationService();
+$service = new ConfirmationService(
+    new MemoryConfirmationStore(),
+    new FixedConfirmationClock(),
+    new FixedConfirmationTokenGenerator(),
+);
+
 $challenge = $service->issueChallenge($scopeA, 'Approve refund');
 $receipt = $service->approveChallenge($challenge->challengeId);
 self::assertNotNull($receipt);
@@ -751,51 +804,53 @@ self::assertFalse($service->consumeReceipt($receipt, $scopeB));
 self::assertTrue($service->consumeReceipt($receipt, $scopeA));
 ```
 
-The test-local `confirmationService()` must use the same `ConfirmationStore` interface and deterministic clock/token fixtures already used by existing confirmation integration tests. Copy the minimal fixture into this file rather than changing production confirmation code.
+- [ ] **Step 8: Prove T-404 audit minimization with exact current types**
 
-- [ ] **Step 6: Prove tenant stays an independent trusted dimension**
-
-Build two states with identical record identity but different tenant trusted entries and assert both confirmation and idempotency fingerprints differ. Also assert the resolver's `confirmationScopeKey` itself remains identical across the two tenants.
-
-This prevents accidentally moving tenant authority into `FilamentRecordContextResolver`.
-
-- [ ] **Step 7: Prove T-404 audit minimization**
-
-Create a completed `ActionPipelineOutcome` from the Filament-record state and use `AuditEventFactory` directly. Assert the trusted-context manifest contains:
+Use:
 
 ```php
+final class FixedAuditClock implements AuditClock
+{
+    public function now(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable('2026-09-10T00:00:00.123456Z');
+    }
+}
+```
+
+Create:
+
+```php
+$state = $this->stateForRecord($recordA);
+$event = (new AuditEventFactory(new FixedAuditClock()))
+    ->create(ActionPipelineOutcome::completed($state));
+
+$manifest = array_map(
+    static fn (AuditTrustedContextEntry $entry): array => [
+        'requirement' => $entry->requirement->value,
+        'provider' => $entry->provider,
+    ],
+    $event->trustedContextManifest,
+);
+
 self::assertContains(
     ['requirement' => 'current_record', 'provider' => 'filament.current_record'],
-    array_map(
-        static fn ($entry) => [
-            'requirement' => $entry->requirement,
-            'provider' => $entry->provider,
-        ],
-        $event->trustedContextManifest,
-    ),
+    $manifest,
 );
 ```
 
-Then encode the semantic event/test projection and assert it does **not** contain:
+Serialize an explicit test projection of the semantic audit fields/manifest and assert it excludes unique markers placed in the record primary key, model attributes, and `confirmationScopeKey`. Do not change `AuditEventFactory` or the DB audit schema.
 
-- raw record key marker;
-- model attribute marker;
-- resolver `confirmationScopeKey`;
-- page class;
-- resource/route data.
-
-If `AuditEventFactory` public construction requires a clock, use a fixed UTC `AuditClock` test double exactly as existing audit tests do. Do not modify T-404 production behavior.
-
-- [ ] **Step 8: Run focused trust-control integration and verify GREEN**
+- [ ] **Step 9: Run trust-control integration GREEN**
 
 ```bash
 cd packages/laravel
 vendor/bin/phpunit tests/Integration/FilamentRecordTrustControlsIntegrationTest.php
 ```
 
-Expected: PASS with no production changes outside the Filament adapter.
+Expected: PASS with no non-Filament production changes.
 
-- [ ] **Step 9: Commit trust-control proof**
+- [ ] **Step 10: Commit**
 
 ```bash
 git add packages/laravel/tests/Integration/FilamentRecordTrustControlsIntegrationTest.php
@@ -814,10 +869,10 @@ git commit -m "test(filament): bind record context to trust controls"
 - Create: `packages/laravel/tests/Integration/FilamentRecordPageIntegrationTest.php`
 
 **Interfaces:**
-- Consumes: real Filament 5 `Filament\Resources\Resource`, `Filament\Resources\Pages\Page`, `Filament\Resources\Pages\Concerns\InteractsWithRecord`, Eloquent/Testbench container.
-- Produces: compatibility proof that the adapter consumes Filament's real public `getRecord(): Model` contract and returns absence for a real non-record resource page.
+- Consumes: actual Filament 5 `Resource`, `Page`, `InteractsWithRecord`, Eloquent and Orchestra Testbench.
+- Produces: compatibility proof that SurfaceRelay uses Filament's real public `getRecord(): Model` API and performs no re-query.
 
-- [ ] **Step 1: Add minimal real Filament fixture model/resource/pages**
+- [ ] **Step 1: Create real Filament fixtures**
 
 `TestRecord.php`:
 
@@ -856,8 +911,8 @@ final class TestRecordResource extends Resource
     public static function getPages(): array
     {
         return [
-            'record' => TestRecordPage::route('/{record}'),
             'index' => NonRecordPage::route('/'),
+            'record' => TestRecordPage::route('/{record}'),
         ];
     }
 }
@@ -902,11 +957,11 @@ final class NonRecordPage extends Page
 }
 ```
 
-- [ ] **Step 2: Write RED real-Filament integration test**
+- [ ] **Step 2: Write real Filament/Testbench integration**
 
-Create `FilamentRecordPageIntegrationTest.php` extending `Orchestra\Testbench\TestCase`.
+Create `FilamentRecordPageIntegrationTest.php` extending `Orchestra\Testbench\TestCase`. Configure SQLite `:memory:` in `defineEnvironment()`.
 
-In `defineEnvironment()` configure SQLite `:memory:`. In the test create the table:
+Create schema:
 
 ```php
 $this->app['db']->connection()->getSchemaBuilder()->create(
@@ -918,15 +973,14 @@ $this->app['db']->connection()->getSchemaBuilder()->create(
 );
 ```
 
-Insert/load a real model:
+Load a real persisted model and set Filament's public locked record property:
 
 ```php
-$record = TestRecord::query()->create(['id' => 77, 'name' => 'Visible only in app']);
-```
+$record = TestRecord::query()->create([
+    'id' => 77,
+    'name' => 'Visible only in app',
+]);
 
-Instantiate the real Filament page and set its public Filament `record` property to the loaded model, matching Filament's `InteractsWithRecord` public contract:
-
-```php
 $page = new TestRecordPage();
 $page->record = $record;
 
@@ -937,20 +991,15 @@ self::assertNotNull($resolved);
 self::assertSame($record, $resolved->value);
 ```
 
-Also instantiate `new NonRecordPage()` and assert resolver returns null.
+Also assert:
 
-- [ ] **Step 3: Run real-Filament integration test**
-
-```bash
-cd packages/laravel
-vendor/bin/phpunit tests/Integration/FilamentRecordPageIntegrationTest.php
+```php
+self::assertNull((new FilamentRecordContextResolver(new NonRecordPage()))->resolve());
 ```
 
-Expected: PASS against installed Filament 5. If Filament's actual public page API differs, stop and revise the design; do not add reflection or private-state fallback.
+- [ ] **Step 3: Prove resolver performs zero database queries**
 
-- [ ] **Step 4: Add a no-requery assertion**
-
-Attach a database query listener/counter after loading the model, then call the resolver and assert it emits zero additional queries:
+After the model is loaded and page assigned:
 
 ```php
 $queries = 0;
@@ -958,19 +1007,28 @@ $this->app['db']->listen(static function () use (&$queries): void {
     $queries++;
 });
 
+$queries = 0;
 $resolved = (new FilamentRecordContextResolver($page))->resolve();
 
 self::assertNotNull($resolved);
 self::assertSame(0, $queries, 'SurfaceRelay must not re-query the active Filament record.');
 ```
 
-If framework boot emits unrelated queries, scope the listener immediately around resolver invocation and reset the counter before the call.
+- [ ] **Step 4: Run focused real-Filament integration**
 
-- [ ] **Step 5: Run focused integration and relevant unit tests**
+```bash
+cd packages/laravel
+vendor/bin/phpunit tests/Integration/FilamentRecordPageIntegrationTest.php
+```
+
+Expected: PASS against installed Filament 5. If the public API differs, stop and revise the design; do not add reflection, protected-state access, or private Livewire request fallback.
+
+- [ ] **Step 5: Run all T-501 focused tests together**
 
 ```bash
 cd packages/laravel
 vendor/bin/phpunit \
+  tests/Unit/FilamentDependencyPolicyTest.php \
   tests/Unit/FilamentRecordContextResolverTest.php \
   tests/Unit/FilamentTrustedContextComposerTest.php \
   tests/Integration/FilamentRecordTrustControlsIntegrationTest.php \
@@ -979,7 +1037,7 @@ vendor/bin/phpunit \
 
 Expected: all PASS.
 
-- [ ] **Step 6: Commit real Filament compatibility proof**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add packages/laravel/tests/Fixtures/Filament \
@@ -994,46 +1052,31 @@ git commit -m "test(filament): prove real record page context"
 **Files:**
 - Modify: `STATUS.md`
 - Modify: `REVIEW_REQUEST.md`
-- Modify: `TASKS.md` only at the T-501 marker
-- No additional production changes unless a failing test demonstrates a T-501 defect.
+- Modify: `TASKS.md` only at T-501 marker.
 
 **Interfaces:**
-- Consumes: completed T-501 adapter and all repository test suites.
-- Produces: reviewable exact-head evidence for T-501 while M5 remains in progress and T-502..T-505 remain untouched.
+- Consumes: completed T-501 adapter and repository suites.
+- Produces: exact-head evidence for external review while M5 remains in progress.
 
-- [ ] **Step 1: Run focused PHP suite once more**
-
-```bash
-cd packages/laravel
-vendor/bin/phpunit \
-  tests/Unit/FilamentDependencyPolicyTest.php \
-  tests/Unit/FilamentRecordContextResolverTest.php \
-  tests/Unit/FilamentTrustedContextComposerTest.php \
-  tests/Integration/FilamentRecordTrustControlsIntegrationTest.php \
-  tests/Integration/FilamentRecordPageIntegrationTest.php
-```
-
-Expected: PASS.
-
-- [ ] **Step 2: Run the entire Laravel package suite**
+- [ ] **Step 1: Run full Laravel suite**
 
 ```bash
 cd packages/laravel
 composer test
 ```
 
-Expected: all tests PASS. Record exact test/assertion counts from fresh output.
+Expected: PASS. Record exact test/assertion counts from fresh output.
 
-- [ ] **Step 3: Run PHP lint and Composer validation**
+- [ ] **Step 2: Run lint and Composer validation**
 
 ```bash
 find packages/laravel -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
 cd packages/laravel && composer validate --strict
 ```
 
-Expected: no lint/Composer validation errors.
+Expected: PASS.
 
-- [ ] **Step 4: Run browser isolation regression**
+- [ ] **Step 3: Run browser isolation**
 
 ```bash
 cd packages/browser-runtime
@@ -1042,36 +1085,34 @@ npm run typecheck
 npm test
 ```
 
-Expected: typecheck PASS and existing Vitest suite PASS. T-501 must not modify browser runtime files.
+Expected: PASS. T-501 must have no browser-runtime diff.
 
-- [ ] **Step 5: Run contract validator**
+- [ ] **Step 4: Run frozen contract validator**
 
 ```bash
 python scripts/validate.py
 ```
 
-Expected: PASS with frozen protocol fixtures unchanged.
+Expected: PASS.
 
-- [ ] **Step 6: Verify frozen protocol and scope diff**
-
-Run:
+- [ ] **Step 5: Audit base-to-head scope**
 
 ```bash
 git diff --name-only 66afcc22704bfe3b317f2894b7737cf18d248e34...HEAD
 ```
 
-Required assertions:
+Required:
 
-- no path under `spec/0.1/**`;
-- no path under `packages/browser-runtime/**`;
-- no path under `packages/laravel/src/Livewire/**`;
-- no Filament RuntimeBinding driver/target class;
+- no `spec/0.1/**` path;
+- no `packages/browser-runtime/**` path;
+- no `packages/laravel/src/Livewire/**` path;
+- no new Filament RuntimeBinding driver/target;
 - no route/request record resolver;
 - production additions limited to `packages/laravel/src/Filament/Context/**` plus dependency/CI metadata.
 
-- [ ] **Step 7: Update operational review records**
+- [ ] **Step 6: Update status/review records**
 
-Update `STATUS.md` to state:
+`STATUS.md` must state:
 
 ```text
 M5 — IN PROGRESS
@@ -1079,32 +1120,22 @@ T-501 — implementation complete / self-reviewed / external review pending
 T-502..T-505 — not started
 ```
 
-Record:
+Record branch/base, implementation head, CI workflow, PHP counts, browser result, contract result, D-019/D-048, no protocol diff and no new execution driver.
 
-- branch/base;
-- implementation exact head;
-- exact CI workflow ID after push;
-- PHP test/assertion counts;
-- browser result;
-- contract validator result;
-- D-019/D-048 accepted;
-- no `spec/0.1/**` diff;
-- no new Filament execution driver.
-
-Update `REVIEW_REQUEST.md` with review focus:
+`REVIEW_REQUEST.md` review focus:
 
 1. caller/request data cannot manufacture `current_record`;
-2. exact page public `getRecord()` only;
-3. exact model object retained, no re-query/reload;
-4. record scope key contains only domain-separated model class/key-name/typed-key identity;
-5. tenant stays independent;
-6. confirmation receipt record mismatch fails closed;
-7. idempotency intent separates records;
-8. audit persists provider only, never record/key/hash;
-9. Filament remains dev-only/optional to package consumers;
+2. exact injected Filament Page + public `getRecord()` only;
+3. exact model object retained and no re-query;
+4. scope key contains only domain-separated model class/key-name/typed-key identity;
+5. tenant remains independent;
+6. receipt for record A fails against record B;
+7. idempotency intent separates record identities;
+8. T-404 audit stores provider only, never record/key/hash;
+9. Filament remains dev-only/optional;
 10. existing Livewire execution path remains the only binding path.
 
-In `TASKS.md`, change only:
+Change only this T-501 task-board line:
 
 ```text
 - T-501 — Record context binding.
@@ -1116,20 +1147,18 @@ to:
 - T-501 — Record context binding — IMPLEMENTED / REVIEW PENDING.
 ```
 
-Do not mark M5 complete and do not alter T-502..T-505.
+Do not mark M5 complete or alter T-502..T-505.
 
-- [ ] **Step 8: Commit review-prep records**
+- [ ] **Step 7: Commit review-prep records**
 
 ```bash
 git add STATUS.md REVIEW_REQUEST.md TASKS.md
 git commit -m "docs(review): prepare T-501 record context review"
 ```
 
-- [ ] **Step 9: Push and require exact-head CI**
+- [ ] **Step 8: Require exact-head CI**
 
-Push `feat/filament-record-context-binding` and wait for the repository `validate` workflow on that exact SHA.
-
-Required jobs: 7 total, all success:
+Push the branch and require all seven jobs on the exact SHA:
 
 - contract;
 - php-lint;
@@ -1139,13 +1168,13 @@ Required jobs: 7 total, all success:
 - PHP 8.4 + Illuminate 12 + Testbench 10;
 - PHP 8.4 + Illuminate 13 + Testbench 11.
 
-Do not claim review-ready until all seven are green on the exact branch head.
+Do not claim review-ready until all seven are success.
 
-- [ ] **Step 10: Self-review acceptance checklist before PR**
+- [ ] **Step 9: Final self-review checklist before PR**
 
-Confirm all items:
+Confirm all 17 items:
 
-1. exact Filament Page object is injected by trusted adapter code;
+1. exact Filament Page injected by trusted adapter code;
 2. non-record Page yields absence;
 3. record-aware invalid state fails static-safe/unchained;
 4. exact Eloquent object retained;
@@ -1155,12 +1184,12 @@ Confirm all items:
 8. actor/tenant composition unchanged;
 9. metadata/input spoofing ineffective;
 10. confirmation record mismatch rejected;
-11. idempotency fingerprints separate record identities;
-12. audit event contains only current-record requirement/provider, not value/hash;
+11. idempotency fingerprints separate records;
+12. audit contains only current-record requirement/provider, not value/hash;
 13. Filament 5 resolves on all existing PHP/Illuminate rows;
-14. production package has no hard Filament dependency;
+14. production package has no hard Filament dependency/eager provider wiring;
 15. no new execution driver/path;
 16. frozen `spec/0.1/**` unchanged;
 17. T-502..T-505 untouched.
 
-Only after this checklist and exact-head CI are green should a T-501 PR/review gate be opened.
+Only after this checklist and exact-head CI are green should the T-501 PR/review gate be opened.
