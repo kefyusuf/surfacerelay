@@ -19,7 +19,12 @@ final readonly class FilamentInvocationContextFactory
 {
     public function __construct(
         private TrustedContextComposer $baseComposer,
-    ) {}
+        private int $maxSelectionRecords = FilamentCurrentSelectionResolver::DEFAULT_MAX_SELECTION_RECORDS,
+    ) {
+        if ($this->maxSelectionRecords < 1) {
+            throw InvalidFilamentCurrentSelection::invalidConfiguration();
+        }
+    }
 
     /** @param array<string, mixed> $metadata */
     public function forPage(
@@ -32,6 +37,10 @@ final readonly class FilamentInvocationContextFactory
         $trustedContext = (new FilamentTrustedContextComposer(
             $this->baseComposer,
             new FilamentRecordContextResolver($page),
+            new FilamentCurrentSelectionResolver(
+                $page,
+                maxSelectionRecords: $this->maxSelectionRecords,
+            ),
         ))->resolve();
 
         return new InvocationContext(
