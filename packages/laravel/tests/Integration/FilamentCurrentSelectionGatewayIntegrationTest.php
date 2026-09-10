@@ -85,6 +85,28 @@ final class FilamentCurrentSelectionGatewayIntegrationTest extends TestCase
         self::assertSame(['selectedIds' => [11, 22]], $outcome->state->output);
     }
 
+    public function test_empty_effective_selection_cannot_be_fabricated_by_input_or_metadata(): void
+    {
+        $page = new TestTablePage();
+        $page->bootedInteractsWithTable();
+
+        $executor = new CapturingFilamentSelectionExecutor();
+        $outcome = $this->gateway($executor)->dispatch(
+            page: $page,
+            actionId: 'orders.inspect_selection',
+            actionVersion: 1,
+            input: ['selectedTableRecords' => [999]],
+            surface: 'filament',
+            correlationId: 'corr-empty-selection',
+            bindingId: 'livewire-binding-table-page',
+            metadata: ['current_selection' => [999]],
+        );
+
+        self::assertFalse($outcome->completed);
+        self::assertSame('required_context_missing', $outcome->halt?->code);
+        self::assertNull($executor->selectedIdsSeen);
+    }
+
     private function gateway(ActionExecutor $executor): FilamentActionGateway
     {
         return new FilamentActionGateway(
