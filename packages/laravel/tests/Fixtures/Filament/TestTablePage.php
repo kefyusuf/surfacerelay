@@ -6,7 +6,7 @@ namespace SurfaceRelay\Laravel\Tests\Fixtures\Filament;
 
 use Filament\Resources\Pages\ListRecords;
 
-final class TestTablePage extends ListRecords
+class TestTablePage extends ListRecords
 {
     protected static string $resource = TestTableResource::class;
 }
