@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SurfaceRelay\Laravel\Filament\Context;
+
+use Filament\Resources\Pages\Page;
+use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
+use SurfaceRelay\Laravel\Runtime\InvocationContext;
+
+/**
+ * Trusted Filament-side composition point for one invocation context.
+ *
+ * The exact active Page instance is supplied by trusted adapter code. This
+ * factory does not discover pages, inspect routes/requests, resolve records by
+ * ID, dispatch actions, or introduce a Filament execution driver.
+ */
+final readonly class FilamentInvocationContextFactory
+{
+    public function __construct(
+        private TrustedContextComposer $baseComposer,
+    ) {}
+
+    /** @param array<string, mixed> $metadata */
+    public function forPage(
+        Page $page,
+        string $surface,
+        string $correlationId,
+        ?string $idempotencyKey = null,
+        array $metadata = [],
+    ): InvocationContext {
+        $trustedContext = (new FilamentTrustedContextComposer(
+            $this->baseComposer,
+            new FilamentRecordContextResolver($page),
+        ))->resolve();
+
+        return new InvocationContext(
+            surface: $surface,
+            correlationId: $correlationId,
+            trustedContext: $trustedContext,
+            idempotencyKey: $idempotencyKey,
+            metadata: $metadata,
+        );
+    }
+}
