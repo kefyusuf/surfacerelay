@@ -26,7 +26,10 @@ final class FilamentRecordContextResolver
 
     public function resolve(): ?ResolvedTrustedValue
     {
-        if (! is_callable([$this->page, 'getRecord'])) {
+        if (
+            ! method_exists($this->page, 'getRecord')
+            || ! is_callable([$this->page, 'getRecord'])
+        ) {
             return null;
         }
 
