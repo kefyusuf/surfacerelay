@@ -6,21 +6,24 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/filament-current-selection-context`
+- **Branch:** `main`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
-- **Last merged/revalidated task:** `T-501 — Record context binding`
-- **Current task:** `T-502 — Current-selection trusted context`
-- **T-502 status:** **DONE / REVIEWED; MERGE PENDING**
-- **Exact base / merge-base:** `main@ae77cbf26cbefcca478d070765386628343bec52`
+- **Last merged/revalidated task:** `T-502 — Current-selection trusted context`
+- **Current task:** none
+- **T-502 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **Original base / merge-base:** `main@ae77cbf26cbefcca478d070765386628343bec52`
 - **Final reviewed code head:** `433147274ea57fb9ae1452295bbdad143a19a507`
-- **Final code workflow:** `34468866367` — **7/7 green**
+- **Final pre-merge operational head:** `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a`
+- **Merge commit:** `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`
+- **Post-merge main workflows:** `34471406523`, `34471433674` — **7/7 green each**
 - **PHP:** **509 tests / 2629 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser isolation:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4** verified in the matrix
 - **Decisions:** `D-019`, `D-048`, `D-049` — **ACCEPTED**
-- **Pull request:** `#6` — **OPEN / MERGE PENDING**
+- **Pull request:** `#6` — **CLOSED / MERGED**
 - **External review:** **PASSED after TDD hardening**
+- **Remaining actionable findings:** **0**
 - **Unresolved review threads:** **0**
 - **Next task:** `T-503 — Active-filter context` — **NOT STARTED**
 
@@ -98,6 +101,10 @@ Composer-order hardening:       a89ef13ccdc4bca45eb3f2d34dea7b4cf78b06f6 / 34465
 Review-prep head:               d0432f0cc94c7d1e14960135aedc329e60f9c5dc / 34465695646 — 7/7 green
 Review finding RED:             1b9b3fdb43d05d46ff73d8f1e08cd4c0fdaef6c1 / 34468667385 — 509 / 2629, exactly 1 failure; 200 hydrated vs required 151
 Review finding GREEN:           433147274ea57fb9ae1452295bbdad143a19a507 / 34468866367 — 7/7 green; 509 / 2629
+Final pre-merge operational:    d56d0b55b5857bfefa80c043ec6d13e52ea90a4a / 34470021303 — 7/7 green; 509 / 2629
+Merge commit:                   0b78afa7d1541b34ef3b82d04c97e99d11cbb694
+Post-merge main run A:          34471406523 — 7/7 green
+Post-merge main run B:          34471433674 — 7/7 green; 509 / 2629
 Browser:                        TypeScript typecheck + 103/103 Vitest tests
 Contract:                       green; frozen spec/0.1 unchanged
 ```
@@ -106,8 +113,12 @@ Contract:                       green; frozen spec/0.1 unchanged
 
 CodeRabbit full review run `7eadba8f-6972-444e-8e32-b5e66e776a0d` found one actionable correctness issue: the original `min(100, max + 1)` value limited each Filament `lazyById()` batch rather than total materialization. With `max=150`, the regression proved 200 records were hydrated before the limit was observed.
 
-The fix passes the exact trusted sentinel size `maxSelectionRecords + 1` to Filament's public `getSelectedTableRecords()` API. The same real Filament integration now proves exactly 151 hydrated records for `max=150`. CodeRabbit incremental verification confirmed: **no remaining actionable T-502 correctness/security findings**, **0 unresolved review threads**, and the prior materialization finding is addressed.
+The fix passes the exact trusted sentinel size `maxSelectionRecords + 1` to Filament's public `getSelectedTableRecords()` API. The same real Filament integration proves exactly 151 hydrated records for `max=150`. CodeRabbit incremental verification comment `5617635978` confirmed: **no remaining actionable T-502 correctness/security findings**, **0 unresolved review threads**, and the prior materialization finding is addressed.
+
+## Merge closure
+
+PR #6 was merged with an expected-head guard pinned to `d56d0b55b5857bfefa80c043ec6d13e52ea90a4a` using the repository's established merge-commit method. GitHub created merge commit `0b78afa7d1541b34ef3b82d04c97e99d11cbb694`, whose parents are the original base and exact feature head. The merge commit became `main` and both post-merge push validation runs completed **7/7 green**.
 
 ## Next boundary
 
-**T-502 is DONE / REVIEWED. PR #6 merge is the next explicit gate. T-503 has not started.**
+**T-502 is DONE / REVIEWED / MERGED / MAIN REVALIDATED. T-503 has not started.**
