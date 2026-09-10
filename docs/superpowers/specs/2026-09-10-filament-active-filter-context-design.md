@@ -40,7 +40,7 @@ For T-503:
 - exposure: only explicit trusted server-side Filament adapter wiring;
 - authority source: exact active Filament table page + public applied filter-state API;
 - deferred/pending form state: never authority until Filament applies it;
-- security binding: every present trusted runtime extension participates in confirmation scope and idempotency intent by default;
+- security binding: every present trusted runtime extension always participates in confirmation scope and idempotency intent;
 - audit persistence: extension key/provider only, never filter values, canonical bytes, or scope keys;
 - protocol: no new Action Definition field, RuntimeBinding driver, browser argument, or `ContextRequirement`.
 
