@@ -86,6 +86,14 @@ The bridge will not automatically redispatch the business action after approval.
 
 T-504 will not expose approval as an ActionDefinition, WebMCP tool, generic HTTP endpoint, browser-driver method, or arbitrary Livewire method that accepts a challenge token. T-401 intentionally reserves approval for trusted human-facing bridge code. A caller that knows a challenge ID must not gain a direct machine approval primitive.
 
+### Retry coordination is deliberately external
+
+T-504 does not add a machine-readable approval-status endpoint, approval polling API, browser receipt event, or automatic retry callback.
+
+A requesting caller must not blindly resubmit a still-pending `challengeId` as a receipt while waiting for the human decision. Under T-401, a pending/unapproved receipt candidate grants no authority and the runtime may issue a fresh challenge for the current scope. Repeated premature retries can therefore create challenge churn and collide with the already-presented modal.
+
+The v0 bridge assumes the requesting harness/application coordinates the retry only after the human-facing approval step is known to have completed, for example through its own interaction flow. T-505 may demonstrate that coordination without creating a new approval authority channel. If a future adapter needs a non-authoritative machine notification that approval completed, that signal requires a separate design; it must not itself become approval authority.
+
 ## Existing Core Contract
 
 T-504 consumes T-401 exactly as implemented:
@@ -150,7 +158,7 @@ Responsibilities:
 9. never return or persist a receipt;
 10. never read Filament private properties or use reflection/private request internals.
 
-The bridge may use Filament's public `mountAction()` / mounted-action accessors to operate the UI lifecycle. Direct reads/writes of Filament's raw `$mountedActions` property are forbidden in SurfaceRelay production code.
+The bridge may use Filament's public `mountAction()` and public mounted-action accessors to operate and verify the UI lifecycle. Direct reads/writes of Filament's raw `$mountedActions` property are forbidden in SurfaceRelay production code.
 
 ### `InteractsWithSurfaceRelayConfirmation`
 
@@ -178,13 +186,13 @@ The challenge ID is already public in the T-401 `confirmation_required` result w
 
 ## Internal Filament Action
 
-The trait provides one reserved internal Filament Action, conceptually named:
+The trait provides one package-reserved internal Filament Action, conceptually named:
 
 ```text
 surfacerelay_confirmation
 ```
 
-It is registered through Filament's supported Action/trait discovery lifecycle and is mounted programmatically only after a real typed T-401 challenge is presented.
+It is registered through Filament's supported Action/trait discovery lifecycle and is mounted programmatically only after a real typed T-401 challenge is presented. The host application must not override, alias, or reuse the package-reserved action definition. If Filament cannot resolve the expected package action through supported public APIs, presentation fails closed rather than falling back to another action.
 
 The modal is intentionally narrow:
 
@@ -230,6 +238,8 @@ approveChallenge(locked challengeId)
 
 `approveChallenge()` returning `null` is deliberately not turned into token-state introspection. Expired, unknown, already-approved, or otherwise non-pending state is not distinguished to the browser. The UI may say only that the confirmation is no longer approvable and the requesting operation must be retried.
 
+A lost response after a successful approval can therefore lead a repeated Approve attempt to receive the same generic non-pending result even though the original token may already be approved. This is acceptable: the UI clears stale presentation state and instructs the requesting flow to retry the original operation, which will either consume a still-valid exact-scope receipt or receive a fresh challenge. T-504 does not add confirmation-state introspection to disambiguate this case.
+
 If the configured confirmation authority throws because its store/locking/configuration is unavailable, the failure propagates fail-closed. T-504 must not downgrade store failure into apparent approval.
 
 Approval success does not expose the returned token because the requesting caller already owns the original challenge ID and the browser modal does not need a second receipt-delivery channel.
@@ -240,7 +250,7 @@ Most importantly, approval never calls `FilamentActionGateway::dispatch()`, Acti
 
 T-504 does not make the base `SurfaceRelayServiceProvider` auto-create confirmation authority or eagerly register Filament services.
 
-The host Laravel application must explicitly make the same configured confirmation authority used by `ConfirmationStage` resolvable under `ConfirmationService::class` for the Filament approval action. In normal composition this is the same service instance or an equivalent instance backed by the same authoritative `ConfirmationStore` and configuration.
+The host Laravel application must explicitly make the same configured confirmation authority used by `ConfirmationStage` resolvable under `ConfirmationService::class` for the Filament approval action. In normal composition this is the same service instance or an equivalent instance backed by the same authoritative `ConfirmationStore` and the same receipt-expiry configuration.
 
 The trait may obtain the service only through a protected server-side resolver method / explicit Laravel container resolution. No browser argument selects a store, service, cache connection, tenant, or approval backend.
 
@@ -285,7 +295,7 @@ return the original ActionPipelineOutcome unchanged
 
 No bridge configured means T-501/T-502/T-503 behavior is unchanged.
 
-The bridge must never normalize and rewrite the ActionPipelineOutcome. The original caller still receives the canonical confirmation-required result through the existing result-normalization path and therefore retains the exact challenge ID needed for an eventual explicit retry.
+The bridge must never normalize and rewrite the ActionPipelineOutcome. When presentation succeeds, the original caller still receives the canonical confirmation-required result through the existing result-normalization path and therefore retains the exact challenge ID needed for an eventual explicit retry. A bridge presentation/configuration failure is intentionally loud and may prevent the adapter call from returning normally; it never converts the halt into success or executes the business action.
 
 ## Fresh-State Retry Guarantee
 
@@ -326,16 +336,24 @@ Rules:
 no SurfaceRelay presentation + incoming A
     → store A in locked state and mount modal
 
-existing A + incoming A
-    → idempotent; do not replace locked state
+existing A + incoming A + SurfaceRelay modal already mounted
+    → idempotent no-op; do not replace locked state
+
+existing A + incoming A + no mounted action
+    → remount the same SurfaceRelay action from existing locked A state
+
+existing A + incoming A + unrelated mounted action
+    → fail closed; do not replace/nest/hijack application action
 
 existing A + incoming B
     → fail closed with presentation conflict
 ```
 
+All mounted-action decisions must use supported public Filament accessors. SurfaceRelay does not inspect or mutate Filament's raw `$mountedActions` representation.
+
 The bridge must not silently overwrite A with B while the human is reading A.
 
-The bridge should also avoid replacing or hijacking an unrelated mounted Filament application action. If public Filament mounted-action inspection shows another non-SurfaceRelay action is active, presentation fails closed rather than force-unmounting, nesting unexpectedly, or replacing application UI state.
+The bridge also avoids replacing or hijacking an unrelated mounted Filament application action. If public Filament mounted-action inspection shows another non-SurfaceRelay action is active, presentation fails closed rather than force-unmounting, nesting unexpectedly, or replacing application UI state.
 
 Presentation conflict is not business-action failure: the business action has already halted at confirmation before execution. The adapter failure remains static-safe and contains no challenge IDs or business payloads.
 
@@ -359,11 +377,11 @@ T-401 has no reject/revoke state transition. The unapproved pending challenge si
 
 The server-side `ConfirmationStore` is the authority. Filament modal/presentation state is disposable UI state.
 
-A full page navigation, component replacement, browser refresh, or other lifecycle event may lose the displayed modal/presentation state. Losing UI state never approves or consumes a challenge. The requesting caller may later retry and receive a new challenge if necessary.
+A full page navigation, component replacement, browser refresh, or other lifecycle event may lose the displayed modal/presentation state. Losing UI state never approves or consumes a challenge. The requesting flow must re-enter the normal invocation/confirmation path rather than attempting to reconstruct bridge state from the old page.
 
 T-504 does not attempt to persist/recover approval modals across arbitrary Filament navigation, pagination, browser restoration, or multiple tabs. General page-state rebinding remains a separate portability/lifecycle concern.
 
-## Human-Presence Boundary
+## Human-Presence and Approver-Identity Boundary
 
 T-504 provides a trusted human-facing Filament approval surface, not cryptographic proof that a biological human physically clicked a button.
 
@@ -377,7 +395,7 @@ The package can guarantee:
 
 The package cannot guarantee that browser automation, accessibility tooling, remote-control software, or a compromised authenticated browser session did not activate the same UI control. Strong physical-human, second-person, step-up-authentication, WebAuthn, or out-of-band approval would require a separate future contract and is not claimed by T-504.
 
-T-504 also does not introduce supervisor/delegated approval semantics. The host Filament application's existing authentication/access boundary decides who can reach the page. Cross-user delegated approval requires separate explicit policy rather than being inferred from possession of a challenge ID.
+T-401's confirmation record also does not carry a distinct `approvedBy` identity. T-504 therefore does not claim that the UI approver is cryptographically proven to be the same actor whose trusted identity is bound into the business invocation, nor does it define supervisor/delegated approval. The host Filament application's existing authentication/access boundary decides who can reach the page and interact with the modal. Any future requirement for same-actor re-authentication, a distinct supervisor, approval delegation, or durable approver identity must be designed explicitly rather than inferred from possession of a challenge ID or from modal presentation.
 
 ## Caller Spoofing Boundaries
 
@@ -429,7 +447,7 @@ The Filament bridge itself must not persist:
 - business input;
 - trusted actor/tenant/record/selection/filter values.
 
-A future requirement for durable standalone approval-decision auditing must be designed explicitly rather than overloading ActionBus audit records.
+A future requirement for durable standalone approval-decision auditing or `approvedBy` evidence must be designed explicitly rather than overloading ActionBus audit records.
 
 ## Compatibility / Boundaries
 
@@ -487,34 +505,36 @@ At minimum implementation must prove:
 5. presentation copies the exact challenge fields into Livewire `#[Locked]` state;
 6. browser tampering with challenge ID/summary/expiry is rejected and cannot call approval with substituted state;
 7. direct mounting/calling the internal approval action without server-authored locked challenge state grants no authority;
-8. same-challenge re-presentation is idempotent;
+8. same-challenge re-presentation is idempotent when mounted and safely remounts the same locked challenge when no other action is mounted;
 9. different-challenge overwrite while A is pending fails closed;
-10. unrelated mounted Filament actions are not force-unmounted/replaced;
+10. unrelated mounted Filament actions are not force-unmounted/replaced/nested;
 11. Approve calls the configured `ConfirmationService` with exactly the locked challenge ID and accepts no browser challenge argument;
 12. approval success does not execute application business code;
 13. approval success does not expose a raw receipt through notification, metadata, audit, event payload, or exception;
 14. approval `null` is handled generically without revealing token state;
-15. confirmation-store/configuration failure fails closed and cannot appear as approval success;
-16. Cancel clears presentation state but leaves the core pending challenge unapproved/non-authoritative;
-17. first consequential invocation executes zero application side effects and presents a real challenge;
-18. human approval alone still executes zero application side effects;
-19. explicit retry with the original token and unchanged exact scope executes exactly once;
-20. replay of the consumed receipt does not execute again;
-21. changed current record after approval fails the old receipt;
-22. changed current selection after approval fails the old receipt;
-23. changed applied active-filter state after approval fails the old receipt;
-24. changed actor/tenant/binding/surface/input follows existing exact-scope failure semantics;
-25. same idempotency key + exact intent works with the explicit post-approval retry path and does not duplicate side effects;
-26. bridge-disabled gateway behavior remains backward-compatible;
-27. `spec/0.1/**`, browser-runtime production, Livewire production, and confirmation-core production remain unchanged;
-28. Filament remains a dev/optional dependency and the base ServiceProvider contains no Filament references;
-29. full PHP/Illuminate matrix, browser typecheck/tests, contract validator, and PHP lint remain green.
+15. a lost approval response followed by a repeated Approve attempt does not reset expiry or mint new authority, and the original requesting retry determines whether the token is already approved;
+16. confirmation-store/configuration failure fails closed and cannot appear as approval success;
+17. Cancel clears presentation state but leaves the core pending challenge unapproved/non-authoritative;
+18. first consequential invocation executes zero application side effects and presents a real challenge;
+19. human approval alone still executes zero application side effects;
+20. explicit retry with the original token and unchanged exact scope executes exactly once;
+21. replay of the consumed receipt does not execute again;
+22. a premature retry while the token is still pending never executes and must not be interpreted as approval-status polling;
+23. changed current record after approval fails the old receipt;
+24. changed current selection after approval fails the old receipt;
+25. changed applied active-filter state after approval fails the old receipt;
+26. changed actor/tenant/binding/surface/input follows existing exact-scope failure semantics;
+27. same idempotency key + exact intent works with the explicit post-approval retry path and does not duplicate side effects;
+28. bridge-disabled gateway behavior remains backward-compatible;
+29. `spec/0.1/**`, browser-runtime production, Livewire production, and confirmation-core production remain unchanged;
+30. Filament remains a dev/optional dependency and the base ServiceProvider contains no Filament references;
+31. full PHP/Illuminate matrix, browser typecheck/tests, contract validator, and PHP lint remain green.
 
 ## Decision D-051
 
 T-504 accepts the following architecture decision:
 
-> Filament confirmation is an approval-only, explicit-retry bridge. A Filament modal may approve only the exact runtime-issued T-401 challenge held in server-authored Livewire-locked page state. Approval never executes or redispatches the business action. The original opaque challenge token becomes the receipt after server-side approval, and the requesting caller must retry through the normal ActionBus path so all trusted context and invocation intent are freshly resolved and re-bound before receipt consumption.
+> Filament confirmation is an approval-only, explicit-retry bridge. A Filament modal may approve only the exact runtime-issued T-401 challenge held in server-authored Livewire-locked page state. Approval never executes or redispatches the business action. The original opaque challenge token becomes the receipt after server-side approval, and the requesting caller must retry through the normal ActionBus path so all trusted context and invocation intent are freshly resolved and re-bound before receipt consumption. T-504 provides a trusted human-facing UI decision boundary, not proof-of-human or independent approver-identity evidence.
 
 ## Implementation Gate
 
