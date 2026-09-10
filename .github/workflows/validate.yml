@@ -59,7 +59,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           coverage: none
-          extensions: pdo_mysql
+          extensions: pdo_mysql, intl
       - name: Constrain Illuminate to the matrix version
         working-directory: packages/laravel
         run: >-
@@ -67,12 +67,13 @@ jobs:
           "illuminate/contracts:${{ matrix.illuminate-version }}"
           "illuminate/support:${{ matrix.illuminate-version }}"
           "illuminate/validation:${{ matrix.illuminate-version }}"
-      - name: Constrain Testbench and Livewire integration dependencies
+      - name: Constrain Testbench, Livewire and Filament integration dependencies
         working-directory: packages/laravel
         run: >-
           composer require --dev --no-interaction --no-progress --no-update
           "orchestra/testbench:${{ matrix.testbench-version }}"
           "livewire/livewire:^4.4"
+          "filament/filament:^5.0"
       - name: Install dependencies
         working-directory: packages/laravel
         run: composer update --no-interaction --no-progress --prefer-dist
