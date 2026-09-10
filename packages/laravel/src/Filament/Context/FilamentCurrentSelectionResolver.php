@@ -17,8 +17,6 @@ final class FilamentCurrentSelectionResolver
 {
     public const int DEFAULT_MAX_SELECTION_RECORDS = 500;
 
-    private const int CHUNK_SIZE = 100;
-
     private const string IDENTITY_DOMAIN = "surfacerelay.filament.current_selection.v1\n";
 
     private readonly RuntimeScopeCanonicalizer $canonicalizer;
@@ -44,7 +42,7 @@ final class FilamentCurrentSelectionResolver
         try {
             $selected = $this->page->getSelectedTableRecords(
                 true,
-                min(self::CHUNK_SIZE, $this->maxSelectionRecords + 1),
+                $this->maxSelectionRecords + 1,
             );
         } catch (\Throwable) {
             throw InvalidFilamentCurrentSelection::resolutionFailed();
