@@ -22,7 +22,13 @@ These questions are intentionally not resolved in the starter. Resolve them with
 
 ## Filament
 
-- Which active table state is authoritative enough for `current_selection` and `active_filters`?
+Resolved with implementation evidence:
+
+- `current_selection` authority is the exact active table page's public effective-selection result, bounded and canonicalized as exact persisted record identities — D-049 / T-502.
+- `filament/active_filters` authority is the exact active `HasTable` page's explicitly exposed public applied-filter state from `getFilters()` + `getTableFilterState()`, physically separated from caller metadata and always bound into confirmation/idempotency when present — D-050 / T-503.
+
+Still open:
+
 - How should page state be rebound after table refresh/pagination/navigation?
 
 ## HTMX

@@ -6,6 +6,7 @@ namespace SurfaceRelay\Laravel\Audit;
 
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextEntry;
+use SurfaceRelay\Laravel\Runtime\Context\TrustedContextExtension;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineOutcome;
 
 final readonly class AuditEventFactory
@@ -25,9 +26,16 @@ final readonly class AuditEventFactory
 
         $manifest = array_map(
             static fn (TrustedContextEntry $entry): AuditTrustedContextEntry =>
-                new AuditTrustedContextEntry($entry->requirement, $entry->provenance->provider),
+                AuditTrustedContextEntry::forRequirement(
+                    $entry->requirement,
+                    $entry->provenance->provider,
+                ),
             $context->allTrusted(),
         );
+
+        foreach ($context->allTrustedExtensions() as $extension) {
+            $manifest[] = $this->extensionManifestEntry($extension);
+        }
 
         return new AuditEvent(
             eventId: bin2hex(random_bytes(16)),
@@ -47,6 +55,14 @@ final readonly class AuditEventFactory
             haltCode: $outcome->halt?->code,
             humanConfirmationPresent: $context->has(ContextRequirement::HumanConfirmation),
             trustedContextManifest: $manifest,
+        );
+    }
+
+    private function extensionManifestEntry(TrustedContextExtension $extension): AuditTrustedContextEntry
+    {
+        return AuditTrustedContextEntry::forExtension(
+            $extension->key,
+            $extension->provenance->provider,
         );
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Tests\Fixtures\Filament;
 
 use Filament\Resources\Resource;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 
 final class TestTableResource extends Resource
@@ -15,6 +16,10 @@ final class TestTableResource extends Resource
     {
         return $table
             ->columns([])
+            ->filters([
+                Filter::make('status'),
+                Filter::make('priority'),
+            ])
             ->checkIfRecordIsSelectableUsing(
                 static fn (TestRecord $record): bool => $record->name !== 'blocked',
             );

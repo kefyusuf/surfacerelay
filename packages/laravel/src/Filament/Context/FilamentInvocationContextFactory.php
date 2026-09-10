@@ -6,6 +6,7 @@ namespace SurfaceRelay\Laravel\Filament\Context;
 
 use Filament\Resources\Pages\Page;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
+use SurfaceRelay\Laravel\Runtime\Context\TrustedContextExtension;
 use SurfaceRelay\Laravel\Runtime\InvocationContext;
 
 /**
@@ -33,6 +34,7 @@ final readonly class FilamentInvocationContextFactory
         string $correlationId,
         ?string $idempotencyKey = null,
         array $metadata = [],
+        ?FilamentContextExposure $contextExposure = null,
     ): InvocationContext {
         $trustedContext = (new FilamentTrustedContextComposer(
             $this->baseComposer,
@@ -43,12 +45,25 @@ final readonly class FilamentInvocationContextFactory
             ),
         ))->resolve();
 
-        return new InvocationContext(
+        $context = new InvocationContext(
             surface: $surface,
             correlationId: $correlationId,
             trustedContext: $trustedContext,
             idempotencyKey: $idempotencyKey,
             metadata: $metadata,
         );
+
+        if ($contextExposure?->includesActiveFilters() !== true) {
+            return $context;
+        }
+
+        $activeFilters = (new FilamentActiveFilterContextResolver($page))->resolve();
+
+        return $context->withTrustedExtension(new TrustedContextExtension(
+            key: FilamentActiveFilterContextResolver::EXTENSION_KEY,
+            value: $activeFilters->value,
+            provenance: $activeFilters->provenance,
+            scopeKey: $activeFilters->confirmationScopeKey,
+        ));
     }
 }

@@ -20,10 +20,15 @@ final readonly class DatabaseAuditEventStore implements AuditEventStore
         try {
             $manifest = json_encode(
                 array_map(
-                    static fn (AuditTrustedContextEntry $entry): array => [
-                        'requirement' => $entry->requirement->value,
-                        'provider' => $entry->provider,
-                    ],
+                    static fn (AuditTrustedContextEntry $entry): array => $entry->requirement !== null
+                        ? [
+                            'requirement' => $entry->requirement->value,
+                            'provider' => $entry->provider,
+                        ]
+                        : [
+                            'extension' => $entry->extension,
+                            'provider' => $entry->provider,
+                        ],
                     $event->trustedContextManifest,
                 ),
                 JSON_THROW_ON_ERROR,

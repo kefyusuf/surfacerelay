@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Runtime\Scope;
 
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextEntry;
+use SurfaceRelay\Laravel\Runtime\Context\TrustedContextExtension;
 
 /** Deterministic protocol-neutral encoding for trusted runtime scope values. */
 final class RuntimeScopeCanonicalizer
@@ -13,6 +14,15 @@ final class RuntimeScopeCanonicalizer
     {
         if ($entry->confirmationScopeKey !== null) {
             return ['scopeKey' => $entry->confirmationScopeKey];
+        }
+
+        return ['value' => $this->canonicalize($entry->value, $path)];
+    }
+
+    public function trustedExtensionIdentity(TrustedContextExtension $entry, string $path): array
+    {
+        if ($entry->scopeKey !== null) {
+            return ['scopeKey' => $entry->scopeKey];
         }
 
         return ['value' => $this->canonicalize($entry->value, $path)];
