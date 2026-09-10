@@ -61,6 +61,17 @@ final class ConfirmationScopeHasher
                 'context' => $context,
             ];
 
+            $extensions = [];
+            foreach ($state->context->allTrustedExtensions() as $entry) {
+                $extensions[$entry->key] = $this->canonicalizer->trustedExtensionIdentity(
+                    $entry,
+                    'extensions.' . $entry->key,
+                );
+            }
+            if ($extensions !== []) {
+                $scope['extensions'] = $extensions;
+            }
+
             return hash(
                 'sha256',
                 self::DOMAIN . $this->canonicalizer->encode($scope, 'scope'),
