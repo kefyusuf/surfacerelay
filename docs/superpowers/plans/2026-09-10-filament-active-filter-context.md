@@ -1,5 +1,7 @@
 # T-503 Filament Active-Filter Trusted Context Implementation Plan
 
+> **Planning artifact status:** This is the prospective TDD execution plan that was used for T-503; its checkboxes are retained as the original plan and are **not** the authoritative progress tracker. The implementation and boundary regression are complete at `18b218b3c45578821028b85111c44d19da8b28b9`; authoritative verification/review status is maintained in `STATUS.md` and `REVIEW_REQUEST.md`. PR #7 external review is the current gate; merge remains separate.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add explicitly exposed Filament applied-filter state as namespaced trusted runtime authority without changing frozen `spec/0.1`, while binding that authority to confirmation/idempotency and keeping raw filter state out of audit persistence.
