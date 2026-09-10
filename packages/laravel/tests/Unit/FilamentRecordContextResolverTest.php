@@ -55,9 +55,15 @@ final class FilamentRecordContextResolverTest extends TestCase
 
     public function test_integer_and_string_keys_are_distinct(): void
     {
+        $integer = $this->record(123);
+        $string = $this->record('123');
+        $string->setKeyType('string');
+
+        self::assertSame(123, $integer->getKey());
+        self::assertSame('123', $string->getKey());
         self::assertNotSame(
-            $this->scopeKey($this->record(123)),
-            $this->scopeKey($this->record('123')),
+            $this->scopeKey($integer),
+            $this->scopeKey($string),
         );
     }
 
@@ -75,10 +81,9 @@ final class FilamentRecordContextResolverTest extends TestCase
 
     public function test_integer_zero_key_is_valid(): void
     {
-        self::assertMatchesRegularExpression(
-            '/^[a-f0-9]{64}$/D',
-            $this->scopeKey($this->record(0)),
-        );
+        $record = $this->record(0);
+        self::assertSame(0, $record->getKey());
+        self::assertMatchesRegularExpression('/^[a-f0-9]{64}$/D', $this->scopeKey($record));
     }
 
     public function test_null_record_from_record_capable_page_fails_closed(): void
@@ -114,25 +119,35 @@ final class FilamentRecordContextResolverTest extends TestCase
 
     public function test_null_key_fails_closed(): void
     {
+        $record = $this->record(null);
+        self::assertNull($record->getKey());
+
         $this->expectException(InvalidFilamentRecordContext::class);
         $this->expectExceptionMessage('Filament current record identity is invalid.');
 
-        $this->resolve($this->record(null));
+        $this->resolve($record);
     }
 
     public function test_empty_string_key_fails_closed(): void
     {
+        $record = $this->record('');
+        $record->setKeyType('string');
+        self::assertSame('', $record->getKey());
+
         $this->expectException(InvalidFilamentRecordContext::class);
         $this->expectExceptionMessage('Filament current record identity is invalid.');
 
-        $this->resolve($this->record(''));
+        $this->resolve($record);
     }
 
     public function test_array_and_object_keys_fail_closed_without_leaking_values(): void
     {
         foreach ([['SECRET-ARRAY-KEY'], (object) ['secret' => 'SECRET-OBJECT-KEY']] as $key) {
+            $record = new ResolverRawKeyRecord($key);
+            self::assertSame($key, $record->getKey());
+
             try {
-                $this->resolve($this->record($key));
+                $this->resolve($record);
                 self::fail('Expected InvalidFilamentRecordContext.');
             } catch (InvalidFilamentRecordContext $exception) {
                 self::assertSame('Filament current record identity is invalid.', $exception->getMessage());
@@ -208,6 +223,25 @@ final class ResolverOtherRecord extends Model
     protected $guarded = [];
 
     public $timestamps = false;
+}
+
+final class ResolverRawKeyRecord extends Model
+{
+    protected $guarded = [];
+
+    public $timestamps = false;
+
+    public $exists = true;
+
+    public function __construct(private readonly mixed $rawKey)
+    {
+        parent::__construct();
+    }
+
+    public function getKey()
+    {
+        return $this->rawKey;
+    }
 }
 
 final class ResolverEmptyKeyNameRecord extends Model
