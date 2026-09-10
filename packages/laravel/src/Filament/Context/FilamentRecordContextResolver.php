@@ -43,8 +43,12 @@ final class FilamentRecordContextResolver
             throw InvalidFilamentRecordContext::invalidRecordState();
         }
 
-        $keyName = $record->getKeyName();
-        $keyValue = $record->getKey();
+        try {
+            $keyName = $record->getKeyName();
+            $keyValue = $record->getKey();
+        } catch (\Throwable) {
+            throw InvalidFilamentRecordContext::invalidRecordIdentity();
+        }
 
         if (
             ! is_string($keyName)
