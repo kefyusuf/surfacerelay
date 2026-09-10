@@ -16,16 +16,16 @@ Approved design for M5 / T-503.
 
 T-503 lets trusted Filament adapter code expose the exact **applied table-filter state** that constrains the current table view without allowing caller input, generic invocation metadata, pending filter-form state, route/query data, or raw Livewire properties to manufacture that authority.
 
-The task must preserve the frozen `spec/0.1` `ContextRequirement` vocabulary. `active_filters` has not yet earned protocol-neutral core vocabulary across materially different bindings, so it is represented as a namespaced trusted runtime extension in the Laravel reference runtime rather than being added to `ContextRequirement`.
+The frozen `spec/0.1` `ContextRequirement` vocabulary is preserved. `active_filters` has not earned protocol-neutral core vocabulary across materially different bindings, so it is represented as a namespaced trusted runtime extension in the Laravel reference runtime rather than being added to `ContextRequirement`.
 
-The resulting state is an invocation-time snapshot. It represents the filter state Filament itself supplies to its table-query filter pipeline at that moment. It does not attempt to interpret whether a custom filter is semantically “active” from truthiness, UI indicators, labels, or filter-specific conventions.
+The snapshot represents the filter state Filament itself supplies to its table-query filter pipeline at invocation time. SurfaceRelay does not attempt to infer whether a custom filter is semantically active from truthiness, indicators, labels, or filter-specific conventions.
 
 ```text
 Action Definition       = unchanged; no Filament field and no new context requirement
 Exact Filament Page     = owns authoritative current table state
 Exposure policy         = trusted server code explicitly requests active-filter context
 Filter resolver         = reads Filament public applied-filter APIs only
-Trusted extension       = carries canonical applied-state snapshot + provenance/scope key
+Trusted extension       = canonical applied-state snapshot + provenance/scope key
 ActionBus               = existing authorization/confirmation/idempotency/execution path
 Livewire RuntimeBinding = remains the only execution binding for this vertical
 ```
@@ -36,17 +36,17 @@ Adapter-specific trusted UI authority that has not earned frozen core `ContextRe
 
 For T-503:
 
-- the extension key is exactly `filament/active_filters`;
-- it exists only when trusted server-side Filament adapter wiring explicitly requests it;
-- its authority source is the exact active Filament table page and Filament's public **applied** filter-state API;
-- deferred/pending filter-form state is never authority until Filament applies it;
-- every present trusted runtime extension participates in confirmation scope and idempotency intent by default;
-- audit may persist only the extension key and provider, never raw filter values, canonical bytes, or scope keys;
-- this reference-runtime extension mechanism does not add a new Action Definition field, RuntimeBinding driver, browser argument, or protocol requirement.
+- extension key: `filament/active_filters`;
+- exposure: only explicit trusted server-side Filament adapter wiring;
+- authority source: exact active Filament table page + public applied filter-state API;
+- deferred/pending form state: never authority until Filament applies it;
+- security binding: every present trusted runtime extension participates in confirmation scope and idempotency intent by default;
+- audit persistence: extension key/provider only, never filter values, canonical bytes, or scope keys;
+- protocol: no new Action Definition field, RuntimeBinding driver, browser argument, or `ContextRequirement`.
 
-## Why `active_filters` is not a new `ContextRequirement`
+## Why this is not a new `ContextRequirement`
 
-The frozen `spec/0.1` vocabulary currently contains:
+The frozen vocabulary is:
 
 ```text
 authenticated_actor
@@ -57,19 +57,15 @@ browser_session
 human_confirmation
 ```
 
-Adding `active_filters` to the Laravel enum without changing the schema would make the runtime diverge from the contract. Changing the schema during T-503 would require a protocol migration with fixtures/conformance evidence and would promote a Filament-shaped concept before the HTMX portability proof.
+Adding `active_filters` only to PHP would diverge from the schema. Changing the schema would prematurely promote a Filament-shaped concept before the HTMX portability proof and would require full contract migration evidence.
 
-Neither is justified by current evidence.
+T-503 therefore uses a generic runtime extension seam with strict trust semantics. Later cross-binding evidence may justify protocol promotion; T-503 does not pre-decide that question.
 
-T-503 therefore uses a generic runtime extension seam with strict trust semantics. A later cross-binding task may promote a concept into protocol-neutral vocabulary only if implementation evidence shows that the same semantic requirement survives Filament and another materially different binding.
+## Why generic metadata is forbidden
 
-## Why generic invocation metadata is forbidden
+`InvocationContext::metadata` is non-authoritative by design. Keys such as `active_filters`, `filters`, `status`, or `dateRange` may be caller-controlled and cannot influence authorization, confirmation scope, idempotency identity, or application authority merely because their names resemble trusted UI state.
 
-`InvocationContext::metadata` is explicitly non-authoritative. A metadata key such as `active_filters`, `filters`, `status`, or `dateRange` can be caller-controlled and must never influence authorization, confirmation scope, idempotency identity, or application authority merely because its name resembles trusted UI state.
-
-Putting T-503 data in metadata would collapse the trust boundary established by D-007 and D-027.
-
-Trusted runtime extensions are therefore stored separately from:
+Trusted runtime extensions remain physically separate from:
 
 - action input;
 - generic metadata;
@@ -81,18 +77,18 @@ Trusted runtime extensions are therefore stored separately from:
 
 ## Filament evidence — applied state versus form state
 
-Filament 5 exposes two materially different public reads:
+Filament 5 exposes separate public reads:
 
 ```php
 getTableFilterState(string $name): ?array
 getTableFilterFormState(string $name): ?array
 ```
 
-Filament's own table query application path calls `getTableFilterState()` when it applies each configured filter to the query.
+Filament's own table-query filter application path calls `getTableFilterState()` for configured filters.
 
-When deferred filters are enabled, `getTableFilterFormState()` reads the pending form state from `tableDeferredFilters`, while `getTableFilterState()` continues to read the applied `tableFilters` state. `applyTableFilters()` is the framework transition that copies deferred state into applied state.
+With deferred filters, `getTableFilterFormState()` reads pending form state from `tableDeferredFilters`, while `getTableFilterState()` continues to read applied `tableFilters`. `applyTableFilters()` copies deferred state into applied state.
 
-Therefore the T-503 authority boundary is:
+Therefore:
 
 ```text
 pending/deferred form state ──X──> SurfaceRelay authority
@@ -109,100 +105,88 @@ getTableFilterState(name)
 SurfaceRelay trusted snapshot
 ```
 
-This rule remains true when a table uses live filters: in that mode the framework keeps the applied state current and `getTableFilterState()` remains the query-facing read.
+With live filters, applied state updates immediately and `getTableFilterState()` remains the query-facing authority read.
 
 ## Authority source
 
-The only page-level authority is the exact active `Filament\Resources\Pages\Page` instance already supplied by trusted adapter code to the T-501/T-502 gateway path.
+The page-level authority is the exact active `Filament\Resources\Pages\Page` supplied by trusted adapter code to the existing T-501/T-502 gateway path.
 
-Active-filter context requires the page to implement `Filament\Tables\Contracts\HasTable`.
+Active-filter context requires `Filament\Tables\Contracts\HasTable`.
 
-The resolver uses only public Filament APIs from that exact page/table:
+Allowed public reads:
 
 - `Page instanceof HasTable`;
 - `$page->getTable()`;
-- `$page->getTable()->getFilters()` with Filament's normal visibility semantics;
+- `$page->getTable()->getFilters()` using Filament's normal visibility semantics;
 - `$page->getTableFilterState($filterName)`.
 
-The resolver does **not** read or reconstruct authority from:
+Forbidden reconstruction sources:
 
-- `$page->tableFilters` directly;
-- `$page->tableDeferredFilters` directly;
+- direct `$page->tableFilters`;
+- direct `$page->tableDeferredFilters`;
 - `getTableFilterFormState()`;
-- filter indicators or human-readable labels;
-- Livewire property arrays;
+- filter indicators/labels;
+- raw Livewire state arrays;
 - request/query/route values;
 - session persistence keys;
 - SQL strings/bindings;
-- frontend DOM or Alpine state;
-- caller-provided filter names or values.
+- frontend DOM/Alpine state;
+- caller-provided filter names/values.
 
-Filament's table query implementation itself iterates `getFilters()` and calls `getTableFilterState()`. T-503 mirrors that public semantic seam instead of reimplementing filter activation rules.
+Filament's normal query application path itself iterates `getFilters()` and reads `getTableFilterState()`. SurfaceRelay mirrors that semantic seam rather than reimplementing activation rules.
 
 ## Visibility semantics
 
-T-503 uses `Table::getFilters()` with Filament's default argument, not `getFilters(withHidden: true)`.
+T-503 uses `Table::getFilters()` with the default argument, not `getFilters(withHidden: true)`, because Filament's normal query filter path also uses the default filter set.
 
-This matters because Filament's normal table-query filter path also uses the default visible-filter set. SurfaceRelay must model the same applied state that Filament's table query consumes, not hidden configuration that the query path does not currently apply.
-
-No separate SurfaceRelay concept of hidden-filter authority is introduced in T-503.
+T-503 does not invent separate hidden-filter authority.
 
 ## Explicit exposure
 
-Active-filter context is **not** attached to every Filament invocation automatically.
+Active-filter context is not attached to every Filament invocation.
 
-Trusted application code opts in through a typed adapter-side exposure value, conceptually:
+Trusted application code opts in through a typed adapter-side value, conceptually:
 
 ```text
 FilamentContextExposure::activeFilters()
 ```
 
-The exposure value is server-side adapter configuration for one gateway/factory invocation. It is not part of Action input or the wire invocation envelope and is never derived from metadata or browser arguments.
+This is server-side adapter configuration for the gateway/factory call. It is not action input, invocation metadata, or a wire/browser argument.
 
-Default behavior remains:
+Default:
 
 ```text
 no explicit exposure
 → no `filament/active_filters` trusted extension
-→ existing T-501/T-502 invocation context remains byte-for-byte/security-semantically compatible
+→ existing T-501/T-502 behavior remains unchanged
 ```
 
-When exposure is explicitly requested:
+Explicit exposure:
 
 ```text
-exact Page is not a table page
-→ fail closed
-
-exact Page is a table page
-→ resolve applied filter snapshot
-→ attach `filament/active_filters` trusted extension
+non-table Page → fail closed
+HasTable Page  → resolve applied snapshot → attach trusted extension
 ```
 
-An exposed table with no configured/applied filters still produces a present trusted extension with an empty canonical snapshot. This deliberately distinguishes:
+An exposed table with no configured filters produces a **present empty snapshot**. This distinguishes:
 
 ```text
-extension absent = application did not expose active-filter authority
-extension present + empty snapshot = application exposed it and the effective filter state is empty
+extension absent          = application did not expose filter authority
+extension present + []    = application exposed it and the effective filter set is empty
 ```
 
 ## Generic trusted runtime extension channel
 
-T-503 introduces one generic Laravel-runtime primitive for adapter-specific trusted authority that is outside the frozen core requirement vocabulary.
+T-503 introduces one generic Laravel-runtime primitive for trusted adapter authority outside the frozen core requirement vocabulary.
 
 Conceptual value object:
 
 ```text
 TrustedContextExtension
 - key: namespaced non-empty identifier
-- value: non-null trusted runtime value; `[]`, false, 0 and "" remain valid
+- value: non-null trusted runtime value; [] / false / 0 / "" remain valid values
 - provenance: ContextProvenance
 - scopeKey: optional non-empty stable trusted identity
-```
-
-The extension-key grammar follows the project's existing namespaced extension convention:
-
-```text
-namespace/name
 ```
 
 T-503 uses exactly:
@@ -211,7 +195,7 @@ T-503 uses exactly:
 filament/active_filters
 ```
 
-`InvocationContext` stores trusted extensions separately from core `TrustedContextEntry` values and separately from non-authoritative metadata.
+`InvocationContext` stores extensions separately from core `TrustedContextEntry` values and separately from non-authoritative metadata.
 
 Conceptual API:
 
@@ -223,19 +207,20 @@ allTrustedExtensions()
 withTrustedExtension(entry)
 ```
 
-Required invariants:
+Invariants:
 
-- duplicate trusted-extension keys fail loudly;
-- extension ordering is deterministic by exact key bytes, independent of constructor/caller ordering;
-- null is not a present extension value; absence is represented by no entry;
-- falsy values including an empty array remain legitimate present values;
-- generic metadata is never promoted into the trusted-extension collection;
-- rebuilding context through `withTrustedEntry()` or `withTrustedExtension()` preserves both trusted collections exactly;
-- core `ContextRequirement::cases()` ordering and behavior remain unchanged.
+- keys follow the project's namespaced `namespace/name` convention;
+- duplicate keys fail loudly;
+- ordering is deterministic by exact key bytes;
+- null means absence and cannot be a present extension value;
+- legitimate falsy values remain present;
+- metadata is never promoted into trusted extensions;
+- `withTrustedEntry()` and `withTrustedExtension()` preserve both trusted collections;
+- core `ContextRequirement::cases()` behavior/order remains unchanged.
 
-The new channel is a reference-runtime API, not a `spec/0.1` wire field.
+This channel is a reference-runtime API, not a `spec/0.1` wire field.
 
-## Components
+## Components and data flow
 
 ```text
 exact trusted active Filament Page
@@ -276,19 +261,17 @@ exact trusted active Filament Page
      existing Livewire RuntimeBinding execution
 ```
 
-`FilamentTrustedContextComposer` continues to own only frozen core context requirements (`authenticated_actor`, `tenant`, `current_record`, `current_selection`). T-503 does not overload that list with non-core vocabulary.
+`FilamentTrustedContextComposer` continues to own only frozen core requirements (`authenticated_actor`, `tenant`, `current_record`, `current_selection`).
 
-## Active-filter snapshot representation
+## Snapshot representation
 
-The resolver builds one associative map keyed by exact configured filter name.
-
-For every filter returned by Filament's normal `getFilters()` collection:
+The resolver builds one associative map keyed by exact configured filter name:
 
 ```text
 snapshot[filterName] = page.getTableFilterState(filterName)
 ```
 
-The snapshot includes the exact applied state even when that state contains values that look “inactive”, for example:
+Per Filament's public API, each top-level filter state is `?array`. The resolver preserves that exact array-or-null state. Nested filter state may legitimately contain values such as:
 
 ```text
 null
@@ -299,28 +282,28 @@ false
 {"isActive": false}
 ```
 
-SurfaceRelay does not drop these by truthiness and does not call filter-specific `isActive()` heuristics. Doing so would create a second interpretation layer that can diverge from Filament custom filters.
+SurfaceRelay does not drop nested values by truthiness and does not invent filter-specific `isActive()` heuristics.
 
-Filter names are sorted lexicographically by exact bytes before scope encoding. Nested associative state is canonicalized with the existing `RuntimeScopeCanonicalizer`; list order is preserved because list order can be semantically meaningful to a custom filter.
+Filter names are sorted lexicographically before scope encoding. Nested associative maps are canonicalized by the existing `RuntimeScopeCanonicalizer`; list order is preserved because it may be semantically meaningful to custom filters.
 
-The extension's application-facing `value` is the canonicalizable applied-state map itself. No Eloquent Builder, SQL, indicator text, form component object, or filter object is exposed as the trusted value.
+The application-facing extension value is the canonicalizable applied-state map only. It never contains a Builder, SQL, filter object, form component, or indicator text.
 
 ## Representability and fail-closed behavior
 
-Filter state may originate from user interaction, but “trusted” here means that the server can truthfully attest **this is the state Filament has applied**, not that every nested value is inherently safe application data.
+“Trusted” means the runtime can attest **this is what Filament has applied**. It does not mean user-originated nested filter values are inherently safe or authorization-capable.
 
-The snapshot must be representable by the existing runtime canonicalization rules:
+The snapshot follows existing runtime canonicalization:
 
-- null, bool, int, finite float and string are representable;
-- lists are recursively representable and preserve order;
-- associative arrays require string keys and are recursively sorted for canonical encoding;
-- objects/resources/non-finite floats or other unsupported runtime values fail closed.
+- null, bool, int, finite float and string are representable nested values;
+- lists preserve order;
+- associative arrays require string keys and canonicalize by key order;
+- objects/resources/non-finite floats and unsupported values fail closed.
 
-A custom filter that stores an unrepresentable state must not silently fall back to string casting, `serialize()`, object IDs, labels, or omission. T-503 reports a static-safe adapter failure and produces no partial trusted extension.
+No string-casting, PHP `serialize()`, object-ID fallback, indicator-label fallback, or partial omission is allowed.
 
 ## Stable scope key
 
-The resolver derives a stable non-secret scope key from the canonical applied-filter snapshot using a dedicated domain separator, conceptually:
+The resolver derives a stable non-secret scope key:
 
 ```text
 SHA-256(
@@ -329,18 +312,18 @@ SHA-256(
 )
 ```
 
-The raw filter state is not embedded in the scope key and the scope key is not authority by itself. It is only a deterministic trusted identity for confirmation/idempotency scoping.
+Properties:
 
-Required properties:
-
-- identical applied snapshots produce identical scope keys;
-- map insertion order does not affect the key;
-- nested associative-key order does not affect the key;
-- list ordering remains significant;
+- identical applied snapshots → identical keys;
+- associative insertion order does not matter;
+- nested associative-key order does not matter;
+- list order remains significant;
 - int `1` and string `"1"` remain distinct;
-- false, zero, empty string, null and empty arrays remain distinct canonical values where structurally distinguishable;
-- changed applied filter state changes the scope key;
-- changing only pending deferred form state does not change the key until Filament applies it.
+- nested false/zero/empty-string/null/empty-array values are preserved distinctly where structurally distinguishable;
+- changed applied state changes the key;
+- pending deferred edits do not change it until Apply.
+
+The key is deterministic identity material only; it grants no authority by itself.
 
 ## Provenance
 
@@ -350,86 +333,69 @@ provider      = "filament.active_filters"
 reference     = null
 ```
 
-Provenance must not contain:
-
-- filter names or values;
-- page/resource/table class names;
-- route/query values;
-- filter labels/indicators;
-- SQL or bindings;
-- canonical bytes;
-- scope hashes.
+Provenance never includes filter values/names, page/resource/table names, route/query values, indicator text, SQL, canonical bytes, or scope hashes.
 
 ## Caller-spoofing boundary
 
-None of these can satisfy, create, replace, or change `filament/active_filters` authority:
+None of these can create or change `filament/active_filters` authority:
 
-- input fields named `filters`, `activeFilters`, `tableFilters`, `tableDeferredFilters`, `status`, or similar;
+- input fields named `filters`, `activeFilters`, `tableFilters`, `tableDeferredFilters`, `status`, etc.;
 - `InvocationContext::metadata`;
 - route/query/request values;
-- persisted browser values;
+- browser-persisted values;
 - `bindingId`;
 - confirmation receipt;
 - idempotency key;
-- WebMCP tool arguments;
-- caller-provided hash/count/state descriptors.
+- WebMCP arguments;
+- caller-provided state/hash/count descriptors.
 
-Only trusted server code can request exposure, and only the exact active Filament table page can provide the applied snapshot.
+Only trusted server code requests exposure and only the exact active Filament table page supplies the snapshot.
 
-## Interaction with authorization
+## Authorization interaction
 
-Active-filter context does not authorize an action by itself.
+Active-filter context does not authorize an action by itself. Existing actor/tenant/policy/Gate rules remain authoritative. SurfaceRelay never translates filter state directly into raw SQL.
 
-Existing authorization still evaluates the exact trusted actor/tenant and application rules. Application code may inspect the trusted extension when its business semantics explicitly depend on current filters, but the filter values do not bypass validation, tenant scope, policies, Gates, or current-record/current-selection semantics.
+Application code may inspect the extension when its business semantics explicitly depend on current filters, but this does not bypass normal validation/authorization or T-501/T-502 context.
 
-No filter state is translated directly into raw SQL by SurfaceRelay.
+## Confirmation interaction — D-044
 
-## Interaction with confirmation — D-044
+Every trusted runtime extension is security-relevant by definition and binds confirmation scope automatically.
 
-Every trusted runtime extension is security-relevant by definition and therefore participates in confirmation scope automatically.
-
-`ConfirmationScopeHasher` extends its document with a deterministic trusted-extension map after the existing core context map.
-
-Conceptually:
-
-```text
-context = existing core trusted requirements
-extensions = {
-  "filament/active_filters": trustedIdentity(extension)
-}
-```
+When at least one trusted extension exists, `ConfirmationScopeHasher` adds a deterministic `extensions` map keyed by extension key. **When no trusted extensions exist, the `extensions` field is omitted entirely** so all existing core-only fingerprints remain byte-for-byte unchanged.
 
 Required proofs:
 
-- with no trusted extensions, existing confirmation fingerprints remain byte-for-byte unchanged;
-- exposed empty active-filter context differs from no exposure;
-- identical applied filters produce the same confirmation scope;
+- no-extension fingerprints remain exact regressions;
+- exposed empty filter context differs from no exposure;
+- identical applied filters produce the same scope;
 - changed applied filters produce a different scope;
-- pending deferred changes alone do not change scope;
-- a receipt issued for filter state A cannot authorize applied filter state B;
-- wrong-filter mismatch does not consume an otherwise-valid receipt for state A;
-- caller metadata that mimics filter state does not affect confirmation scope.
+- pending deferred changes do not change scope before Apply;
+- a state-A receipt cannot authorize state B;
+- wrong-filter mismatch does not spend the valid state-A receipt;
+- metadata spoofing does not affect scope.
 
-## Interaction with idempotency — D-045
+## Idempotency interaction — D-045
 
-Every trusted runtime extension also participates in the idempotency **intent fingerprint** automatically.
+Every trusted runtime extension also binds the idempotency **intent fingerprint** automatically.
 
-It does not alter the D-045 lookup-key authority partition, which remains tenant/actor/browser-session/global as currently defined. It changes only the exact intent identity under a given caller key.
+The D-045 lookup-key authority partition remains unchanged: tenant/actor/browser-session/global. Trusted extensions affect only intent identity under that lookup partition.
+
+As with confirmation, **the `extensions` document member is omitted when no trusted extensions exist** so existing core-only fingerprints remain byte-for-byte unchanged.
 
 Required proofs:
 
-- with no trusted extensions, existing intent fingerprints remain byte-for-byte unchanged;
-- identical applied filter state produces the same intent fingerprint;
-- changed applied state produces a different intent fingerprint;
-- pending deferred state does not change intent until applied;
-- the same idempotency key reused across different exposed applied-filter states conflicts instead of replaying old output;
-- caller metadata cannot recreate the trusted extension fingerprint.
+- no-extension intent fingerprints remain exact regressions;
+- identical applied filters produce the same intent;
+- changed applied filters change intent;
+- pending deferred state changes nothing before Apply;
+- same caller idempotency key + different applied filter state conflicts rather than replaying old output;
+- metadata spoofing cannot recreate trusted extension intent.
 
-## Interaction with structured audit — D-047
+## Structured audit interaction — D-047
 
-Audit must record that an authority dimension was present without persisting filter contents.
+Audit records authority presence without persisting filter contents.
 
-The existing `trusted_context_manifest` JSON remains the storage field. Core entries preserve their current shape:
+The existing `trusted_context_manifest` JSON storage field remains. Core entries preserve their existing shape:
 
 ```json
 {"requirement":"current_selection","provider":"filament.current_selection"}
@@ -441,91 +407,57 @@ Trusted extension entries use a disjoint shape:
 {"extension":"filament/active_filters","provider":"filament.active_filters"}
 ```
 
-A manifest item must contain exactly one of `requirement` or `extension` plus `provider`.
+A manifest item contains exactly one of `requirement` or `extension`, plus `provider`.
 
-Audit must never persist:
-
-- filter state or values;
-- filter names individually beyond the fixed extension key;
-- pending/deferred state;
-- canonical snapshot bytes;
-- scope key/fingerprint;
-- SQL/query bindings;
-- filter indicator labels.
-
-Core manifest serialization remains backward-compatible for existing entries.
+Audit never persists filter state, individual filter names beyond the fixed extension key, pending/deferred state, canonical bytes, scope keys/fingerprints, SQL/bindings, or indicator labels.
 
 ## Snapshot freshness
 
-`filament/active_filters` is resolved exactly once per SurfaceRelay invocation while `FilamentInvocationContextFactory` builds the trusted invocation context.
+`filament/active_filters` resolves exactly once while `FilamentInvocationContextFactory` builds one invocation context. That snapshot is fixed for the invocation; later UI edits do not mutate it.
 
-That snapshot is fixed for the invocation. A later UI change does not mutate the already-built context object.
-
-A later invocation resolves again from the exact current Page instance.
+A later invocation resolves again from the current exact Page.
 
 Consequences:
 
-- a confirmation challenge binds the applied filters from the invocation that created it;
-- a confirmed retry after filters change resolves the new filter snapshot and rejects the old receipt by scope mismatch;
-- idempotency intent follows the newly resolved applied snapshot;
-- pending deferred edits do not alter authority before Apply;
-- after Apply, the next invocation sees the new applied state;
-- no long-lived filter snapshot is synchronized in the background.
+- confirmation binds the applied filters present when the challenge was created;
+- a confirmed retry after applied filters change sees a scope mismatch;
+- idempotency follows the newly resolved applied snapshot;
+- deferred edits do not alter authority before Apply;
+- the next invocation after Apply sees the new state;
+- no long-lived synchronized filter object is maintained.
 
-## Interaction with T-502 selection
-
-`current_selection` and `filament/active_filters` remain independent dimensions.
+## T-502 selection independence
 
 ```text
-current_selection         = which exact records Filament resolves as selected
-filament/active_filters   = which applied filter states Filament supplies to its filter query pipeline
+current_selection       = which exact records Filament resolves as selected
+filament/active_filters = which applied filter states Filament supplies to its filter query pipeline
 ```
 
-If filters change but Filament still resolves the exact same selected set:
+If filters change but the selected set remains identical, T-502 selection identity stays the same while T-503 extension identity changes after Apply. If filter changes also alter effective selection semantics, both dimensions may change independently.
 
-- T-502 selection identity remains unchanged;
-- T-503 filter-extension identity changes after the new state is applied.
-
-If applying filters also changes effective selection semantics, both dimensions may change independently according to their own resolvers.
-
-T-503 must not embed filter state into the T-502 selection scope key.
+Filter state is never embedded into the T-502 selection scope key.
 
 ## Failure model
 
-T-503 adapter/runtime failures are static-safe, non-chained, and produce no partial trusted authority.
+Representative static-safe, non-chained failure categories:
 
-Representative categories:
-
-- `active_filter_context_unavailable` — explicit exposure requested on a non-table page;
-- `active_filter_resolution_failed` — a supported public Filament read failed;
-- `unrepresentable_active_filter_state` — applied state cannot be canonicalized;
-- `duplicate_trusted_extension` — generic runtime extension key collision;
+- `active_filter_context_unavailable` — exposure requested on a non-table page;
+- `active_filter_resolution_failed` — public Filament read failed;
+- `unrepresentable_active_filter_state` — state cannot be canonicalized;
+- `duplicate_trusted_extension` — trusted extension key collision;
 - `invalid_trusted_extension` — malformed key/null value/empty scope key.
 
-Failures must not expose:
-
-- raw filter values;
-- page/resource/filter class names where unnecessary;
-- underlying Filament/Livewire exception text;
-- SQL/bindings;
-- scope hashes;
-- canonical serialized state.
-
-The adapter catches framework exceptions at its boundary and throws static-safe SurfaceRelay exceptions without chaining sensitive underlying errors.
+No failure exposes raw values, unnecessary framework class names, underlying exception text, SQL/bindings, canonical bytes, or scope hashes. No partial trusted extension is produced.
 
 ## Public API compatibility
 
-T-503 may add optional server-side adapter parameters/types but must not break existing call sites.
-
-Required compatibility:
-
-- `FilamentActionGateway::dispatch(...)` without an exposure argument behaves exactly as T-502;
-- `FilamentInvocationContextFactory::forPage(...)` without exposure behaves exactly as T-502;
-- existing `InvocationContext` constructor call sites remain valid through an optional trusted-extension parameter;
-- existing core `ContextRequirement` APIs and ordering remain unchanged;
-- existing audit core-manifest JSON entries keep the exact `{requirement, provider}` shape;
-- `spec/0.1/**` remains unchanged;
-- `packages/browser-runtime/src/**` remains unchanged;
+- `FilamentActionGateway::dispatch(...)` without exposure behaves exactly as T-502.
+- `FilamentInvocationContextFactory::forPage(...)` without exposure behaves exactly as T-502.
+- Existing `InvocationContext` constructor calls remain valid via an optional trusted-extension parameter.
+- Core `ContextRequirement` APIs/order remain unchanged.
+- Existing audit core-manifest entries keep `{requirement, provider}` exactly.
+- `spec/0.1/**` remains unchanged.
+- `packages/browser-runtime/src/**` remains unchanged.
 - `packages/laravel/src/Livewire/**` remains unchanged.
 
 ## Proposed implementation units
@@ -533,9 +465,9 @@ Required compatibility:
 ### Generic runtime
 
 - `packages/laravel/src/Runtime/Context/TrustedContextExtension.php`
-- static-safe duplicate/absence/validation exceptions as required
+- focused static-safe duplicate/absence/validation exceptions
 - `packages/laravel/src/Runtime/InvocationContext.php`
-- `packages/laravel/src/Runtime/Scope/RuntimeScopeCanonicalizer.php` only as needed to share trusted-identity encoding across requirement and extension entries
+- `packages/laravel/src/Runtime/Scope/RuntimeScopeCanonicalizer.php` only if needed to share trusted-identity encoding
 - `packages/laravel/src/Confirmation/ConfirmationScopeHasher.php`
 - `packages/laravel/src/Idempotency/IdempotencyIntentHasher.php`
 
@@ -553,79 +485,35 @@ Required compatibility:
 - `packages/laravel/src/Audit/AuditEventFactory.php`
 - `packages/laravel/src/Audit/DatabaseAuditEventStore.php`
 
-The implementation plan may split exception/value-object files more narrowly if existing repository conventions require it, but it must not merge framework-specific filter logic into generic runtime classes.
+Framework-specific filter logic must remain outside generic runtime classes.
 
 ## Testing strategy
 
-### Generic trusted-extension unit tests
+### Generic trusted-extension tests
 
-Prove:
+Prove key validation, null rejection/falsy preservation, duplicate rejection, deterministic ordering, context rebuild preservation, metadata non-promotion, and unchanged core-only behavior.
 
-- namespaced key validation;
-- null rejection and falsy-value preservation;
-- duplicate-key rejection;
-- deterministic extension ordering;
-- `withTrustedEntry()` preserves extensions;
-- `withTrustedExtension()` preserves core entries;
-- metadata with the same key never becomes trusted authority;
-- core-only `InvocationContext` behavior remains unchanged.
+### Filter resolver tests
 
-### Filter resolver unit tests
+Prove non-table fail-closed behavior, present empty snapshot, exact configured state capture, deterministic canonicalization, nested falsy/null preservation, unrepresentable-state rejection, non-leaking framework failures, and zero caller-data consultation.
 
-Prove:
+### Real Filament tests
 
-- non-table explicit exposure fails closed;
-- zero configured filters resolves a present empty snapshot;
-- exact configured filter names/states are captured;
-- map order canonicalizes deterministically;
-- falsy/null nested applied states are preserved;
-- unrepresentable custom state fails closed;
-- underlying framework exceptions are not chained/leaked;
-- caller data is never consulted.
+Prove live applied-state changes, deferred edits remaining non-authoritative before Apply, next-invocation state changing after Apply, default `getFilters()` visibility semantics, and parity with Filament's query-facing `getTableFilterState()` read.
 
-### Real Filament integration tests
+### Gateway/factory tests
 
-Using the real Filament page/table lifecycle, prove:
+Prove no-exposure T-502 compatibility, explicit exposure adding exactly one extension, input/metadata spoofing failure, non-table early failure, and record/selection independence.
 
-- live filter changes are observed through applied state;
-- with deferred filters, editing form state without Apply does not change the trusted snapshot;
-- after `applyTableFilters()`, the next invocation sees the new state;
-- the resolver follows `getFilters()` normal visibility semantics;
-- the exact state SurfaceRelay snapshots is the same state read by Filament's query-facing `getTableFilterState()` API.
+### Trust-control tests
 
-### Gateway/factory integration tests
+Prove no-extension confirmation/idempotency hash compatibility, A/B scope differences, deferred-state stability, non-spending wrong-filter confirmation mismatch, idempotency conflict on changed applied state, and audit secrecy with only `{extension, provider}` persisted.
 
-Prove:
+### Boundary tests
 
-- no exposure preserves T-502 trusted context exactly;
-- explicit active-filter exposure adds exactly one trusted extension;
-- input/metadata spoofing cannot add or change it;
-- non-table explicit exposure fails before ActionBus execution;
-- existing record/selection context remains independent.
-
-### Trust-control integration tests
-
-Prove:
-
-- no-extension confirmation and idempotency regression hashes remain byte-for-byte compatible;
-- filter state A/B scope mismatch behavior;
-- deferred pending state does not invalidate a receipt until applied;
-- changed applied state invalidates confirmation scope without spending the state-A receipt;
-- same idempotency key + changed applied state conflicts rather than replaying;
-- audit stores only `{extension, provider}` for T-503 and leaks no raw state/scope key.
-
-### Dependency/boundary regression
-
-Prove:
-
-- Filament remains dev-only for the Laravel package;
-- no Filament imports enter Action Definition, generic contracts, browser runtime, or Livewire driver code;
-- frozen spec files are unchanged;
-- no new RuntimeBinding driver or business execution endpoint is introduced.
+Prove Filament remains dev-only, no Filament imports enter Action Definition/browser/Livewire driver code, frozen spec files remain unchanged, and no new RuntimeBinding driver/business endpoint appears.
 
 ## Required verification matrix
-
-T-503 must retain the existing project matrix:
 
 ```text
 PHP 8.3 / Illuminate 12 / Testbench 10
@@ -633,59 +521,38 @@ PHP 8.3 / Illuminate 13 / Testbench 11
 PHP 8.4 / Illuminate 12 / Testbench 10
 PHP 8.4 / Illuminate 13 / Testbench 11
 Filament 5.x + Livewire 4.x
-MySQL 8.4 service coverage where the repository workflow already requires it
+MySQL 8.4 service coverage where existing workflow requires it
 Browser TypeScript typecheck + existing Vitest suite
 python scripts/validate.py
 ```
 
-Exact dependency versions are resolved by the repository workflow; T-503 does not upgrade them as part of feature scope.
+T-503 does not upgrade dependencies as feature scope.
 
 ## Out of scope
 
-T-503 does not add trusted context for:
+No trusted context is added for global/column search, sorting, tabs, grouping, pagination, indicators, filtered record IDs, arbitrary SQL, or saved-filter presets.
 
-- global table search;
-- column search;
-- sorting;
-- active resource/list tabs;
-- grouping;
-- pagination/current page/cursor;
-- filter indicator text;
-- rendered filtered record IDs;
-- arbitrary query SQL;
-- saved filter presets as a new authority concept.
-
-It also does not:
-
-- change the Action Definition schema;
-- add `ContextRequirement::ActiveFilters`;
-- add a Filament RuntimeBinding driver;
-- introduce a second execution path;
-- build the human confirmation UI bridge;
-- implement T-505 demo operations;
-- make filter values authorization by themselves;
-- persist raw filter state in audit;
-- expose filter state to WebMCP tool metadata automatically.
+T-503 also does not change Action Definition schema, add `ContextRequirement::ActiveFilters`, add a Filament RuntimeBinding driver, add a second execution path, implement T-504/T-505, make filter values authorization by themselves, persist raw filter state, or expose filters automatically as WebMCP metadata.
 
 ## Acceptance summary
 
-T-503 is complete only when all of the following are proven:
+T-503 is complete only when:
 
-1. `spec/0.1` remains unchanged and `ContextRequirement` remains frozen.
-2. A generic namespaced trusted-runtime-extension channel is physically separate from caller metadata and core requirements.
-3. `filament/active_filters` can only be requested by explicit trusted server-side Filament exposure wiring.
-4. Authority comes from the exact active `HasTable` Page and public `getFilters()` + `getTableFilterState()` APIs.
-5. Deferred/pending form state is ignored until Filament applies it.
-6. Empty exposed state is present and distinguishable from no exposure.
-7. Snapshot canonicalization preserves types, nested list order and falsy states while normalizing associative-key order.
-8. Unrepresentable/framework-failure states fail closed without leaking underlying details.
-9. Present trusted extensions bind confirmation scope and idempotency intent automatically.
-10. No-extension confirmation/idempotency behavior remains byte-for-byte compatible.
-11. Audit persists only extension key/provider and never filter values or scope material.
-12. `current_selection` remains independent and its T-502 scope behavior is unchanged.
-13. Existing Livewire execution remains the sole action execution path.
-14. Full PHP/browser/contract verification is green before T-503 is marked DONE.
+1. `spec/0.1` and `ContextRequirement` remain unchanged.
+2. Namespaced trusted runtime extensions are physically separate from metadata/core requirements.
+3. `filament/active_filters` requires explicit trusted server-side exposure.
+4. Authority comes only from exact `HasTable` Page + public `getFilters()` / `getTableFilterState()`.
+5. Deferred form state is ignored until Apply.
+6. Present empty state differs from no exposure.
+7. Canonicalization preserves type/list semantics and normalizes associative ordering.
+8. Framework/unrepresentable failures fail closed without leakage.
+9. Present trusted extensions bind confirmation/idempotency automatically.
+10. No-extension fingerprints remain byte-for-byte compatible.
+11. Audit stores extension key/provider only.
+12. T-502 selection identity remains independent and unchanged.
+13. Existing Livewire execution remains the sole execution path.
+14. Full PHP/browser/contract verification is green before DONE.
 
 ## Implementation gate
 
-No production implementation should begin until this design is reviewed as the T-503 contract boundary. After approval, create a dedicated TDD implementation plan under `docs/superpowers/plans/` and execute it task-by-task with RED → GREEN evidence.
+No production implementation begins until this design is reviewed as the T-503 contract boundary. After approval, create a dedicated TDD implementation plan under `docs/superpowers/plans/` and execute RED → GREEN task-by-task.
