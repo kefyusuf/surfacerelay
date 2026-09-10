@@ -50,6 +50,17 @@ final class IdempotencyIntentHasher
                 'context' => $context,
             ];
 
+            $extensions = [];
+            foreach ($state->context->allTrustedExtensions() as $entry) {
+                $extensions[$entry->key] = $this->canonicalizer->trustedExtensionIdentity(
+                    $entry,
+                    'extensions.' . $entry->key,
+                );
+            }
+            if ($extensions !== []) {
+                $document['extensions'] = $extensions;
+            }
+
             return hash(
                 'sha256',
                 self::DOMAIN . $this->canonicalizer->encode($document, 'intent'),
