@@ -161,7 +161,7 @@ Open review threads:          0
 - same-key different-intent conflict, active `in_progress`, and active `indeterminate` reuse fail closed before confirmation/execution;
 - executor failure after claim is best-effort `indeterminate`; unreplayable successful output becomes `indeterminate`; completion-persistence failure remains closed as `in_progress` and never returns success;
 - production `DatabaseIdempotencyStore` uses a hashed primary key, unique insert plus short row-lock transaction for claim/expiry replacement, and conditional `in_progress` state transitions; no transaction/row lock spans executor code;
-- default retention is 86,400 seconds with strict `now < expiresAt`; equality ends the guarantee and permits a new claim;
+- default retention is 86,400 seconds with strict `now < expiresAt`; equality ends the bounded guarantee and permits a new claim;
 - persistence timestamps are explicitly pinned to second precision (`precision: 0`) so the strict UTC hydrator remains valid even when host applications configure Laravel fractional time precision;
 - public idempotency refusals normalize to static `rejected` errors with no raw key, key hash, intent fingerprint or replay payload details;
 - lost-response integration proves one consequential external-side-effect execution across exact retry after the original successful response is lost;
