@@ -129,6 +129,40 @@ final class FilamentCurrentSelectionPageIntegrationTest extends TestCase
         );
     }
 
+    public function test_bounded_selection_above_100_hydrates_only_max_plus_one_records(): void
+    {
+        foreach (range(1, 200) as $id) {
+            TestRecord::query()->create(['id' => $id, 'name' => 'record-' . $id]);
+        }
+
+        $page = $this->page();
+        $page->isTrackingDeselectedTableRecords = true;
+        $page->selectedTableRecords = [];
+        $page->deselectedTableRecords = [];
+
+        $hydrated = 0;
+        TestRecord::retrieved(static function () use (&$hydrated): void {
+            $hydrated++;
+        });
+
+        try {
+            (new FilamentCurrentSelectionResolver($page, maxSelectionRecords: 150))->resolve();
+            self::fail('Expected selection limit failure.');
+        } catch (InvalidFilamentCurrentSelection $e) {
+            self::assertSame(
+                'Filament current selection exceeds the configured limit.',
+                $e->getMessage(),
+            );
+            self::assertNull($e->getPrevious());
+        }
+
+        self::assertSame(
+            151,
+            $hydrated,
+            'SurfaceRelay must not cause Filament to hydrate beyond the max+1 decision window.',
+        );
+    }
+
     private function page(): TestTablePage
     {
         $page = new TestTablePage();
