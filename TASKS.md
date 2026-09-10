@@ -72,7 +72,7 @@ Plan:                        e33b74439055dfabab40ceb99850404d420b314b
 WebMCP RED:                  b270a2b26d45ba8826128c616f97d3897e857ac9 / 34098620894
 Task-1 GREEN:                cf884ed85f57f8dfeb21cf68411fd820e9979ceb / 34099618870 — 7/7 green
 Interceptor type RED:        f8811fd3ef46a0a2616524d7499b23de926e43f6 / 34102239036
-Interceptor port:            fb00a2123b449ba25e24000abb73ac7eedb6ed48fdb9
+Interceptor port:            fb00a2123b449ba25e240cf6253856fcbcdc72e5
 Cancellation RED:            ba7240eee58caee2b1132802d01c4a6ef13d245d / 34102948252
 Cancellation implementation: fffff7b15a31d61fc1cb212598505eba044b86b2
 Implementation GREEN:        35430366e8d01d17a5d936ac55050848face2bbc / 34103990010 — 7/7 green
@@ -161,7 +161,7 @@ Open review threads:          0
 - same-key different-intent conflict, active `in_progress`, and active `indeterminate` reuse fail closed before confirmation/execution;
 - executor failure after claim is best-effort `indeterminate`; unreplayable successful output becomes `indeterminate`; completion-persistence failure remains closed as `in_progress` and never returns success;
 - production `DatabaseIdempotencyStore` uses a hashed primary key, unique insert plus short row-lock transaction for claim/expiry replacement, and conditional `in_progress` state transitions; no transaction/row lock spans executor code;
-- default retention is 86,400 seconds with strict `now < expiresAt`; equality ends the bounded guarantee and permits a new claim;
+- default retention is 86,400 seconds with strict `now < expiresAt`; equality ends the guarantee and permits a new claim;
 - persistence timestamps are explicitly pinned to second precision (`precision: 0`) so the strict UTC hydrator remains valid even when host applications configure Laravel fractional time precision;
 - public idempotency refusals normalize to static `rejected` errors with no raw key, key hash, intent fingerprint or replay payload details;
 - lost-response integration proves one consequential external-side-effect execution across exact retry after the original successful response is lost;
