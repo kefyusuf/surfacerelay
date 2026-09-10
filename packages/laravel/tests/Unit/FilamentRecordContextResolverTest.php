@@ -143,7 +143,9 @@ final class FilamentRecordContextResolverTest extends TestCase
     public function test_array_and_object_keys_fail_closed_without_leaking_values(): void
     {
         foreach ([['SECRET-ARRAY-KEY'], (object) ['secret' => 'SECRET-OBJECT-KEY']] as $key) {
-            $record = new ResolverRawKeyRecord($key);
+            $record = new ResolverRawKeyRecord();
+            $record->rawKey = $key;
+            $record->exists = true;
             self::assertSame($key, $record->getKey());
 
             try {
@@ -231,12 +233,7 @@ final class ResolverRawKeyRecord extends Model
 
     public $timestamps = false;
 
-    public $exists = true;
-
-    public function __construct(private readonly mixed $rawKey)
-    {
-        parent::__construct();
-    }
+    public mixed $rawKey = null;
 
     public function getKey()
     {
