@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Filament\Invocation;
 
 use Filament\Resources\Pages\Page;
+use SurfaceRelay\Laravel\Filament\Context\FilamentContextExposure;
 use SurfaceRelay\Laravel\Filament\Context\FilamentCurrentSelectionResolver;
 use SurfaceRelay\Laravel\Filament\Context\FilamentInvocationContextFactory;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
@@ -50,6 +51,7 @@ final readonly class FilamentActionGateway
         ?string $confirmationReceipt = null,
         ?string $idempotencyKey = null,
         array $metadata = [],
+        ?FilamentContextExposure $contextExposure = null,
     ): ActionPipelineOutcome {
         $context = $this->contextFactory->forPage(
             page: $page,
@@ -57,6 +59,7 @@ final readonly class FilamentActionGateway
             correlationId: $correlationId,
             idempotencyKey: $idempotencyKey,
             metadata: $metadata,
+            contextExposure: $contextExposure,
         );
 
         return $this->bus->dispatch(new ActionCall(
