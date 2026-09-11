@@ -89,6 +89,7 @@ final class FilamentOrderDemoLivewireBindingTest extends TestCase
 
         $recordBinding = $producer->forComponent($edit)[0];
         self::assertSame('livewire', $recordBinding->driver);
+        self::assertSame('component', $recordBinding->lifecycle->value);
         self::assertSame('orders.hold_current', $recordBinding->definition->id);
         self::assertSame(1, $recordBinding->definition->version);
         self::assertSame('order-edit-101', $recordBinding->target['componentId']);
@@ -100,6 +101,7 @@ final class FilamentOrderDemoLivewireBindingTest extends TestCase
 
         $tableBinding = $producer->forComponent($list)[0];
         self::assertSame('livewire', $tableBinding->driver);
+        self::assertSame('component', $tableBinding->lifecycle->value);
         self::assertSame('orders.refund_selected', $tableBinding->definition->id);
         self::assertSame(1, $tableBinding->definition->version);
         self::assertSame('order-list', $tableBinding->target['componentId']);
@@ -113,10 +115,7 @@ final class FilamentOrderDemoLivewireBindingTest extends TestCase
     public function test_livewire_record_method_executes_through_same_gateway_and_action_bus(): void
     {
         $runtime = $this->runtime();
-        $testable = Livewire::test(EditOrder::class);
-        $page = $testable->instance();
-        self::assertInstanceOf(EditOrder::class, $page);
-        $page->record = Order::query()->findOrFail(101);
+        $testable = Livewire::test(EditOrder::class, ['record' => 101]);
 
         $testable->call('holdCurrent', 'manual-review');
 
