@@ -225,6 +225,31 @@ describe('createHtmxBindingTarget', () => {
     expect(target.inputNames).toEqual(['item']);
   });
 
+  it('does not retain mutable Action schema mapping data', () => {
+    const properties: Record<string, unknown> = {
+      note: { type: 'string' },
+      item: { type: 'string' },
+    };
+    const required = ['item'];
+    const schema = {
+      type: 'object',
+      properties,
+      required,
+      additionalProperties: false,
+    };
+
+    const target = createHtmxBindingTarget(definition(schema), options);
+
+    properties.attacker = { type: 'string' };
+    required.push('note');
+
+    expect(target.inputNames).toEqual(['item', 'note']);
+    expect(target.requiredInputNames).toEqual(['item']);
+    expect(Object.isFrozen(target)).toBe(true);
+    expect(Object.isFrozen(target.inputNames)).toBe(true);
+    expect(Object.isFrozen(target.requiredInputNames)).toBe(true);
+  });
+
   it.each([
     ['null schema', null],
     ['array schema', []],
