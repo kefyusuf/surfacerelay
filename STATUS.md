@@ -6,14 +6,16 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/filament-confirmation-bridge`
+- **Branch:** `main`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
-- **Last merged/revalidated task:** `T-503 — Active-filter context`
-- **Current task:** `T-504 — Confirmation bridge`
-- **T-504 status:** **DONE / EXTERNAL REVIEW PASSED / MERGE PENDING**
-- **Base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
-- **Current reviewed code head:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
-- **Pull request:** `#8` — **OPEN / MERGEABLE / UNMERGED**
+- **Last merged/revalidated task:** `T-504 — Confirmation bridge`
+- **Current completed task:** `T-504 — Confirmation bridge`
+- **T-504 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **Original base / merge-base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
+- **Reviewed code head:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
+- **Final feature head:** `121f5c52b043dccfb5f9f24403aef50799c10518`
+- **Merge commit:** `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`
+- **Pull request:** `#8` — **CLOSED / MERGED**
 - **Design spec:** `docs/superpowers/specs/2026-09-10-filament-confirmation-bridge-design.md`
 - **Implementation plan:** `docs/superpowers/plans/2026-09-11-filament-confirmation-bridge.md`
 - **Decision:** `D-051` — **ACCEPTED**
@@ -23,7 +25,7 @@
 - **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4**
 - **CodeRabbit review:** `b6c519df-3a00-4d4b-b4db-994240edffe6` — **2 Major + 2 Minor, all addressed and confirmed**
 - **Unresolved PR review threads:** **0**
-- **Next gate:** explicit merge authorization; merge has **not** been performed
+- **Post-merge main validation:** `34573128162` — **7/7 green**
 - **Next task:** `T-505 — Multi-tenant order operations demo` — **NOT STARTED**
 
 ## T-504 outcome
@@ -122,18 +124,26 @@ Task 4 GREEN:                   babc80bb30426748765fc2dc79c095ab5ae4967b / 34560
 E2E initial proof:              acd4e7fb5129696a6e863e8d1a276ec8a4cfe9ca / 34561151879 — harness-only selection-cache failure
 E2E GREEN:                      f83db1a0e54760c2b4bfb97992bdfb93b7610c90 / 34561337612 — 7/7 green
 Boundary / review-prep:         e7954abe7a696c7a05ed32a6995fb3b7ae98400c / 34561470349 — 7/7 green
-Initial final feature head:     17c5ac6cb135ab9494dd1eb906752ef24ea59ec8 / 34561985867 — 7/7 green
+Initial feature head:           17c5ac6cb135ab9494dd1eb906752ef24ea59ec8 / 34561985867 — 7/7 green
 Initial PR validation:          34562182120 — 7/7 green
 CodeRabbit full review:         b6c519df-3a00-4d4b-b4db-994240edffe6 — 2 Major + 2 Minor
 Review hardening RED:           2dd660c7d43fef331f54f29fe1b8938449e8a7bd / 34571740035 — expected 1 error + 3 failures; 578 / 3020
 Review hardening GREEN:         e0153e6de755963e8d7804cf83c60dd88eec3cd2 / 34571892139 — 7/7 green; 578 / 3029
 Review hardening PR CI:         34571895353 — 7/7 green
+Final feature head:             121f5c52b043dccfb5f9f24403aef50799c10518
+Final feature-head push CI:     34572529686 — 7/7 green
+Final PR CI:                    34572530074 — 7/7 green
+Merge commit:                   e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115
+Post-merge main CI:             34573128162 — 7/7 green
+PHP:                            578 tests / 3029 assertions
 Browser:                        TypeScript typecheck + 103/103 Vitest
 Contract / lint:                green
 Open review threads:            0
 ```
 
 CodeRabbit confirmed all four findings as addressed. The Major authority-wiring finding was closed with explicit existing same-authority configuration semantics plus a distinct-store integration test proving mismatched stores cannot cross-approve. The Major security finding was reproduced as raw store exception leakage and fixed by static non-chained adapter translation. The two Minor findings added fixed approval-result notifications and the missing instance-dispatch source guard.
+
+The merge commit has parents `66f1d5db7e7902b6d7f09306be021119a6d96086` and exact final feature head `121f5c52b043dccfb5f9f24403aef50799c10518`. Post-merge validation checked out `main@e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115` directly and passed all seven jobs.
 
 ## Known limitations / deliberate exclusions
 
@@ -147,6 +157,6 @@ CodeRabbit confirmed all four findings as addressed. The Major authority-wiring 
 
 T-503 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on merge commit `7fe9db4f1e87257b83120396cc290b7253424ad4`, with post-merge validation `34492632652` green.
 
-## Next boundary
+## Merge closure
 
-T-504 external review is passed. Stop at the merge gate: do not merge PR #8 and do not start T-505 without a separate explicit user instruction.
+T-504 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on merge commit `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`, with post-merge validation `34573128162` green. No further T-504 gate remains. `T-505 — Multi-tenant order operations demo` is the next repository task and remains **NOT STARTED**.

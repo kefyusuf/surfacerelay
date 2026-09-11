@@ -5,9 +5,11 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Scope:** `T-504 — Confirmation bridge`
 - **Feature branch:** `feat/filament-confirmation-bridge`
-- **Pull request:** `#8` — **OPEN / MERGEABLE / UNMERGED**
-- **Base / merge-base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
-- **Reviewed code head before tracking closure:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
+- **Pull request:** `#8` — **CLOSED / MERGED**
+- **Original base / merge-base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
+- **Reviewed code head:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
+- **Final feature head:** `121f5c52b043dccfb5f9f24403aef50799c10518`
+- **Merge commit:** `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`
 - **PHP:** **578 tests / 3029 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4
 - **Browser:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
@@ -17,7 +19,8 @@
 - **External review result:** **PASSED after TDD-first hardening**
 - **Actionable findings:** **2 Major + 2 Minor; all addressed and confirmed**
 - **Unresolved review threads:** **0**
-- **Merge state:** **NOT AUTHORIZED; separate explicit gate required**
+- **Merge state:** **MERGED / MAIN REVALIDATED**
+- **Post-merge main validation:** `34573128162` — **7/7 green**
 - **Next task:** `T-505 — Multi-tenant order operations demo` — **NOT STARTED**
 
 ## Final reviewed behavior
@@ -79,9 +82,9 @@ packages/laravel/src/Livewire/**
 
 ### Major — split confirmation authority — ADDRESSED / CONFIRMED
 
-`ConfirmationStage` uses its constructor-injected `ConfirmationService`, while the Filament approval trait resolves `ConfirmationService::class` from the container. The design already requires the host to bind the same service instance or an equivalent service backed by the same authoritative `ConfirmationStore` and expiry configuration.
+`ConfirmationStage` uses its constructor-injected `ConfirmationService`, while the Filament approval trait resolves `ConfirmationService::class` from the container. The host contract requires the same service instance or an equivalent service backed by the same authoritative `ConfirmationStore` and expiry configuration.
 
-Rather than introducing private store-identity introspection or changing the T-401 core contract, review hardening added an explicit distinct-store integration test. A challenge issued into store A cannot be approved through container-bound store B: store A remains `Pending`, store B has no token record, no approval authority is granted, the modal state is cleared, and only the generic retry-required warning is shown. CodeRabbit verified this fail-closed proof and resolved the thread.
+Review hardening added an explicit distinct-store integration test. A challenge issued into store A cannot be approved through container-bound store B: store A remains `Pending`, store B has no matching record, no authority is granted, presentation state clears, and only the generic retry-required warning is shown. CodeRabbit verified this fail-closed proof and resolved the thread.
 
 ### Major — confirmation-store exception leakage — FIXED / CONFIRMED
 
@@ -91,7 +94,7 @@ The RED review test reproduced the leak as `RuntimeException: confirmation test 
 
 ### Minor — missing approval-result notifications — FIXED / CONFIRMED
 
-Approval success now sends the fixed success notice:
+Approval success sends the fixed notice:
 
 ```text
 Confirmation approved. Retry the original operation.
@@ -103,11 +106,11 @@ A null/non-pending approval result sends the fixed generic warning:
 Confirmation is no longer approvable. Retry the original operation.
 ```
 
-Neither notice includes the challenge ID, token state, scope material, or business/trusted-context values. Integration tests cover both branches. CodeRabbit confirmed the fix and resolved the thread.
+Neither notice includes challenge ID, token state, scope material, or business/trusted-context values. Integration tests cover both branches. CodeRabbit confirmed the fix and resolved the thread.
 
 ### Minor — incomplete redispatch source guard — FIXED / CONFIRMED
 
-The static confirmation-adapter policy now forbids literal instance dispatch calls `->dispatch(` in addition to `FilamentActionGateway::dispatch`, `ActionBus`, and `ActionCall`, closing the source-guard gap without changing production behavior. CodeRabbit confirmed and resolved the thread.
+The static confirmation-adapter policy now forbids literal instance dispatch calls `->dispatch(` in addition to `FilamentActionGateway::dispatch`, `ActionBus`, and `ActionCall`. CodeRabbit confirmed and resolved the thread.
 
 ## Verification evidence
 
@@ -131,10 +134,18 @@ CodeRabbit full review:         b6c519df-3a00-4d4b-b4db-994240edffe6 — 2 Major
 Review hardening RED:           2dd660c7d43fef331f54f29fe1b8938449e8a7bd / 34571740035 — 1 expected error + 3 expected failures; 578 / 3020
 Review hardening GREEN:         e0153e6de755963e8d7804cf83c60dd88eec3cd2 / 34571892139 — 7/7 green; 578 / 3029
 Review hardening PR CI:         34571895353 — 7/7 green
+Final feature head:             121f5c52b043dccfb5f9f24403aef50799c10518
+Final feature-head push CI:     34572529686 — 7/7 green
+Final PR CI:                    34572530074 — 7/7 green
+Merge commit:                   e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115
+Post-merge main CI:             34573128162 — 7/7 green
+PHP:                            578 tests / 3029 assertions
 Browser:                        TypeScript typecheck + 103/103 Vitest
 Contract / lint:                green
 Unresolved review threads:      0
 ```
+
+The merge commit has parents `66f1d5db7e7902b6d7f09306be021119a6d96086` and exact final feature head `121f5c52b043dccfb5f9f24403aef50799c10518`. Post-merge validation checked out `main@e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115` directly and passed all seven jobs.
 
 ## Reviewed trust boundary
 
@@ -151,6 +162,6 @@ Unresolved review threads:      0
 11. Filament remains optional/dev-only and the base service provider stays Filament-free.
 12. No new proof-of-human, approver identity, delegation, or standalone approval audit semantics are claimed.
 
-## Merge gate
+## Merge closure
 
-T-504 external review is **PASSED**. PR #8 is intentionally left open and unmerged. A successful review does not authorize merge. Do not start T-505 until the separate T-504 merge/closure gate is explicitly authorized.
+T-504 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #8 merged by normal merge commit with an expected-head guard pinned to exact final feature head `121f5c52b043dccfb5f9f24403aef50799c10518`. The resulting merge commit is `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`, and post-merge main validation `34573128162` is 7/7 green. No further T-504 gate remains. `T-505 — Multi-tenant order operations demo` remains **NOT STARTED**.
