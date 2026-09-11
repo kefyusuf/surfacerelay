@@ -106,7 +106,7 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
 
         self::assertSame(
             [101, 102, 103],
-            $page->getTableQuery()->orderBy('id')->pluck('id')->all(),
+            $page->getTable()->getQuery()->orderBy('id')->pluck('id')->all(),
         );
     }
 
