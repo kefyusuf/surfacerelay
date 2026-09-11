@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\Laravel\Tests\Integration;
 
+use Filament\Notifications\Notification;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase;
-use RuntimeException;
 use SurfaceRelay\Laravel\Confirmation\ConfirmationRecordState;
 use SurfaceRelay\Laravel\Confirmation\ConfirmationService;
 use SurfaceRelay\Laravel\Filament\Confirmation\InvalidFilamentConfirmationBridge;
@@ -53,6 +53,11 @@ final class FilamentConfirmationApprovalIntegrationTest extends TestCase
             $store->recordForToken($challengeB->challengeId)?->state,
         );
         $this->assertPresentationCleared($page);
+        Notification::assertNotified(
+            Notification::make()
+                ->success()
+                ->title('Confirmation approved. Retry the original operation.'),
+        );
     }
 
     public function test_cancel_clears_ui_state_without_approving_core_challenge(): void
@@ -109,9 +114,14 @@ final class FilamentConfirmationApprovalIntegrationTest extends TestCase
             $store->recordForToken($challenge->challengeId)?->state,
         );
         $this->assertPresentationCleared($page);
+        Notification::assertNotified(
+            Notification::make()
+                ->warning()
+                ->title('Confirmation is no longer approvable. Retry the original operation.'),
+        );
     }
 
-    public function test_confirmation_store_failure_propagates_and_does_not_look_like_approval_success(): void
+    public function test_confirmation_store_failure_is_redacted_and_does_not_look_like_approval_success(): void
     {
         [$service, $store] = $this->service('A');
         $this->app->instance(ConfirmationService::class, $service);
@@ -122,9 +132,11 @@ final class FilamentConfirmationApprovalIntegrationTest extends TestCase
 
         try {
             $page->callMountedAction();
-            self::fail('Expected confirmation-store failure to propagate.');
-        } catch (RuntimeException $e) {
-            self::assertSame('confirmation test store unavailable', $e->getMessage());
+            self::fail('Expected confirmation-store failure to fail closed.');
+        } catch (InvalidFilamentConfirmationBridge $e) {
+            self::assertSame('Filament confirmation approval failed.', $e->getMessage());
+            self::assertNull($e->getPrevious());
+            self::assertStringNotContainsString('confirmation test store unavailable', $e->getMessage());
         }
 
         self::assertSame(
@@ -133,6 +145,32 @@ final class FilamentConfirmationApprovalIntegrationTest extends TestCase
         );
         self::assertSame($challenge->challengeId, $page->surfaceRelayConfirmationChallengeId);
         self::assertSame($challenge->summary, $page->surfaceRelayConfirmationSummary);
+    }
+
+    public function test_distinct_confirmation_store_binding_cannot_cross_approve_issued_challenge(): void
+    {
+        [$issuingService, $issuingStore] = $this->service('A');
+        [$bridgeService, $bridgeStore] = $this->service('B');
+        $this->app->instance(ConfirmationService::class, $bridgeService);
+
+        $challenge = $issuingService->issueChallenge('scope-A', 'Approve A');
+        $page = $this->page();
+        $page->presentSurfaceRelayConfirmation($challenge);
+
+        $result = $page->callMountedAction();
+
+        self::assertNull($result);
+        self::assertSame(
+            ConfirmationRecordState::Pending,
+            $issuingStore->recordForToken($challenge->challengeId)?->state,
+        );
+        self::assertNull($bridgeStore->recordForToken($challenge->challengeId));
+        $this->assertPresentationCleared($page);
+        Notification::assertNotified(
+            Notification::make()
+                ->warning()
+                ->title('Confirmation is no longer approvable. Retry the original operation.'),
+        );
     }
 
     /**

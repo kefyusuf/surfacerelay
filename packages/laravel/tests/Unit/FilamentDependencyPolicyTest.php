@@ -154,6 +154,7 @@ final class FilamentDependencyPolicyTest extends TestCase
             'request(',
             'Route::',
             'FilamentActionGateway::dispatch',
+            '->dispatch(',
             'ActionBus',
             'ActionCall',
         ] as $forbiddenShortcut) {
