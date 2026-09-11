@@ -37,7 +37,9 @@ trait InteractsWithSurfaceRelayConfirmation
                 throw InvalidFilamentConfirmationBridge::presentationFailed();
             })
             ->modalCancelAction(fn (Action $action): Action => $action
-                ->action(fn (): void => $this->clearSurfaceRelayConfirmation())
+                ->action(function (): void {
+                    $this->clearSurfaceRelayConfirmation();
+                })
                 ->close());
     }
 
