@@ -6,6 +6,7 @@ namespace SurfaceRelay\Laravel\Filament\Confirmation;
 
 use Filament\Actions\Action;
 use Livewire\Attributes\Locked;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationService;
 use SurfaceRelay\Laravel\Result\ConfirmationChallenge;
 
 trait InteractsWithSurfaceRelayConfirmation
@@ -33,8 +34,8 @@ trait InteractsWithSurfaceRelayConfirmation
             ->closeModalByEscaping(false)
             ->modalCloseButton(false)
             ->disabled(fn (): bool => $this->surfaceRelayConfirmationChallengeId === null)
-            ->action(static function (): void {
-                throw InvalidFilamentConfirmationBridge::presentationFailed();
+            ->action(function (): void {
+                $this->approveSurfaceRelayConfirmation();
             })
             ->modalCancelAction(fn (Action $action): Action => $action
                 ->action(function (): void {
@@ -103,6 +104,36 @@ trait InteractsWithSurfaceRelayConfirmation
         $this->surfaceRelayConfirmationChallengeId = null;
         $this->surfaceRelayConfirmationSummary = null;
         $this->surfaceRelayConfirmationExpiresAt = null;
+    }
+
+    protected function resolveSurfaceRelayConfirmationService(): ConfirmationService
+    {
+        if (!app()->bound(ConfirmationService::class)) {
+            throw InvalidFilamentConfirmationBridge::serviceUnavailable();
+        }
+
+        $service = app(ConfirmationService::class);
+        if (!$service instanceof ConfirmationService) {
+            throw InvalidFilamentConfirmationBridge::serviceUnavailable();
+        }
+
+        return $service;
+    }
+
+    private function approveSurfaceRelayConfirmation(): void
+    {
+        $challengeId = $this->surfaceRelayConfirmationChallengeId;
+        if ($challengeId === null || $this->surfaceRelayConfirmationSummary === null) {
+            throw InvalidFilamentConfirmationBridge::presentationFailed();
+        }
+
+        $receipt = $this->resolveSurfaceRelayConfirmationService()->approveChallenge($challengeId);
+
+        $this->clearSurfaceRelayConfirmation();
+
+        if ($receipt !== null && $receipt !== $challengeId) {
+            throw InvalidFilamentConfirmationBridge::presentationFailed();
+        }
     }
 
     private function mountSurfaceRelayConfirmationAction(): void
