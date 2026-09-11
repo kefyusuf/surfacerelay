@@ -21,7 +21,7 @@ trait InteractsWithSurfaceRelayConfirmation
     #[Locked]
     public ?string $surfaceRelayConfirmationExpiresAt = null;
 
-    public function surfaceRelayConfirmationAction(): Action
+    public function surfacerelay_confirmationAction(): Action
     {
         return Action::make(self::SURFACE_RELAY_CONFIRMATION_ACTION)
             ->requiresConfirmation()
