@@ -142,6 +142,7 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
     public function test_mixed_tenant_trusted_selection_is_denied_atomically_before_confirmation_or_execution(): void
     {
         $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
+        $harness->simulateUnscopedHostQuery();
         $page = $this->listPage();
         $page->selectedTableRecords = [101, 201];
 

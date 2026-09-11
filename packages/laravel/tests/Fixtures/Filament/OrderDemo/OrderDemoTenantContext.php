@@ -10,6 +10,8 @@ final class OrderDemoTenantContext
 {
     private ?string $tenantId = null;
 
+    private bool $resourceQueryScoped = true;
+
     public function set(string $tenantId): void
     {
         if ($tenantId === '') {
@@ -22,5 +24,15 @@ final class OrderDemoTenantContext
     public function current(): string
     {
         return $this->tenantId ?? throw new RuntimeException('Order demo tenant is not set.');
+    }
+
+    public function simulateUnscopedHostQuery(): void
+    {
+        $this->resourceQueryScoped = false;
+    }
+
+    public function shouldScopeResourceQuery(): bool
+    {
+        return $this->resourceQueryScoped;
     }
 }

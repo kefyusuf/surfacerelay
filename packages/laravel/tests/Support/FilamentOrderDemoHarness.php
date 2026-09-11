@@ -27,6 +27,7 @@ use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
 use SurfaceRelay\Laravel\Enums\OutputContentTrust;
 use SurfaceRelay\Laravel\Enums\OutputSensitivity;
+use SurfaceRelay\Laravel\Filament\Context\FilamentContextExposure;
 use SurfaceRelay\Laravel\Filament\Invocation\FilamentActionGateway;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyIntentHasher;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyKeyHasher;
@@ -43,6 +44,7 @@ use SurfaceRelay\Laravel\Runtime\Pipeline\ActionExecutionStage;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineOutcome;
 use SurfaceRelay\Laravel\Runtime\Pipeline\AuthorizationStage;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\EditOrder;
+use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\ListOrders;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\Order;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\OrderDemoActorContext;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\OrderDemoActorResolver;
@@ -88,19 +90,31 @@ final class FilamentOrderDemoHarness
         $app->instance(OrderDemoTenantContext::class, $this->tenant);
 
         $registry = new InMemoryActionRegistry();
-        $definition = $this->holdDefinition();
-        $registry->register($definition);
+        $holdDefinition = $this->holdDefinition();
+        $refundDefinition = $this->refundDefinition();
+        $registry->register($holdDefinition);
+        $registry->register($refundDefinition);
 
         $validationRules = new InMemoryActionValidationRules();
-        $validationRules->register($definition, [
+        $validationRules->register($holdDefinition, [
+            'reason' => ['required', 'string', 'min:1'],
+        ]);
+        $validationRules->register($refundDefinition, [
             'reason' => ['required', 'string', 'min:1'],
         ]);
 
         $authorizationRules = new InMemoryActionAuthorizationRules();
-        $authorizationRules->register($definition, new LaravelAuthorizationRule(
+        $authorizationRules->register($holdDefinition, new LaravelAuthorizationRule(
             ability: 'order-demo.hold',
             arguments: static fn (array $input, InvocationContext $context): array => [
                 $context->require(ContextRequirement::CurrentRecord)->value,
+                $context->require(ContextRequirement::Tenant)->value,
+            ],
+        ));
+        $authorizationRules->register($refundDefinition, new LaravelAuthorizationRule(
+            ability: 'order-demo.refund-selected',
+            arguments: static fn (array $input, InvocationContext $context): array => [
+                $context->require(ContextRequirement::CurrentSelection)->value,
                 $context->require(ContextRequirement::Tenant)->value,
             ],
         ));
@@ -114,6 +128,26 @@ final class FilamentOrderDemoHarness
                     && ($actor->tenant_id ?? null) === $tenantId
                     && $order->tenant_id === $tenantId
                     && ($actor->can_hold ?? false) === true;
+            },
+        );
+        $gate->define(
+            'order-demo.refund-selected',
+            static function (GenericUser $actor, array $orders, string $tenantId): bool {
+                if (
+                    ($actor->tenant_id ?? null) !== $tenantId
+                    || ($actor->can_refund ?? false) !== true
+                    || $orders === []
+                ) {
+                    return false;
+                }
+
+                foreach ($orders as $order) {
+                    if (!$order instanceof Order || $order->tenant_id !== $tenantId) {
+                        return false;
+                    }
+                }
+
+                return true;
             },
         );
 
@@ -175,6 +209,11 @@ final class FilamentOrderDemoHarness
         );
     }
 
+    public function simulateUnscopedHostQuery(): void
+    {
+        $this->tenant->simulateUnscopedHostQuery();
+    }
+
     /** @param array<string, mixed> $metadata */
     public function dispatchHold(
         EditOrder $page,
@@ -190,6 +229,29 @@ final class FilamentOrderDemoHarness
             correlationId: 'order-demo-hold-' . $page->record->getKey(),
             bindingId: 'order-demo-hold-binding',
             metadata: $metadata,
+        );
+    }
+
+    /** @param array<string, mixed> $metadata */
+    public function dispatchRefund(
+        ListOrders $page,
+        string $reason,
+        string $idempotencyKey,
+        ?string $confirmationReceipt = null,
+        array $metadata = [],
+    ): ActionPipelineOutcome {
+        return $this->gateway->dispatch(
+            page: $page,
+            actionId: 'orders.refund_selected',
+            actionVersion: 1,
+            input: ['reason' => $reason],
+            surface: 'filament',
+            correlationId: 'order-demo-refund-' . $idempotencyKey,
+            bindingId: 'order-demo-refund-binding',
+            confirmationReceipt: $confirmationReceipt,
+            idempotencyKey: $idempotencyKey,
+            metadata: $metadata,
+            contextExposure: FilamentContextExposure::activeFilters(),
         );
     }
 
@@ -218,6 +280,36 @@ final class FilamentOrderDemoHarness
                 ContextRequirement::AuthenticatedActor,
                 ContextRequirement::Tenant,
                 ContextRequirement::CurrentRecord,
+            ],
+        );
+    }
+
+    private function refundDefinition(): ActionDefinition
+    {
+        return new ActionDefinition(
+            id: 'orders.refund_selected',
+            version: 1,
+            title: 'Refund selected orders',
+            description: 'Refund the exact trusted Filament current selection.',
+            inputSchema: [
+                'type' => 'object',
+                'properties' => [
+                    'reason' => ['type' => 'string', 'minLength' => 1],
+                ],
+                'required' => ['reason'],
+                'additionalProperties' => false,
+            ],
+            scope: ActionScope::PageScoped,
+            effect: ActionEffect::ExternalSideEffect,
+            risk: ActionRisk::Consequential,
+            idempotency: IdempotencyPolicy::RequiredKey,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
+            contextRequirements: [
+                ContextRequirement::AuthenticatedActor,
+                ContextRequirement::Tenant,
+                ContextRequirement::CurrentSelection,
+                ContextRequirement::HumanConfirmation,
             ],
         );
     }
