@@ -9,6 +9,8 @@ use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Filament\Context\FilamentActiveFilterContextResolver;
+use SurfaceRelay\Laravel\Result\ConfirmationChallenge;
+use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineOutcome;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\EditOrder;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\ListOrders;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\Order;
@@ -114,9 +116,7 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
     public function test_refund_uses_exact_trusted_selection_not_caller_ids(): void
     {
         $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
-        $page = $this->listPage();
-        $page->selectedTableRecords = [101, 102];
-        $this->applyStatusFilter($page, 'paid');
+        $page = $this->refundPage([101, 102], 'paid');
 
         $outcome = $harness->dispatchRefund(
             $page,
@@ -153,8 +153,7 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
     {
         $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
         $harness->simulateUnscopedHostQuery();
-        $page = $this->listPage();
-        $page->selectedTableRecords = [101, 201];
+        $page = $this->refundPage([101, 201]);
 
         $outcome = $harness->dispatchRefund(
             $page,
@@ -167,6 +166,173 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
         self::assertSame(0, $harness->executor->refundExecutions);
         self::assertFalse((bool) Order::query()->findOrFail(101)->refunded);
         self::assertFalse((bool) Order::query()->findOrFail(201)->refunded);
+    }
+
+    public function test_refund_requires_approval_then_exact_retry_executes_once_and_replays_once(): void
+    {
+        $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
+        $page = $this->refundPage([101, 102], 'paid');
+
+        $first = $harness->dispatchRefund($page, 'customer-request', 'refund-K');
+        $challenge = $this->assertConfirmationRequired($first);
+        self::assertSame(0, $harness->executor->refundExecutions);
+
+        $receipt = $harness->approve($challenge);
+        self::assertSame(0, $harness->executor->refundExecutions, 'Approval must not execute refund code.');
+
+        $second = $harness->dispatchRefund($page, 'customer-request', 'refund-K', $receipt);
+        self::assertTrue($second->completed);
+        self::assertSame(1, $harness->executor->refundExecutions);
+        self::assertTrue((bool) Order::query()->findOrFail(101)->refunded);
+        self::assertTrue((bool) Order::query()->findOrFail(102)->refunded);
+
+        $replay = $harness->dispatchRefund($page, 'customer-request', 'refund-K');
+        self::assertTrue($replay->completed);
+        self::assertSame(1, $harness->executor->refundExecutions, 'Completed retry must replay without duplicate refund.');
+    }
+
+    public function test_selection_drift_does_not_spend_exact_scope_receipt(): void
+    {
+        $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
+        $firstPage = $this->refundPage([101, 102], 'paid');
+        $challenge = $this->assertConfirmationRequired(
+            $harness->dispatchRefund($firstPage, 'customer-request', 'selection-drift-K'),
+        );
+        $receipt = $harness->approve($challenge);
+
+        $wrongPage = $this->refundPage([101, 103], 'paid');
+        $wrong = $harness->dispatchRefund(
+            $wrongPage,
+            'customer-request',
+            'selection-drift-K',
+            $receipt,
+        );
+        $this->assertConfirmationRequired($wrong);
+        self::assertSame(0, $harness->executor->refundExecutions);
+
+        $exactPage = $this->refundPage([101, 102], 'paid');
+        $exact = $harness->dispatchRefund(
+            $exactPage,
+            'customer-request',
+            'selection-drift-K',
+            $receipt,
+        );
+        self::assertTrue($exact->completed);
+        self::assertSame(1, $harness->executor->refundExecutions);
+    }
+
+    public function test_tenant_drift_does_not_spend_exact_scope_receipt(): void
+    {
+        $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
+        $firstPage = $this->refundPage([101, 102], 'paid');
+        $challenge = $this->assertConfirmationRequired(
+            $harness->dispatchRefund($firstPage, 'customer-request', 'tenant-drift-K'),
+        );
+        $receipt = $harness->approve($challenge);
+
+        $harness->switchTrustedTenant('tenant-b');
+        $wrongPage = $this->refundPage([201], 'paid');
+        $wrong = $harness->dispatchRefund(
+            $wrongPage,
+            'customer-request',
+            'tenant-drift-K',
+            $receipt,
+        );
+        $this->assertConfirmationRequired($wrong);
+        self::assertSame(0, $harness->executor->refundExecutions);
+
+        $harness->switchTrustedTenant('tenant-a');
+        $exactPage = $this->refundPage([101, 102], 'paid');
+        $exact = $harness->dispatchRefund(
+            $exactPage,
+            'customer-request',
+            'tenant-drift-K',
+            $receipt,
+        );
+        self::assertTrue($exact->completed);
+        self::assertSame(1, $harness->executor->refundExecutions);
+    }
+
+    public function test_applied_filter_drift_does_not_spend_exact_scope_receipt(): void
+    {
+        $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
+        $page = $this->refundPage([101, 102], 'paid');
+        $challenge = $this->assertConfirmationRequired(
+            $harness->dispatchRefund($page, 'customer-request', 'filter-drift-K'),
+        );
+        $receipt = $harness->approve($challenge);
+
+        $page->getTableFiltersForm()->fill([
+            'status' => ['value' => 'pending'],
+        ]);
+        self::assertSame(
+            'paid',
+            $page->getTableFilterState('status')['value'] ?? null,
+            'Deferred form edit is not applied authority yet.',
+        );
+
+        $page->applyTableFilters();
+        $wrong = $harness->dispatchRefund(
+            $page,
+            'customer-request',
+            'filter-drift-K',
+            $receipt,
+        );
+        $this->assertConfirmationRequired($wrong);
+        self::assertSame(0, $harness->executor->refundExecutions);
+
+        $this->applyStatusFilter($page, 'paid');
+        $exact = $harness->dispatchRefund(
+            $page,
+            'customer-request',
+            'filter-drift-K',
+            $receipt,
+        );
+        self::assertTrue($exact->completed);
+        self::assertSame(1, $harness->executor->refundExecutions);
+    }
+
+    public function test_same_idempotency_key_cannot_replay_changed_intent_or_authority(): void
+    {
+        $harness = $this->harness(actorTenant: 'tenant-a', activeTenant: 'tenant-a');
+        $page = $this->refundPage([101, 102], 'paid');
+        $challenge = $this->assertConfirmationRequired(
+            $harness->dispatchRefund($page, 'customer-request', 'replay-K'),
+        );
+        $receipt = $harness->approve($challenge);
+        $completed = $harness->dispatchRefund($page, 'customer-request', 'replay-K', $receipt);
+        self::assertTrue($completed->completed);
+        self::assertSame(1, $harness->executor->refundExecutions);
+
+        $inputConflict = $harness->dispatchRefund($page, 'different-reason', 'replay-K');
+        self::assertFalse($inputConflict->completed);
+        self::assertSame('idempotency_conflict', $inputConflict->halt?->code);
+
+        $selectionConflict = $harness->dispatchRefund(
+            $this->refundPage([101, 103], 'paid'),
+            'customer-request',
+            'replay-K',
+        );
+        self::assertFalse($selectionConflict->completed);
+        self::assertSame('idempotency_conflict', $selectionConflict->halt?->code);
+
+        $filterConflict = $harness->dispatchRefund(
+            $this->refundPage([101, 102], 'pending'),
+            'customer-request',
+            'replay-K',
+        );
+        self::assertFalse($filterConflict->completed);
+        self::assertSame('idempotency_conflict', $filterConflict->halt?->code);
+
+        $harness->switchTrustedTenant('tenant-b');
+        $tenantPartition = $harness->dispatchRefund(
+            $this->refundPage([201], 'paid'),
+            'customer-request',
+            'replay-K',
+        );
+        $this->assertConfirmationRequired($tenantPartition);
+
+        self::assertSame(1, $harness->executor->refundExecutions);
     }
 
     private function harness(string $actorTenant, string $activeTenant): FilamentOrderDemoHarness
@@ -186,6 +352,16 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
         return $page;
     }
 
+    /** @param list<int> $selectedIds */
+    private function refundPage(array $selectedIds, string $status = 'paid'): ListOrders
+    {
+        $page = $this->listPage();
+        $page->selectedTableRecords = $selectedIds;
+        $this->applyStatusFilter($page, $status);
+
+        return $page;
+    }
+
     private function listPage(): ListOrders
     {
         $page = new ListOrders();
@@ -200,5 +376,14 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
             'status' => ['value' => $status],
         ]);
         $page->applyTableFilters();
+    }
+
+    private function assertConfirmationRequired(ActionPipelineOutcome $outcome): ConfirmationChallenge
+    {
+        self::assertFalse($outcome->completed);
+        self::assertSame('confirmation_required', $outcome->halt?->code);
+        self::assertInstanceOf(ConfirmationChallenge::class, $outcome->halt?->confirmation);
+
+        return $outcome->halt->confirmation;
     }
 }
