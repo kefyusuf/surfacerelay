@@ -95,31 +95,63 @@ CodeRabbit findings were individually verified: the null-actor finding was repro
 
 ## M6 — HTMX Portability Proof — IN PROGRESS
 
-### T-601 — Explicit HTMX binding descriptor — IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED
+### T-601 — Explicit HTMX binding descriptor — DONE / SELF-REVIEWED / READY FOR EXTERNAL REVIEW
 
-**Goal:** Define a pure driver-owned HTMX RuntimeBinding target descriptor for browser-runtime without adding DOM/HTMX execution, Laravel coupling, or frozen-contract changes.
+**Outcome:** Browser-runtime now has a pure driver-owned HTMX RuntimeBinding target descriptor that demonstrates the frozen generic RuntimeBinding envelope can carry a materially different binding target without adding HTMX execution, Laravel coupling, or new wire-contract fields.
 
-**Design boundaries:**
+**Accepted boundaries:**
 
-- `driver=htmx`;
-- `lifecycle=page`;
-- target fields are exactly `sourceId`, `method`, `path`, `inputNames`, `requiredInputNames`;
-- `sourceId` identifies one exact rendered HTMX source instance and is not business/authorization identity;
-- method/path pin the existing human-facing HTMX request contract;
-- Action-input mapping is named and derived from the exact closed top-level ActionDefinition object schema;
-- unsupported/open-ended Action input schemas fail descriptor issuance;
-- descriptor carries no actor, tenant, record, selection, confirmation, idempotency, or authorization authority;
-- T-601 contains no DOM lookup, `htmx.ajax()`, network dispatch, cancellation, fixture app, or shared-conformance implementation;
-- no `packages/laravel/src/**` or `spec/0.1/**` change;
-- no HTMX dependency is added in T-601;
-- D-053 remains `PROPOSED` until executable descriptor tests pass;
-- D-020 remains `PROPOSED` until the wider HTMX portability proof reaches T-604.
+- `driver=htmx` and `lifecycle=page` are mandatory at the consumer parser boundary;
+- target fields are exactly `sourceId`, `method`, `path`, `inputNames`, and `requiredInputNames`;
+- `sourceId` is one opaque rendered-source identity, never record/tenant/authorization identity;
+- supported methods are exactly `GET`, `POST`, `PUT`, `PATCH`, and `DELETE`;
+- path is a bounded same-origin absolute-path reference: no scheme/authority, `//`, fragment, backslash, ASCII controls, relative form, or value longer than 2048 characters;
+- input mapping is named, sorted deterministically, and derived only from the exact closed top-level ActionDefinition object schema;
+- `additionalProperties` must be exactly `false`; top-level open/composed/reference keywords that can make the finite key set ambiguous fail with `input_schema_unsupported`;
+- `required` must be a unique non-empty string subset of exact properties;
+- nested values remain under their top-level names; no dotted/bracket flattening convention is invented;
+- consumer parsing validates arbitrary RuntimeBinding JSON independently of producer construction;
+- producer construction reuses the strict consumer validation path so primitive target rules cannot drift;
+- parsed/produced targets and mapping arrays are defensive frozen snapshots and do not retain caller/schema arrays by reference;
+- descriptor data carries no actor, tenant, roles, current record, current selection, browser-session, confirmation, idempotency, or authorization authority;
+- source guard proves no `htmx.org`, `htmx.ajax()`, `window`, `document`, `fetch`, or Laravel runtime coupling in the descriptor module;
+- no HTMX dependency, browser driver, fixture app, `packages/laravel/src/**`, or `spec/0.1/**` change is part of T-601;
+- D-053 is **ACCEPTED for descriptor semantics only**;
+- D-020 remains **PROPOSED** until T-604 shared Livewire/HTMX conformance.
 
-**Written design:** `docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md`
+**Design:** `docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md`
 
-**Current gate:** written design review. No implementation plan or code until the written spec is explicitly approved.
+**Plan:** `docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md`
 
-- T-602 — HTMX browser driver — TODO.
+**TDD / verification evidence:**
+
+```text
+Design checkpoint:               cca98af90323819789a56d28a2174b9b7ea25059 / 34625130732 — 7/7 green
+Implementation plan:             1e47c6bb4121bcc1fc43e69c73c213d17092b5c1 / 34629136719 — 7/7 green
+Parser RED:                      e0fceb6d7cf277dd1a1693daefc9b593d1a5d6a6 / 34653908938 — expected browser failure
+Parser shell GREEN:              cf8436710a21dbb5888d62cd26197e7e7fc3ac62 / 34653972487 — green
+Primitive validation RED:        f9da2714d7be4890ea4cd49623352224d73415de / 34654093046 — expected browser failure
+Primitive validation GREEN:      b1845aab1ed82b32a14f738be08ef668f9d45342 / 34654144660 — 7/7 green
+List/freeze RED:                 cbb410aa926c464d4011caccc607215e1f9422ca / 34654294846 — expected browser failure
+List/freeze GREEN:               4e640112d5b9d9129f4ea07feddba538384699a9 / 34654371743 — green
+Mapping RED:                     07a86db5756c0d75e7e6b0b854b8d24765a5fca1 / 34654482062 — expected 2 missing-builder failures
+Mapping valid-path GREEN:        92b392b5304c456465f9fa8ac68e0f2dad9e42a3 / 34654613401 — browser/typecheck green
+Schema fail-closed RED:          2df42bee8c91dbb609f313a4720408045b8d5f8c / 34654717686 — expected browser failure
+Schema fail-closed GREEN:        831496a119535c31e0d76890b59b8f7ce0fb508c / 34654782553 — browser/typecheck green
+Immutability checkpoint:         757835dee45e44724feba1972dcacdce43c82228 / 34654885713 — 7/7 green
+Type contract checkpoint:        acb82ef246f09cc427da53e20facb567b5093694 / 34654896859 — browser/typecheck green
+Implementation/scope head:       b06204e2c7acf6be01df3fec5085e55ddd650329 / 34654979136 — 7/7 green
+Browser:                         TypeScript typecheck + 172/172 Vitest tests
+HTMX descriptor focused tests:  69/69
+Contract:                        python scripts/validate.py green
+PHP / lint / Composer matrix:    green
+```
+
+**Self-review:** all 20 T-601 acceptance criteria are covered by executable tests or exact diff proof. The final implementation diff is limited to the descriptor module plus its focused runtime/typecheck tests and design/tracking documentation. No T-602/T-603/T-604 implementation is present.
+
+**Known limitation:** T-601 defines descriptor construction/validation only. It does not resolve DOM sources, revalidate live `hx-*` method/path state, call `htmx.ajax()`, define HTMX cancellation semantics, or prove non-Laravel/shared conformance. Those remain T-602–T-604.
+
+- T-602 — HTMX browser driver — TODO / NOT STARTED.
 - T-603 — Non-Laravel HTMX fixture app — TODO.
 - T-604 — Shared conformance against Livewire + HTMX — TODO.
 
@@ -132,4 +164,4 @@ CodeRabbit findings were individually verified: the null-actor finding was repro
 
 ## Current boundary
 
-T-601 design is approved in chat and written as a committed spec. Do not invoke implementation planning or write T-601 production/test code until the written spec has been reviewed and explicitly approved.
+T-601 is implementation-complete and self-reviewed on the feature branch. **Stop at the external-review gate.** Do not create a pull request, merge, delete the feature branch, promote D-020, or begin T-602 without explicit authorization.

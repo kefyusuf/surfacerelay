@@ -1,144 +1,148 @@
 # Project Status
 
-> Current repository state for M6 / T-601 design review.
+> Current repository state for M6 / T-601 external-review preparation.
 
 ## Snapshot
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `feat/htmx-binding-descriptor`
-- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; M5 DONE/REVIEWED/MERGED/MAIN REVALIDATED; **M6 IN PROGRESS — DESIGN ONLY**
-- **Last completed task:** `T-505 — Multi-tenant order operations demo`
+- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; M5 DONE/REVIEWED/MERGED/MAIN REVALIDATED; **M6 IN PROGRESS**
 - **Current task:** `T-601 — Explicit HTMX binding descriptor`
-- **T-601 status:** **DESIGN APPROVED IN CHAT / WRITTEN SPEC READY FOR REVIEW / IMPLEMENTATION NOT STARTED**
+- **T-601 status:** **DONE / SELF-REVIEWED / READY FOR EXTERNAL REVIEW**
 - **Base:** `main@5b22eef928d2fb1f8fac8ab13507e2f22661d3df`
-- **Base validation:** `34621807162` — **7/7 green**
-- **Design spec:** `docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md`
-- **Decision:** `D-053` — **PROPOSED**
+- **Verified implementation/scope head:** `b06204e2c7acf6be01df3fec5085e55ddd650329`
+- **Verified implementation CI:** `34654979136` — **7/7 green**
+- **Decision:** `D-053` — **ACCEPTED for T-601 descriptor semantics only**
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
-- **Implementation plan:** **NOT STARTED; requires written-spec approval first**
-- **Production/test implementation changes:** **NONE**
-- **PHP baseline:** **595 tests / 3164 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4
-- **Browser baseline:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract / lint / Composer baseline:** green
+- **Browser:** TypeScript typecheck + **172/172 Vitest tests**; HTMX descriptor file **69/69**
+- **PHP baseline:** **595 tests / 3164 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4; unchanged by T-601
+- **Contract / lint / Composer:** green
+- **Pull request:** **NOT CREATED YET**
+- **Next task:** `T-602 — HTMX browser driver` — **NOT STARTED**
 
-## T-601 objective
+## T-601 outcome
 
-Define the smallest explicit HTMX RuntimeBinding target descriptor that demonstrates the existing generic RuntimeBinding envelope can carry a second materially different driver-owned target without contaminating ActionDefinition semantics or weakening exact-target/trusted-authority rules.
-
-T-601 is descriptor-only. Browser execution begins in T-602.
-
-## Approved design
-
-Reference RuntimeBinding shape:
+T-601 adds a pure browser-runtime descriptor boundary for HTMX without adding browser execution.
 
 ```text
-driver = htmx
-lifecycle = page
+ActionDefinition
+      │
+      │ finite closed top-level input schema
+      ▼
+createHtmxBindingTarget(...)
+      │
+      ▼
+HtmxBindingTarget
+      ├── sourceId
+      ├── method
+      ├── path
+      ├── inputNames
+      └── requiredInputNames
+      │
+      ▼
+RuntimeBinding
+      ├── driver = htmx
+      └── lifecycle = page
 
-target = {
-  sourceId,
-  method,
-  path,
-  inputNames,
-  requiredInputNames
-}
+arbitrary RuntimeBinding JSON
+      │
+      ▼
+parseHtmxBindingTarget(...)
+      │ exact target validation
+      ▼
+immutable HtmxBindingTarget
 ```
 
-### Target identity
+Producer construction and consumer parsing share the same primitive target validation so issuance and browser-side consumption cannot silently disagree on source ID, method, path, input lists, or required-subset semantics.
 
-- `sourceId` identifies one exact rendered HTMX source element instance.
-- It is opaque, fresh per materially rendered/replaced source, and never a record/tenant/authorization identity.
-- A replacement source does not inherit the old binding merely because it has the same endpoint, class, text, DOM position, or business record.
-- Missing exact source will be stale in T-602; no rediscovery/retarget fallback is permitted.
+## Accepted descriptor boundary
 
-### Request contract
+1. `driver` must be exactly `htmx`.
+2. lifecycle must be exactly `page`.
+3. target contains exactly `sourceId`, `method`, `path`, `inputNames`, and `requiredInputNames`.
+4. `sourceId` is an opaque exact rendered-source reference, not business identity or authorization proof.
+5. supported methods are exactly `GET`, `POST`, `PUT`, `PATCH`, `DELETE`.
+6. paths are bounded absolute same-origin references and reject relative/scheme-relative/full-URL/fragment/backslash/control/over-limit forms.
+7. named Action input mapping is deterministic and derived only from a closed top-level object schema.
+8. `additionalProperties` must be exactly `false`.
+9. open/composed/reference top-level schema forms that can make the finite caller-key set ambiguous fail closed with `input_schema_unsupported`.
+10. required names must be unique non-empty strings present in exact properties.
+11. nested values remain under their top-level key; T-601 invents no form flattening syntax.
+12. parser rejects missing/extra target keys and malformed mapping lists.
+13. parser and builder return defensive frozen snapshots.
+14. caller/schema arrays/objects cannot mutate an already issued descriptor mapping.
+15. target contains no trusted actor/tenant/record/selection/browser-session/confirmation/idempotency/authorization authority.
+16. descriptor module imports no HTMX runtime and contains no `htmx.ajax()`, DOM, `fetch()`, or Laravel runtime execution code.
+17. T-601 adds no HTMX dependency.
+18. `packages/laravel/src/**` is unchanged.
+19. frozen `spec/0.1/**` is unchanged.
+20. browser execution, live DOM method/path revalidation, cancellation, fixture issuance, and portability conformance remain T-602–T-604.
 
-- supported methods: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` only;
-- method matching is exact;
-- `path` is a bounded same-origin absolute-path reference, optionally with query string;
-- scheme/host authority, `//...`, fragments, backslashes, controls, and relative paths are rejected;
-- T-602 must revalidate exact method/path against the resolved source before dispatch.
-
-### Action-input mapping
-
-- HTMX mapping is named, not positional;
-- `inputNames` is the exact finite top-level caller-input field set;
-- `requiredInputNames` is the exact required subset;
-- caller/schema object key order has no authority meaning;
-- optional fields may be independently omitted;
-- the reference descriptor derives the sets from a closed top-level object `ActionDefinition.inputSchema`;
-- schemas with open-ended top-level keys fail descriptor issuance rather than guessing;
-- nested values remain nested; no bracket/dotted form-path convention is invented.
-
-### Trust boundary
-
-The descriptor never carries or manufactures:
+## TDD evidence
 
 ```text
-authenticated actor
-tenant
-roles / permissions
-current record
-current selection
-browser-session authority
-human confirmation
-confirmation receipt/challenge
-raw idempotency key
-authorization decisions
+Design checkpoint:               cca98af90323819789a56d28a2174b9b7ea25059 / 34625130732 — 7/7 green
+Implementation plan:             1e47c6bb4121bcc1fc43e69c73c213d17092b5c1 / 34629136719 — 7/7 green
+Parser RED:                      e0fceb6d7cf277dd1a1693daefc9b593d1a5d6a6 / 34653908938
+Parser shell GREEN:              cf8436710a21dbb5888d62cd26197e7e7fc3ac62 / 34653972487
+Primitive RED:                   f9da2714d7be4890ea4cd49623352224d73415de / 34654093046
+Primitive GREEN:                 b1845aab1ed82b32a14f738be08ef668f9d45342 / 34654144660 — 7/7 green
+List/freeze RED:                 cbb410aa926c464d4011caccc607215e1f9422ca / 34654294846
+List/freeze GREEN:               4e640112d5b9d9129f4ea07feddba538384699a9 / 34654371743
+Mapping RED:                     07a86db5756c0d75e7e6b0b854b8d24765a5fca1 / 34654482062 — exactly 2 missing-builder failures; 141 existing tests passed
+Mapping valid-path GREEN:        92b392b5304c456465f9fa8ac68e0f2dad9e42a3 / 34654613401
+Schema fail-closed RED:          2df42bee8c91dbb609f313a4720408045b8d5f8c / 34654717686
+Schema fail-closed GREEN:        831496a119535c31e0d76890b59b8f7ce0fb508c / 34654782553
+Immutability checkpoint:         757835dee45e44724feba1972dcacdce43c82228 / 34654885713 — 7/7 green
+Type contract checkpoint:        acb82ef246f09cc427da53e20facb567b5093694 / 34654896859
+Implementation/scope head:       b06204e2c7acf6be01df3fec5085e55ddd650329 / 34654979136 — 7/7 green
+Browser result:                  172/172 tests; 11 test files; typecheck green
+HTMX descriptor focused tests:  69/69
+Contract:                        python scripts/validate.py green
 ```
 
-Ordinary HTMX form/request values such as hidden `order_id`, `tenant_id`, or CSRF fields remain ordinary untrusted request data from SurfaceRelay's perspective. Server-side trusted context and authorization remain independent.
+## Exact current change surface
 
-## Architecture boundary
-
-T-601 production code is expected only in browser-runtime as pure descriptor construction/validation:
+Compared with `main@5b22eef928d2fb1f8fac8ab13507e2f22661d3df`, the implementation/scope head changes only:
 
 ```text
+STATUS.md
+TASKS.md
+docs/DECISION-REGISTER.md
+docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md
+docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md
 packages/browser-runtime/src/htmx-binding-descriptor.ts
-packages/browser-runtime/src/index.ts
 packages/browser-runtime/tests/htmx-binding-descriptor.test.ts
+packages/browser-runtime/tests/htmx-binding-descriptor.typecheck.ts
 ```
 
-T-601 must not add or change:
+Review-prep additionally updates `REVIEW_REQUEST.md` and the three tracking files above; it does not alter the verified descriptor implementation.
+
+Explicitly absent:
 
 ```text
 packages/laravel/src/**
+spec/0.1/**
 packages/browser-runtime/src/htmx-browser-driver.ts
 examples/htmx/**
-spec/0.1/**
-HTMX runtime/package dependencies
-DOM/network/cancellation execution
+package.json / package-lock.json dependency changes
 ```
 
-If implementation appears to require any of those, stop and reopen the design gate.
+## Known limitations
 
-## D-053 proposed wording
+T-601 deliberately does **not** prove execution. It does not:
 
-> HTMX RuntimeBindings use `driver=htmx` with `page` lifecycle and an explicit driver-owned target that pins one opaque rendered source-element identity, one same-origin HTMX request method/path, and an allowlisted named Action-input mapping. The binding carries no trusted actor/tenant/record/selection authority and no confirmation/idempotency capability. Execution must resolve the exact source instance, verify that its request contract still matches the binding, and fail stale rather than rediscovering or silently retargeting a replacement element.
+- resolve an exact DOM source element;
+- verify live `hx-*` method/path state against the descriptor;
+- call `htmx.ajax()`;
+- define response/swap semantics;
+- define HTMX cancellation or dispatch frontier;
+- issue a descriptor from a non-Laravel host;
+- prove shared Livewire/HTMX conformance.
 
-D-053 remains `PROPOSED` through the design gate and is eligible for `ACCEPTED` only after T-601 executable descriptor tests pass. D-020 remains proposed until shared Livewire/HTMX conformance in T-604.
-
-## Design alternatives ruled out
-
-- **Custom HTMX event binding:** rejected because it pushes input semantics into host event/`hx-vals` conventions and weakens request/result determinism.
-- **Method/path-only raw HTTP binding:** rejected because it detaches agent execution from the exact human-facing HTMX source and weakens stale-target semantics.
-- **Laravel-side HTMX factory:** rejected because the second portability binding must not depend on the first framework runtime.
-
-## Verification baseline
-
-Current base before T-601 implementation:
-
-```text
-main:                           5b22eef928d2fb1f8fac8ab13507e2f22661d3df
-closure validation:             34621807162 — 7/7 green
-PHP:                             595 tests / 3164 assertions
-Browser:                         TypeScript typecheck + 103/103 Vitest
-Contract / lint / Composer:      green
-```
-
-No T-601 code/tests have been added yet.
+Those are explicitly T-602, T-603, and T-604 concerns. D-020 therefore remains proposed.
 
 ## Current boundary
 
-The in-chat architecture is approved and the written spec is committed. **Stop before `writing-plans` and before implementation.** The next gate is explicit user review/approval of `docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md`.
+T-601 implementation and self-review are complete. The next gate is **external review / PR creation only after explicit authorization**. Do not begin T-602 automatically.
