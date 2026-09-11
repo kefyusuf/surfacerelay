@@ -8,6 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
+use SurfaceRelay\Laravel\Filament\Context\FilamentActiveFilterContextResolver;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\EditOrder;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\ListOrders;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\Order;
@@ -136,6 +137,15 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
         self::assertSame(
             [101, 102],
             array_map(static fn (Order $order): int => (int) $order->getKey(), $selection),
+        );
+
+        $activeFilters = $outcome->state->context
+            ->requireTrustedExtension(FilamentActiveFilterContextResolver::EXTENSION_KEY)
+            ->value;
+        self::assertSame(
+            ['status' => ['value' => 'paid']],
+            $activeFilters,
+            'Caller metadata must not replace the exact applied Filament filter authority.',
         );
     }
 
