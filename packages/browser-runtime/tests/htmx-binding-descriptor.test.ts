@@ -52,6 +52,10 @@ function definition(inputSchema: Record<string, unknown>): ActionDefinition {
   };
 }
 
+function definitionFromUnknown(inputSchema: unknown): ActionDefinition {
+  return definition(inputSchema as Record<string, unknown>);
+}
+
 function expectCode(fn: () => unknown, code: HtmxBindingDescriptorError['code']): void {
   try {
     fn();
@@ -173,6 +177,8 @@ describe('parseHtmxBindingTarget', () => {
 });
 
 describe('createHtmxBindingTarget', () => {
+  const options = { sourceId: 'htmx-src-1', method: 'POST' as const, path: '/prep-list/items' };
+
   it('derives deterministic named input mapping from a closed object schema', () => {
     const target = createHtmxBindingTarget(
       definition({
@@ -184,7 +190,7 @@ describe('createHtmxBindingTarget', () => {
         required: ['item'],
         additionalProperties: false,
       }),
-      { sourceId: 'htmx-src-1', method: 'POST', path: '/prep-list/items' },
+      options,
     );
 
     expect(target.inputNames).toEqual(['item', 'note']);
@@ -194,10 +200,81 @@ describe('createHtmxBindingTarget', () => {
   it('supports a closed zero-input object schema', () => {
     const target = createHtmxBindingTarget(
       definition({ type: 'object', additionalProperties: false }),
-      { sourceId: 'htmx-src-1', method: 'POST', path: '/prep-list/items' },
+      options,
     );
 
     expect(target.inputNames).toEqual([]);
     expect(target.requiredInputNames).toEqual([]);
+  });
+
+  it('keeps nested values under their top-level Action input name', () => {
+    const target = createHtmxBindingTarget(
+      definition({
+        type: 'object',
+        properties: {
+          item: {
+            type: 'object',
+            properties: { label: { type: 'string' } },
+          },
+        },
+        additionalProperties: false,
+      }),
+      options,
+    );
+
+    expect(target.inputNames).toEqual(['item']);
+  });
+
+  it.each([
+    ['null schema', null],
+    ['array schema', []],
+    ['primitive schema', 'string'],
+    ['non-object type', { type: 'array', additionalProperties: false }],
+    ['missing additionalProperties', { type: 'object' }],
+    ['open additionalProperties', { type: 'object', additionalProperties: true }],
+    ['array properties', { type: 'object', properties: [], additionalProperties: false }],
+    ['primitive properties', { type: 'object', properties: 'item', additionalProperties: false }],
+    ['primitive required', { type: 'object', required: 'item', additionalProperties: false }],
+    ['object required', { type: 'object', required: { item: true }, additionalProperties: false }],
+    ['duplicate required', {
+      type: 'object',
+      properties: { item: { type: 'string' } },
+      required: ['item', 'item'],
+      additionalProperties: false,
+    }],
+    ['empty required', {
+      type: 'object',
+      properties: { item: { type: 'string' } },
+      required: [''],
+      additionalProperties: false,
+    }],
+    ['required outside properties', {
+      type: 'object',
+      properties: { item: { type: 'string' } },
+      required: ['missing'],
+      additionalProperties: false,
+    }],
+    ['empty property name', {
+      type: 'object',
+      properties: { '': { type: 'string' } },
+      additionalProperties: false,
+    }],
+    ['patternProperties', { type: 'object', additionalProperties: false, patternProperties: { '.*': {} } }],
+    ['$ref', { type: 'object', additionalProperties: false, $ref: '#/$defs/input' }],
+    ['$dynamicRef', { type: 'object', additionalProperties: false, $dynamicRef: '#input' }],
+    ['allOf', { type: 'object', additionalProperties: false, allOf: [] }],
+    ['anyOf', { type: 'object', additionalProperties: false, anyOf: [] }],
+    ['oneOf', { type: 'object', additionalProperties: false, oneOf: [] }],
+    ['not', { type: 'object', additionalProperties: false, not: {} }],
+    ['if', { type: 'object', additionalProperties: false, if: {} }],
+    ['then', { type: 'object', additionalProperties: false, then: {} }],
+    ['else', { type: 'object', additionalProperties: false, else: {} }],
+    ['unevaluatedProperties', { type: 'object', additionalProperties: false, unevaluatedProperties: false }],
+    ['dependentSchemas', { type: 'object', additionalProperties: false, dependentSchemas: {} }],
+  ] as const)('rejects unsupported top-level input schema: %s', (_label, inputSchema) => {
+    expectCode(
+      () => createHtmxBindingTarget(definitionFromUnknown(inputSchema), options),
+      'input_schema_unsupported',
+    );
   });
 });
