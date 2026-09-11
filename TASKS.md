@@ -62,7 +62,7 @@ Browser baseline:         TypeScript typecheck + 103/103 Vitest
 
 ## M6 — HTMX Portability Proof — IN_PROGRESS
 
-### T-601 — Explicit HTMX binding descriptor — DONE / REVIEWED / READY FOR MERGE
+### T-601 — Explicit HTMX binding descriptor — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 **Outcome:** browser-runtime contains a pure driver-owned HTMX RuntimeBinding descriptor proving that the existing generic RuntimeBinding envelope can carry a materially different exact target without introducing HTMX execution, Laravel coupling, or a frozen wire-contract change.
 
@@ -127,6 +127,7 @@ Final reviewed state:
 
 ```text
 Final reviewed branch head:   9939715e3357e3f63d52ab26f9de549e3738bd09
+Final review-closure head:    e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
 Final push CI:                34656613121 — 7/7 green
 Final PR CI:                  34656616252 — 7/7 green
 Browser:                      174/174; HTMX focused 71/71; typecheck green
@@ -141,7 +142,19 @@ Review rulings:
 - **Minor — milestone token:** fixed; CodeRabbit confirmed and resolved.
 - A second full CodeRabbit sweep after hardening was service-rate-limited; it is not counted as a second complete review pass. The original four findings were individually rechecked and all four threads are resolved.
 
-**Current gate:** PR #10 is reviewed and ready for merge. Do not start T-602 until merge closure and explicit advancement.
+Merge closure:
+
+```text
+Final feature head:           e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
+Merge commit:                 96581ff9d12dba5487b4831c3bc146081945decb
+Post-merge main CI:           34657967629 — 7/7 green
+Browser on main:              TypeScript typecheck + 174/174 Vitest
+Focused HTMX descriptor:      71/71
+PHP baseline:                 595 tests / 3164 assertions
+Contract / PHP lint:          green
+```
+
+**T-601 is closed.**
 
 - T-602 — HTMX browser driver — TODO / NOT STARTED.
 - T-603 — Non-Laravel HTMX fixture app — TODO.
@@ -156,4 +169,4 @@ Review rulings:
 
 ## Current boundary
 
-T-601 is **DONE / REVIEWED / READY FOR MERGE** in PR #10. **Do not begin T-602 until T-601 is merged, main is revalidated, and the next task gate is explicitly advanced.**
+T-601 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. M6 remains `IN_PROGRESS`. **Do not start T-602 automatically.** When explicitly advanced, T-602 begins at its own scope/design gate.

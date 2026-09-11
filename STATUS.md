@@ -4,19 +4,18 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/htmx-binding-descriptor`
-- **Base:** `main@5b22eef928d2fb1f8fac8ab13507e2f22661d3df`
+- **Branch:** `main`
 - **Milestone:** `M6 — HTMX Portability Proof` — **IN_PROGRESS**
-- **Current task:** `T-601 — Explicit HTMX binding descriptor`
-- **T-601 state:** **DONE / EXTERNALLY REVIEWED / READY FOR MERGE**
-- **Pull request:** `#10` — **OPEN / REVIEW COMPLETE**
-- **Pre-review head:** `c4e9b841d98464cc2fdb0b3fb259e9cebba08c76`
-- **Review-hardening code head:** `0fd29621c1ae3084649095f8a8595e741c504e50`
-- **Final reviewed branch head before closure tracking:** `9939715e3357e3f63d52ab26f9de549e3738bd09`
+- **Last completed task:** `T-601 — Explicit HTMX binding descriptor`
+- **T-601 state:** **DONE / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**
+- **Pull request:** `#10` — **MERGED**
+- **Final feature/review-closure head:** `e4cbf0b3831863f4e0a7c89a0700726246b6f4b9`
+- **Merge commit:** `96581ff9d12dba5487b4831c3bc146081945decb`
+- **Post-merge main validation:** `34657967629` — **7/7 green**
 - **Decision:** `D-053` — **ACCEPTED for descriptor semantics only**
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
 - **Next task:** `T-602 — HTMX browser driver` — **NOT STARTED**
-- **Merge state:** **NOT MERGED**
+- **Feature branch:** preserved; not deleted automatically.
 
 ## Delivered T-601 behavior
 
@@ -37,86 +36,62 @@ inputNames
 requiredInputNames
 ```
 
-Enforced boundaries:
+Accepted boundaries:
 
 - exact `driver=htmx` and `lifecycle=page` at the consumer boundary;
 - opaque bounded `sourceId` grammar;
 - methods limited to exact uppercase `GET|POST|PUT|PATCH|DELETE`;
 - bounded same-origin absolute-path-reference grammar;
 - exact target-key set; unknown keys fail closed;
-- producer mapping derived only from an exact finite closed top-level ActionDefinition object schema;
+- producer mapping derived only from a finite closed top-level `ActionDefinition.inputSchema`;
 - `additionalProperties:false` required;
 - reference/composition/open/conditional top-level mapping forms fail closed;
 - `dependentRequired` and legacy `dependencies` are explicitly rejected after external-review hardening;
 - nested values remain under one top-level Action input name;
-- consumer mapping lists are unique, non-empty string lists with required-subset enforcement;
+- consumer mapping lists are unique non-empty strings with required-subset enforcement;
 - produced and parsed descriptors are frozen defensive snapshots;
 - descriptor carries no trusted actor/tenant/record/selection/confirmation/idempotency/browser-session/authorization authority;
-- T-601 contains no DOM lookup, HTMX execution, network dispatch, cancellation behavior, fixture app, Laravel production coupling, HTMX dependency, or `spec/0.1/**` change.
+- no DOM lookup, HTMX execution, network dispatch, response/swap handling, cancellation behavior, fixture app, Laravel production coupling, HTMX dependency, or `spec/0.1/**` change entered T-601.
 
-## External review result
+## External review closure
 
-PR #10 was reviewed by CodeRabbit run `77dbb63c-4223-4177-a56a-8cad74daddb8`.
+CodeRabbit run `77dbb63c-4223-4177-a56a-8cad74daddb8` reported **1 Major + 3 Minor**.
 
-Initial result:
+- **Major — conditional required-key schemas:** reproduced TDD-first and fixed. `dependentRequired` and legacy `dependencies` now fail closed.
+- **Minor — design snapshot/current-state mismatch:** verified as intentional historical design snapshot; finding withdrawn.
+- **Minor — review handoff too long:** fixed and confirmed.
+- **Minor — milestone status token:** fixed and confirmed.
 
-```text
-1 Major + 3 Minor
-```
-
-### Major — conditional required-key schemas — FIXED / CONFIRMED
-
-The review identified that JSON Schema `dependentRequired` and legacy `dependencies` can impose conditional required keys while the descriptor derives `requiredInputNames` from the unconditional `required` array only.
-
-RED evidence:
+Review evidence:
 
 ```text
-commit: 9b241e4ef58740e512d57fde16efd1caaf8db5bd
-CI:     34656195469
-result: browser 174 total — 172 passed / exactly 2 failed
-cases:  dependentRequired, dependencies
+Review-hardening RED:           9b241e4ef58740e512d57fde16efd1caaf8db5bd / 34656195469
+                               browser 174 total — 172 passed / exactly 2 failed
+Review-hardening GREEN:         0fd29621c1ae3084649095f8a8595e741c504e50 / 34656249493 — 7/7 green
+Final reviewed branch head:     9939715e3357e3f63d52ab26f9de549e3738bd09
+Final review-closure head:      e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
+Final push CI before closure:   34656613121 — 7/7 green
+Final PR CI before closure:     34656616252 — 7/7 green
+Resolved review threads:        4 / 4
+Unresolved review threads:      0
 ```
 
-GREEN evidence:
+A second complete CodeRabbit sweep after hardening was service-rate-limited and is not counted as a second full review pass. Every finding from the completed review was individually rechecked and confirmed or withdrawn in its thread.
+
+## Merge and main revalidation
+
+PR #10 was merged with expected-head protection pinned to exact feature head `e4cbf0b3831863f4e0a7c89a0700726246b6f4b9`.
 
 ```text
-commit: 0fd29621c1ae3084649095f8a8595e741c504e50
-CI:     34656249493 — 7/7 green
-browser: TypeScript typecheck + 174/174 Vitest
-focused HTMX descriptor: 71/71
-contract / lint / PHP matrix: green
+Merge commit:                   96581ff9d12dba5487b4831c3bc146081945decb
+Post-merge main CI:             34657967629 — 7/7 green
+Browser:                        TypeScript typecheck + 174/174 Vitest
+Focused HTMX descriptor:        71/71
+PHP baseline:                    595 tests / 3164 assertions
+Contract / PHP lint:             green
 ```
 
-CodeRabbit explicitly confirmed the fix and resolved the thread.
-
-### Minor — design snapshot/current-state mismatch — VERIFIED / WITHDRAWN
-
-The original design file is intentionally retained as the committed pre-implementation design snapshot. Current state is authoritative in `STATUS.md`, `REVIEW_REQUEST.md`, `TASKS.md`, and `docs/DECISION-REGISTER.md`; the implementation plan records the later repository-specific refinement that avoids introducing a new `src/index.ts` barrel solely for T-601. CodeRabbit verified that distinction, withdrew the finding, and resolved the thread.
-
-### Minor — review handoff too long — FIXED / CONFIRMED
-
-`REVIEW_REQUEST.md` was reduced to a concise external-review/merge handoff. CodeRabbit confirmed and resolved the thread.
-
-### Minor — milestone status token — FIXED / CONFIRMED
-
-The M6 heading now uses the declared `IN_PROGRESS` token. CodeRabbit confirmed and resolved the thread.
-
-### Review completion evidence
-
-```text
-Initial review findings:       1 Major + 3 Minor
-Resolved review threads:       4 / 4
-Unresolved review threads:     0
-Final reviewed branch head:    9939715e3357e3f63d52ab26f9de549e3738bd09
-Final push CI:                 34656613121 — 7/7 green
-Final PR CI:                   34656616252 — 7/7 green
-Browser:                       TypeScript typecheck + 174/174 Vitest
-Focused HTMX descriptor:      71/71
-PHP baseline:                  595 tests / 3164 assertions
-Contract / PHP lint:           green
-```
-
-A second full CodeRabbit sweep after the hardening changes was rate-limited by the service. This does not count as a second complete review pass. The four original findings were nevertheless rechecked individually in their review threads; CodeRabbit explicitly confirmed/withdrew each and all four threads are resolved.
+The merge commit itself has therefore been revalidated on `main`.
 
 ## Change surface
 
@@ -159,14 +134,14 @@ Implementation plan:             1e47c6bb4121bcc1fc43e69c73c213d17092b5c1 / 3462
 Initial implementation/scope:    b06204e2c7acf6be01df3fec5085e55ddd650329 / 34654979136 — 7/7 green
 Review-prep head:                c4e9b841d98464cc2fdb0b3fb259e9cebba08c76 / 34655391095 — 7/7 green
 Initial PR #10 CI:               34655515805 — 7/7 green
-Review-hardening RED:            9b241e4ef58740e512d57fde16efd1caaf8db5bd / 34656195469 — exactly 2 expected browser failures
+Review-hardening RED:            9b241e4ef58740e512d57fde16efd1caaf8db5bd / 34656195469
 Review-hardening GREEN:          0fd29621c1ae3084649095f8a8595e741c504e50 / 34656249493 — 7/7 green
 Final reviewed push CI:          34656613121 — 7/7 green
 Final reviewed PR CI:            34656616252 — 7/7 green
+Merge commit:                    96581ff9d12dba5487b4831c3bc146081945decb
+Post-merge main CI:              34657967629 — 7/7 green
 ```
 
-## Deliberate limitation / next boundary
+## Current boundary
 
-T-601 remains descriptor-only. It does not resolve DOM sources, verify live HTMX attributes, execute `htmx.ajax()`, define response/swap or cancellation semantics, or prove a second server fixture/shared-conformance implementation.
-
-**Current gate:** PR #10 is externally reviewed and ready for the merge gate. Do not start T-602 before merge closure and explicit advancement of that next task.
+**T-601 is closed. M6 remains open.** `T-602 — HTMX browser driver` is **NOT STARTED** and must not begin automatically; its own scope/design gate is the next boundary when explicitly advanced.
