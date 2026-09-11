@@ -353,7 +353,48 @@ The initial E2E selection-drift failure was isolated to the direct-object test h
 
 **Review result:** PASSED. CodeRabbit's 2 Major and 2 Minor findings were verified rather than blindly applied, hardened TDD-first, revalidated on both push and PR CI, and all four threads are resolved/confirmed. PR #8 remains open; merge is a separate explicit gate.
 
-- T-505 — Multi-tenant order operations demo — TODO / NOT STARTED.
+### T-505 — Multi-tenant order operations demo — DONE / SELF-REVIEWED / READY FOR EXTERNAL REVIEW
+
+**Outcome:** An executable Filament order vertical proves that trusted tenant/current-record/current-selection/applied-filter context can drive realistic record and bulk operations through the existing gateway/ActionBus path without turning caller input, metadata, or resource query scope into mutation authority.
+
+**Acceptance:**
+
+- `orders.hold_current` targets only trusted `current_record`; caller order/tenant metadata cannot retarget it;
+- a persisted cross-tenant record assigned directly to the record page is denied by Laravel Gate before execution even when ordinary resource scoping is bypassed;
+- `orders.refund_selected` targets only trusted `current_selection`, exposes applied filter authority explicitly through `filament/active_filters`, and keeps both dimensions independent;
+- fake caller `orderIds`, `tenantId`, or filter metadata cannot replace selected records or applied filters;
+- normal `OrderResource` query scoping uses the trusted host tenant, but a test-only unscoped host query proves authorization remains an independent fail-closed boundary;
+- mixed-tenant selections fail atomically before confirmation/execution; no authorized-subset partial refund is allowed;
+- refund confirmation remains approval-only; approval executes no business code and the caller explicitly retries the original operation;
+- selection, tenant, and applied-filter drift reject an old confirmation scope without spending the exact valid receipt; restoring exact state permits the original receipt;
+- required-key idempotency executes the refund side effect once, replays an exact completed retry, and rejects changed validated input/selection/filter intent under the same key;
+- human and agent invocation converge on the same explicitly exposed Filament/Livewire page methods and existing `driver=livewire` binding; no Filament RuntimeBinding driver is introduced;
+- page methods delegate through `OrderDemoPageActions` and static guards forbid direct Eloquent/pipeline shortcuts;
+- structured audit uses the existing D-047 migration/store and persists provider/provenance facts without raw tenant/record/filter/business-input/idempotency/receipt marker bytes;
+- demo correlation IDs are internal sequence identifiers rather than target, business-input, or idempotency-derived values;
+- `packages/laravel/src/**`, `packages/browser-runtime/src/**`, and `spec/0.1/**` remain unchanged;
+- D-052 is promoted to ACCEPTED after the executable negative proofs pass.
+
+**Verification evidence:**
+
+```text
+Design spec:                    502b3916c124086089f2eb560a49f064cb00c65f
+Implementation plan:            1f3444e8560fc20eb04797a6762a3c8cad663f4f
+Task 1 RED/GREEN:               a384433079b01dba2419979bbce335aa54263ba9 / 43f4db10ce5e559be6b6e6e3b4fe8dc52763a13c
+Task 1 GREEN CI:                34611831744 — 7/7 green
+Task 2 final authority head:    cf82140cd17c17e942bd5477e7380c2c7979b71a / 34612972729 — 7/7 green
+Task 3 final GREEN:             31e88742d3db568df90e56b1487710bfca4485d6 / 34613849084 — 7/7 green
+Task 4 final GREEN:             3ded2dd0d0575e39d84ead814a93a7ca635b75a8 / 34614610479 — 7/7 green
+Task 5 RED:                     f385159dd9cb27c7e6f26a3936e9b2a3b51726b2 / 34615660318 — expected missing durable audit rows
+Verified implementation head:  08126177cd223c3beadd2150ffeb0bbb431d4c4d / 34615887644 — 7/7 green
+PHP:                            593 tests / 3157 assertions
+Browser:                        TypeScript typecheck + 103/103 Vitest
+Contract / lint:                green; frozen spec unchanged
+```
+
+**Review note:** the minimal Testbench fixture does not configure a full Filament panel container. The shared execution seam is therefore proven by directly booting the exact Filament page method, while the production `LivewireBindingProducer` independently proves agent binding generation for that same method. A fully configured host may add a panel-level render/browser test without changing this trust boundary.
+
+**Review result:** self-review passed; external PR review and merge are separate explicit gates. M5 remains in progress until T-505 is reviewed, merged, and main is revalidated.
 
 ## M6 — HTMX Portability Proof — TODO
 
