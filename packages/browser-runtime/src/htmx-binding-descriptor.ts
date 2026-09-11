@@ -8,7 +8,12 @@ const HTMX_TARGET_KEYS = [
   'sourceId',
 ] as const;
 
+const SOURCE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$/;
+const ASCII_CONTROL_PATTERN = /[\u0000-\u001F\u007F]/;
+
 export type HtmxRequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+const HTMX_METHODS = new Set<HtmxRequestMethod>(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 
 export interface HtmxBindingTarget {
   readonly sourceId: string;
@@ -36,6 +41,13 @@ export class HtmxBindingDescriptorError extends Error {
   }
 }
 
+function descriptorError(
+  code: HtmxBindingDescriptorErrorCode,
+  message: string,
+): HtmxBindingDescriptorError {
+  return new HtmxBindingDescriptorError(code, message);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -46,6 +58,36 @@ function hasExactTargetKeys(target: Record<string, unknown>): boolean {
     && keys.every((key, index) => key === HTMX_TARGET_KEYS[index]);
 }
 
+function parseSourceId(value: unknown): string {
+  if (typeof value !== 'string' || !SOURCE_ID_PATTERN.test(value)) {
+    throw descriptorError('source_id_invalid', 'HTMX sourceId is invalid.');
+  }
+  return value;
+}
+
+function parseMethod(value: unknown): HtmxRequestMethod {
+  if (typeof value !== 'string' || !HTMX_METHODS.has(value as HtmxRequestMethod)) {
+    throw descriptorError('method_invalid', 'HTMX request method is unsupported.');
+  }
+  return value as HtmxRequestMethod;
+}
+
+function parsePath(value: unknown): string {
+  if (
+    typeof value !== 'string'
+    || value.length < 1
+    || value.length > 2048
+    || !value.startsWith('/')
+    || value.startsWith('//')
+    || value.includes('#')
+    || value.includes('\\')
+    || ASCII_CONTROL_PATTERN.test(value)
+  ) {
+    throw descriptorError('path_invalid', 'HTMX request path is invalid.');
+  }
+  return value;
+}
+
 export function parseHtmxBindingTarget(binding: RuntimeBinding): HtmxBindingTarget {
   if (
     binding.driver !== 'htmx'
@@ -53,16 +95,13 @@ export function parseHtmxBindingTarget(binding: RuntimeBinding): HtmxBindingTarg
     || !isRecord(binding.target)
     || !hasExactTargetKeys(binding.target)
   ) {
-    throw new HtmxBindingDescriptorError(
-      'runtime_binding_invalid',
-      'HTMX runtime binding is invalid.',
-    );
+    throw descriptorError('runtime_binding_invalid', 'HTMX runtime binding is invalid.');
   }
 
   return {
-    sourceId: binding.target.sourceId as string,
-    method: binding.target.method as HtmxRequestMethod,
-    path: binding.target.path as string,
+    sourceId: parseSourceId(binding.target.sourceId),
+    method: parseMethod(binding.target.method),
+    path: parsePath(binding.target.path),
     inputNames: binding.target.inputNames as readonly string[],
     requiredInputNames: binding.target.requiredInputNames as readonly string[],
   };
