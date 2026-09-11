@@ -6,6 +6,9 @@ namespace SurfaceRelay\Laravel\Tests\Unit;
 
 use JsonException;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
 final class FilamentDependencyPolicyTest extends TestCase
 {
@@ -82,6 +85,82 @@ final class FilamentDependencyPolicyTest extends TestCase
                 $forbiddenAuthorityRead,
                 $resolver,
                 'Active-filter authority must not use pending/raw/request-derived state.',
+            );
+        }
+    }
+
+    public function test_t504_keeps_confirmation_idempotency_provider_and_livewire_core_filament_free(): void
+    {
+        $root = dirname(__DIR__, 2);
+
+        foreach ([
+            'src/SurfaceRelayServiceProvider.php',
+            'src/Confirmation/ConfirmationService.php',
+            'src/Confirmation/ConfirmationStage.php',
+            'src/Confirmation/ConfirmationScopeHasher.php',
+            'src/Idempotency/IdempotencyIntentHasher.php',
+        ] as $relativePath) {
+            $source = file_get_contents($root . '/' . $relativePath);
+            self::assertIsString($source, $relativePath);
+            self::assertStringNotContainsString(
+                'Filament\\',
+                $source,
+                $relativePath . ' must remain framework-neutral under T-504.',
+            );
+        }
+
+        $livewireRoot = $root . '/src/Livewire';
+        foreach (
+            new RecursiveIteratorIterator(new RecursiveDirectoryIterator($livewireRoot))
+            as $file
+        ) {
+            if (!$file instanceof SplFileInfo || !$file->isFile() || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $source = file_get_contents($file->getPathname());
+            self::assertIsString($source, $file->getPathname());
+            self::assertStringNotContainsString(
+                'Filament\\',
+                $source,
+                $file->getPathname() . ' must remain Filament-free under T-504.',
+            );
+        }
+    }
+
+    public function test_t504_confirmation_adapter_uses_locked_public_lifecycle_without_business_shortcuts(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $bridge = file_get_contents(
+            $root . '/src/Filament/Confirmation/FilamentConfirmationBridge.php',
+        );
+        $trait = file_get_contents(
+            $root . '/src/Filament/Confirmation/InteractsWithSurfaceRelayConfirmation.php',
+        );
+
+        self::assertIsString($bridge);
+        self::assertIsString($trait);
+        $source = $bridge . "\n" . $trait;
+
+        self::assertStringContainsString('#[Locked]', $trait);
+        self::assertStringContainsString('->mountAction(', $trait);
+        self::assertStringContainsString('->getMountedAction()', $trait);
+        self::assertStringContainsString('ConfirmationService::class', $trait);
+        self::assertStringContainsString('approveChallenge($challengeId)', $trait);
+
+        foreach ([
+            '$mountedActions',
+            'Reflection',
+            'request(',
+            'Route::',
+            'FilamentActionGateway::dispatch',
+            'ActionBus',
+            'ActionCall',
+        ] as $forbiddenShortcut) {
+            self::assertStringNotContainsString(
+                $forbiddenShortcut,
+                $source,
+                'T-504 confirmation UI must not own private framework state or business redispatch.',
             );
         }
     }
