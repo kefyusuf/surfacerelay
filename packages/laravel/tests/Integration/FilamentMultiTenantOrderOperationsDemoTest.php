@@ -38,6 +38,8 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
     {
         parent::setUp();
 
+        $this->installAuditMigration();
+
         $this->app['db']->connection()->getSchemaBuilder()->create(
             'filament_order_demo_orders',
             static function (Blueprint $table): void {
@@ -340,6 +342,79 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
         self::assertSame(1, $harness->executor->refundExecutions);
     }
 
+    public function test_structured_audit_persists_provider_manifest_without_business_or_authority_payloads(): void
+    {
+        $tenantMarker = 'TENANT-A-SECRET-MARKER';
+        $orderMarker = 'ORDER-101-SECRET-MARKER';
+        $refundReasonMarker = 'REFUND-REASON-SECRET-MARKER';
+        $filterMarker = 'FILTER-SECRET-MARKER';
+        $idempotencyMarker = 'IDEMPOTENCY-SECRET-MARKER';
+
+        Order::query()->whereKey([101, 102])->update(['tenant_id' => $tenantMarker]);
+        Order::query()->whereKey(101)->update(['status' => $orderMarker]);
+
+        $harness = $this->harness(actorTenant: $tenantMarker, activeTenant: $tenantMarker);
+        $hold = $harness->dispatchHold(
+            $this->editPage(Order::query()->findOrFail(101)),
+            'audit-hold',
+        );
+        self::assertTrue($hold->completed);
+
+        Order::query()->whereKey([101, 102])->update(['status' => $filterMarker]);
+        $refundPage = $this->refundPage([101, 102], $filterMarker);
+        $firstRefund = $harness->dispatchRefund(
+            $refundPage,
+            $refundReasonMarker,
+            $idempotencyMarker,
+        );
+        $receipt = $harness->approve($this->assertConfirmationRequired($firstRefund));
+        $confirmedRefund = $harness->dispatchRefund(
+            $refundPage,
+            $refundReasonMarker,
+            $idempotencyMarker,
+            $receipt,
+        );
+        self::assertTrue($confirmedRefund->completed);
+
+        $rows = $this->app['db']
+            ->table('surfacerelay_audit_events')
+            ->orderBy('recorded_at')
+            ->get();
+        self::assertCount(3, $rows, 'Hold, confirmation halt, and confirmed refund must be durably audited.');
+
+        $json = json_encode(
+            $rows->map(static fn (object $row): array => (array) $row)->all(),
+            JSON_THROW_ON_ERROR,
+        );
+
+        foreach ([
+            $tenantMarker,
+            $orderMarker,
+            $refundReasonMarker,
+            $filterMarker,
+            $idempotencyMarker,
+            $receipt,
+        ] as $forbiddenMarker) {
+            self::assertStringNotContainsString($forbiddenMarker, $json, 'Forbidden audit payload leaked: ' . $forbiddenMarker);
+        }
+
+        foreach ([
+            'order_demo.actor',
+            'order_demo.tenant',
+            'filament.current_record',
+            'filament.current_selection',
+            'filament.active_filters',
+            'surfacerelay.confirmation',
+        ] as $providerFact) {
+            self::assertStringContainsString($providerFact, $json);
+        }
+
+        self::assertTrue(
+            $rows->contains(static fn (object $row): bool => (bool) $row->human_confirmation_present),
+            'The confirmed retry must record confirmation presence without persisting the receipt.',
+        );
+    }
+
     private function harness(string $actorTenant, string $activeTenant): FilamentOrderDemoHarness
     {
         return new FilamentOrderDemoHarness(
@@ -390,5 +465,17 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
         self::assertInstanceOf(ConfirmationChallenge::class, $outcome->halt?->confirmation);
 
         return $outcome->halt->confirmation;
+    }
+
+    private function installAuditMigration(): void
+    {
+        $path = dirname(__DIR__, 2)
+            . '/database/migrations/0000_00_00_000001_create_surfacerelay_audit_events.php';
+        if (!is_file($path)) {
+            throw new \RuntimeException('T-404 audit migration is missing.');
+        }
+
+        $migration = require $path;
+        $migration->up();
     }
 }
