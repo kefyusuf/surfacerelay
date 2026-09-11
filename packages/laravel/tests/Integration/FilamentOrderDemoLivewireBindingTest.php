@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Tests\Integration;
 
 use Illuminate\Database\Schema\Blueprint;
-use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase;
 use SurfaceRelay\Laravel\Binding\BindingIdGenerator;
@@ -112,13 +111,17 @@ final class FilamentOrderDemoLivewireBindingTest extends TestCase
         self::assertArrayNotHasKey('tenantId', $tableBinding->target);
     }
 
-    public function test_livewire_record_method_executes_through_same_gateway_and_action_bus(): void
+    public function test_human_record_method_executes_through_same_gateway_and_action_bus(): void
     {
         $runtime = $this->runtime();
-        $testable = Livewire::test(EditOrder::class, ['record' => 101]);
+        $page = new EditOrder();
+        $page->setId('order-edit-human-101');
+        $page->record = Order::query()->findOrFail(101);
+        $page->boot($runtime->pageActions);
 
-        $testable->call('holdCurrent', 'manual-review');
+        $result = $page->holdCurrent('manual-review');
 
+        self::assertSame(['orderId' => 101, 'held' => true], $result);
         self::assertTrue((bool) Order::query()->findOrFail(101)->held);
         self::assertSame(1, $runtime->harness->executor->holdExecutions);
     }
