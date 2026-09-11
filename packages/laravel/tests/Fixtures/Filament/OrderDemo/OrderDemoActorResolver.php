@@ -16,6 +16,10 @@ final readonly class OrderDemoActorResolver implements AuthenticatedActorResolve
     {
         $actor = $this->context->current();
 
+        if ($actor->getAuthIdentifier() === null) {
+            return null;
+        }
+
         return new ResolvedTrustedValue(
             value: $actor,
             provenance: new ContextProvenance('order_demo.actor'),
