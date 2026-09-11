@@ -11,6 +11,8 @@ const HTMX_TARGET_KEYS = [
 const SOURCE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$/;
 const ASCII_CONTROL_PATTERN = /[\u0000-\u001F\u007F]/;
 const UNSUPPORTED_TOP_LEVEL_MAPPING_KEYWORDS = [
+  'dependentRequired',
+  'dependencies',
   '$ref',
   '$dynamicRef',
   'allOf',
