@@ -1,167 +1,177 @@
-# External Review / Merge Record — T-504 Filament Confirmation Bridge
+# External Review Request — T-505 Multi-Tenant Order Operations Demo
 
 ## Current status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Scope:** `T-504 — Confirmation bridge`
-- **Feature branch:** `feat/filament-confirmation-bridge`
-- **Pull request:** `#8` — **CLOSED / MERGED**
-- **Original base / merge-base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
-- **Reviewed code head:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
-- **Final feature head:** `121f5c52b043dccfb5f9f24403aef50799c10518`
-- **Merge commit:** `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`
-- **PHP:** **578 tests / 3029 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4
+- **Scope:** `T-505 — Multi-tenant order operations demo`
+- **Feature branch:** `feat/filament-order-operations-demo`
+- **Pull request:** **NOT CREATED YET**
+- **Base / merge-base:** `main@b5da05b4a975ff8b2779960ea94e0c786a9c01db`
+- **Verified implementation head:** `08126177cd223c3beadd2150ffeb0bbb431d4c4d`
+- **Decision:** `D-052` — **ACCEPTED after executable verification**
+- **PHP:** **593 tests / 3157 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4
 - **Browser:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
-- **Filament / Livewire:** **5.8.1 / 4.4.4**
-- **Decision:** `D-051` — **ACCEPTED**
-- **CodeRabbit review:** `b6c519df-3a00-4d4b-b4db-994240edffe6`
-- **External review result:** **PASSED after TDD-first hardening**
-- **Actionable findings:** **2 Major + 2 Minor; all addressed and confirmed**
-- **Unresolved review threads:** **0**
-- **Merge state:** **MERGED / MAIN REVALIDATED**
-- **Post-merge main validation:** `34573128162` — **7/7 green**
-- **Next task:** `T-505 — Multi-tenant order operations demo` — **NOT STARTED**
+- **PHP lint / Composer validation:** green
+- **Production runtime changes:** **NONE**
+- **Review state:** **READY FOR EXTERNAL REVIEW — NOT MERGED**
 
-## Final reviewed behavior
+## Review thesis
 
-T-504 implements a narrow approval-only Filament bridge for T-401 confirmation challenges.
+T-505 is an executable reference vertical, not a new runtime feature. Review should verify that the fixture honestly composes the existing SurfaceRelay trust boundaries and does not create a second business/authorization path.
+
+The two application operations are:
 
 ```text
+orders.hold_current
+orders.refund_selected
+```
+
+Both are dispatched through the existing:
+
+```text
+Filament Page
+   ↓
+FilamentActionGateway
+   ↓
+TrustedContextComposer + Filament context resolvers
+   ↓
 ActionBus
-   │
-   └── confirmation_required + typed ConfirmationChallenge
-                 │
-                 ▼
-      FilamentConfirmationBridge
-                 │
-                 ▼
-      opted-in Filament Page
-                 │
-                 ▼
-      Livewire #[Locked] state
-                 │
-                 ▼
-          [Cancel] [Approve]
-                 │
-        Approve only changes
-        pending → approved
-                 │
-                 ▼
- caller explicitly retries normal action
-                 │
-                 ▼
- fresh scope resolution + receipt consumption
-                 │
-                 ▼
-       existing business execution path
+   ↓
+validation → authorization → idempotency → confirmation → execution → output policy → audit
 ```
 
-Approve never executes or redispatches the business action. The requesting caller must retry through the existing `FilamentActionGateway → ActionBus` path with the original opaque challenge token as `confirmationReceipt`; trusted context and invocation intent are freshly resolved before receipt consumption.
+There is no `filament` RuntimeBinding driver and no agent-only order endpoint.
 
-## Production files
+## Primary security assertions to review
+
+### 1. Current-record target authority
+
+`orders.hold_current` receives only `reason` as Action input. The authoritative target is the exact trusted `current_record` resolved from the active record-aware Filament page.
+
+The cross-tenant negative test deliberately places a persisted Tenant B order onto the trusted record-aware page while actor/tenant authority remains Tenant A. Laravel Gate must deny before executor mutation even though normal resource scoping has effectively been bypassed by the fixture.
+
+### 2. Current-selection target authority
+
+`orders.refund_selected` receives only `reason` as Action input. The target set is exact trusted `current_selection` materialized through the existing T-502 resolver.
+
+Caller metadata containing fake `orderIds`, `tenantId`, or filter state must not change target authority.
+
+### 3. Applied filters are an independent authority dimension
+
+Refund dispatch explicitly opts into `FilamentContextExposure::activeFilters()`.
+
+The trusted extension `filament/active_filters` must reflect the exact applied Filament filter state. It must remain independent from selection identity and must not be replaced by generic metadata.
+
+### 4. Tenant scoping is defense-in-depth, not the authorization boundary
+
+`OrderResource::getEloquentQuery()` normally scopes to the trusted host tenant.
+
+A test-only fixture switch deliberately simulates an unscoped host resource query and selects orders from Tenant A and Tenant B together. The complete invocation must still be denied atomically by Laravel Gate before confirmation/execution. The code must not filter the unauthorized record out and continue.
+
+### 5. Confirmation is approval-only
+
+The refund action is consequential and requires human confirmation. Approval calls only the existing `ConfirmationService::approveChallenge()` and causes zero order executor calls.
+
+The requesting caller explicitly retries the normal gateway invocation. Selection, tenant, or applied-filter drift must reject the old scope without consuming the valid exact-scope receipt. Restoring exact trusted state must allow that same receipt to complete.
+
+### 6. Idempotency binds current authority and intent
+
+Exact completed retry must replay without a second refund execution.
+
+Changed validated input, selected-set identity, or applied-filter authority under the same key must not replay the completed output. Tenant changes use the existing tenant/actor key partition rather than sharing a cross-tenant idempotency record.
+
+### 7. Human/agent convergence
+
+`EditOrder::holdCurrent(reason)` and `ListOrders::refundSelected(reason)` are the same explicitly exposed page methods used by the existing Livewire binding producer.
+
+Review that:
+
+- binding `driver` remains `livewire`;
+- exact action ID/version and exact page method are produced;
+- binding target contains no order or tenant IDs;
+- page methods contain no Eloquent mutation/query shortcut, `ActionBus`, or `ActionCall` path;
+- `OrderDemoPageActions` is a thin gateway adapter only.
+
+### 8. Durable audit secrecy
+
+The reference vertical uses the existing T-404 migration and `DatabaseAuditEventStore`.
+
+The audit test injects marker strings into tenant authority, order status, refund reason, applied filters, raw idempotency key, and the exact confirmation receipt. Directly persisted rows must not contain any of those marker bytes.
+
+The provider/provenance manifest should still expose allowlisted facts such as:
 
 ```text
-packages/laravel/src/Filament/Confirmation/FilamentConfirmationBridge.php
-packages/laravel/src/Filament/Confirmation/InteractsWithSurfaceRelayConfirmation.php
-packages/laravel/src/Filament/Confirmation/InvalidFilamentConfirmationBridge.php
-packages/laravel/src/Filament/Invocation/FilamentActionGateway.php
+order_demo.actor
+order_demo.tenant
+filament.current_record
+filament.current_selection
+filament.active_filters
+surfacerelay.confirmation
 ```
 
-Production code under these areas remains unchanged:
+A confirmed retry should persist `human_confirmation_present=true` without storing the bearer receipt.
+
+The harness correlation ID is intentionally an internal sequence value rather than a target/business/idempotency-derived string because correlation IDs are part of D-047's durable allowlist.
+
+## Change surface
+
+Expected T-505 implementation/review files:
 
 ```text
-spec/0.1/**
+packages/laravel/tests/Fixtures/Filament/OrderDemo/**
+packages/laravel/tests/Fixtures/views/filament-order-demo-page.blade.php
+packages/laravel/tests/Support/FilamentOrderDemoHarness.php
+packages/laravel/tests/Integration/FilamentMultiTenantOrderOperationsDemoTest.php
+packages/laravel/tests/Integration/FilamentOrderDemoLivewireBindingTest.php
+examples/filament-orders/README.md
+docs/superpowers/specs/2026-09-11-filament-multitenant-order-operations-demo-design.md
+docs/superpowers/plans/2026-09-11-filament-multitenant-order-operations-demo.md
+docs/DECISION-REGISTER.md
+TASKS.md
+STATUS.md
+REVIEW_REQUEST.md
+```
+
+Explicitly unexpected for T-505:
+
+```text
+packages/laravel/src/**
 packages/browser-runtime/src/**
-packages/laravel/src/Confirmation/**
-packages/laravel/src/Idempotency/**
-packages/laravel/src/Livewire/**
+spec/0.1/**
 ```
 
-## External review findings and closure
-
-### Major — split confirmation authority — ADDRESSED / CONFIRMED
-
-`ConfirmationStage` uses its constructor-injected `ConfirmationService`, while the Filament approval trait resolves `ConfirmationService::class` from the container. The host contract requires the same service instance or an equivalent service backed by the same authoritative `ConfirmationStore` and expiry configuration.
-
-Review hardening added an explicit distinct-store integration test. A challenge issued into store A cannot be approved through container-bound store B: store A remains `Pending`, store B has no matching record, no authority is granted, presentation state clears, and only the generic retry-required warning is shown. CodeRabbit verified this fail-closed proof and resolved the thread.
-
-### Major — confirmation-store exception leakage — FIXED / CONFIRMED
-
-The original approval action allowed infrastructure `Throwable` from `ConfirmationService::approveChallenge()` to reach Livewire, potentially carrying chained store/framework details.
-
-The RED review test reproduced the leak as `RuntimeException: confirmation test store unavailable`. Production now catches `Throwable` only around `approveChallenge()` and converts it to fixed non-chained `InvalidFilamentConfirmationBridge::approvalFailed()` with message `Filament confirmation approval failed.`. Tests assert `getPrevious() === null`, raw store text is absent, the core challenge remains `Pending`, and presentation state remains available after infrastructure failure. CodeRabbit confirmed the fix and resolved the thread.
-
-### Minor — missing approval-result notifications — FIXED / CONFIRMED
-
-Approval success sends the fixed notice:
-
-```text
-Confirmation approved. Retry the original operation.
-```
-
-A null/non-pending approval result sends the fixed generic warning:
-
-```text
-Confirmation is no longer approvable. Retry the original operation.
-```
-
-Neither notice includes challenge ID, token state, scope material, or business/trusted-context values. Integration tests cover both branches. CodeRabbit confirmed the fix and resolved the thread.
-
-### Minor — incomplete redispatch source guard — FIXED / CONFIRMED
-
-The static confirmation-adapter policy now forbids literal instance dispatch calls `->dispatch(` in addition to `FilamentActionGateway::dispatch`, `ActionBus`, and `ActionCall`. CodeRabbit confirmed and resolved the thread.
+Any T-505 diff under those production/frozen-contract paths should be treated as scope drift requiring a renewed design decision.
 
 ## Verification evidence
 
 ```text
-Design / D-051 checkpoint:      a3e60544308ea5f3072d5fb813e939bfe4924def
-Plan checkpoint:                46426cbccc1258664ebe6e3a5177cb841582732e / 34533606536 — 7/7 green
-Task 1 RED:                     2df61dfa8c079c9f97b9d90c4c7ec096374910ba / 34559167747
-Task 1 GREEN:                   8370402eb8d752eae4c329523e584820c28341c3 / 34559287792 — 7/7 green
-Task 2 RED:                     9563b6108066cdde9396b8bfd044e9c2669604a2 / 34559561986
-Task 2 final GREEN:             6fbaba5e6215e723d921618072b44931c7ba0264 / 34560122329 — 7/7 green
-Task 3 RED:                     1f0f75f316955e03c6aaf61a9ddb3f8c6b062fa2 / 34560370550
-Task 3 GREEN:                   f1bea851269cbae932b792d26c2f7731b303aebc / 34560453025 — 7/7 green
-Task 4 RED:                     f9822e4e725eb0997633557383c1902adae3c8c5 / 34560647891
-Task 4 GREEN:                   babc80bb30426748765fc2dc79c095ab5ae4967b / 34560733159 — 7/7 green
-E2E initial proof:              acd4e7fb5129696a6e863e8d1a276ec8a4cfe9ca / 34561151879 — harness-only selection-cache failure
-E2E GREEN:                      f83db1a0e54760c2b4bfb97992bdfb93b7610c90 / 34561337612 — 7/7 green
-Boundary / review-prep:         e7954abe7a696c7a05ed32a6995fb3b7ae98400c / 34561470349 — 7/7 green
-Initial feature head:           17c5ac6cb135ab9494dd1eb906752ef24ea59ec8 / 34561985867 — 7/7 green
-Initial PR validation:          34562182120 — 7/7 green
-CodeRabbit full review:         b6c519df-3a00-4d4b-b4db-994240edffe6 — 2 Major + 2 Minor
-Review hardening RED:           2dd660c7d43fef331f54f29fe1b8938449e8a7bd / 34571740035 — 1 expected error + 3 expected failures; 578 / 3020
-Review hardening GREEN:         e0153e6de755963e8d7804cf83c60dd88eec3cd2 / 34571892139 — 7/7 green; 578 / 3029
-Review hardening PR CI:         34571895353 — 7/7 green
-Final feature head:             121f5c52b043dccfb5f9f24403aef50799c10518
-Final feature-head push CI:     34572529686 — 7/7 green
-Final PR CI:                    34572530074 — 7/7 green
-Merge commit:                   e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115
-Post-merge main CI:             34573128162 — 7/7 green
-PHP:                            578 tests / 3029 assertions
+Design spec checkpoint:         502b3916c124086089f2eb560a49f064cb00c65f
+D-052 proposed checkpoint:      3e978003e36a1bf1b2723fc80df9144f89e6ed31
+Implementation plan:            1f3444e8560fc20eb04797a6762a3c8cad663f4f
+Task 1 RED:                     a384433079b01dba2419979bbce335aa54263ba9 / 34611447869
+Task 1 GREEN:                   43f4db10ce5e559be6b6e6e3b4fe8dc52763a13c / 34611831744 — 7/7 green
+Task 2 RED:                     effd98dcf9e998baf4700e3f4068d29140fa8d90 / 34612166801
+Task 2 API-fix GREEN:           d28958b14ccd077bcf1cbd77cadd74d33111f3d2 / 34612717833 — 7/7 green
+Task 2 authority hardening:     cf82140cd17c17e942bd5477e7380c2c7979b71a / 34612972729 — 7/7 green
+Task 3 RED:                     ed603e69cace125be528bdd505a9c5ce62fd8745 / 34613229629
+Task 3 final GREEN:             31e88742d3db568df90e56b1487710bfca4485d6 / 34613849084 — 7/7 green
+Task 4 final GREEN:             3ded2dd0d0575e39d84ead814a93a7ca635b75a8 / 34614610479 — 7/7 green
+Task 5 RED:                     f385159dd9cb27c7e6f26a3936e9b2a3b51726b2 / 34615660318
+Verified implementation head:  08126177cd223c3beadd2150ffeb0bbb431d4c4d / 34615887644 — 7/7 green
+PHP:                            593 tests / 3157 assertions
 Browser:                        TypeScript typecheck + 103/103 Vitest
-Contract / lint:                green
-Unresolved review threads:      0
+Contract:                       validator green; frozen spec unchanged
 ```
 
-The merge commit has parents `66f1d5db7e7902b6d7f09306be021119a6d96086` and exact final feature head `121f5c52b043dccfb5f9f24403aef50799c10518`. Post-merge validation checked out `main@e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115` directly and passed all seven jobs.
+## Review ruling to keep visible
 
-## Reviewed trust boundary
+The first Task-4 attempt tried to render the Filament page through `Livewire::test()` and failed because the minimal Testbench fixture has no configured Filament panel container (`Target class [filament] does not exist`).
 
-1. Only a real typed Confirmation-stage `confirmation_required` halt may be presented.
-2. Challenge presentation is server-authored `#[Locked]` state; browser arguments cannot choose another challenge.
-3. Approve calls only the locked challenge's `ConfirmationService::approveChallenge()` and never executes business code.
-4. Success/null UI notices are fixed and non-secret.
-5. Infrastructure approval failures are fixed, non-chained adapter errors; raw store/framework details do not reach Livewire.
-6. Host configuration must use the same authoritative confirmation service/store/configuration for stage and Filament approval; mismatches fail closed.
-7. Cancel clears only disposable UI state; it does not change core confirmation state.
-8. Explicit retry freshly resolves actor, tenant, record, selection, applied filters, input, binding, and surface before exact-scope receipt consumption.
-9. Wrong-scope attempts do not spend an otherwise-valid receipt; exact receipt is single-use.
-10. Confirmation adapter source contains no ActionBus/ActionCall/gateway/instance redispatch shortcut.
-11. Filament remains optional/dev-only and the base service provider stays Filament-free.
-12. No new proof-of-human, approver identity, delegation, or standalone approval audit semantics are claimed.
+The accepted fixture boundary executes the exact booted page method directly and independently verifies production Livewire binding generation for that same method.
 
-## Merge closure
+This avoids expanding T-505 into panel/bootstrap infrastructure. The trade-off is explicit: a render/lifecycle-specific bug that appears only in a fully configured Filament panel is not covered by this minimal reference fixture.
 
-T-504 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #8 merged by normal merge commit with an expected-head guard pinned to exact final feature head `121f5c52b043dccfb5f9f24403aef50799c10518`. The resulting merge commit is `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`, and post-merge main validation `34573128162` is 7/7 green. No further T-504 gate remains. `T-505 — Multi-tenant order operations demo` remains **NOT STARTED**.
+## Merge gate
+
+This request is for external code review only. T-505 is **not merged**. Merge should remain a separate explicit action after review findings, if any, are resolved and the exact final feature head is revalidated.
