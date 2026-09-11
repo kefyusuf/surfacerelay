@@ -49,6 +49,8 @@ final class FilamentOrderDemoLivewireBindingTest extends TestCase
     {
         parent::setUp();
 
+        $this->installAuditMigration();
+
         $this->app['db']->connection()->getSchemaBuilder()->create(
             'filament_order_demo_orders',
             static function (Blueprint $table): void {
@@ -153,6 +155,18 @@ final class FilamentOrderDemoLivewireBindingTest extends TestCase
         $this->app->instance(OrderDemoPageActions::class, $pageActions);
 
         return new FilamentOrderDemoLivewireRuntime($harness, $pageActions);
+    }
+
+    private function installAuditMigration(): void
+    {
+        $path = dirname(__DIR__, 2)
+            . '/database/migrations/0000_00_00_000001_create_surfacerelay_audit_events.php';
+        if (!is_file($path)) {
+            throw new \RuntimeException('T-404 audit migration is missing.');
+        }
+
+        $migration = require $path;
+        $migration->up();
     }
 
     private function registry(): InMemoryActionRegistry
