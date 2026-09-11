@@ -135,7 +135,8 @@ final class FilamentOrderDemoHarness
             'order-demo.refund-selected',
             static function (GenericUser $actor, array $orders, string $tenantId): bool {
                 if (
-                    ($actor->tenant_id ?? null) !== $tenantId
+                    $actor->getAuthIdentifier() === null
+                    || ($actor->tenant_id ?? null) !== $tenantId
                     || ($actor->can_refund ?? false) !== true
                     || $orders === []
                 ) {
