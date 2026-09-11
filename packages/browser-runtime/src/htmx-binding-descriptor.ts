@@ -88,6 +88,24 @@ function parsePath(value: unknown): string {
   return value;
 }
 
+function parseNameList(value: unknown, label: string): readonly string[] {
+  if (!Array.isArray(value)) {
+    throw descriptorError('input_mapping_invalid', `${label} must be an array.`);
+  }
+
+  const seen = new Set<string>();
+  const copy: string[] = [];
+  for (const entry of value) {
+    if (typeof entry !== 'string' || entry.length === 0 || seen.has(entry)) {
+      throw descriptorError('input_mapping_invalid', `${label} contains an invalid entry.`);
+    }
+    seen.add(entry);
+    copy.push(entry);
+  }
+
+  return Object.freeze(copy);
+}
+
 export function parseHtmxBindingTarget(binding: RuntimeBinding): HtmxBindingTarget {
   if (
     binding.driver !== 'htmx'
@@ -98,11 +116,24 @@ export function parseHtmxBindingTarget(binding: RuntimeBinding): HtmxBindingTarg
     throw descriptorError('runtime_binding_invalid', 'HTMX runtime binding is invalid.');
   }
 
-  return {
+  const inputNames = parseNameList(binding.target.inputNames, 'HTMX inputNames');
+  const requiredInputNames = parseNameList(
+    binding.target.requiredInputNames,
+    'HTMX requiredInputNames',
+  );
+  const allowed = new Set(inputNames);
+  if (requiredInputNames.some((name) => !allowed.has(name))) {
+    throw descriptorError(
+      'input_mapping_invalid',
+      'HTMX requiredInputNames must be a subset of inputNames.',
+    );
+  }
+
+  return Object.freeze({
     sourceId: parseSourceId(binding.target.sourceId),
     method: parseMethod(binding.target.method),
     path: parsePath(binding.target.path),
-    inputNames: binding.target.inputNames as readonly string[],
-    requiredInputNames: binding.target.requiredInputNames as readonly string[],
-  };
+    inputNames,
+    requiredInputNames,
+  });
 }
