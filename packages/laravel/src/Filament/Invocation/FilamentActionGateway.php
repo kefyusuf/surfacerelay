@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Filament\Invocation;
 
 use Filament\Resources\Pages\Page;
+use SurfaceRelay\Laravel\Filament\Confirmation\FilamentConfirmationBridge;
 use SurfaceRelay\Laravel\Filament\Context\FilamentContextExposure;
 use SurfaceRelay\Laravel\Filament\Context\FilamentCurrentSelectionResolver;
 use SurfaceRelay\Laravel\Filament\Context\FilamentInvocationContextFactory;
@@ -29,6 +30,7 @@ final readonly class FilamentActionGateway
         private ActionBus $bus,
         TrustedContextComposer $baseComposer,
         int $maxSelectionRecords = FilamentCurrentSelectionResolver::DEFAULT_MAX_SELECTION_RECORDS,
+        private ?FilamentConfirmationBridge $confirmationBridge = null,
     ) {
         $this->contextFactory = new FilamentInvocationContextFactory(
             $baseComposer,
@@ -62,7 +64,7 @@ final readonly class FilamentActionGateway
             contextExposure: $contextExposure,
         );
 
-        return $this->bus->dispatch(new ActionCall(
+        $outcome = $this->bus->dispatch(new ActionCall(
             actionId: $actionId,
             actionVersion: $actionVersion,
             input: $input,
@@ -70,5 +72,9 @@ final readonly class FilamentActionGateway
             bindingId: $bindingId,
             confirmationReceipt: $confirmationReceipt,
         ));
+
+        $this->confirmationBridge?->presentIfRequired($page, $outcome);
+
+        return $outcome;
     }
 }
