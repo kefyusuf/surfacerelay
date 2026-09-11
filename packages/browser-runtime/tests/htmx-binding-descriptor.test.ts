@@ -297,6 +297,18 @@ describe('createHtmxBindingTarget', () => {
     ['else', { type: 'object', additionalProperties: false, else: {} }],
     ['unevaluatedProperties', { type: 'object', additionalProperties: false, unevaluatedProperties: false }],
     ['dependentSchemas', { type: 'object', additionalProperties: false, dependentSchemas: {} }],
+    ['dependentRequired', {
+      type: 'object',
+      properties: { item: { type: 'string' }, note: { type: 'string' } },
+      additionalProperties: false,
+      dependentRequired: { item: ['note'] },
+    }],
+    ['dependencies', {
+      type: 'object',
+      properties: { item: { type: 'string' }, note: { type: 'string' } },
+      additionalProperties: false,
+      dependencies: { item: ['note'] },
+    }],
   ] as const)('rejects unsupported top-level input schema: %s', (_label, inputSchema) => {
     expectCode(
       () => createHtmxBindingTarget(definitionFromUnknown(inputSchema), options),
