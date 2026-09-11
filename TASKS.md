@@ -93,9 +93,32 @@ CodeRabbit findings were individually verified: the null-actor finding was repro
 
 **M5 is closed.**
 
-## M6 — HTMX Portability Proof — TODO
+## M6 — HTMX Portability Proof — IN PROGRESS
 
-- T-601 — Explicit HTMX binding descriptor — TODO / NOT STARTED.
+### T-601 — Explicit HTMX binding descriptor — IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED
+
+**Goal:** Define a pure driver-owned HTMX RuntimeBinding target descriptor for browser-runtime without adding DOM/HTMX execution, Laravel coupling, or frozen-contract changes.
+
+**Design boundaries:**
+
+- `driver=htmx`;
+- `lifecycle=page`;
+- target fields are exactly `sourceId`, `method`, `path`, `inputNames`, `requiredInputNames`;
+- `sourceId` identifies one exact rendered HTMX source instance and is not business/authorization identity;
+- method/path pin the existing human-facing HTMX request contract;
+- Action-input mapping is named and derived from the exact closed top-level ActionDefinition object schema;
+- unsupported/open-ended Action input schemas fail descriptor issuance;
+- descriptor carries no actor, tenant, record, selection, confirmation, idempotency, or authorization authority;
+- T-601 contains no DOM lookup, `htmx.ajax()`, network dispatch, cancellation, fixture app, or shared-conformance implementation;
+- no `packages/laravel/src/**` or `spec/0.1/**` change;
+- no HTMX dependency is added in T-601;
+- D-053 remains `PROPOSED` until executable descriptor tests pass;
+- D-020 remains `PROPOSED` until the wider HTMX portability proof reaches T-604.
+
+**Written design:** `docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md`
+
+**Current gate:** written design review. No implementation plan or code until the written spec is explicitly approved.
+
 - T-602 — HTMX browser driver — TODO.
 - T-603 — Non-Laravel HTMX fixture app — TODO.
 - T-604 — Shared conformance against Livewire + HTMX — TODO.
@@ -109,4 +132,4 @@ CodeRabbit findings were individually verified: the null-actor finding was repro
 
 ## Current boundary
 
-Do not start T-601 automatically. The next action is an explicit M6/T-601 scope/design gate when requested.
+T-601 design is approved in chat and written as a committed spec. Do not invoke implementation planning or write T-601 production/test code until the written spec has been reviewed and explicitly approved.
