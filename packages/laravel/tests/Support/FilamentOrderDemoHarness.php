@@ -8,6 +8,7 @@ use Illuminate\Auth\GenericUser;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Foundation\Application;
+use RuntimeException;
 use SurfaceRelay\Laravel\Audit\AuditEvent;
 use SurfaceRelay\Laravel\Audit\AuditEventFactory;
 use SurfaceRelay\Laravel\Audit\AuditEventStore;
@@ -37,6 +38,7 @@ use SurfaceRelay\Laravel\Idempotency\IdempotencyService;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyStage;
 use SurfaceRelay\Laravel\OutputPolicy\OutputPolicyStage;
 use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
+use SurfaceRelay\Laravel\Result\ConfirmationChallenge;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
 use SurfaceRelay\Laravel\Runtime\InvocationContext;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionBus;
@@ -154,7 +156,17 @@ final class FilamentOrderDemoHarness
         $this->confirmationService = new ConfirmationService(
             new FilamentConfirmationMemoryStore(),
             new FilamentConfirmationMutableClock(),
-            new FilamentConfirmationSequenceTokenGenerator([str_repeat('H', 43)]),
+            new FilamentConfirmationSequenceTokenGenerator([
+                str_repeat('H', 43),
+                str_repeat('I', 43),
+                str_repeat('J', 43),
+                str_repeat('K', 43),
+                str_repeat('L', 43),
+                str_repeat('M', 43),
+                str_repeat('N', 43),
+                str_repeat('O', 43),
+                str_repeat('P', 43),
+            ]),
         );
         $app->instance(ConfirmationService::class, $this->confirmationService);
 
@@ -212,6 +224,30 @@ final class FilamentOrderDemoHarness
     public function simulateUnscopedHostQuery(): void
     {
         $this->tenant->simulateUnscopedHostQuery();
+    }
+
+    public function switchTrustedTenant(string $tenantId): void
+    {
+        $actorId = (string) $this->actor->current()->getAuthIdentifier();
+
+        $this->tenant->set($tenantId);
+        $this->actor->set(new GenericUser([
+            'id' => $actorId,
+            'tenant_id' => $tenantId,
+            'can_hold' => true,
+            'can_refund' => true,
+        ]));
+    }
+
+    public function approve(ConfirmationChallenge $challenge): string
+    {
+        $receipt = $this->confirmationService->approveChallenge($challenge->challengeId);
+
+        if ($receipt === null) {
+            throw new RuntimeException('Order demo confirmation could not be approved.');
+        }
+
+        return $receipt;
     }
 
     /** @param array<string, mixed> $metadata */
