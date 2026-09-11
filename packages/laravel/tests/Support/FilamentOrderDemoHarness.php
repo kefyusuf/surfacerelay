@@ -9,9 +9,8 @@ use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Foundation\Application;
 use RuntimeException;
-use SurfaceRelay\Laravel\Audit\AuditEvent;
 use SurfaceRelay\Laravel\Audit\AuditEventFactory;
-use SurfaceRelay\Laravel\Audit\AuditEventStore;
+use SurfaceRelay\Laravel\Audit\DatabaseAuditEventStore;
 use SurfaceRelay\Laravel\Audit\StructuredActionPipelineAuditor;
 use SurfaceRelay\Laravel\Audit\SystemAuditClock;
 use SurfaceRelay\Laravel\Authorization\InMemoryActionAuthorizationRules;
@@ -70,7 +69,7 @@ final class FilamentOrderDemoHarness
 
     public readonly FilamentActionGateway $gateway;
 
-    public readonly FilamentOrderDemoAuditStore $auditStore;
+    private int $correlationSequence = 0;
 
     public function __construct(
         Application $app,
@@ -177,13 +176,12 @@ final class FilamentOrderDemoHarness
         );
 
         $this->executor = new OrderDemoExecutor();
-        $this->auditStore = new FilamentOrderDemoAuditStore();
 
         $bus = new ActionBus(
             registry: $registry,
             auditor: new StructuredActionPipelineAuditor(
                 new AuditEventFactory(new SystemAuditClock()),
-                $this->auditStore,
+                new DatabaseAuditEventStore($app['db']->connection()),
             ),
             handlers: [
                 new LaravelInputValidationStage(
@@ -262,7 +260,7 @@ final class FilamentOrderDemoHarness
             actionVersion: 1,
             input: ['reason' => $reason],
             surface: 'filament',
-            correlationId: 'order-demo-hold-' . $page->record->getKey(),
+            correlationId: $this->nextCorrelationId('hold'),
             bindingId: 'order-demo-hold-binding',
             metadata: $metadata,
         );
@@ -282,13 +280,20 @@ final class FilamentOrderDemoHarness
             actionVersion: 1,
             input: ['reason' => $reason],
             surface: 'filament',
-            correlationId: 'order-demo-refund-' . $idempotencyKey,
+            correlationId: $this->nextCorrelationId('refund'),
             bindingId: 'order-demo-refund-binding',
             confirmationReceipt: $confirmationReceipt,
             idempotencyKey: $idempotencyKey,
             metadata: $metadata,
             contextExposure: FilamentContextExposure::activeFilters(),
         );
+    }
+
+    private function nextCorrelationId(string $operation): string
+    {
+        $this->correlationSequence++;
+
+        return 'order-demo-' . $operation . '-' . $this->correlationSequence;
     }
 
     private function holdDefinition(): ActionDefinition
@@ -348,16 +353,5 @@ final class FilamentOrderDemoHarness
                 ContextRequirement::HumanConfirmation,
             ],
         );
-    }
-}
-
-final class FilamentOrderDemoAuditStore implements AuditEventStore
-{
-    /** @var list<AuditEvent> */
-    public array $events = [];
-
-    public function append(AuditEvent $event): void
-    {
-        $this->events[] = $event;
     }
 }
