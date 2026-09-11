@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  createHtmxBindingTarget,
   HtmxBindingDescriptorError,
   parseHtmxBindingTarget,
 } from '../src/htmx-binding-descriptor.js';
-import type { RuntimeBinding } from '../src/types.js';
+import type { ActionDefinition, RuntimeBinding } from '../src/types.js';
 
 function binding(overrides: Partial<RuntimeBinding> = {}): RuntimeBinding {
   return {
@@ -31,6 +32,23 @@ function withTarget(overrides: Record<string, unknown>): RuntimeBinding {
       ...base.target,
       ...overrides,
     },
+  };
+}
+
+function definition(inputSchema: Record<string, unknown>): ActionDefinition {
+  return {
+    id: 'prep_list.add_item',
+    version: 1,
+    title: 'Add item',
+    description: 'Add an item',
+    inputSchema,
+    scope: 'page_scoped',
+    effect: 'reversible_write',
+    risk: 'moderate',
+    idempotency: 'none',
+    outputSensitivity: 'normal',
+    outputContentTrust: 'trusted_application_data',
+    contextRequirements: [],
   };
 }
 
@@ -151,5 +169,35 @@ describe('parseHtmxBindingTarget', () => {
 
     expect(parsed.inputNames).toEqual(['item', 'note']);
     expect(parsed.requiredInputNames).toEqual(['item']);
+  });
+});
+
+describe('createHtmxBindingTarget', () => {
+  it('derives deterministic named input mapping from a closed object schema', () => {
+    const target = createHtmxBindingTarget(
+      definition({
+        type: 'object',
+        properties: {
+          note: { type: 'string' },
+          item: { type: 'string' },
+        },
+        required: ['item'],
+        additionalProperties: false,
+      }),
+      { sourceId: 'htmx-src-1', method: 'POST', path: '/prep-list/items' },
+    );
+
+    expect(target.inputNames).toEqual(['item', 'note']);
+    expect(target.requiredInputNames).toEqual(['item']);
+  });
+
+  it('supports a closed zero-input object schema', () => {
+    const target = createHtmxBindingTarget(
+      definition({ type: 'object', additionalProperties: false }),
+      { sourceId: 'htmx-src-1', method: 'POST', path: '/prep-list/items' },
+    );
+
+    expect(target.inputNames).toEqual([]);
+    expect(target.requiredInputNames).toEqual([]);
   });
 });
