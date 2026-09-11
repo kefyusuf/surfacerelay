@@ -1,174 +1,116 @@
-# External Review / Merge Record — T-505 Multi-Tenant Order Operations Demo
+# External Review Result / Merge Handoff — T-601 HTMX Binding Descriptor
 
-## Final status
+## Review state
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Scope:** `T-505 — Multi-tenant order operations demo`
-- **Feature branch:** `feat/filament-order-operations-demo`
-- **Pull request:** `#9` — **MERGED**
-- **Original base / merge-base:** `main@b5da05b4a975ff8b2779960ea94e0c786a9c01db`
-- **Final feature head:** `85570928b5e20277d94d2a95ec30028779966112`
-- **Merge commit:** `7b95a82423012bf2824e55ba052ce78106f52e9a`
-- **Post-merge main validation:** `34620944364` — **7/7 green**
-- **Decision:** `D-052` — **ACCEPTED**
-- **PHP:** **595 tests / 3164 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4
-- **Browser:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract / lint / Composer:** green
-- **CodeRabbit review:** `96cfc4ce-fc5c-47a7-a0e7-b0cf9c2c87d6`
-- **Review result:** **PASSED after TDD-first hardening and evidence-based finding triage**
-- **Actionable review threads:** **5 total / 0 unresolved**
-- **Merge state:** **MERGED / MAIN REVALIDATED**
-- **Next boundary:** `M6 / T-601` — **NOT STARTED**
+- **Scope:** `T-601 — Explicit HTMX binding descriptor`
+- **Feature branch:** `feat/htmx-binding-descriptor`
+- **Pull request:** `#10` — **OPEN / REVIEW COMPLETE**
+- **Base / merge-base:** `main@5b22eef928d2fb1f8fac8ab13507e2f22661d3df`
+- **Pre-review head:** `c4e9b841d98464cc2fdb0b3fb259e9cebba08c76`
+- **Review-hardening code head:** `0fd29621c1ae3084649095f8a8595e741c504e50`
+- **Final reviewed branch head before closure tracking:** `9939715e3357e3f63d52ab26f9de549e3738bd09`
+- **CodeRabbit run:** `77dbb63c-4223-4177-a56a-8cad74daddb8`
+- **Initial findings:** **1 Major + 3 Minor**
+- **Resolved threads:** **4 / 4**
+- **Unresolved threads:** **0**
+- **Decision:** `D-053` — **ACCEPTED for descriptor semantics only**
+- **Portability decision:** `D-020` — **PROPOSED; gated on T-604**
+- **T-602:** **NOT STARTED**
+- **Merge:** **NOT MERGED**
 
-## Final reviewed behavior
+## Reviewed behavior
 
-T-505 demonstrates a multi-tenant Filament order vertical without adding a Filament-specific execution path.
-
-```text
-exact Filament Page
-      │
-      ├── trusted current_record
-      ├── trusted current_selection
-      └── trusted filament/active_filters
-      │
-      ▼
-FilamentActionGateway
-      │
-      ▼
-existing ActionBus
-      │
-      ├── validation
-      ├── authorization
-      ├── idempotency
-      ├── confirmation
-      ├── execution
-      ├── output policy
-      └── structured audit
-```
-
-The central trust claim is that UI query scoping and caller-supplied IDs are never mutation authority. Exact trusted targets are separately authorized against trusted tenant state before execution.
-
-## Review findings and closure
-
-### Major — null authentication identifier could reach refund confirmation — FIXED / CONFIRMED
-
-The original fixture actor resolver wrapped a `GenericUser` with a null authentication identifier as trusted `authenticated_actor`. A RED regression reproduced the problem: the refund reached `confirmation_required`.
-
-The fix aligns the fixture with the production `AuthenticatedActorResolver` contract:
-
-- null auth identifier resolves to `null`;
-- required `authenticated_actor` context is therefore absent;
-- invocation halts as `required_context_missing` before confirmation;
-- refund Gate independently rejects a null identifier as defense-in-depth.
-
-CodeRabbit confirmed the fix and the thread is resolved.
-
-### Major — fixed convenience idempotency key allegedly conflicts across initial intents — NOT REPRODUCED / WITHDRAWN
-
-The concern was tested before changing the adapter. A dedicated hardening test invoked two independent selections/reasons through the exposed page adapter using the same convenience key. Both reached `confirmation_required` successfully on the original implementation.
-
-This matches the runtime ordering: `IdempotencyStage` preflights the key, but `ActionExecutionStage` creates a fresh claim only after confirmation immediately before execution. The exposed page adapter is intentionally initial-invocation-only and therefore does not claim the key.
-
-Exact claimed/completed-key conflict and replay behavior remains covered through the normal gateway envelope tests. CodeRabbit verified this reasoning, withdrew the finding, and resolved the thread.
-
-### Major — add confirmation receipt to exposed refund method — CONTRACTUALLY INCORRECT / WITHDRAWN
-
-The written T-505 plan explicitly requires:
+T-601 adds a pure browser-runtime descriptor for `RuntimeBinding(driver=htmx, lifecycle=page)` with exact driver-owned target keys:
 
 ```text
-ListOrders::refundSelected(string $reason)
+sourceId
+method
+path
+inputNames
+requiredInputNames
 ```
 
-with `reason` as the only business input. `confirmationReceipt` and `idempotencyKey` are invocation-envelope candidates owned by `FilamentActionGateway`, not Action input or Livewire call-plan authority.
+The producer derives named caller-input mapping only from a finite closed top-level `ActionDefinition.inputSchema`. Arbitrary RuntimeBinding JSON is independently fail-closed parsed. Targets and mapping lists are immutable defensive snapshots.
 
-Adding a bearer receipt to the exposed method would violate the D-040/D-051 separation. Exact challenge → approval → explicit retry → one execution → completed replay is already proven through `FilamentActionGateway`, including selection/tenant/filter drift and non-spending mismatch behavior.
+There is no DOM lookup, live HTMX attribute resolution, `htmx.ajax()`, network dispatch, response/swap handling, cancellation behavior, fixture application, Laravel production coupling, HTMX dependency, or `spec/0.1/**` change in T-601.
 
-CodeRabbit rechecked the written plan and tests, withdrew the finding, and resolved the thread.
+## Review findings and rulings
 
-### Minor — stale PR metadata — FIXED / CONFIRMED
+### Major — conditional required-key schemas — FIXED / CONFIRMED
 
-`REVIEW_REQUEST.md` was updated to identify PR #9 and its live review status before merge. CodeRabbit confirmed and resolved the thread.
+CodeRabbit identified that JSON Schema `dependentRequired` and legacy `dependencies` can impose conditional required keys that are not represented by the unconditional `required` list.
 
-### Minor — incomplete changed-file inventory — FIXED / CONFIRMED
-
-`STATUS.md` was updated to include the complete implementation/tracking surface, including `docs/DECISION-REGISTER.md`, `TASKS.md`, `STATUS.md`, and `REVIEW_REQUEST.md`. CodeRabbit confirmed and resolved the thread.
-
-## Verified trust boundary
-
-1. `orders.hold_current` is targeted by trusted `current_record`, never caller order ID.
-2. `orders.refund_selected` is targeted by trusted `current_selection`; applied filters are independent `filament/active_filters` authority.
-3. Caller metadata cannot replace tenant, record, selection, filters, confirmation, binding, or target authority.
-4. Tenant-scoped Filament resource queries are defense-in-depth; independent Laravel Gate authorization protects the mutation boundary even under a deliberately unscoped fixture query.
-5. Mixed-tenant selections are denied atomically before confirmation/execution.
-6. Anonymous/null-ID actor state cannot manufacture `authenticated_actor` authority.
-7. Confirmation approval performs no refund; the requesting caller must retry through the normal gateway with freshly resolved trusted state.
-8. Wrong-scope selection/tenant/filter attempts do not spend an otherwise valid receipt.
-9. Required-key idempotency prevents duplicate confirmed refund execution and rejects changed intent on completed-key reuse.
-10. Exposed Livewire methods contain business inputs only; envelope capabilities are not promoted into the call plan.
-11. Human and agent paths converge on the same page methods, gateway, ActionBus, and executor.
-12. Structured audit persists allowlisted provenance/action/outcome facts without raw trusted/business/capability marker values.
-13. No production Laravel source, browser-runtime production source, or frozen wire spec was changed.
-
-## Final change surface
+The issue was reproduced before changing production code:
 
 ```text
-packages/laravel/tests/Fixtures/Filament/OrderDemo/**
-packages/laravel/tests/Fixtures/views/filament-order-demo-page.blade.php
-packages/laravel/tests/Support/FilamentOrderDemoHarness.php
-packages/laravel/tests/Integration/FilamentMultiTenantOrderOperationsDemoTest.php
-packages/laravel/tests/Integration/FilamentOrderDemoLivewireBindingTest.php
-packages/laravel/tests/Integration/FilamentOrderDemoReviewHardeningTest.php
-examples/filament-orders/README.md
-docs/superpowers/specs/2026-09-11-filament-multitenant-order-operations-demo-design.md
-docs/superpowers/plans/2026-09-11-filament-multitenant-order-operations-demo.md
-docs/DECISION-REGISTER.md
-TASKS.md
-STATUS.md
-REVIEW_REQUEST.md
+RED:    9b241e4ef58740e512d57fde16efd1caaf8db5bd
+CI:     34656195469
+Result: 174 total — 172 passed / exactly 2 failed
+Cases:  dependentRequired, dependencies
 ```
 
-No T-505 implementation change occurred under:
+The builder now rejects both keywords fail-closed alongside the existing reference/composition/conditional top-level schema forms.
 
 ```text
-packages/laravel/src/**
-packages/browser-runtime/src/**
-spec/0.1/**
+GREEN:   0fd29621c1ae3084649095f8a8595e741c504e50
+CI:      34656249493 — 7/7 green
+Browser: TypeScript typecheck + 174/174 Vitest
+Focused: 71/71 HTMX descriptor tests
 ```
 
-## Verification evidence
+CodeRabbit explicitly confirmed the fix and resolved the thread.
+
+### Minor — design snapshot/current-state mismatch — VERIFIED / WITHDRAWN
+
+The design file is intentionally retained as the committed pre-implementation design snapshot. Current delivery state is authoritative in `STATUS.md`, `TASKS.md`, `REVIEW_REQUEST.md`, and `docs/DECISION-REGISTER.md`; the implementation plan records the later repository-specific refinement that avoids creating a new `src/index.ts` barrel solely for T-601.
+
+CodeRabbit verified this distinction, withdrew the finding, and resolved the thread.
+
+### Minor — review handoff too long — FIXED / CONFIRMED
+
+This file was reduced to the external-review/merge essentials. Detailed checkpoint history remains in `STATUS.md`, `TASKS.md`, Git history, and the design/plan documents. CodeRabbit confirmed and resolved the thread.
+
+### Minor — milestone status token — FIXED / CONFIRMED
+
+The M6 task-board heading now uses the declared `IN_PROGRESS` status token. CodeRabbit confirmed and resolved the thread.
+
+## Final verification
 
 ```text
-Design spec checkpoint:         502b3916c124086089f2eb560a49f064cb00c65f
-Implementation plan:            1f3444e8560fc20eb04797a6762a3c8cad663f4f
-Task 1 GREEN:                   43f4db10ce5e559be6b6e6e3b4fe8dc52763a13c / 34611831744 — 7/7 green
-Task 2 authority hardening:     cf82140cd17c17e942bd5477e7380c2c7979b71a / 34612972729 — 7/7 green
-Task 3 final GREEN:             31e88742d3db568df90e56b1487710bfca4485d6 / 34613849084 — 7/7 green
-Task 4 final GREEN:             3ded2dd0d0575e39d84ead814a93a7ca635b75a8 / 34614610479 — 7/7 green
-Task 5 RED:                     f385159dd9cb27c7e6f26a3936e9b2a3b51726b2 / 34615660318
-Initial verified implementation:08126177cd223c3beadd2150ffeb0bbb431d4c4d / 34615887644 — 7/7 green
-Initial review-prep head:       0a74a07266dca54a87b975ac9771746fc2946aab / 34616818751 — 7/7 green
-Initial PR #9 CI:               34618387763 — 7/7 green
-CodeRabbit review:              96cfc4ce-fc5c-47a7-a0e7-b0cf9c2c87d6 — 3 Major + 2 Minor
-Review-hardening RED:           081b43627552bbcb1470f88a980e3d7b34bdaa86 / 34619817207 — null actor reproduced; fixed-key conflict did not reproduce
-Review-hardening GREEN:         991a108c6f1226860f671029c509b4c9edb09a97 / 34620155445 — 7/7 green
-Review-hardening PR CI:         34620158752 — 7/7 green
-Final feature head:             85570928b5e20277d94d2a95ec30028779966112
-Final feature push CI:          34620681591 — 7/7 green
-Final PR CI:                    34620685078 — 7/7 green
-Merge commit:                   7b95a82423012bf2824e55ba052ce78106f52e9a
-Post-merge main CI:             34620944364 — 7/7 green
-PHP:                            595 tests / 3164 assertions
-Browser:                        TypeScript typecheck + 103/103 Vitest
-Contract / lint / Composer:     green
-Unresolved review threads:      0
+Final reviewed branch head:  9939715e3357e3f63d52ab26f9de549e3738bd09
+Final push CI:               34656613121 — 7/7 green
+Final PR CI:                 34656616252 — 7/7 green
+Browser:                     TypeScript typecheck + 174/174 Vitest
+Focused HTMX descriptor:    71/71
+PHP baseline:                595 tests / 3164 assertions
+Contract / PHP lint:         green
+Unresolved review threads:   0
 ```
 
-## Deliberate limitation
+A second complete CodeRabbit sweep after the hardening commits was rate-limited by the service and is **not** counted as a second full review pass. The four findings from the completed review were individually rechecked in their threads; CodeRabbit explicitly confirmed or withdrew each one and all four threads are resolved.
 
-The minimal Testbench fixture does not configure a full Filament panel container. The shared execution seam is proven by directly booting the exact Filament page method while production Livewire binding generation for that same method is tested independently. This avoids turning T-505 into panel/bootstrap infrastructure work.
+## Merge focus
 
-## Merge closure
+Before merging, verify only these final conditions:
 
-T-505 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #9 merged using a normal merge commit with expected-head protection pinned to exact final feature head `85570928b5e20277d94d2a95ec30028779966112`. The resulting merge commit is `7b95a82423012bf2824e55ba052ce78106f52e9a`; post-merge main validation `34620944364` passed all seven jobs.
+1. PR #10 still points to the expected final feature head.
+2. PR remains mergeable against `main`.
+3. Exact final head CI is 7/7 green.
+4. Review threads remain 0 unresolved.
+5. Merge uses expected-head protection so a moved branch cannot be merged accidentally.
+6. After merge, `main` is revalidated before T-601/M6 tracking is closed.
 
-**M5 is complete. T-601 has not started.**
+## Deliberate limitations
+
+T-601 does **not** resolve a source element in the DOM, revalidate live `hx-*` request state, execute HTMX, define response/swap semantics, define cancellation guarantees, or prove the second server fixture/shared Livewire-HTMX conformance path. Those remain T-602–T-604 responsibilities.
+
+## Reference material
+
+- Current delivery/review state: `STATUS.md`
+- Task evidence board: `TASKS.md`
+- Original pre-implementation design snapshot: `docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md`
+- Implementation-plan refinement: `docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md`
+- Accepted descriptor decision: `docs/DECISION-REGISTER.md` (`D-053`)
+
+**External review is complete. PR #10 is ready for the merge gate. Do not begin T-602 until merge closure and main revalidation are complete.**

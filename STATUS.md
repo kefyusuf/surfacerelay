@@ -1,140 +1,172 @@
 # Project Status
 
-> Current repository state after T-505 integration.
-
 ## Snapshot
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Last completed task:** `T-505 — Multi-tenant order operations demo`
-- **T-505 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Pull request:** `#9` — **MERGED**
-- **Original base / merge-base:** `main@b5da05b4a975ff8b2779960ea94e0c786a9c01db`
-- **Final feature head:** `85570928b5e20277d94d2a95ec30028779966112`
-- **Merge commit:** `7b95a82423012bf2824e55ba052ce78106f52e9a`
-- **Post-merge main CI:** `34620944364` — **7/7 green**
-- **Decision:** `D-052` — **ACCEPTED**
-- **PHP:** **595 tests / 3164 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4
-- **Browser:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract / lint / Composer:** green
-- **Open review threads:** **0**
-- **Production runtime changes:** **NONE**
-- **Next boundary:** `M6 / T-601` — **NOT STARTED**
+- **Branch:** `feat/htmx-binding-descriptor`
+- **Base:** `main@5b22eef928d2fb1f8fac8ab13507e2f22661d3df`
+- **Milestone:** `M6 — HTMX Portability Proof` — **IN_PROGRESS**
+- **Current task:** `T-601 — Explicit HTMX binding descriptor`
+- **T-601 state:** **DONE / EXTERNALLY REVIEWED / READY FOR MERGE**
+- **Pull request:** `#10` — **OPEN / REVIEW COMPLETE**
+- **Pre-review head:** `c4e9b841d98464cc2fdb0b3fb259e9cebba08c76`
+- **Review-hardening code head:** `0fd29621c1ae3084649095f8a8595e741c504e50`
+- **Final reviewed branch head before closure tracking:** `9939715e3357e3f63d52ab26f9de549e3738bd09`
+- **Decision:** `D-053` — **ACCEPTED for descriptor semantics only**
+- **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
+- **Next task:** `T-602 — HTMX browser driver` — **NOT STARTED**
+- **Merge state:** **NOT MERGED**
 
-## T-505 final outcome
+## Delivered T-601 behavior
 
-T-505 proves an executable Filament multi-tenant order vertical using the existing SurfaceRelay runtime only.
+Browser-runtime now has a pure HTMX RuntimeBinding descriptor with two public seams:
 
 ```text
-trusted actor + trusted tenant
-        │
-        ▼
-exact active Filament Page
-        │
-        ├── current_record
-        ├── current_selection
-        └── filament/active_filters
-        │
-        ▼
-FilamentActionGateway
-        │
-        ▼
-existing ActionBus
-        │
-        ├── validation
-        ├── authorization
-        ├── idempotency
-        ├── confirmation
-        ├── execution
-        ├── output policy
-        └── structured audit
-        │
-        ▼
-order operation
+createHtmxBindingTarget(ActionDefinition, { sourceId, method, path })
+parseHtmxBindingTarget(RuntimeBinding)
 ```
 
-### Final trust boundary
+The exact driver-owned target contains only:
 
-1. `orders.hold_current` derives its authoritative target only from trusted `current_record`.
-2. `orders.refund_selected` derives authoritative targets only from trusted `current_selection`; applied filters remain independent `filament/active_filters` authority.
-3. Caller input/metadata cannot manufacture tenant, record, selection, applied filters, confirmation, binding, or target authority.
-4. Filament resource query scoping is defense-in-depth; mutation authorization separately checks exact trusted target membership against trusted tenant authority.
-5. Mixed-tenant selection fails atomically before confirmation/execution.
-6. A null authentication identifier resolves to absent trusted actor context and fails with `required_context_missing`; the refund Gate also rejects null IDs as defense-in-depth.
-7. Consequential refund confirmation remains approval-only; approval alone produces zero business side effects.
-8. Selection, tenant, and filter drift cannot use or spend an exact-scope approved receipt.
-9. Required-key idempotency executes a confirmed refund once and replays exact completed retries without a second executor call.
-10. The exposed `ListOrders::refundSelected(reason)` method is deliberately initial-invocation-only and exposes business input only. `confirmationReceipt` and `idempotencyKey` remain invocation-envelope candidates handled through the normal gateway retry path.
-11. Human and agent invocation converge on the same exposed page methods and existing `driver=livewire` binding; no Filament RuntimeBinding driver exists.
-12. Structured audit uses the existing D-047 schema/store and excludes raw trusted/business/capability marker material.
-13. `packages/laravel/src/**`, `packages/browser-runtime/src/**`, and `spec/0.1/**` remained unchanged.
+```text
+sourceId
+method
+path
+inputNames
+requiredInputNames
+```
+
+Enforced boundaries:
+
+- exact `driver=htmx` and `lifecycle=page` at the consumer boundary;
+- opaque bounded `sourceId` grammar;
+- methods limited to exact uppercase `GET|POST|PUT|PATCH|DELETE`;
+- bounded same-origin absolute-path-reference grammar;
+- exact target-key set; unknown keys fail closed;
+- producer mapping derived only from an exact finite closed top-level ActionDefinition object schema;
+- `additionalProperties:false` required;
+- reference/composition/open/conditional top-level mapping forms fail closed;
+- `dependentRequired` and legacy `dependencies` are explicitly rejected after external-review hardening;
+- nested values remain under one top-level Action input name;
+- consumer mapping lists are unique, non-empty string lists with required-subset enforcement;
+- produced and parsed descriptors are frozen defensive snapshots;
+- descriptor carries no trusted actor/tenant/record/selection/confirmation/idempotency/browser-session/authorization authority;
+- T-601 contains no DOM lookup, HTMX execution, network dispatch, cancellation behavior, fixture app, Laravel production coupling, HTMX dependency, or `spec/0.1/**` change.
 
 ## External review result
 
-CodeRabbit review `96cfc4ce-fc5c-47a7-a0e7-b0cf9c2c87d6` raised **3 Major + 2 Minor** findings. Each was verified rather than blindly applied:
+PR #10 was reviewed by CodeRabbit run `77dbb63c-4223-4177-a56a-8cad74daddb8`.
 
-- **Major — null-ID actor:** valid; reproduced RED and fixed at the resolver boundary plus Gate defense-in-depth.
-- **Major — fixed convenience idempotency key:** not reproduced; executable hardening proved independent unconfirmed intents both reach `confirmation_required`, matching the core claim-after-confirmation ordering. CodeRabbit withdrew the finding.
-- **Major — add receipt to exposed page method:** rejected as contrary to the locked D-040/D-051 boundary; CodeRabbit verified the plan and withdrew the finding.
-- **Minor — stale PR metadata:** fixed.
-- **Minor — incomplete changed-file inventory:** fixed.
-
-All five review threads are resolved/confirmed.
-
-## Final verification evidence
+Initial result:
 
 ```text
-Design spec checkpoint:         502b3916c124086089f2eb560a49f064cb00c65f
-Implementation plan:            1f3444e8560fc20eb04797a6762a3c8cad663f4f
-Task 1 GREEN:                   43f4db10ce5e559be6b6e6e3b4fe8dc52763a13c / 34611831744 — 7/7 green
-Task 2 authority hardening:     cf82140cd17c17e942bd5477e7380c2c7979b71a / 34612972729 — 7/7 green
-Task 3 final GREEN:             31e88742d3db568df90e56b1487710bfca4485d6 / 34613849084 — 7/7 green
-Task 4 final GREEN:             3ded2dd0d0575e39d84ead814a93a7ca635b75a8 / 34614610479 — 7/7 green
-Task 5 RED:                     f385159dd9cb27c7e6f26a3936e9b2a3b51726b2 / 34615660318
-Initial verified implementation:08126177cd223c3beadd2150ffeb0bbb431d4c4d / 34615887644 — 7/7 green
-Initial review-prep head:       0a74a07266dca54a87b975ac9771746fc2946aab / 34616818751 — 7/7 green
-Initial PR #9 CI:               34618387763 — 7/7 green
-CodeRabbit review:              96cfc4ce-fc5c-47a7-a0e7-b0cf9c2c87d6 — 3 Major + 2 Minor
-Review-hardening RED:           081b43627552bbcb1470f88a980e3d7b34bdaa86 / 34619817207 — null actor reproduced; fixed-key conflict did not reproduce
-Review-hardening GREEN:         991a108c6f1226860f671029c509b4c9edb09a97 / 34620155445 — 7/7 green
-Review-hardening PR CI:         34620158752 — 7/7 green
-Final feature head:             85570928b5e20277d94d2a95ec30028779966112
-Final feature push CI:          34620681591 — 7/7 green
-Final PR CI:                    34620685078 — 7/7 green
-Merge commit:                   7b95a82423012bf2824e55ba052ce78106f52e9a
-Post-merge main CI:             34620944364 — 7/7 green
-PHP:                            595 tests / 3164 assertions
-Browser:                        TypeScript typecheck + 103/103 Vitest
-Contract / lint / Composer:     green
-Open review threads:            0
+1 Major + 3 Minor
 ```
 
-## Final change surface
+### Major — conditional required-key schemas — FIXED / CONFIRMED
+
+The review identified that JSON Schema `dependentRequired` and legacy `dependencies` can impose conditional required keys while the descriptor derives `requiredInputNames` from the unconditional `required` array only.
+
+RED evidence:
 
 ```text
-packages/laravel/tests/Fixtures/Filament/OrderDemo/**
-packages/laravel/tests/Fixtures/views/filament-order-demo-page.blade.php
-packages/laravel/tests/Support/FilamentOrderDemoHarness.php
-packages/laravel/tests/Integration/FilamentMultiTenantOrderOperationsDemoTest.php
-packages/laravel/tests/Integration/FilamentOrderDemoLivewireBindingTest.php
-packages/laravel/tests/Integration/FilamentOrderDemoReviewHardeningTest.php
-examples/filament-orders/README.md
-docs/superpowers/specs/2026-09-11-filament-multitenant-order-operations-demo-design.md
-docs/superpowers/plans/2026-09-11-filament-multitenant-order-operations-demo.md
+commit: 9b241e4ef58740e512d57fde16efd1caaf8db5bd
+CI:     34656195469
+result: browser 174 total — 172 passed / exactly 2 failed
+cases:  dependentRequired, dependencies
+```
+
+GREEN evidence:
+
+```text
+commit: 0fd29621c1ae3084649095f8a8595e741c504e50
+CI:     34656249493 — 7/7 green
+browser: TypeScript typecheck + 174/174 Vitest
+focused HTMX descriptor: 71/71
+contract / lint / PHP matrix: green
+```
+
+CodeRabbit explicitly confirmed the fix and resolved the thread.
+
+### Minor — design snapshot/current-state mismatch — VERIFIED / WITHDRAWN
+
+The original design file is intentionally retained as the committed pre-implementation design snapshot. Current state is authoritative in `STATUS.md`, `REVIEW_REQUEST.md`, `TASKS.md`, and `docs/DECISION-REGISTER.md`; the implementation plan records the later repository-specific refinement that avoids introducing a new `src/index.ts` barrel solely for T-601. CodeRabbit verified that distinction, withdrew the finding, and resolved the thread.
+
+### Minor — review handoff too long — FIXED / CONFIRMED
+
+`REVIEW_REQUEST.md` was reduced to a concise external-review/merge handoff. CodeRabbit confirmed and resolved the thread.
+
+### Minor — milestone status token — FIXED / CONFIRMED
+
+The M6 heading now uses the declared `IN_PROGRESS` token. CodeRabbit confirmed and resolved the thread.
+
+### Review completion evidence
+
+```text
+Initial review findings:       1 Major + 3 Minor
+Resolved review threads:       4 / 4
+Unresolved review threads:     0
+Final reviewed branch head:    9939715e3357e3f63d52ab26f9de549e3738bd09
+Final push CI:                 34656613121 — 7/7 green
+Final PR CI:                   34656616252 — 7/7 green
+Browser:                       TypeScript typecheck + 174/174 Vitest
+Focused HTMX descriptor:      71/71
+PHP baseline:                  595 tests / 3164 assertions
+Contract / PHP lint:           green
+```
+
+A second full CodeRabbit sweep after the hardening changes was rate-limited by the service. This does not count as a second complete review pass. The four original findings were nevertheless rechecked individually in their review threads; CodeRabbit explicitly confirmed/withdrew each and all four threads are resolved.
+
+## Change surface
+
+Implementation/test files:
+
+```text
+packages/browser-runtime/src/htmx-binding-descriptor.ts
+packages/browser-runtime/tests/htmx-binding-descriptor.test.ts
+packages/browser-runtime/tests/htmx-binding-descriptor.typecheck.ts
+```
+
+Design/tracking files:
+
+```text
+docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md
+docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md
 docs/DECISION-REGISTER.md
 TASKS.md
 STATUS.md
 REVIEW_REQUEST.md
 ```
 
-No implementation change was made under production Laravel source, browser-runtime source, or frozen `spec/0.1/**`.
+Explicitly unchanged/out of scope:
 
-## Known limitation
+```text
+packages/laravel/src/**
+spec/0.1/**
+packages/browser-runtime/src/htmx-browser-driver.ts
+examples/htmx/**
+packages/browser-runtime/package.json
+packages/browser-runtime/package-lock.json
+```
 
-The minimal Testbench fixture does not configure a full Filament panel container. The convergence proof directly boots the exact Filament page method and separately verifies production Livewire binding generation for that method. A real host may add panel-level browser/render coverage without changing the authority contract.
+## Verification history
 
-## Current boundary
+```text
+Base closure:                    5b22eef928d2fb1f8fac8ab13507e2f22661d3df / 34621807162 — 7/7 green
+Design checkpoint:               cca98af90323819789a56d28a2174b9b7ea25059 / 34625130732 — 7/7 green
+Implementation plan:             1e47c6bb4121bcc1fc43e69c73c213d17092b5c1 / 34629136719 — 7/7 green
+Initial implementation/scope:    b06204e2c7acf6be01df3fec5085e55ddd650329 / 34654979136 — 7/7 green
+Review-prep head:                c4e9b841d98464cc2fdb0b3fb259e9cebba08c76 / 34655391095 — 7/7 green
+Initial PR #10 CI:               34655515805 — 7/7 green
+Review-hardening RED:            9b241e4ef58740e512d57fde16efd1caaf8db5bd / 34656195469 — exactly 2 expected browser failures
+Review-hardening GREEN:          0fd29621c1ae3084649095f8a8595e741c504e50 / 34656249493 — 7/7 green
+Final reviewed push CI:          34656613121 — 7/7 green
+Final reviewed PR CI:            34656616252 — 7/7 green
+```
 
-**M5 is closed.** Do not begin `T-601` automatically. The next explicit gate is M6 design/scope work only when requested.
+## Deliberate limitation / next boundary
+
+T-601 remains descriptor-only. It does not resolve DOM sources, verify live HTMX attributes, execute `htmx.ajax()`, define response/swap or cancellation semantics, or prove a second server fixture/shared-conformance implementation.
+
+**Current gate:** PR #10 is externally reviewed and ready for the merge gate. Do not start T-602 before merge closure and explicit advancement of that next task.
