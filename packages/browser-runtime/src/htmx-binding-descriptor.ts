@@ -1,4 +1,4 @@
-import type { RuntimeBinding } from './types.js';
+import type { ActionDefinition, RuntimeBinding } from './types.js';
 
 const HTMX_TARGET_KEYS = [
   'inputNames',
@@ -21,6 +21,12 @@ export interface HtmxBindingTarget {
   readonly path: string;
   readonly inputNames: readonly string[];
   readonly requiredInputNames: readonly string[];
+}
+
+export interface CreateHtmxBindingTargetOptions {
+  readonly sourceId: string;
+  readonly method: HtmxRequestMethod;
+  readonly path: string;
 }
 
 export type HtmxBindingDescriptorErrorCode =
@@ -135,5 +141,29 @@ export function parseHtmxBindingTarget(binding: RuntimeBinding): HtmxBindingTarg
     path: parsePath(binding.target.path),
     inputNames,
     requiredInputNames,
+  });
+}
+
+export function createHtmxBindingTarget(
+  definition: ActionDefinition,
+  options: CreateHtmxBindingTargetOptions,
+): HtmxBindingTarget {
+  const schema = definition.inputSchema;
+  const properties = isRecord(schema.properties) ? schema.properties : {};
+  const required = Array.isArray(schema.required) ? schema.required : [];
+
+  return parseHtmxBindingTarget({
+    bindingId: 'htmx-producer',
+    action: { id: definition.id, version: definition.version },
+    driver: 'htmx',
+    lifecycle: 'page',
+    target: {
+      sourceId: options.sourceId,
+      method: options.method,
+      path: options.path,
+      inputNames: Object.keys(properties).sort(),
+      requiredInputNames: [...required].sort(),
+    },
+    expiresAt: null,
   });
 }
