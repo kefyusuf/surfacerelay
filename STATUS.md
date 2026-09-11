@@ -6,27 +6,90 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/filament-order-operations-demo`
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
 - **Last merged/revalidated task:** `T-504 — Confirmation bridge`
-- **Current completed task:** `T-504 — Confirmation bridge`
-- **T-504 status:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Original base / merge-base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
-- **Reviewed code head:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
-- **Final feature head:** `121f5c52b043dccfb5f9f24403aef50799c10518`
-- **Merge commit:** `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`
-- **Pull request:** `#8` — **CLOSED / MERGED**
-- **Design spec:** `docs/superpowers/specs/2026-09-10-filament-confirmation-bridge-design.md`
-- **Implementation plan:** `docs/superpowers/plans/2026-09-11-filament-confirmation-bridge.md`
-- **Decision:** `D-051` — **ACCEPTED**
-- **PHP verified:** **578 tests / 3029 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
-- **Browser isolation verified:** TypeScript typecheck + **103/103 Vitest tests**
-- **Contract verified:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
+- **Current task:** `T-505 — Multi-tenant order operations demo`
+- **T-505 status:** **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **Base:** `main@b5da05b4a975ff8b2779960ea94e0c786a9c01db`
+- **Design spec:** `docs/superpowers/specs/2026-09-11-filament-multitenant-order-operations-demo-design.md`
+- **Decision:** `D-052` — **PROPOSED pending executable verification**
+- **Design spec commit:** `502b3916c124086089f2eb560a49f064cb00c65f`
+- **Decision-register commit:** `3e978003e36a1bf1b2723fc80df9144f89e6ed31`
+- **Implementation plan:** **NOT STARTED; requires post-spec review gate**
+- **Production code changes:** **NONE for T-505 so far**
+- **Previous T-504 merge commit:** `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`
+- **Previous T-504 post-merge main validation:** `34573128162` — **7/7 green**
+- **Verified predecessor PHP baseline:** **578 tests / 3029 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
+- **Verified predecessor browser baseline:** TypeScript typecheck + **103/103 Vitest tests**
+- **Verified predecessor contract baseline:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4**
-- **CodeRabbit review:** `b6c519df-3a00-4d4b-b4db-994240edffe6` — **2 Major + 2 Minor, all addressed and confirmed**
-- **Unresolved PR review threads:** **0**
-- **Post-merge main validation:** `34573128162` — **7/7 green**
-- **Next task:** `T-505 — Multi-tenant order operations demo` — **NOT STARTED**
+
+## T-505 design gate
+
+T-505 is approved as an executable Filament multi-tenant order reference vertical, not a new protocol/runtime mechanism.
+
+The planned proof combines the existing T-501 through T-504 trust controls in one order workflow:
+
+```text
+trusted actor + trusted tenant
+        │
+        ▼
+exact active Filament Page
+        │
+        ├── record page ─────► current_record
+        ├── table page ──────► current_selection
+        └── explicit exposure ► filament/active_filters
+        │
+        ▼
+FilamentActionGateway
+        │
+        ▼
+existing ActionBus
+        │
+        ├── authorization
+        ├── idempotency
+        ├── confirmation
+        ├── execution
+        ├── output policy
+        └── structured audit
+        │
+        ▼
+order operation
+```
+
+### Locked design boundaries
+
+1. `orders.hold_current` proves trusted tenant + exact `current_record` mutation semantics.
+2. `orders.refund_selected` proves trusted tenant + exact `current_selection` + explicitly exposed applied-filter context + confirmation + idempotency semantics.
+3. Action input carries business intent only; tenant/order/selection/filter/confirmation identifiers are never authoritative input.
+4. Filament tenant query scoping is defense-in-depth, not sufficient mutation authorization.
+5. Every mutating operation separately verifies that the exact trusted current record or every exact selected order belongs to the trusted tenant before application execution.
+6. Mixed/cross-tenant selection fails closed as a whole; there is no authorized-subset partial execution.
+7. Applied filters remain the existing independent `filament/active_filters` trusted runtime extension; they are not folded into selection identity or promoted into `spec/0.1` vocabulary.
+8. T-504 remains approval-only: modal approval never executes/redispatches the order action; the requesting caller retries normally.
+9. Retry freshly resolves actor, tenant, record/selection, and applied filters before confirmation receipt consumption.
+10. Tenant, selection, or applied-filter drift after approval invalidates the old scope and performs no side effect.
+11. `orders.refund_selected` uses existing required-key idempotency; exact lost-response retry executes the external side effect once while changed intent conflicts.
+12. Structured audit may persist only existing allowlisted action/outcome/provenance facts, never raw tenant/order-selection/filter/token/business-input values.
+13. Human and agent invocation converge on the same explicitly exposed Livewire/Filament page method and the same ActionBus/application operation.
+14. No agent-only endpoint, Filament RuntimeBinding driver, browser-runtime production change, or `spec/0.1` change is planned.
+15. Production source under `packages/laravel/src/**` is not expected to change. If a missing runtime primitive is discovered, T-505 must stop and reopen the design gate before adding it.
+16. D-052 remains `PROPOSED` until executable implementation and negative proofs pass; only then may it become `ACCEPTED`.
+
+### Expected implementation surface after the next gate
+
+```text
+packages/laravel/tests/Fixtures/Filament/OrderDemo/**
+packages/laravel/tests/Integration/FilamentMultiTenantOrderOperationsDemoTest.php
+examples/filament-orders/README.md
+docs/superpowers/plans/<T-505 implementation plan>.md
+TASKS.md
+STATUS.md
+REVIEW_REQUEST.md
+```
+
+No implementation-plan or production-code work has started at this checkpoint.
 
 ## T-504 outcome
 
@@ -157,6 +220,6 @@ The merge commit has parents `66f1d5db7e7902b6d7f09306be021119a6d96086` and exac
 
 T-503 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on merge commit `7fe9db4f1e87257b83120396cc290b7253424ad4`, with post-merge validation `34492632652` green.
 
-## Merge closure
+## Current boundary
 
-T-504 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on merge commit `e42ca3ae1e8e41cbdd2ba6383e1f9d58af833115`, with post-merge validation `34573128162` green. No further T-504 gate remains. `T-505 — Multi-tenant order operations demo` is the next repository task and remains **NOT STARTED**.
+T-504 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-505 has passed its design gate only. Stop before implementation-plan/code work until the written T-505 design spec is reviewed as the next explicit gate.
