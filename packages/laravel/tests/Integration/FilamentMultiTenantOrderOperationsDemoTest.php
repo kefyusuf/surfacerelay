@@ -316,6 +316,11 @@ final class FilamentMultiTenantOrderOperationsDemoTest extends TestCase
         self::assertFalse($selectionConflict->completed);
         self::assertSame('idempotency_conflict', $selectionConflict->halt?->code);
 
+        // Keep the selected identity set exact while changing only the applied
+        // filter authority. Otherwise Filament's default filter semantics
+        // remove the paid rows from current_selection before idempotency runs.
+        Order::query()->whereKey([101, 102])->update(['status' => 'pending']);
+
         $filterConflict = $harness->dispatchRefund(
             $this->refundPage([101, 102], 'pending'),
             'customer-request',
