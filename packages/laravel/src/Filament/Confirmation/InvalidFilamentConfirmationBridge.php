@@ -30,4 +30,9 @@ final class InvalidFilamentConfirmationBridge extends \RuntimeException
     {
         return new self('Filament confirmation service is unavailable.');
     }
+
+    public static function approvalFailed(): self
+    {
+        return new self('Filament confirmation approval failed.');
+    }
 }

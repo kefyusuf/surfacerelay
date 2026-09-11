@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Filament\Confirmation;
 
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Livewire\Attributes\Locked;
 use SurfaceRelay\Laravel\Confirmation\ConfirmationService;
 use SurfaceRelay\Laravel\Result\ConfirmationChallenge;
@@ -12,6 +13,10 @@ use SurfaceRelay\Laravel\Result\ConfirmationChallenge;
 trait InteractsWithSurfaceRelayConfirmation
 {
     private const string SURFACE_RELAY_CONFIRMATION_ACTION = 'surfacerelay_confirmation';
+
+    private const string APPROVED_NOTIFICATION_TITLE = 'Confirmation approved. Retry the original operation.';
+
+    private const string RETRY_NOTIFICATION_TITLE = 'Confirmation is no longer approvable. Retry the original operation.';
 
     #[Locked]
     public ?string $surfaceRelayConfirmationChallengeId = null;
@@ -127,13 +132,33 @@ trait InteractsWithSurfaceRelayConfirmation
             throw InvalidFilamentConfirmationBridge::presentationFailed();
         }
 
-        $receipt = $this->resolveSurfaceRelayConfirmationService()->approveChallenge($challengeId);
+        $service = $this->resolveSurfaceRelayConfirmationService();
+
+        try {
+            $receipt = $service->approveChallenge($challengeId);
+        } catch (\Throwable) {
+            throw InvalidFilamentConfirmationBridge::approvalFailed();
+        }
 
         $this->clearSurfaceRelayConfirmation();
 
         if ($receipt !== null && $receipt !== $challengeId) {
             throw InvalidFilamentConfirmationBridge::presentationFailed();
         }
+
+        if ($receipt === null) {
+            Notification::make()
+                ->warning()
+                ->title(self::RETRY_NOTIFICATION_TITLE)
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->success()
+            ->title(self::APPROVED_NOTIFICATION_TITLE)
+            ->send();
     }
 
     private function mountSurfaceRelayConfirmationAction(): void
