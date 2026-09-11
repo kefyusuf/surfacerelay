@@ -10,18 +10,20 @@
 - **Stage:** M0 DONE; M1 DONE; M1.1 DONE/REVIEWED; M2 DONE/REVIEWED; M3 DONE/REVIEWED; M4 DONE/REVIEWED/MERGED; **M5 IN PROGRESS**
 - **Last merged/revalidated task:** `T-503 — Active-filter context`
 - **Current task:** `T-504 — Confirmation bridge`
-- **T-504 status:** **IMPLEMENTATION COMPLETE / SELF-REVIEW VERIFIED / EXTERNAL REVIEW PENDING**
+- **T-504 status:** **DONE / EXTERNAL REVIEW PASSED / MERGE PENDING**
 - **Base:** `main@66f1d5db7e7902b6d7f09306be021119a6d96086`
-- **Implementation verification head:** `e7954abe7a696c7a05ed32a6995fb3b7ae98400c`
+- **Current reviewed code head:** `e0153e6de755963e8d7804cf83c60dd88eec3cd2`
+- **Pull request:** `#8` — **OPEN / MERGEABLE / UNMERGED**
 - **Design spec:** `docs/superpowers/specs/2026-09-10-filament-confirmation-bridge-design.md`
 - **Implementation plan:** `docs/superpowers/plans/2026-09-11-filament-confirmation-bridge.md`
 - **Decision:** `D-051` — **ACCEPTED**
-- **PHP verified:** **577 tests / 3011 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
+- **PHP verified:** **578 tests / 3029 assertions** across PHP 8.3/8.4 × Illuminate 12/13 with MySQL 8.4 service coverage
 - **Browser isolation verified:** TypeScript typecheck + **103/103 Vitest tests**
 - **Contract verified:** `python scripts/validate.py` green; frozen `spec/0.1/**` unchanged
 - **Filament compatibility:** Filament **5.8.1** + Livewire **4.4.4**
-- **Implementation verification CI:** `34561470349` — **7/7 green**
-- **Next gate:** external PR review; merge remains a separate explicit gate
+- **CodeRabbit review:** `b6c519df-3a00-4d4b-b4db-994240edffe6` — **2 Major + 2 Minor, all addressed and confirmed**
+- **Unresolved PR review threads:** **0**
+- **Next gate:** explicit merge authorization; merge has **not** been performed
 - **Next task:** `T-505 — Multi-tenant order operations demo` — **NOT STARTED**
 
 ## T-504 outcome
@@ -64,25 +66,23 @@ ConfirmationStage consumes the exact-scope receipt once
 
 ## Locked T-504 invariants
 
-1. Only an exact `ActionPipelineStage::Confirmation` + `confirmation_required` halt carrying a real typed `ConfirmationChallenge` is presentable.
+1. Only an exact Confirmation-stage `confirmation_required` halt carrying a real typed `ConfirmationChallenge` is presentable.
 2. Pages opt in explicitly with `InteractsWithSurfaceRelayConfirmation`.
-3. Challenge ID, summary, and expiry live in server-authored Livewire `#[Locked]` state.
-4. Browser action arguments, metadata, request/query/route state, and arbitrary Livewire property updates cannot replace challenge authority.
-5. A page hosts at most one outstanding SurfaceRelay confirmation presentation; the same challenge is idempotent/remountable, a different challenge fails closed.
-6. An unrelated mounted Filament action is never force-unmounted, replaced, or silently nested.
-7. The modal disables click-away, Escape, and top-right close paths; intended decisions are Approve and Cancel.
-8. Approve resolves an explicitly bound `ConfirmationService` and approves only the locked challenge ID.
-9. Approve never calls `FilamentActionGateway::dispatch()`, `ActionBus`, application mutation code, or any second business execution path.
-10. Cancel clears only presentation state; it does not approve, consume, revoke, or replace the core challenge.
-11. Missing confirmation service and confirmation-store failures fail closed; expired/non-pending approval is handled generically without token-state disclosure.
-12. Approval alone produces zero application side effects. Business execution remains owned by the original caller's explicit retry.
-13. Retry re-resolves trusted Filament/runtime context. Record, current selection, applied active filters, actor, tenant, binding, surface, and validated-input drift reject an old receipt.
-14. Wrong-scope attempts do not spend an otherwise-valid exact-scope receipt.
-15. Exact same idempotency key/intent retry executes once; a completed lost-response retry replays without a second side effect or second confirmation.
-16. A consumed receipt cannot authorize a fresh attempt.
-17. `spec/0.1/**`, confirmation core, Livewire production, and browser-runtime production remain unchanged.
-18. Filament remains optional/dev-only and `SurfaceRelayServiceProvider` remains Filament-free.
-19. T-504 provides a trusted human-facing UI boundary, not cryptographic proof-of-human, `approvedBy`, supervisor, or delegated approval semantics.
+3. Challenge ID, summary, and expiry are server-authored Livewire `#[Locked]` state; browser arguments cannot substitute approval authority.
+4. One page hosts at most one outstanding SurfaceRelay confirmation presentation; conflicting challenge or unrelated mounted Action state fails closed.
+5. Approve calls only the explicitly bound `ConfirmationService::approveChallenge()` for the locked challenge and never dispatches business execution.
+6. Approval success emits a fixed success notice; null/non-pending approval emits a fixed generic retry-required notice. Neither exposes token/state detail.
+7. Confirmation-store/infrastructure exceptions are translated at the Filament adapter boundary to fixed, non-chained `InvalidFilamentConfirmationBridge::approvalFailed()`; raw store/framework exception detail is not exposed to Livewire.
+8. Infrastructure failure retains the locked presentation state and does not masquerade as approval success.
+9. The host must wire the Filament resolver to the same authoritative confirmation service/store/configuration used by `ConfirmationStage`; a distinct-store mismatch is fail-closed and cannot cross-approve a stage-issued challenge.
+10. Cancel clears only UI presentation state and leaves the core challenge pending/non-authoritative.
+11. The original caller explicitly retries through the normal gateway/ActionBus path; retry freshly resolves actor, tenant, record, selection, applied filters, input, binding, and surface.
+12. Wrong-scope attempts do not spend an otherwise-valid exact-scope receipt; exact-scope receipt consumption remains single-use.
+13. Exact same idempotency key/intent retry executes once; completed lost-response retry replays without a duplicate side effect or second confirmation.
+14. Static dependency policy forbids `ActionBus`, `ActionCall`, `FilamentActionGateway::dispatch`, and instance `->dispatch(` shortcuts in confirmation adapter source.
+15. `spec/0.1/**`, Confirmation core, Idempotency core, Livewire production, and browser-runtime production remain unchanged.
+16. Filament remains optional/dev-only and `SurfaceRelayServiceProvider` remains Filament-free.
+17. T-504 is a trusted human-facing UI decision boundary, not proof-of-human, `approvedBy`, supervisor, or delegated approval semantics.
 
 ## Production change surface
 
@@ -106,29 +106,34 @@ packages/laravel/src/Idempotency/**
 packages/laravel/src/Livewire/**
 ```
 
-## TDD / verification evidence
+## TDD / verification and external-review evidence
 
 ```text
-Design / D-051 checkpoint:     a3e60544308ea5f3072d5fb813e939bfe4924def
-Plan checkpoint:               46426cbccc1258664ebe6e3a5177cb841582732e / 34533606536 — 7/7 green
-Task 1 RED:                    2df61dfa8c079c9f97b9d90c4c7ec096374910ba / 34559167747 — expected missing bridge/trait failures
-Task 1 GREEN:                  8370402eb8d752eae4c329523e584820c28341c3 / 34559287792 — 7/7 green
-Task 2 RED:                    9563b6108066cdde9396b8bfd044e9c2669604a2 / 34559561986 — expected modal/state-machine failures
-Task 2 final GREEN:            6fbaba5e6215e723d921618072b44931c7ba0264 / 34560122329 — 7/7 green
-Task 3 RED:                    1f0f75f316955e03c6aaf61a9ddb3f8c6b062fa2 / 34560370550 — expected approval-authority failures
-Task 3 GREEN:                  f1bea851269cbae932b792d26c2f7731b303aebc / 34560453025 — 7/7 green
-Task 4 RED:                    f9822e4e725eb0997633557383c1902adae3c8c5 / 34560647891 — expected missing gateway hook
-Task 4 GREEN:                  babc80bb30426748765fc2dc79c095ab5ae4967b / 34560733159 — 7/7 green
-E2E initial proof:             acd4e7fb5129696a6e863e8d1a276ec8a4cfe9ca / 34561151879 — one test-harness-only Filament selection-cache failure
-E2E GREEN:                     f83db1a0e54760c2b4bfb97992bdfb93b7610c90 / 34561337612 — 7/7 green
-Boundary/review-prep:          e7954abe7a696c7a05ed32a6995fb3b7ae98400c / 34561470349 — 7/7 green
-PHP:                           577 tests / 3011 assertions
-Browser:                       TypeScript typecheck + 103/103 Vitest
-Contract:                      python scripts/validate.py green; frozen spec/0.1 unchanged
-Filament / Livewire:           5.8.1 / 4.4.4
+Design / D-051 checkpoint:      a3e60544308ea5f3072d5fb813e939bfe4924def
+Plan checkpoint:                46426cbccc1258664ebe6e3a5177cb841582732e / 34533606536 — 7/7 green
+Task 1 RED:                     2df61dfa8c079c9f97b9d90c4c7ec096374910ba / 34559167747
+Task 1 GREEN:                   8370402eb8d752eae4c329523e584820c28341c3 / 34559287792 — 7/7 green
+Task 2 RED:                     9563b6108066cdde9396b8bfd044e9c2669604a2 / 34559561986
+Task 2 final GREEN:             6fbaba5e6215e723d921618072b44931c7ba0264 / 34560122329 — 7/7 green
+Task 3 RED:                     1f0f75f316955e03c6aaf61a9ddb3f8c6b062fa2 / 34560370550
+Task 3 GREEN:                   f1bea851269cbae932b792d26c2f7731b303aebc / 34560453025 — 7/7 green
+Task 4 RED:                     f9822e4e725eb0997633557383c1902adae3c8c5 / 34560647891
+Task 4 GREEN:                   babc80bb30426748765fc2dc79c095ab5ae4967b / 34560733159 — 7/7 green
+E2E initial proof:              acd4e7fb5129696a6e863e8d1a276ec8a4cfe9ca / 34561151879 — harness-only selection-cache failure
+E2E GREEN:                      f83db1a0e54760c2b4bfb97992bdfb93b7610c90 / 34561337612 — 7/7 green
+Boundary / review-prep:         e7954abe7a696c7a05ed32a6995fb3b7ae98400c / 34561470349 — 7/7 green
+Initial final feature head:     17c5ac6cb135ab9494dd1eb906752ef24ea59ec8 / 34561985867 — 7/7 green
+Initial PR validation:          34562182120 — 7/7 green
+CodeRabbit full review:         b6c519df-3a00-4d4b-b4db-994240edffe6 — 2 Major + 2 Minor
+Review hardening RED:           2dd660c7d43fef331f54f29fe1b8938449e8a7bd / 34571740035 — expected 1 error + 3 failures; 578 / 3020
+Review hardening GREEN:         e0153e6de755963e8d7804cf83c60dd88eec3cd2 / 34571892139 — 7/7 green; 578 / 3029
+Review hardening PR CI:         34571895353 — 7/7 green
+Browser:                        TypeScript typecheck + 103/103 Vitest
+Contract / lint:                green
+Open review threads:            0
 ```
 
-The Task-5 selection-cache failure was isolated to the direct-object test harness: Filament caches selected records for one Livewire request, while the test reused one PHP Page instance across synthetic requests. A fixture-only override resets that request-local cache before each trusted selection snapshot. No production T-502/T-504 resolver change was required.
+CodeRabbit confirmed all four findings as addressed. The Major authority-wiring finding was closed with explicit existing same-authority configuration semantics plus a distinct-store integration test proving mismatched stores cannot cross-approve. The Major security finding was reproduced as raw store exception leakage and fixed by static non-chained adapter translation. The two Minor findings added fixed approval-result notifications and the missing instance-dispatch source guard.
 
 ## Known limitations / deliberate exclusions
 
@@ -144,4 +149,4 @@ T-503 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on merge commit `7
 
 ## Next boundary
 
-T-504 implementation is verified and ready for external review. Do not start T-505 and do not merge T-504 without a separate explicit gate.
+T-504 external review is passed. Stop at the merge gate: do not merge PR #8 and do not start T-505 without a separate explicit user instruction.

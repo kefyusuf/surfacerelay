@@ -293,7 +293,7 @@ Open review threads:            0
 
 **Review result:** PASSED / MERGED / MAIN REVALIDATED. Both CodeRabbit documentation/tracking findings were fixed and confirmed before merge.
 
-### T-504 — Confirmation bridge — IMPLEMENTATION COMPLETE / REVIEW PENDING
+### T-504 — Confirmation bridge — DONE / REVIEWED
 
 **Outcome:** Exact runtime-issued T-401 confirmation challenges can be presented as approval-only Filament modals on explicitly opted-in pages. Human-facing approval mutates only the core pending challenge to approved; business execution remains owned by the original caller's explicit retry through the normal ActionBus path.
 
@@ -306,6 +306,9 @@ Open review threads:            0
 - one page hosts at most one pending SurfaceRelay presentation; same-challenge presentation is idempotent/remountable, while different-challenge overwrite and unrelated mounted Filament Action state fail closed;
 - the modal disables click-away, Escape, and top-right close paths and exposes intended Approve/Cancel decisions;
 - Approve resolves an explicitly configured `ConfirmationService`, approves only the locked challenge ID, and never dispatches ActionBus or business code;
+- successful approval emits a fixed non-secret success notice; null/non-pending approval emits a fixed generic retry-required warning;
+- confirmation-store/infrastructure exceptions are translated to a fixed non-chained adapter exception and do not leak raw store/framework details;
+- the host must wire the bridge resolver to the same authoritative confirmation service/store/configuration used by `ConfirmationStage`; distinct-store mismatch is proven fail-closed and cannot cross-approve;
 - Cancel clears disposable UI state only and leaves the core challenge pending/non-authoritative;
 - missing service binding and store failure fail closed; expired/non-pending approval is generic/non-oracular;
 - approval alone produces zero business side effects;
@@ -314,6 +317,7 @@ Open review threads:            0
 - wrong-scope attempts do not spend an otherwise-valid exact-scope receipt;
 - exact same idempotency key/intent post-approval retry executes once; a completed lost-response retry replays without a second side effect or second confirmation;
 - a consumed receipt cannot authorize a fresh attempt;
+- static source policy forbids ActionBus/ActionCall/gateway and instance `->dispatch(` redispatch shortcuts in confirmation adapter source;
 - no Confirmation core, Idempotency core, Livewire production, browser-runtime production, or frozen `spec/0.1` change is introduced;
 - Filament remains require-dev/optional and the base `SurfaceRelayServiceProvider` remains Filament-free;
 - D-051 records the approval-only explicit-retry model and does not claim proof-of-human, `approvedBy`, or delegated approval semantics.
@@ -331,18 +335,23 @@ Task 3 RED:                     1f0f75f316955e03c6aaf61a9ddb3f8c6b062fa2 / 34560
 Task 3 GREEN:                   f1bea851269cbae932b792d26c2f7731b303aebc / 34560453025 — 7/7 green
 Task 4 RED:                     f9822e4e725eb0997633557383c1902adae3c8c5 / 34560647891
 Task 4 GREEN:                   babc80bb30426748765fc2dc79c095ab5ae4967b / 34560733159 — 7/7 green
-E2E initial proof:              acd4e7fb5129696a6e863e8d1a276ec8a4cfe9ca / 34561151879 — one test-harness-only selection-cache failure
+E2E initial proof:              acd4e7fb5129696a6e863e8d1a276ec8a4cfe9ca / 34561151879 — harness-only selection-cache failure
 E2E GREEN:                      f83db1a0e54760c2b4bfb97992bdfb93b7610c90 / 34561337612 — 7/7 green
 Boundary / review-prep:         e7954abe7a696c7a05ed32a6995fb3b7ae98400c / 34561470349 — 7/7 green
-PHP:                            577 tests / 3011 assertions across PHP 8.3/8.4 × Illuminate 12/13 + MySQL 8.4
+Initial feature head:           17c5ac6cb135ab9494dd1eb906752ef24ea59ec8 / 34561985867 — 7/7 green
+Initial PR validation:          34562182120 — 7/7 green
+CodeRabbit full review:         b6c519df-3a00-4d4b-b4db-994240edffe6 — 2 Major + 2 Minor
+Review hardening RED:           2dd660c7d43fef331f54f29fe1b8938449e8a7bd / 34571740035 — expected 1 error + 3 failures; 578 / 3020
+Review hardening GREEN:         e0153e6de755963e8d7804cf83c60dd88eec3cd2 / 34571892139 — 7/7 green; 578 / 3029
+Review hardening PR CI:         34571895353 — 7/7 green
 Browser:                        TypeScript typecheck + 103/103 Vitest
-Contract:                       python scripts/validate.py green; frozen spec/0.1 unchanged
-Filament / Livewire:            5.8.1 / 4.4.4
+Contract / lint:                green
+Open review threads:            0
 ```
 
 The initial E2E selection-drift failure was isolated to the direct-object test harness: Filament caches selected records within one Livewire request while the test reused one PHP Page instance across synthetic requests. A fixture-only request-boundary reset fixed the harness; no production T-502/T-504 resolver change was required.
 
-**Review status:** implementation and self-review verification are complete. External PR review is the next gate. Merge remains separate and requires explicit permission.
+**Review result:** PASSED. CodeRabbit's 2 Major and 2 Minor findings were verified rather than blindly applied, hardened TDD-first, revalidated on both push and PR CI, and all four threads are resolved/confirmed. PR #8 remains open; merge is a separate explicit gate.
 
 - T-505 — Multi-tenant order operations demo — TODO / NOT STARTED.
 
