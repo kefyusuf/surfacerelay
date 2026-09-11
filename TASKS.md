@@ -132,7 +132,7 @@ Full integration RED:        de78135f5df344aae4f2ab8bdf846130ed008c82 / 34130583
 Implementation GREEN:        7db7d54fd1af9387c3cb408ec472c949168ed569 / 34130941909 — 7/7 green
 Review-prep checkpoint:      d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34132981487 — 7/7 green
 Initial PR validation:       d2f76f3c3172a2800e929ee0288d64c305bdb7e7 / 34133666646 — 7/7 green
-CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99fabb — no blocker; one trivial bounded-lock-wait finding
+CodeRabbit full review:      e1364e16-d11d-4fe9-85d5-5f6675a2d99f — no blocker; one trivial bounded-lock-wait finding
 Review finding RED:          37832f73c51b085e6711dc5059c6c0466cc88f82 / 34135694223 — expected block-vs-get failures in all PHP matrices
 Review finding GREEN:        f94340947b00f06707451590f1bef9fcc980479d / 34135906728 — 7/7 green
 PHP:                         344 tests / 1300 assertions
