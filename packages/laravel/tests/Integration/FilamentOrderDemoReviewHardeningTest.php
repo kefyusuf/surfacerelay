@@ -54,7 +54,7 @@ final class FilamentOrderDemoReviewHardeningTest extends TestCase
         ]);
     }
 
-    public function test_refund_rejects_actor_without_authentication_identifier_before_confirmation(): void
+    public function test_refund_treats_actor_without_authentication_identifier_as_missing_trusted_context(): void
     {
         $harness = $this->harness();
         $harness->actor->set(new GenericUser([
@@ -71,12 +71,12 @@ final class FilamentOrderDemoReviewHardeningTest extends TestCase
         );
 
         self::assertFalse($outcome->completed);
-        self::assertSame('authorization_denied', $outcome->halt?->code);
+        self::assertSame('required_context_missing', $outcome->halt?->code);
         self::assertSame(0, $harness->executor->refundExecutions);
         self::assertFalse((bool) Order::query()->findOrFail(101)->refunded);
     }
 
-    public function test_exposed_refund_adapter_uses_distinct_internal_keys_for_independent_intents(): void
+    public function test_exposed_refund_adapter_can_start_independent_unconfirmed_intents_without_key_conflict(): void
     {
         $harness = $this->harness();
         $actions = new OrderDemoPageActions(
@@ -96,7 +96,7 @@ final class FilamentOrderDemoReviewHardeningTest extends TestCase
         self::assertSame(
             ['status' => 'confirmation_required'],
             $second->refundSelected('second-customer-request'),
-            'A separate refund intent must not collide with the first intent idempotency key.',
+            'Unconfirmed invocations do not claim the idempotency key before confirmation.',
         );
 
         self::assertSame(0, $harness->executor->refundExecutions);
