@@ -117,4 +117,39 @@ describe('parseHtmxBindingTarget', () => {
   ])('accepts valid same-origin path %j', (path) => {
     expect(parseHtmxBindingTarget(withTarget({ path })).path).toBe(path);
   });
+
+  it.each([
+    { inputNames: 'item' },
+    { requiredInputNames: 'item' },
+    { inputNames: [''] },
+    { requiredInputNames: [''] },
+    { inputNames: ['item', 'item'] },
+    { requiredInputNames: ['item', 'item'] },
+    { inputNames: ['item', 42] },
+    { requiredInputNames: ['item', 42] },
+    { inputNames: ['item'], requiredInputNames: ['note'] },
+  ])('rejects invalid input mapping %#', (overrides) => {
+    expectCode(
+      () => parseHtmxBindingTarget(withTarget(overrides)),
+      'input_mapping_invalid',
+    );
+  });
+
+  it('returns frozen mapping snapshots instead of caller-owned arrays', () => {
+    const inputNames = ['item', 'note'];
+    const requiredInputNames = ['item'];
+    const parsed = parseHtmxBindingTarget(withTarget({ inputNames, requiredInputNames }));
+
+    expect(Object.isFrozen(parsed)).toBe(true);
+    expect(Object.isFrozen(parsed.inputNames)).toBe(true);
+    expect(Object.isFrozen(parsed.requiredInputNames)).toBe(true);
+    expect(parsed.inputNames).not.toBe(inputNames);
+    expect(parsed.requiredInputNames).not.toBe(requiredInputNames);
+
+    inputNames.push('later');
+    requiredInputNames.push('note');
+
+    expect(parsed.inputNames).toEqual(['item', 'note']);
+    expect(parsed.requiredInputNames).toEqual(['item']);
+  });
 });
