@@ -23,6 +23,17 @@ function binding(overrides: Partial<RuntimeBinding> = {}): RuntimeBinding {
   };
 }
 
+function withTarget(overrides: Record<string, unknown>): RuntimeBinding {
+  const base = binding();
+  return {
+    ...base,
+    target: {
+      ...base.target,
+      ...overrides,
+    },
+  };
+}
+
 function expectCode(fn: () => unknown, code: HtmxBindingDescriptorError['code']): void {
   try {
     fn();
@@ -58,5 +69,52 @@ describe('parseHtmxBindingTarget', () => {
       target: { ...binding().target, tenantId: 'tenant-a' },
     };
     expectCode(() => parseHtmxBindingTarget(extra), 'runtime_binding_invalid');
+  });
+
+  it.each([
+    '',
+    '-starts-with-dash',
+    'contains space',
+    'x'.repeat(241),
+  ])('rejects invalid sourceId %j', (sourceId) => {
+    expectCode(
+      () => parseHtmxBindingTarget(withTarget({ sourceId })),
+      'source_id_invalid',
+    );
+  });
+
+  it.each(['get', 'HEAD', 'OPTIONS', 'TRACE', 'CUSTOM'])('rejects unsupported method %s', (method) => {
+    expectCode(
+      () => parseHtmxBindingTarget(withTarget({ method })),
+      'method_invalid',
+    );
+  });
+
+  it.each(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const)('accepts supported method %s', (method) => {
+    expect(parseHtmxBindingTarget(withTarget({ method })).method).toBe(method);
+  });
+
+  it.each([
+    '',
+    'relative/path',
+    '//example.com/path',
+    'https://example.com/path',
+    '/path#fragment',
+    '/path\\child',
+    '/path\nchild',
+    `/${'x'.repeat(2048)}`,
+  ])('rejects invalid path %j', (path) => {
+    expectCode(
+      () => parseHtmxBindingTarget(withTarget({ path })),
+      'path_invalid',
+    );
+  });
+
+  it.each([
+    '/',
+    '/orders/refund?view=table',
+    `/${'x'.repeat(2047)}`,
+  ])('accepts valid same-origin path %j', (path) => {
+    expect(parseHtmxBindingTarget(withTarget({ path })).path).toBe(path);
   });
 });
