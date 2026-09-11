@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   createHtmxBindingTarget,
@@ -301,5 +302,21 @@ describe('createHtmxBindingTarget', () => {
       () => createHtmxBindingTarget(definitionFromUnknown(inputSchema), options),
       'input_schema_unsupported',
     );
+  });
+});
+
+describe('T-601 scope boundary', () => {
+  it('keeps the descriptor free of browser/HTMX execution dependencies', () => {
+    const source = readFileSync(
+      new URL('../src/htmx-binding-descriptor.ts', import.meta.url),
+      'utf8',
+    );
+
+    expect(source).not.toContain("from 'htmx.org'");
+    expect(source).not.toContain('htmx.ajax(');
+    expect(source).not.toContain('document.');
+    expect(source).not.toContain('window.');
+    expect(source).not.toContain('fetch(');
+    expect(source).not.toContain('@surfacerelay/laravel');
   });
 });
