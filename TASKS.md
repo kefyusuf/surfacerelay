@@ -83,9 +83,9 @@ Contract / PHP lint:         green
 
 `D-020` remained PROPOSED. T-601 introduced no DOM/HTMX/network/cancellation behavior.
 
-### T-602 — HTMX browser driver — IMPLEMENTED / EXTERNALLY REVIEWED / FINDINGS RESOLVED / MERGE PENDING
+### T-602 — HTMX browser driver — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
-**Implementation state:** complete and reviewed on `feat/htmx-browser-driver`; PR **#11** is open. T-603 is **NOT STARTED**.
+**Implementation state:** complete, externally reviewed, merged through PR **#11**, and revalidated on `main`. T-603 is **NOT STARTED**.
 
 Design / plan:
 
@@ -162,8 +162,17 @@ Finding 1 GREEN:                    2ec197213e966c96264b429be3e316c91c69c19e
 Finding 2:                          plan/Livewire error-message mismatch — docs-only correction
 Review-aligned head:                a5f1bd8e5bd64548d78b4a37411314af664e5eb3
 Review-aligned CI:                  34699961997 — 7/7 green
-Browser typecheck:                  green
-Browser Vitest:                     17 files / 297/297 tests
+Review threads:                     2/2 resolved / 0 unresolved
+```
+
+Final closure:
+
+```text
+Final feature head:                 ebad0f04a3b540a5a1536350038d0919ff600ebd
+Final feature CI:                   34700403577 — 7/7 green
+Merge commit:                       ee9af986f22cba45b05c59059c11e68ac46111fd
+Post-merge main CI:                 34701911188 — 7/7 green
+Browser on main:                    17 files / 297/297 tests + typecheck
 HTMX descriptor:                    71/71
 HTMX browser driver:                49/49
 HTMX input mapping:                 28/28
@@ -177,19 +186,18 @@ Livewire WebMCP regression:         2/2
 Contract validator:                 green
 PHP lint:                           green
 PHP matrix:                         4/4 green
-Review threads:                     2/2 resolved / 0 unresolved
 ```
 
-CodeRabbit explicitly confirmed both fixes in-thread. A second complete CodeRabbit review pass was unavailable within the included hourly quota; the two findings from the completed review were individually rechecked and confirmed. Its generic docstring-coverage warning is not a SurfaceRelay CI/contract gate and did not trigger bulk JSDoc churn.
+CodeRabbit explicitly confirmed both fixes in-thread. A second complete CodeRabbit review pass was unavailable within the included hourly quota; the two findings from the completed review were individually rechecked and confirmed. Its generic docstring-coverage warning was not a SurfaceRelay CI/contract gate and did not trigger bulk JSDoc churn.
 
-Decision state after reviewed implementation:
+Decision state after closure:
 
 - `D-054` — **ACCEPTED** for the exact-source host HTMX 2.x execution boundary.
 - `D-055` — **ACCEPTED** for busy-source failure and pre-ajax-only strong cancellation semantics.
 - `D-056` — **ACCEPTED** for deterministic Action-input integrity/reference-source exclusions.
 - `D-020` — **PROPOSED**; portability remains gated on T-603/T-604.
 
-Scope verification against `main@536a89f7a7fe6fb10f4284203cffb5a63ecc0fb4` confirms no changes to:
+Scope verification confirms no changes to:
 
 ```text
 packages/laravel/src/**
@@ -202,7 +210,7 @@ packages/browser-runtime/package-lock.json
 examples/htmx/**
 ```
 
-**Current gate:** PR #11 merge authorization. Do not merge, begin T-603, run T-604 shared conformance, or promote D-020 without the next explicit gate.
+**T-602 is closed.** The next gate is explicit authorization to start T-603; do not start it automatically.
 
 - T-603 — Non-Laravel HTMX fixture app — TODO / NOT STARTED.
 - T-604 — Shared conformance against Livewire + HTMX — TODO.
@@ -216,4 +224,4 @@ examples/htmx/**
 
 ## Current boundary
 
-T-602 is **IMPLEMENTED / EXTERNALLY REVIEWED / FINDINGS RESOLVED / MERGE PENDING** on PR #11. D-054/D-055/D-056 are accepted for the verified reference-driver behavior only. D-020 remains proposed. **T-603 must not start automatically.**
+T-602 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-054/D-055/D-056 are accepted for the verified reference-driver behavior only. D-020 remains proposed. **T-603 must not start automatically.**
