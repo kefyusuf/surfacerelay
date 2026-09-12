@@ -29,6 +29,16 @@ function expectUnmappable(input: Record<string, unknown>): void {
   }
 }
 
+function singleNameTarget(name: string): HtmxBindingTarget {
+  return Object.freeze({
+    sourceId: 'src-special',
+    method: 'POST',
+    path: '/items',
+    inputNames: Object.freeze([name]),
+    requiredInputNames: Object.freeze([name]),
+  });
+}
+
 describe('mapHtmxActionInput', () => {
   it('maps supported JSON-data values into deterministic top-level strings', () => {
     expect(mapHtmxActionInput(target, {
@@ -155,6 +165,37 @@ describe('mapHtmxActionInput', () => {
     const withSymbol = { visible: 'x' } as Record<PropertyKey, unknown>;
     withSymbol[Symbol('hidden')] = 'y';
     expectUnmappable({ item: withSymbol });
+  });
+
+  it('preserves __proto__ as an exact own mapped Action input', () => {
+    const specialTarget = singleNameTarget('__proto__');
+    const input = Object.create(null) as Record<string, unknown>;
+    Object.defineProperty(input, '__proto__', {
+      enumerable: true,
+      value: 'coffee',
+    });
+
+    const mapped = mapHtmxActionInput(specialTarget, input);
+
+    expect(Object.prototype.hasOwnProperty.call(mapped, '__proto__')).toBe(true);
+    expect(mapped.__proto__).toBe('coffee');
+  });
+
+  it('rejects hasOwnProperty as an HTMX 2.x object-values compatibility hazard', () => {
+    const specialTarget = singleNameTarget('hasOwnProperty');
+    const input = Object.create(null) as Record<string, unknown>;
+    Object.defineProperty(input, 'hasOwnProperty', {
+      enumerable: true,
+      value: 'business-value',
+    });
+
+    try {
+      mapHtmxActionInput(specialTarget, input);
+      throw new Error('expected HTMX input mapping failure');
+    } catch (error) {
+      expect(error).toBeInstanceOf(HtmxBindingExecutionError);
+      expect((error as HtmxBindingExecutionError).code).toBe('binding_input_unmappable');
+    }
   });
 
   it('returns a frozen output snapshot', () => {
