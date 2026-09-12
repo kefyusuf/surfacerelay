@@ -4,17 +4,18 @@
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Task:** `T-602 — HTMX browser driver`
-- **Branch:** `feat/htmx-browser-driver`
-- **Base:** `main@536a89f7a7fe6fb10f4284203cffb5a63ecc0fb4`
-- **Pull request:** `#11 — feat(htmx): add exact-source browser driver`
+- **Pull request:** `#11 — feat(htmx): add exact-source browser driver` — **MERGED**
+- **Base entering T-602:** `main@536a89f7a7fe6fb10f4284203cffb5a63ecc0fb4`
 - **Pre-review implementation head:** `0d2021674e43c0ec4bf0a3e365e0915221b51e5e`
-- **Review-aligned head before tracking closure:** `a5f1bd8e5bd64548d78b4a37411314af664e5eb3`
-- **Review-aligned CI:** `34699961997` — **7/7 green**
-- **Browser:** TypeScript typecheck + **297/297 Vitest** across 17 files
+- **Review-aligned head:** `a5f1bd8e5bd64548d78b4a37411314af664e5eb3`
+- **Final feature head:** `ebad0f04a3b540a5a1536350038d0919ff600ebd`
+- **Final feature CI:** `34700403577` — **7/7 green**
+- **Merge commit:** `ee9af986f22cba45b05c59059c11e68ac46111fd`
+- **Post-merge main CI:** `34701911188` — **7/7 green**
+- **Browser on main:** TypeScript typecheck + **297/297 Vitest** across 17 files
 - **CodeRabbit findings:** **2 actionable inline findings; 2/2 resolved; 0 unresolved threads**
 - **Decisions:** `D-054`, `D-055`, `D-056` — **ACCEPTED for verified T-602 reference-driver behavior**
 - **Portability:** `D-020` — **PROPOSED; remains gated on T-603/T-604**
-- **Merge:** pending explicit authorization
 - **T-603:** not started
 
 ## What T-602 adds
@@ -108,9 +109,11 @@ Pre-review implementation head:   0d2021674e43c0ec4bf0a3e365e0915221b51e5e / 346
 Pre-review browser:                295/295 + typecheck
 External-review RED:               adde02f3c457169d9d2c47418b53d2d4413410be / 34699094234 — 295 passed / exactly 2 failed
 External-review GREEN:             2ec197213e966c96264b429be3e316c91c69c19e
-Review-aligned head:               a5f1bd8e5bd64548d78b4a37411314af664e5eb3
-Review-aligned CI:                 34699961997 — 7/7 green
-Browser final:                     17 files / 297/297 + typecheck
+Review-aligned head:               a5f1bd8e5bd64548d78b4a37411314af664e5eb3 / 34699961997 — 7/7 green
+Final feature head:                ebad0f04a3b540a5a1536350038d0919ff600ebd / 34700403577 — 7/7 green
+Merge commit:                      ee9af986f22cba45b05c59059c11e68ac46111fd
+Post-merge main CI:                34701911188 — 7/7 green
+Browser on main:                   17 files / 297/297 + typecheck
 Contract / PHP lint / PHP matrix: green
 Review threads:                    2/2 resolved / 0 unresolved
 ```
@@ -167,8 +170,8 @@ spec/0.1/**
 examples/htmx/**
 ```
 
-## Boundary after review
+## Boundary after review and merge
 
-T-602 is externally reviewed with all actionable inline findings resolved, but it is **not merged yet**. Do not infer T-603/T-604 completion from this task. `D-020` remains PROPOSED until a real non-Laravel HTMX fixture and shared Livewire/HTMX conformance prove the portability claim.
+T-602 is **externally reviewed, merged, and revalidated on `main`**. Do not infer T-603/T-604 completion from this task. `D-020` remains PROPOSED until a real non-Laravel HTMX fixture and shared Livewire/HTMX conformance prove the portability claim.
 
-The next gate is explicit merge authorization for PR #11.
+The next gate is explicit authorization to start T-603.
