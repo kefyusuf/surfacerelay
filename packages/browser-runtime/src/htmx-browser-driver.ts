@@ -48,6 +48,16 @@ const AJAX_METHOD: Readonly<Record<HtmxRequestMethod, HtmxAjaxMethod>> = {
   DELETE: 'delete',
 };
 
+const UNSUPPORTED_INHERITED_ATTRIBUTES = [
+  'hx-vals',
+  'hx-vars',
+  'hx-confirm',
+  'hx-prompt',
+  'hx-sync',
+  'hx-indicator',
+  'hx-ext',
+] as const;
+
 function executionError(
   code: HtmxBindingExecutionError['code'],
   message: string,
@@ -144,6 +154,74 @@ function assertSameOrigin(
   }
 }
 
+function physicalAttributeValues(
+  element: HtmxSourceElement,
+  name: string,
+): readonly (string | null)[] {
+  const values: (string | null)[] = [];
+  for (const attribute of [name, `data-${name}`]) {
+    if (element.hasAttribute(attribute)) {
+      values.push(element.getAttribute(attribute));
+    }
+  }
+  return values;
+}
+
+function assertReferenceSourceSupported(source: HtmxSourceElement): void {
+  let current: HtmxSourceElement | null = source;
+  while (current !== null) {
+    for (const name of UNSUPPORTED_INHERITED_ATTRIBUTES) {
+      if (physicalAttributeValues(current, name).length > 0) {
+        throw executionError(
+          'htmx_source_unsupported',
+          `HTMX reference source uses unsupported ${name} behavior.`,
+        );
+      }
+    }
+
+    for (const params of physicalAttributeValues(current, 'hx-params')) {
+      if (params !== '*') {
+        throw executionError(
+          'htmx_source_unsupported',
+          'HTMX reference source uses restrictive hx-params behavior.',
+        );
+      }
+    }
+
+    current = current.parentElement;
+  }
+
+  if (
+    physicalAttributeValues(source, 'hx-validate')
+      .some((value) => value === 'true')
+  ) {
+    throw executionError(
+      'htmx_source_unsupported',
+      'HTMX reference source enables browser validation.',
+    );
+  }
+
+  if (source.tagName.toUpperCase() === 'FORM' && !source.hasAttribute('novalidate')) {
+    throw executionError(
+      'htmx_source_unsupported',
+      'HTMX reference FORM source must disable browser validation explicitly.',
+    );
+  }
+}
+
+function assertSourceNotBusy(
+  source: HtmxSourceElement,
+  runtime: HtmxBrowserRuntime,
+): void {
+  const requestClass = runtime.requestClass();
+  if (source.classList.contains(requestClass)) {
+    throw executionError(
+      'htmx_source_busy',
+      'Exact HTMX source is already processing another request.',
+    );
+  }
+}
+
 export class HtmxBrowserDriver implements BindingDriver {
   constructor(
     private readonly runtime: HtmxBrowserRuntime,
@@ -173,6 +251,8 @@ export class HtmxBrowserDriver implements BindingDriver {
     const source = sources[0];
     assertExactRequest(source, target);
     assertSameOrigin(this.runtime, target);
+    assertReferenceSourceSupported(source);
+    assertSourceNotBusy(source, this.runtime);
 
     const values = mapHtmxActionInput(target, input);
 
