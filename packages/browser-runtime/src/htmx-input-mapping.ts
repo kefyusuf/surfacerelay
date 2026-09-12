@@ -92,6 +92,50 @@ function assertJsonData(value: unknown, stack: Set<object>): void {
   }
 }
 
+function encodeJsonString(value: string): string {
+  const encoded = JSON.stringify(value);
+  if (typeof encoded !== 'string') {
+    throw mappingError('HTMX Action string could not be encoded deterministically.');
+  }
+  return encoded;
+}
+
+function encodeValidatedJson(value: unknown): string {
+  if (value === null) return 'null';
+
+  switch (typeof value) {
+    case 'string':
+      return encodeJsonString(value);
+    case 'boolean':
+      return value ? 'true' : 'false';
+    case 'number':
+      return String(value);
+    case 'object':
+      break;
+    default:
+      throw mappingError('Validated HTMX Action value left the JSON-data domain.');
+  }
+
+  if (Array.isArray(value)) {
+    const encodedItems: string[] = [];
+    for (let index = 0; index < value.length; index += 1) {
+      encodedItems.push(encodeValidatedJson(assertDataProperty(value, String(index))));
+    }
+    return `[${encodedItems.join(',')}]`;
+  }
+
+  const encodedEntries: string[] = [];
+  for (const key of Reflect.ownKeys(value)) {
+    if (typeof key !== 'string') {
+      throw mappingError('Validated HTMX Action object contains a symbol key.');
+    }
+    encodedEntries.push(
+      `${encodeJsonString(key)}:${encodeValidatedJson(assertDataProperty(value, key))}`,
+    );
+  }
+  return `{${encodedEntries.join(',')}}`;
+}
+
 function encodeActionValue(value: unknown): string {
   assertJsonData(value, new Set<object>());
 
@@ -99,11 +143,7 @@ function encodeActionValue(value: unknown): string {
   if (value === null) return 'null';
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
 
-  const encoded = JSON.stringify(value);
-  if (typeof encoded !== 'string') {
-    throw mappingError('HTMX Action value could not be encoded deterministically.');
-  }
-  return encoded;
+  return encodeValidatedJson(value);
 }
 
 export function mapHtmxActionInput(
