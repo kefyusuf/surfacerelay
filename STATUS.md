@@ -9,15 +9,16 @@
 - **Last completed task:** `T-601 — Explicit HTMX binding descriptor`
 - **T-601 state:** **DONE / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**
 - **Current task:** `T-602 — HTMX browser driver`
-- **T-602 state:** **IN_PROGRESS — DESIGN APPROVED / IMPLEMENTATION PLAN WRITTEN**
+- **T-602 state:** **IN_PROGRESS — DESIGN APPROVED / IMPLEMENTATION PLAN COMPLETE**
 - **T-602 implementation:** **NOT STARTED**
 - **Written spec:** `docs/superpowers/specs/2026-09-12-htmx-browser-driver-design.md`
 - **Implementation plan:** `docs/superpowers/plans/2026-09-12-htmx-browser-driver.md`
 - **Design checkpoint:** `42cca940af35b3dff918a641b619d578f839047d` / CI `34682081839` — **7/7 green**
-- **Plan checkpoint:** `b297a54b7abe49390a05df2a26e3e42d5cad8c02`
+- **Plan checkpoint after self-review hardening:** `d6d35834af2b7d08586b4d15ddbd87a88f8ee83b`
+- **Task-board plan gate:** `7cec9b5808524040f024f5c875cbe213f33beae1`
 - **Proposed decisions:** `D-054`, `D-055`, `D-056`
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
-- **Next gate:** choose execution mode for the approved implementation plan; do not begin production changes before explicit execution authorization.
+- **Next gate:** explicit execution-mode selection for the committed plan; no production implementation before that gate.
 
 ## Baseline entering T-602
 
@@ -38,7 +39,7 @@ T-602 branch base/current main: 536a89f7a7fe6fb10f4284203cffb5a63ecc0fb4
 
 ## T-602 approved design
 
-The design gate selected a narrow reference browser driver rather than a generic HTMX/HTTP automation layer.
+The design selects a narrow reference browser driver rather than a generic HTMX/HTTP automation layer.
 
 ### Execution boundary
 
@@ -58,7 +59,7 @@ Key boundaries:
 - the host page's HTMX runtime is adapted through a narrow runtime port; no second HTMX runtime is bundled;
 - reference support is HTMX 2.x only;
 - exactly one current SurfaceRelay source identity is required;
-- exactly one explicit physical `hx-get|post|put|patch|delete` / `data-hx-*` request attribute is required;
+- exactly one physical `hx-get|post|put|patch|delete` / `data-hx-*` request attribute is required;
 - method and raw path are compared exactly; drift is stale;
 - same-origin is checked before SurfaceRelay dispatch, while later host HTMX hooks remain host runtime behavior;
 - no raw `fetch()` or response-result synthesis is introduced.
@@ -85,11 +86,11 @@ Key boundaries:
 
 ### Shared expiry
 
-T-602 will extract strict RuntimeBinding expiry parsing/classification from the Livewire driver into a shared browser-runtime helper. This is an internal refactor only; Livewire behavior must remain unchanged and fully regression-tested.
+T-602 extracts strict RuntimeBinding expiry parsing/classification from the Livewire driver into a shared browser-runtime helper. This is an internal refactor only; Livewire behavior must remain unchanged and fully regression-tested.
 
-## Implementation plan decomposition
+## Implementation plan
 
-The committed plan uses eight independently reviewable TDD units:
+The committed plan is split into eight independently reviewable TDD units:
 
 ```text
 1. Shared RuntimeBinding expiry extraction + Livewire regression
@@ -102,7 +103,20 @@ The committed plan uses eight independently reviewable TDD units:
 8. Full verification, D-054/55/56 promotion, tracking, external-review prep
 ```
 
-Every implementation task carries its own RED/GREEN/commit cycle. The final implementation task stops at external-review readiness and does not begin T-603.
+Every implementation unit carries its own RED -> GREEN -> regression -> commit cycle.
+
+Plan self-review hardening explicitly requires:
+
+- all **10** physical request forms: five `hx-*` plus five `data-hx-*` variants;
+- explicit missing-request, duplicate-request, method-drift, trailing-slash-drift, and query-order-drift proofs;
+- 0/1/2+ exact-source behavior and replacement-source non-retargeting;
+- JSON coercion/accessor/sparse-array/cycle/custom-object negative proofs;
+- unsupported HTMX modifier/ancestor proofs;
+- busy-source no-queue proof;
+- pre/post `htmx.ajax()` cancellation truth table;
+- Livewire expiry and cancellation regressions;
+- WebMCP/DriverRegistry integration without generic production changes;
+- dependency/Laravel/frozen-contract/T-603/T-604 scope guards.
 
 ## Proposed decisions
 
@@ -110,9 +124,9 @@ Every implementation task carries its own RED/GREEN/commit cycle. The final impl
 - `D-055` — busy-source + pre-dispatch-only strong cancellation boundary — **PROPOSED**.
 - `D-056` — deterministic Action-input integrity and unsupported HTMX mutation mechanisms — **PROPOSED**.
 
-These decisions must not be promoted merely because the design/plan is written. Promotion is gated on verified T-602 implementation.
+These decisions are not promoted because a design or plan exists. Promotion is gated on verified T-602 implementation.
 
-`D-020` remains **PROPOSED** until the second binding is exercised through T-603 and shared conformance in T-604.
+`D-020` remains **PROPOSED** until T-603 plus T-604 complete the portability proof.
 
 ## Expected implementation surface
 
@@ -152,9 +166,9 @@ packages/browser-runtime/package-lock.json
 examples/htmx/**
 ```
 
-## Verification expectations for implementation
+## Implementation verification contract
 
-When implementation begins, each task follows RED -> GREEN -> regression -> commit. Final verification requires at minimum:
+When execution is authorized, each task follows its plan-owned RED/GREEN sequence. Final verification requires at minimum:
 
 ```text
 cd packages/browser-runtime
@@ -165,8 +179,8 @@ npm test
 python scripts/validate.py
 ```
 
-Full CI must remain green, including PHP compatibility matrix and PHP lint. The browser baseline entering T-602 is 174/174 tests; prior tests must not be deleted/weakened to obtain green.
+The final review-prep head must also pass all 7 jobs of the existing GitHub Actions `validate` workflow. The browser baseline entering T-602 is 174/174 tests; prior tests must not be removed or weakened to obtain green.
 
 ## Current boundary
 
-**T-602 implementation is not started.** The design and implementation plan are committed. The next allowed action is explicit execution-mode authorization for the plan. No production code, external-review handoff, PR, merge, T-603 fixture, or T-604 shared conformance should begin before the corresponding gate.
+**T-602 production implementation is not started.** The design and implementation plan are complete, committed, and self-reviewed. The next allowed action is explicit execution-mode selection for Task 1. No production code, review handoff, PR, merge, T-603 fixture, or T-604 shared conformance should begin before the corresponding gate.
