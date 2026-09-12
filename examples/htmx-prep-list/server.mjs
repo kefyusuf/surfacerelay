@@ -174,39 +174,60 @@ async function handleItemsPost(request, response) {
   sendText(response, 201, 'text/html; charset=utf-8', renderItem(item));
 }
 
+function rejectWrongMethod(response, pathname, method) {
+  const expected = pathname === '/' || pathname === '/client.mjs' || pathname === '/vendor/htmx.min.js'
+    ? 'GET'
+    : pathname === '/items' || pathname === '/__test/reset'
+      ? 'POST'
+      : pathname.startsWith('/runtime/')
+        ? 'GET'
+        : null;
+
+  if (expected !== null && method !== expected) {
+    sendText(response, 405, 'text/plain; charset=utf-8', 'Method not allowed');
+    return true;
+  }
+  return false;
+}
+
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url ?? '/', `http://${HOST}:${PORT}`);
     const pathname = url.pathname;
+    const method = request.method ?? '';
 
-    if (request.method === 'GET' && pathname === '/') {
+    if (rejectWrongMethod(response, pathname, method)) {
+      return;
+    }
+
+    if (method === 'GET' && pathname === '/') {
       sendText(response, 200, 'text/html; charset=utf-8', renderPage());
       return;
     }
 
-    if (request.method === 'POST' && pathname === '/__test/reset') {
+    if (method === 'POST' && pathname === '/__test/reset') {
       state.items.length = 0;
       state.nextItemId = 1;
       sendEmpty(response, 204);
       return;
     }
 
-    if (request.method === 'POST' && pathname === '/items') {
+    if (method === 'POST' && pathname === '/items') {
       await handleItemsPost(request, response);
       return;
     }
 
-    if (request.method === 'GET' && pathname === '/client.mjs') {
+    if (method === 'GET' && pathname === '/client.mjs') {
       await sendFile(response, clientPath, 'text/javascript; charset=utf-8');
       return;
     }
 
-    if (request.method === 'GET' && pathname === '/vendor/htmx.min.js') {
+    if (method === 'GET' && pathname === '/vendor/htmx.min.js') {
       await sendFile(response, htmxPath, 'text/javascript; charset=utf-8');
       return;
     }
 
-    if (request.method === 'GET' && pathname.startsWith('/runtime/')) {
+    if (method === 'GET' && pathname.startsWith('/runtime/')) {
       const filename = pathname.slice('/runtime/'.length);
       if (!runtimeFilePattern.test(filename)) {
         sendText(response, 404, 'text/plain; charset=utf-8', 'Not found');
