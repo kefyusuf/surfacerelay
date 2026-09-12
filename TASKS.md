@@ -133,14 +133,15 @@ Decision state after closure:
 
 **T-602 is closed.**
 
-### T-603 — Non-Laravel HTMX fixture app — IN_PROGRESS / DESIGN SPEC UNDER REVIEW
+### T-603 — Non-Laravel HTMX fixture app — IN_PROGRESS / IMPLEMENTATION PLAN UNDER REVIEW
 
 **Implementation state:** **NOT STARTED.**
 
-Design gate approved in chat on 2026-09-12. Written spec:
+Design / plan:
 
 ```text
 docs/superpowers/specs/2026-09-12-htmx-fixture-design.md
+docs/superpowers/plans/2026-09-12-htmx-fixture.md
 ```
 
 Selected proof boundary:
@@ -171,7 +172,18 @@ Proposed decision:
 - `D-057` — real non-Laravel HTMX fixture proof boundary — **PROPOSED**.
 - `D-020` remains **PROPOSED** and gated on T-604.
 
-Expected implementation surface after written-spec + implementation-plan approval:
+Implementation plan decomposition:
+
+```text
+Task 1 — fixture package, runtime emit, real HTMX/bootstrap identity
+Task 2 — single /items business mutation + normal human HTMX path
+Task 3 — real SurfaceRelay driver path + Action override/host-state proof
+Task 4 — human/agent network convergence + page lifecycle renewal
+Task 5 — stale-source no-retargeting + HTTP/static/rendering hardening
+Task 6 — path-filtered fixture CI + README + verification + review prep
+```
+
+Expected implementation surface after plan approval:
 
 ```text
 examples/htmx-prep-list/package.json
@@ -185,21 +197,10 @@ examples/htmx-prep-list/tests/prep-list.spec.mjs
 .github/workflows/htmx-fixture.yml
 ```
 
-Required real-browser proof matrix includes:
-
-```text
-runtime/bootstrap identity
-normal human HTMX path
-agent path + same-name form-value override
-human/agent normalized request convergence
-page-lifecycle source renewal
-real-DOM stale replacement with zero mutation request
-```
-
 Explicitly out of scope during T-603:
 
 ```text
-packages/browser-runtime/src/** production behavior changes
+packages/browser-runtime/src/** production behavior changes without reopening design
 packages/laravel/** production behavior changes
 spec/0.1/**
 HTMX 4/beta compatibility
@@ -210,7 +211,7 @@ T-604 shared conformance
 D-020 promotion
 ```
 
-**Current T-603 gate:** written design spec review. Do not write the implementation plan, fixture files, package manifests, or CI workflow until the user approves the committed written spec.
+**Current T-603 gate:** implementation-plan review. Do not create fixture files, package manifests, Playwright tests, or CI workflow until the user approves the committed implementation plan.
 
 - T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED.
 
@@ -223,4 +224,4 @@ D-020 promotion
 
 ## Current boundary
 
-T-602 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-603 is active only at its **written design-spec review gate** on `feat/htmx-fixture`; implementation and implementation planning are **NOT STARTED**. `D-057` and `D-020` remain proposed. Do not begin T-604 automatically.
+T-602 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-603 has an approved written design and a committed implementation plan under review on `feat/htmx-fixture`; implementation is **NOT STARTED**. `D-057` and `D-020` remain proposed. Do not begin T-604 automatically.
