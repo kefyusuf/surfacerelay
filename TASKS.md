@@ -91,58 +91,7 @@ docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md
 docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md
 ```
 
-Implementation verification before review:
-
-```text
-Design checkpoint:            cca98af90323819789a56d28a2174b9b7ea25059 / 34625130732 — 7/7 green
-Implementation plan:          1e47c6bb4121bcc1fc43e69c73c213d17092b5c1 / 34629136719 — 7/7 green
-Implementation/scope head:    b06204e2c7acf6be01df3fec5085e55ddd650329 / 34654979136 — 7/7 green
-Review-prep head:             c4e9b841d98464cc2fdb0b3fb259e9cebba08c76 / 34655391095 — 7/7 green
-Initial PR #10 CI:            34655515805 — 7/7 green
-Initial browser:              172/172; HTMX focused 69/69; typecheck green
-```
-
-External review:
-
-```text
-PR:                           #10
-CodeRabbit run:               77dbb63c-4223-4177-a56a-8cad74daddb8
-Initial findings:             1 Major + 3 Minor
-Resolved threads:             4 / 4
-Unresolved threads:           0
-```
-
-Major finding hardening:
-
-```text
-RED:                          9b241e4ef58740e512d57fde16efd1caaf8db5bd / 34656195469
-RED result:                   174 total — 172 passed / exactly 2 failed
-                              dependentRequired + dependencies
-GREEN:                        0fd29621c1ae3084649095f8a8595e741c504e50 / 34656249493 — 7/7 green
-Browser after GREEN:          174/174; HTMX focused 71/71; typecheck green
-Contract / PHP / lint:        green
-```
-
-Final reviewed state:
-
-```text
-Final reviewed branch head:   9939715e3357e3f63d52ab26f9de549e3738bd09
-Final review-closure head:    e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
-Final push CI:                34656613121 — 7/7 green
-Final PR CI:                  34656616252 — 7/7 green
-Browser:                      174/174; HTMX focused 71/71; typecheck green
-PHP baseline:                 595 tests / 3164 assertions
-```
-
-Review rulings:
-
-- **Major — conditional required-key schemas:** reproduced and fixed TDD-first; CodeRabbit confirmed and resolved.
-- **Minor — design snapshot/current-state mismatch:** verified as intentional historical design snapshot; CodeRabbit withdrew and resolved.
-- **Minor — review handoff too long:** fixed; CodeRabbit confirmed and resolved.
-- **Minor — milestone token:** fixed; CodeRabbit confirmed and resolved.
-- A second full CodeRabbit sweep after hardening was service-rate-limited; it is not counted as a second complete review pass. The original four findings were individually rechecked and all four threads are resolved.
-
-Merge closure:
+Final closure:
 
 ```text
 Final feature head:           e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
@@ -156,7 +105,84 @@ Contract / PHP lint:          green
 
 **T-601 is closed.**
 
-- T-602 — HTMX browser driver — TODO / NOT STARTED.
+### T-602 — HTMX browser driver — IN_PROGRESS / DESIGN SPEC UNDER REVIEW
+
+**Implementation state:** **NOT STARTED.**
+
+Design gate approved in chat on 2026-09-12. Written spec:
+
+```text
+docs/superpowers/specs/2026-09-12-htmx-browser-driver-design.md
+```
+
+Selected boundaries:
+
+- consume the exact T-601 `driver=htmx`, `lifecycle=page` descriptor without changing frozen protocol contracts;
+- host-runtime adapter pattern; do not bundle/import a second HTMX runtime;
+- support the HTMX 2.x reference runtime only;
+- resolve exactly one current `data-surfacerelay-htmx-source` instance; 0 or 2+ matches fail stale;
+- require exactly one explicit physical five-verb HTMX request attribute and exact raw method/path equality;
+- enforce a same-origin pre-dispatch check without claiming to sandbox later host `htmx:configRequest` hooks;
+- map only allowlisted own Action-input names;
+- recursively accept deterministic JSON-data values and JSON-string encode structured values under one top-level name;
+- reject lossy/non-JSON values and nested invalid values;
+- preserve ordinary host form/request state only as untrusted host state;
+- fail closed for `hx-vals`, `hx-vars`, restrictive `hx-params`, `hx-confirm`, `hx-prompt`, `hx-sync`, `hx-indicator`, `hx-ext`, and active browser validation on the reference source;
+- fail `htmx_source_busy` instead of entering HTMX queue/replace/abort behavior when the exact source is already busy;
+- strong no-dispatch cancellation applies only before the `htmx.ajax()` invocation frontier;
+- after the frontier, do not call `htmx:abort` or replace the natural HTMX success/failure outcome;
+- preserve `Promise<void>` semantics and propagate underlying HTMX failures unchanged;
+- extract strict RuntimeBinding expiry semantics into a shared browser-runtime helper while preserving Livewire behavior;
+- add no HTMX, DOM emulator, browser automation, or other dependency;
+- prove WebMCP -> DriverRegistry -> HTMX driver integration without claiming T-604 shared conformance.
+
+Proposed decisions:
+
+- `D-054` — HTMX execution boundary — **PROPOSED**;
+- `D-055` — HTMX concurrency/cancellation boundary — **PROPOSED**;
+- `D-056` — HTMX Action-input integrity — **PROPOSED**;
+- `D-020` remains **PROPOSED** and gated on T-604.
+
+Expected implementation surface after written-spec + implementation-plan approval:
+
+```text
+packages/browser-runtime/src/htmx-browser-runtime.ts
+packages/browser-runtime/src/htmx-browser-driver.ts
+packages/browser-runtime/src/htmx-errors.ts
+packages/browser-runtime/src/htmx-input-mapping.ts
+packages/browser-runtime/src/runtime-binding-expiry.ts
+packages/browser-runtime/src/livewire-browser-driver.ts   # expiry-only refactor
+```
+
+Expected focused tests:
+
+```text
+packages/browser-runtime/tests/htmx-browser-runtime.test.ts
+packages/browser-runtime/tests/htmx-browser-runtime.typecheck.ts
+packages/browser-runtime/tests/htmx-browser-driver.test.ts
+packages/browser-runtime/tests/htmx-input-mapping.test.ts
+packages/browser-runtime/tests/htmx-cancellation.test.ts
+packages/browser-runtime/tests/htmx-webmcp-integration.test.ts
+packages/browser-runtime/tests/runtime-binding-expiry.test.ts
+```
+
+Explicitly out of scope during T-602:
+
+```text
+packages/laravel/src/**
+spec/0.1/**
+examples/htmx/**
+HTMX 4/beta compatibility
+raw fetch / generic HTTP driver
+HTMX package dependency
+DOM emulator / Playwright / Puppeteer dependency
+fixture server/app
+response HTML -> ActionResult synthesis
+T-604 shared conformance
+```
+
+**Current T-602 gate:** written design spec review. Do not write the implementation plan or production code until the user approves the committed written spec.
+
 - T-603 — Non-Laravel HTMX fixture app — TODO.
 - T-604 — Shared conformance against Livewire + HTMX — TODO.
 
@@ -169,4 +195,4 @@ Contract / PHP lint:          green
 
 ## Current boundary
 
-T-601 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. M6 remains `IN_PROGRESS`. **Do not start T-602 automatically.** When explicitly advanced, T-602 begins at its own scope/design gate.
+T-601 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-602 is active only at its **written design-spec review gate**. T-602 implementation and implementation planning are **NOT STARTED**. Do not begin T-603 automatically.
