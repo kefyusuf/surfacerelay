@@ -4,7 +4,7 @@ Status values: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
 
 A task is DONE only after required verification passes. SurfaceRelay implements one task at a time; do not begin the next task automatically.
 
-> Historical per-task evidence through T-505 is preserved in `docs/archive/TASKS-through-T505-preclosure.md`. Design specs, implementation plans, `STATUS.md`, `REVIEW_REQUEST.md`, PR discussions, and Git history contain the detailed evidence for later tasks.
+> Historical per-task evidence through T-505 is preserved in `docs/archive/TASKS-through-T505-preclosure.md`. Design specs, implementation plans, `STATUS.md`, `REVIEW_REQUEST.md`, PR discussions, and Git history contain detailed evidence for later tasks.
 
 ## M0 — Contract Foundation — DONE
 
@@ -64,114 +64,58 @@ Browser baseline:         TypeScript typecheck + 103/103 Vitest
 
 ### T-601 — Explicit HTMX binding descriptor — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
-**Outcome:** browser-runtime contains a pure driver-owned HTMX RuntimeBinding descriptor proving that the existing generic RuntimeBinding envelope can carry a materially different exact target without introducing HTMX execution, Laravel coupling, or a frozen wire-contract change.
-
-Accepted descriptor boundaries:
-
-- `driver=htmx`, `lifecycle=page`;
-- exact target keys: `sourceId`, `method`, `path`, `inputNames`, `requiredInputNames`;
-- exact five-method subset and bounded same-origin absolute-path-reference grammar;
-- finite named input mapping derived only from a closed top-level ActionDefinition object schema;
-- open/reference/composed/conditional top-level mapping forms fail closed;
-- `dependentRequired` and legacy `dependencies` are explicitly rejected after external-review hardening;
-- required names are a unique non-empty subset of exact property names;
-- nested input values are not flattened;
-- arbitrary RuntimeBinding JSON is independently consumer-validated;
-- output target/list snapshots are defensive and frozen;
-- no actor, tenant, role, record, selection, browser-session, confirmation, idempotency, or authorization authority enters the target;
-- no DOM/HTMX/network/cancellation behavior exists in T-601;
-- no HTMX dependency, Laravel production source, or `spec/0.1/**` change;
-- D-053 is **ACCEPTED for descriptor semantics only**;
-- D-020 remains **PROPOSED** through T-604.
-
-Design / plan:
-
-```text
-docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md
-docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md
-```
+Outcome: browser-runtime contains a pure driver-owned HTMX RuntimeBinding descriptor with exact target keys `sourceId`, `method`, `path`, `inputNames`, and `requiredInputNames`. It proves the generic RuntimeBinding envelope can carry a materially different target without introducing HTMX execution, Laravel coupling, or frozen wire-contract changes.
 
 Final closure:
 
 ```text
-Final feature head:           e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
-Merge commit:                 96581ff9d12dba5487b4831c3bc146081945decb
-Post-merge main CI:           34657967629 — 7/7 green
-Browser on main:              TypeScript typecheck + 174/174 Vitest
-Focused HTMX descriptor:      71/71
-PHP baseline:                 595 tests / 3164 assertions
-Contract / PHP lint:          green
+Design:                      docs/superpowers/specs/2026-09-11-htmx-binding-descriptor-design.md
+Plan:                        docs/superpowers/plans/2026-09-11-htmx-binding-descriptor.md
+Decision:                    D-053 — ACCEPTED for descriptor semantics only
+Final feature head:          e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
+Merge commit:                96581ff9d12dba5487b4831c3bc146081945decb
+Post-merge main CI:          34657967629 — 7/7 green
+Browser on main:             TypeScript typecheck + 174/174 Vitest
+Focused HTMX descriptor:     71/71
+PHP baseline:                595 tests / 3164 assertions
+Contract / PHP lint:         green
 ```
 
-**T-601 is closed.**
+`D-020` remained PROPOSED. T-601 introduced no DOM/HTMX/network/cancellation behavior.
 
-### T-602 — HTMX browser driver — IN_PROGRESS / IMPLEMENTATION PLAN COMPLETE
+### T-602 — HTMX browser driver — IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW
 
-**Implementation state:** **NOT STARTED.**
+**Implementation state:** complete on `feat/htmx-browser-driver`; not merged. T-603 is **NOT STARTED**.
 
-Approved design:
+Design / plan:
 
 ```text
 docs/superpowers/specs/2026-09-12-htmx-browser-driver-design.md
-```
-
-Implementation plan:
-
-```text
 docs/superpowers/plans/2026-09-12-htmx-browser-driver.md
 ```
 
-Design checkpoint:
+Accepted implementation boundaries:
 
-```text
-Head:                         42cca940af35b3dff918a641b619d578f839047d
-CI:                           34682081839 — 7/7 green
-Browser baseline:             TypeScript typecheck + 174/174 Vitest
-```
+- host page HTMX runtime only; reference compatibility is HTMX 2.x;
+- no `htmx.org`, DOM emulator, browser automation, or other dependency added;
+- exact one-source resolution by `data-surfacerelay-htmx-source`; no replacement/similar retargeting;
+- exactly one physical five-verb `hx-*` / `data-hx-*` request declaration;
+- exact raw method/path equality and same-origin pre-dispatch defense;
+- later host HTMX hooks such as `htmx:configRequest` remain host behavior and are not SurfaceRelay authorization/binding authority;
+- deterministic allowlisted own Action-input mapping; arrays/plain objects remain one top-level JSON-string value;
+- lossy/non-JSON/accessor/sparse/cyclic/custom values fail closed;
+- `__proto__` is preserved as an exact own mapped data key; `hasOwnProperty` is rejected because it conflicts with HTMX 2.x object-values processing;
+- ordinary host form/request state remains untrusted host state;
+- reference sources fail closed for `hx-vals`, `hx-vars`, restrictive `hx-params`, `hx-confirm`, `hx-prompt`, `hx-sync`, `hx-indicator`, `hx-ext`, and active source validation;
+- busy exact source returns `htmx_source_busy`; driver never manufactures queue/replace/broad abort behavior;
+- strong no-dispatch cancellation only before `htmx.ajax()` invocation; post-frontier caller abort does not replace the natural HTMX success/failure result;
+- successful execution preserves `Promise<void>` semantics; underlying HTMX rejection identity is preserved;
+- strict RuntimeBinding expiry parsing/classification is shared with Livewire without changing Livewire behavior;
+- existing `BindingDriver`, `RuntimeBinding`, `DriverRegistry`, and WebMCP lifecycle contracts remain unchanged;
+- no Laravel production or `spec/0.1/**` change;
+- no T-603 fixture or T-604 shared-conformance claim.
 
-Plan checkpoint after self-review hardening:
-
-```text
-Head:                         d6d35834af2b7d08586b4d15ddbd87a88f8ee83b
-Implementation:               NOT STARTED
-```
-
-Plan decomposition:
-
-```text
-1. shared RuntimeBinding expiry extraction + Livewire regression
-2. HTMX execution error taxonomy + narrow HTMX 2.x runtime adapter
-3. deterministic Action-input mapping
-4. exact-source HTMX browser driver core
-5. unsupported source-modifier + busy-source fail-closed gates
-6. HTMX cancellation frontier and natural result semantics
-7. DriverRegistry/WebMCP integration proof
-8. full verification, D-054/55/56 promotion, tracking, external-review prep
-```
-
-Plan self-review explicitly locks:
-
-- all **10** physical request forms: five `hx-*` plus five `data-hx-*` variants;
-- missing physical request declaration -> stale;
-- duplicate physical request declarations -> stale;
-- method drift -> stale;
-- trailing-slash and query-order raw-path drift -> stale;
-- JSON coercion/accessor/sparse-array/cycle/custom-object negative proofs;
-- busy source no-queue behavior;
-- pre-vs-post `htmx.ajax()` cancellation truth table;
-- Livewire expiry/cancellation regressions;
-- generic DriverRegistry/WebMCP source remains unchanged;
-- no HTMX/DOM/browser-automation dependency;
-- no Laravel/frozen-contract/T-603/T-604 scope creep.
-
-Proposed decisions remain unchanged until verified implementation:
-
-- `D-054` — HTMX execution boundary — **PROPOSED**;
-- `D-055` — HTMX concurrency/cancellation boundary — **PROPOSED**;
-- `D-056` — HTMX Action-input integrity — **PROPOSED**;
-- `D-020` — **PROPOSED**, gated on T-604.
-
-Expected implementation files:
+Implementation/test surface:
 
 ```text
 packages/browser-runtime/src/runtime-binding-expiry.ts
@@ -180,11 +124,6 @@ packages/browser-runtime/src/htmx-errors.ts
 packages/browser-runtime/src/htmx-browser-runtime.ts
 packages/browser-runtime/src/htmx-input-mapping.ts
 packages/browser-runtime/src/htmx-browser-driver.ts
-```
-
-Expected focused tests:
-
-```text
 packages/browser-runtime/tests/runtime-binding-expiry.test.ts
 packages/browser-runtime/tests/htmx-browser-runtime.test.ts
 packages/browser-runtime/tests/htmx-browser-runtime.typecheck.ts
@@ -194,25 +133,70 @@ packages/browser-runtime/tests/htmx-cancellation.test.ts
 packages/browser-runtime/tests/htmx-webmcp-integration.test.ts
 ```
 
-Explicitly out of scope:
+TDD / verification evidence:
+
+```text
+Design checkpoint:                 42cca940af35b3dff918a641b619d578f839047d / 34682081839 — 7/7 green
+Plan gate:                         11f5a23cfd28f2b26feb13d880f2eb123b43154d / 34684333012 — 7/7 green
+Expiry RED:                        acdfdd7486674b4374d02ef59837ca91ba5e7f7e / browser failed only missing shared module
+Expiry GREEN/refactor:             14c2e136ae3f8a21557132ee502a7e036892c540 + 0a13befca39a5c58cb29212b0574e68555e141f4
+Runtime RED:                       a97323b16d3bca58147a8162dbeb2be41d9f5b05
+Runtime GREEN/typecheck:           d7873bb64d6d22ab81593914676148638c7944cc + 3a0e1253de50d032f462fff0ed7d256a18548edd + e15fa915a31e61a461e3da6150d7b01baba35260
+Input mapping RED/GREEN:           dad9187d898bf3ce2e5e0a42d181cfb2b0d22c1c / f844f57e1b0a39eb1eda7652c4c3b8b28991d9aa
+Driver-core RED/GREEN:             7310fa5fb3af6009f7106b899812f25df3abb16d / 612c3493ba493e1b4b760dd55adc5f1cb73da0dc
+Source-policy RED/GREEN:           99b6247746254d1c4e86e5b73c6435914eb847bd / 27086b6094d3529bcc2e179742adeb7f9e55eccb
+Cancellation characterization:     54548b30c0ab1bb398c89cc3e343c887ac908461 — green without production correction
+WebMCP integration:                c887d64cec7f4f9c5c0475a44e5d3c8a3a0c4f3c
+Special-key hardening RED:         a06168befbc10010f8164c0515af0892ec154372 — 295 total / exactly 2 failed
+Special-key hardening GREEN:       0d2021674e43c0ec4bf0a3e365e0915221b51e5e / 34695125241 — 7/7 green
+```
+
+Final verified implementation head before review-prep tracking:
+
+```text
+Implementation head:              0d2021674e43c0ec4bf0a3e365e0915221b51e5e
+CI:                               34695125241 — 7/7 green
+Browser typecheck:                green
+Browser Vitest:                   17 files / 295/295 tests
+HTMX descriptor:                  71/71
+HTMX browser driver:              49/49
+HTMX input mapping:               26/26
+HTMX runtime:                     20/20
+HTMX cancellation:                5/5
+HTMX WebMCP integration:          2/2
+Shared expiry:                    19/19
+Livewire driver regression:       33/33
+Livewire cancellation regression: 11/11
+Livewire WebMCP regression:       2/2
+Contract validator:               green
+PHP lint:                         green
+PHP matrix:                       4/4 green
+```
+
+Decision state after verified implementation:
+
+- `D-054` — **ACCEPTED** for the exact-source host HTMX 2.x execution boundary.
+- `D-055` — **ACCEPTED** for busy-source failure and pre-ajax-only strong cancellation semantics.
+- `D-056` — **ACCEPTED** for deterministic Action-input integrity/reference-source exclusions.
+- `D-020` — **PROPOSED**; portability remains gated on T-603/T-604.
+
+Scope verification against `main@536a89f7a7fe6fb10f4284203cffb5a63ecc0fb4` confirms no changes to:
 
 ```text
 packages/laravel/src/**
 spec/0.1/**
+packages/browser-runtime/src/types.ts
+packages/browser-runtime/src/driver-registry.ts
+packages/browser-runtime/src/webmcp-registration-lifecycle.ts
+packages/browser-runtime/package.json
+packages/browser-runtime/package-lock.json
 examples/htmx/**
-HTMX 4/beta compatibility
-raw fetch / generic HTTP driver
-HTMX package dependency
-DOM emulator / browser automation dependency
-response HTML -> ActionResult synthesis
-T-603 fixture work
-T-604 shared conformance
 ```
 
-**Current T-602 gate:** implementation plan is complete and self-reviewed; production implementation is **NOT STARTED**. Explicitly choose an execution mode before Task 1 begins.
+**Current gate:** external review. Do not create/merge a PR, begin T-603, run T-604 shared conformance, or promote D-020 without explicit authorization.
 
 - T-603 — Non-Laravel HTMX fixture app — TODO / NOT STARTED.
-- T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED.
+- T-604 — Shared conformance against Livewire + HTMX — TODO.
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -223,4 +207,4 @@ T-604 shared conformance
 
 ## Current boundary
 
-T-601 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-602 design and implementation plan are complete, but T-602 production implementation is **NOT STARTED**. Do not begin Task 1 until execution mode is explicitly selected, and do not begin T-603 automatically.
+T-602 is **IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW** on its feature branch. D-054/D-055/D-056 are accepted for the verified reference-driver behavior only. D-020 remains proposed. **T-603 must not start automatically.**
