@@ -181,6 +181,12 @@ test('fixture server rejects invalid mutation and traversal requests fail closed
   });
   expect(wrongType.status()).toBe(415);
 
+  const nearMissType = await request.post('/items', {
+    headers: { 'content-type': 'application/x-www-form-urlencoded-invalid' },
+    data: 'name=must-not-run&uiContext=prep-list',
+  });
+  expect(nearMissType.status()).toBe(415);
+
   const empty = await request.post('/items', {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     data: 'name=&uiContext=prep-list',
