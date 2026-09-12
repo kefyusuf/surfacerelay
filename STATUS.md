@@ -8,13 +8,14 @@
 - **Milestone:** `M6 — HTMX Portability Proof` — **IN_PROGRESS**
 - **Last completed task:** `T-602 — HTMX browser driver`
 - **Current task:** `T-603 — Non-Laravel HTMX fixture app`
-- **T-603 state:** **IN_PROGRESS — DESIGN APPROVED IN CHAT / WRITTEN SPEC UNDER REVIEW**
+- **T-603 state:** **IN_PROGRESS — DESIGN APPROVED / IMPLEMENTATION PLAN UNDER REVIEW**
 - **T-603 implementation:** **NOT STARTED**
 - **Written spec:** `docs/superpowers/specs/2026-09-12-htmx-fixture-design.md`
+- **Implementation plan:** `docs/superpowers/plans/2026-09-12-htmx-fixture.md`
 - **Proposed fixture decision:** `D-057`
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
 - **Branch base:** `main@83df122d84f6881a4a3541bd5c72e1108e5d1e48`
-- **Next gate:** user review/approval of the committed T-603 written spec; only then write the implementation plan.
+- **Next gate:** user review/approval of the committed T-603 implementation plan; only then begin fixture implementation.
 
 ## Baseline entering T-603
 
@@ -103,7 +104,22 @@ At minimum six Playwright tests:
 6. real-DOM stale replacement with no retarget/no mutation
 ```
 
-Network assertions must inspect actual Playwright-observed requests, including method, path, `HX-Request`, content type, and form body. DOM appearance alone is insufficient proof.
+The implementation plan additionally requires fail-closed HTTP/static tests and an HTML-escaping regression before closure.
+
+Network assertions inspect actual Playwright-observed requests, including method, path, `HX-Request`, content type, and form body. DOM appearance alone is insufficient proof.
+
+### Implementation plan decomposition
+
+```text
+Task 1 — fixture package, runtime emit, real HTMX/bootstrap identity
+Task 2 — single /items business mutation + normal human HTMX path
+Task 3 — real SurfaceRelay driver path + Action override/host-state proof
+Task 4 — human/agent network convergence + page lifecycle renewal
+Task 5 — stale-source no-retargeting + HTTP/static/rendering hardening
+Task 6 — path-filtered fixture CI + README + verification + review prep
+```
+
+Each implementation task uses a RED → GREEN → regression → commit checkpoint. If the real fixture exposes a contradiction that requires changing accepted T-602 production behavior, implementation must stop and reopen a design gate rather than silently modifying browser-runtime semantics under T-603.
 
 ### CI boundary
 
@@ -130,9 +146,9 @@ Chromium installation is not added to the always-running validate workflow for u
 
 > T-603 proves the merged HTMX adapter against a real non-Laravel Node application, real HTMX 2.x browser runtime, real Chromium network/DOM behavior, and the existing `prep_list.add_item@1` ActionDefinition. Human and SurfaceRelay paths converge on the same rendered HTMX source semantics, same `/items` business route, same server state transition, and same HTMX response-swap behavior. Test-only helpers may isolate state or delegate to the production driver but may not create a second business mutation path. T-603 alone does not establish T-604 shared conformance or accept D-020.
 
-D-057 must not be promoted merely because the design is written. Acceptance is gated on successful real-browser implementation and verification.
+D-057 must not be promoted by design or plan approval. The implementation plan requires exact-head real-browser CI success before D-057 can become `ACCEPTED`.
 
-## Expected implementation surface after the next gates
+## Expected implementation surface after plan approval
 
 ```text
 examples/htmx-prep-list/package.json
@@ -155,27 +171,24 @@ packages/browser-runtime/package-lock.json
 packages/laravel/**
 spec/0.1/**
 examples/prep-list/action.add-item.json
+.github/workflows/validate.yml
 ```
 
-If the real fixture exposes a contradiction that requires changing T-602 production behavior, stop and reopen a design gate instead of silently changing the accepted driver contract inside T-603.
+## Plan verification expectations
 
-## Design verification expectations
+Before T-603 can reach external review, the plan requires:
 
-The committed written spec defines 34 acceptance criteria covering:
+```text
+fresh fixture npm ci + runtime build + Playwright run
+browser-runtime npm ci + typecheck + full regression suite
+python scripts/validate.py
+validate workflow 7/7 green on exact implementation head
+path-filtered htmx-fixture workflow 1/1 green on exact implementation head
+fresh repeat of both workflows on review-prep head
+```
 
-- real HTMX/Chromium execution;
-- real network proof;
-- same mutation path for human and agent;
-- Action-value override and host-state preservation;
-- real server-state persistence;
-- exact page/source lifecycle;
-- no replacement retargeting;
-- test-helper isolation;
-- loopback/static-serving/rendering hardening;
-- fixture-local dependency ownership;
-- path-filtered real-browser CI;
-- D-057/D-020/T-604 decision boundaries.
+Only after the first exact implementation-head real-browser CI succeeds may D-057 be promoted to accepted. D-020 remains proposed and T-604 remains not started.
 
 ## Current boundary
 
-**T-603 implementation is not started.** The design is approved in chat and committed as a written spec on `feat/htmx-fixture`. The next allowed action is user review of `docs/superpowers/specs/2026-09-12-htmx-fixture-design.md`. After explicit approval, create the implementation plan. Do not create fixture code, package manifests, Playwright tests, or CI workflow before that approval, and do not begin T-604 automatically.
+**T-603 implementation is not started.** The written design and implementation plan are committed on `feat/htmx-fixture`; the implementation plan is now the active review gate. The next allowed action is explicit user approval of `docs/superpowers/plans/2026-09-12-htmx-fixture.md`. After approval, execute the plan task-by-task. Do not create fixture code, package manifests, Playwright tests, or CI workflow before that approval, and do not begin T-604 automatically.
