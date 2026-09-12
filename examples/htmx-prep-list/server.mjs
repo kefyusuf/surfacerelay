@@ -8,6 +8,7 @@ import { createHtmxBindingTarget } from './.tmp/runtime/htmx-binding-descriptor.
 
 const HOST = '127.0.0.1';
 const PORT = 4173;
+const MAX_FORM_BYTES = 16 * 1024;
 const here = dirname(fileURLToPath(import.meta.url));
 const runtimeRoot = resolve(here, '.tmp/runtime');
 const clientPath = resolve(here, 'client.mjs');
@@ -16,9 +17,27 @@ const definitionPath = resolve(here, '../prep-list/action.add-item.json');
 const runtimeFilePattern = /^[A-Za-z0-9._-]+\.js$/;
 
 const definition = JSON.parse(await readFile(definitionPath, 'utf8'));
+const state = {
+  items: [],
+  nextItemId: 1,
+};
 
 function jsonForHtmlScript(value) {
   return JSON.stringify(value).replaceAll('<', '\\u003c');
+}
+
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function renderItem(item) {
+  const name = escapeHtml(item.name);
+  return `<li data-item-id="${item.id}" data-item-name="${name}">${name}</li>`;
 }
 
 function createPageBinding() {
@@ -45,6 +64,7 @@ function createPageBinding() {
 
 function renderPage() {
   const { sourceId, binding } = createPageBinding();
+  const items = state.items.map(renderItem).join('');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -64,7 +84,7 @@ function renderPage() {
         hx-swap="beforeend"
       >Add</button>
     </form>
-    <ul id="items"></ul>
+    <ul id="items">${items}</ul>
   </main>
   <script type="application/json" id="surfacerelay-binding">${jsonForHtmlScript(binding)}</script>
   <script src="/vendor/htmx.min.js"></script>
@@ -82,6 +102,14 @@ function sendText(response, status, contentType, body) {
   response.end(body);
 }
 
+function sendEmpty(response, status) {
+  response.writeHead(status, {
+    'content-length': '0',
+    'cache-control': 'no-store',
+  });
+  response.end();
+}
+
 async function sendFile(response, path, contentType) {
   try {
     const body = await readFile(path);
@@ -96,6 +124,56 @@ async function sendFile(response, path, contentType) {
   }
 }
 
+function readBoundedBody(request) {
+  return new Promise((resolveBody, rejectBody) => {
+    let size = 0;
+    let oversized = false;
+    const chunks = [];
+
+    request.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > MAX_FORM_BYTES) {
+        oversized = true;
+        return;
+      }
+      if (!oversized) {
+        chunks.push(chunk);
+      }
+    });
+
+    request.on('end', () => {
+      if (oversized) {
+        rejectBody(Object.assign(new Error('Request body is too large.'), { statusCode: 413 }));
+        return;
+      }
+      resolveBody(Buffer.concat(chunks).toString('utf8'));
+    });
+
+    request.on('error', rejectBody);
+  });
+}
+
+async function handleItemsPost(request, response) {
+  const contentType = request.headers['content-type'];
+  if (typeof contentType !== 'string' || !contentType.startsWith('application/x-www-form-urlencoded')) {
+    sendText(response, 415, 'text/plain; charset=utf-8', 'Unsupported media type');
+    return;
+  }
+
+  const body = await readBoundedBody(request);
+  const params = new URLSearchParams(body);
+  const names = params.getAll('name');
+  if (names.length !== 1 || names[0].length === 0) {
+    sendText(response, 422, 'text/plain; charset=utf-8', 'Invalid name');
+    return;
+  }
+
+  const item = { id: state.nextItemId, name: names[0] };
+  state.nextItemId += 1;
+  state.items.push(item);
+  sendText(response, 201, 'text/html; charset=utf-8', renderItem(item));
+}
+
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url ?? '/', `http://${HOST}:${PORT}`);
@@ -103,6 +181,18 @@ const server = createServer(async (request, response) => {
 
     if (request.method === 'GET' && pathname === '/') {
       sendText(response, 200, 'text/html; charset=utf-8', renderPage());
+      return;
+    }
+
+    if (request.method === 'POST' && pathname === '/__test/reset') {
+      state.items.length = 0;
+      state.nextItemId = 1;
+      sendEmpty(response, 204);
+      return;
+    }
+
+    if (request.method === 'POST' && pathname === '/items') {
+      await handleItemsPost(request, response);
       return;
     }
 
@@ -128,6 +218,12 @@ const server = createServer(async (request, response) => {
 
     sendText(response, 404, 'text/plain; charset=utf-8', 'Not found');
   } catch (error) {
+    const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+    if (statusCode !== 500) {
+      sendText(response, statusCode, 'text/plain; charset=utf-8', error.message);
+      return;
+    }
+
     console.error(error);
     if (!response.headersSent) {
       sendText(response, 500, 'text/plain; charset=utf-8', 'Internal server error');
