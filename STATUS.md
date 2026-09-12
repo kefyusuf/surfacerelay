@@ -8,19 +8,20 @@
 - **Milestone:** `M6 — HTMX Portability Proof` — **IN_PROGRESS**
 - **Last completed task:** `T-602 — HTMX browser driver`
 - **Current task:** `T-603 — Non-Laravel HTMX fixture app`
-- **T-603 state:** **IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW**
-- **Verified fixture implementation head:** `31c0b85af56aaa06cac4efc2bced36bee0befcc2`
-- **Validate on verified head:** `34719068926` — **7/7 green**
-- **Real-browser fixture on verified head:** `34719068934` — **1/1 green; 8/8 Playwright**
+- **T-603 state:** **IMPLEMENTED / EXTERNAL REVIEW IN PROGRESS**
+- **Pull request:** `#12 — test(htmx): add real non-Laravel fixture proof`
+- **Original verified fixture head:** `31c0b85af56aaa06cac4efc2bced36bee0befcc2`
+- **Review-fix executable head:** `7284dd21292c17fc35ddfd3bfb045d50e3dab38c`
+- **Review-fix validate:** `34725480849` — **7/7 green**
+- **Review-fix real fixture:** `34725480861` — **1/1 green; 8/8 Playwright**
 - **Browser-runtime regression:** TypeScript typecheck + **297/297 Vitest across 17 files**
-- **Fixture decision:** `D-057` — **ACCEPTED after verified real-browser proof**
+- **CodeRabbit:** one completed review; **4 actionable + 1 nitpick** initially; executable findings addressed, tracking closure in progress
+- **Fixture decision:** `D-057` — **ACCEPTED**
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
 - **T-604:** **NOT STARTED**
-- **Next gate:** external review / PR preparation; do not begin T-604 automatically.
+- **Next gate:** finish review-thread closure and exact-head verification; merge only after explicit authorization.
 
 ## Baseline entering T-603
-
-T-602 was already closed on `main` before T-603 began:
 
 ```text
 Base main:                    83df122d84f6881a4a3541bd5c72e1108e5d1e48
@@ -30,17 +31,11 @@ T-602 final closure CI:       34702679885 — 7/7 green
 Browser baseline:             297/297 + typecheck
 ```
 
-Accepted T-602 decisions entering T-603:
-
-```text
-D-054 — exact-source host HTMX 2.x execution boundary
-D-055 — busy-source failure + pre-ajax-only strong cancellation
-D-056 — deterministic Action-input integrity and fail-closed source policy
-```
+Accepted T-602 decisions entering T-603: `D-054`, `D-055`, `D-056`.
 
 ## T-603 delivered proof
 
-T-603 adds one deliberately small real non-Laravel fixture rather than a second framework integration:
+T-603 adds one deliberately small real non-Laravel fixture:
 
 ```text
 existing prep_list.add_item@1 ActionDefinition
@@ -65,24 +60,23 @@ same source-defined hx-target / hx-swap
 ### Fixture boundaries
 
 - independent private package under `examples/htmx-prep-list/`;
-- Node 22 built-in `node:http`, bound only to `127.0.0.1:4173`;
+- Node 22 `node:http`, bound only to `127.0.0.1:4173`;
 - pinned `htmx.org@2.0.10`, `@playwright/test@1.63.0`, TypeScript `5.9.3`;
-- actual `packages/browser-runtime/src/**/*.ts` compiled into ignored `.tmp/runtime/` ESM; no copied/reimplemented driver;
+- actual `packages/browser-runtime/src/**/*.ts` compiled into ignored `.tmp/runtime/` ESM;
 - exact existing `examples/prep-list/action.add-item.json` reused;
 - every page render creates fresh `sourceId` + `bindingId` through production `createHtmxBindingTarget()`;
 - exactly one business mutation route: `POST /items`;
 - exactly one test-only state endpoint: `POST /__test/reset`;
-- client bridge delegates only to production `HtmxBrowserDriver.execute()` and a DOM-only source replacement helper;
-- no direct bridge `fetch`, XHR, `htmx.ajax()`, or server/business mutation;
+- client bridge delegates only to production `HtmxBrowserDriver.execute()` and a DOM-only replacement helper;
 - real network assertions prove `HX-Request`, method/path/content-type/form values;
-- server body is bounded to 16 KiB and duplicate/missing/invalid names fail closed;
-- static runtime serving only accepts flat emitted JS filenames;
-- item rendering and embedded binding JSON use context-appropriate escaping;
+- body is bounded to 16 KiB and duplicate/missing/invalid names fail closed;
+- runtime static serving accepts only flat emitted JS filenames;
+- item rendering and embedded binding JSON are context-escaped;
 - no database, Node ActionBus clone, Laravel trust-control clone, or T-604 shared-conformance behavior.
 
 ### Real browser proof matrix
 
-`examples/htmx-prep-list/tests/prep-list.spec.mjs` contains 8 real Chromium tests:
+Eight real Chromium tests prove:
 
 ```text
 1. HTMX 2.0.10 bootstrap + exact server-issued binding/source identity
@@ -91,20 +85,9 @@ same source-defined hx-target / hx-swap
 4. normalized human/agent real-request convergence
 5. page reload renews sourceId and bindingId together
 6. equivalent real-DOM replacement makes old binding stale with zero /items request
-7. invalid/duplicate/oversized/traversal requests fail closed
+7. invalid/duplicate/oversized/media-type/traversal requests fail closed
 8. item content remains text in partial and full-page rendering
 ```
-
-The agent request proof specifically demonstrates:
-
-```text
-DOM form:             name=stale-human-value
-SurfaceRelay input:   name=agent-tea
-real wire request:    name=agent-tea
-ordinary host state: uiContext=prep-list remains present
-```
-
-The stale-source proof demonstrates that an equivalent replacement button with the same HTMX method/path/target/swap never inherits the old binding identity.
 
 ## TDD / implementation evidence
 
@@ -132,11 +115,67 @@ Hardening RED proof:             34718189031 — 8 total / 6 passed / exactly 2 
 Hardening GREEN:                 06a261636cd45fac2d95fc54228a2902f25c0bf1 + 71262bee0f5f011a87d2f1fb3216ebc528e9241e
 Hardening verification:          34718699712 — 8/8 green
 
-Verified fixture implementation: 31c0b85af56aaa06cac4efc2bced36bee0befcc2
+Original verified fixture head:  31c0b85af56aaa06cac4efc2bced36bee0befcc2
 Validate:                        34719068926 — 7/7 green
 HTMX fixture:                    34719068934 — 1/1 green / 8/8 Playwright
 Browser regression:              17 files / 297/297 + typecheck
+Review-prep head:                0348bb6b50a6a8f36c4b3f1315515dd6e9213c87
+Review-prep validate:            34722974304 — 7/7 green
+Review-prep diff proof:          31c0b85a..0348bb6b — tracking files only
 ```
+
+## External review — PR #12
+
+CodeRabbit completed one review and initially raised **4 actionable comments + 1 nitpick**.
+
+### Finding A — workflow token permissions / persisted checkout credentials — FIXED
+
+Two inline comments represented the same security boundary:
+
+```text
+permissions: contents: read
+actions/checkout@v4 -> persist-credentials: false
+```
+
+Review-fix head evidence confirms the workflow token is read-only and checkout credentials are removed before npm-controlled execution.
+
+### Finding B — near-miss Content-Type accepted — RED / GREEN FIXED
+
+Original code used:
+
+```text
+contentType.startsWith('application/x-www-form-urlencoded')
+```
+
+so `application/x-www-form-urlencoded-invalid` incorrectly reached mutation and returned `201`.
+
+```text
+RED commit:        da528e4db76af7c04a351c99a20df2e2da7387dd
+RED fixture run:   34725182292 — 8 total / 7 passed / exactly 1 failed
+RED failure:       expected 415, received 201
+GREEN commit:      226f8169ee7cf251a079cd9f763e21791d49b39a
+Review-fix head:   7284dd21292c17fc35ddfd3bfb045d50e3dab38c
+Fixture run:       34725480861 — 8/8 green
+Validate run:      34725480849 — 7/7 green
+```
+
+The server now parses the media type before parameters and requires exact `application/x-www-form-urlencoded` equality.
+
+### Finding C — review-prep readiness proof — VERIFIED / RECORD ALIGNMENT
+
+The finding was based on the tracking text available to the reviewer. The original review-prep head had already received:
+
+```text
+0348bb6b50a6a8f36c4b3f1315515dd6e9213c87
+validate 34722974304 — 7/7 green
+31c0b85a..0348bb6b diff — STATUS.md, TASKS.md, REVIEW_REQUEST.md, DECISION-REGISTER only
+```
+
+The later executable review fixes intentionally supersede that review-prep head. Current records therefore use `7284dd21...` as the executable review-fix head and require a final docs-only closure-head validation before merge.
+
+### Nitpick — REVIEW_REQUEST handoff too long — FIXED
+
+Detailed historical RED/GREEN evidence remains here and in `TASKS.md`. `REVIEW_REQUEST.md` is reduced to current review state, focus, verified heads/results, scope, and next gate.
 
 ## Change surface
 
@@ -165,7 +204,7 @@ STATUS.md
 REVIEW_REQUEST.md
 ```
 
-Explicitly unchanged by T-603 implementation:
+Explicitly unchanged by T-603:
 
 ```text
 packages/browser-runtime/src/**
@@ -177,14 +216,12 @@ examples/prep-list/action.add-item.json
 .github/workflows/validate.yml
 ```
 
-No `.tmp`, `node_modules`, browser binary, trace, screenshot, or Playwright output is committed.
-
 ## Decision state
 
 - `D-057` — **ACCEPTED** for the verified real non-Laravel HTMX fixture proof.
-- `D-054`, `D-055`, `D-056` remain accepted for their T-602 driver boundaries.
-- `D-020` remains **PROPOSED**. T-603 demonstrates a real second binding fixture but does not establish shared Livewire/HTMX conformance.
+- `D-054`, `D-055`, `D-056` remain accepted.
+- `D-020` remains **PROPOSED**; T-604 shared conformance is still required.
 
 ## Current boundary
 
-**T-603 implementation is complete and self-reviewed, but not yet externally reviewed or merged.** The verified fixture implementation head is `31c0b85af56aaa06cac4efc2bced36bee0befcc2`. External review / PR is the next gate. Do not begin T-604 automatically.
+**T-603 is implemented and external review is in progress on PR #12.** Executable review fixes are verified at `7284dd21292c17fc35ddfd3bfb045d50e3dab38c`. The next step is review-thread closure plus a final docs-only review-closure head with fresh normal `validate` and diff proof. Do not merge or begin T-604 without the next explicit user gate.
