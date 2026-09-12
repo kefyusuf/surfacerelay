@@ -83,7 +83,7 @@ D-055 becomes `ACCEPTED` only after T-602 implementation and verification succee
 
 Record during design/implementation as `PROPOSED`:
 
-> SurfaceRelay maps only allowlisted top-level Action input names into deterministic JSON-data-safe HTMX override values. Ordinary host form/request state remains host state and is not trusted authority. HTMX mechanisms that can overwrite, remove, evaluate, queue, confirm, prompt, externally encode, or otherwise ambiguously transform SurfaceRelay Action values are unsupported on the reference source. Structured Action values remain under one top-level name and are JSON-string encoded rather than flattened into form path syntax.
+> SurfaceRelay maps only allowlisted top-level Action input names into deterministic JSON-data-safe HTMX override values. Ordinary host form/request state remains host state and is not trusted authority. HTMX mechanisms that can overwrite, remove, evaluate, queue, confirm, prompt, invoke custom extension processing, or otherwise ambiguously transform SurfaceRelay Action values are unsupported on the reference source. Structured Action values remain under one top-level name and are JSON-string encoded rather than flattened into form path syntax. Standard host `hx-encoding` remains ordinary request encoding and is not rejected by this rule.
 
 D-056 becomes `ACCEPTED` only after T-602 implementation and verification succeed.
 
@@ -259,7 +259,7 @@ HTMX host hooks such as `htmx:configRequest` can mutate path, verb, parameters, 
 
 ## Host request state versus Action input
 
-The reference driver intentionally reuses the existing HTMX source so normal human-facing request state can remain in the host request path, including ordinary form fields, hidden fields, cookies, headers, `hx-include`, request configuration, target/swap choices, and encoding choices.
+The reference driver intentionally reuses the existing HTMX source so normal human-facing request state can remain in the host request path, including ordinary form fields, hidden fields, cookies, headers, `hx-include`, request configuration, target/swap choices, and standard encoding choices.
 
 Examples of host state that may travel with the request but never become SurfaceRelay authority:
 
