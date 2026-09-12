@@ -198,6 +198,52 @@ describe('mapHtmxActionInput', () => {
     }
   });
 
+  it('does not allow inherited Object.prototype.toJSON to replace validated object content', () => {
+    const previous = Object.getOwnPropertyDescriptor(Object.prototype, 'toJSON');
+    let mapped: Readonly<Record<string, string>> | undefined;
+
+    Object.defineProperty(Object.prototype, 'toJSON', {
+      configurable: true,
+      writable: true,
+      value: () => ({ injected: true }),
+    });
+
+    try {
+      mapped = mapHtmxActionInput(target, { item: { safe: 'value' } });
+    } finally {
+      if (previous === undefined) {
+        delete (Object.prototype as { toJSON?: unknown }).toJSON;
+      } else {
+        Object.defineProperty(Object.prototype, 'toJSON', previous);
+      }
+    }
+
+    expect(mapped).toEqual({ item: '{"safe":"value"}' });
+  });
+
+  it('does not allow inherited Array.prototype.toJSON to replace validated array content', () => {
+    const previous = Object.getOwnPropertyDescriptor(Array.prototype, 'toJSON');
+    let mapped: Readonly<Record<string, string>> | undefined;
+
+    Object.defineProperty(Array.prototype, 'toJSON', {
+      configurable: true,
+      writable: true,
+      value: () => ['injected'],
+    });
+
+    try {
+      mapped = mapHtmxActionInput(target, { item: ['safe'] });
+    } finally {
+      if (previous === undefined) {
+        delete (Array.prototype as { toJSON?: unknown }).toJSON;
+      } else {
+        Object.defineProperty(Array.prototype, 'toJSON', previous);
+      }
+    }
+
+    expect(mapped).toEqual({ item: '["safe"]' });
+  });
+
   it('returns a frozen output snapshot', () => {
     const mapped = mapHtmxActionInput(target, { item: 'coffee' });
     expect(Object.isFrozen(mapped)).toBe(true);
