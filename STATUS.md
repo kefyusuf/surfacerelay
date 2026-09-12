@@ -8,13 +8,15 @@
 - **Milestone:** `M6 — HTMX Portability Proof` — **IN_PROGRESS**
 - **Last completed task:** `T-601 — Explicit HTMX binding descriptor`
 - **Current task:** `T-602 — HTMX browser driver`
-- **T-602 state:** **IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW**
-- **T-602 implementation head:** `0d2021674e43c0ec4bf0a3e365e0915221b51e5e`
-- **Implementation-head CI:** `34695125241` — **7/7 green**
-- **Browser verification:** TypeScript typecheck + **295/295 Vitest** across 17 files
+- **T-602 state:** **IMPLEMENTED / EXTERNALLY REVIEWED / FINDINGS RESOLVED / MERGE PENDING**
+- **Pull request:** `#11 — feat(htmx): add exact-source browser driver`
+- **Current reviewed head before tracking closure:** `a5f1bd8e5bd64548d78b4a37411314af664e5eb3`
+- **Current reviewed-head CI:** `34699961997` — **7/7 green**
+- **Browser verification:** TypeScript typecheck + **297/297 Vitest** across 17 files
+- **CodeRabbit:** **2 actionable inline findings; 2/2 resolved; 0 unresolved threads**
 - **Accepted decisions:** `D-054`, `D-055`, `D-056`
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-603/T-604**
-- **Next gate:** external review of T-602; no PR/merge/T-603 without explicit authorization.
+- **Next gate:** merge authorization for PR #11; do not begin T-603 automatically.
 
 ## Baseline entering T-602
 
@@ -39,12 +41,10 @@ Plan checkpoint:              11f5a23cfd28f2b26feb13d880f2eb123b43154d / 3468433
 
 ### Exact HTMX 2.x execution boundary
 
-The reference browser driver executes only the existing host page's compatible HTMX 2.x runtime through a narrow adapter:
-
 ```text
 RuntimeBinding(driver=htmx, lifecycle=page)
         ↓
-strict T-601 target parse + expiry
+strict T-601 target parse + shared expiry
         ↓
 exact sourceId resolution
         ↓
@@ -55,66 +55,53 @@ same-origin + source-policy + busy + input checks
 host HTMX 2.x htmx.ajax()
 ```
 
-The implementation does not bundle HTMX, use raw `fetch()`, synthesize business output from HTML, or modify generic DriverRegistry/WebMCP contracts.
+The implementation uses only the host page's compatible HTMX 2.x runtime. It does not bundle HTMX, use raw `fetch()`, synthesize business output from HTML, or modify generic DriverRegistry/WebMCP contracts.
 
 ### Exact source and stale semantics
 
 - exactly one `data-surfacerelay-htmx-source` match is required;
 - zero or duplicate exact identities fail `binding_stale`;
 - replacement/similar sources are never rediscovered or substituted;
-- exactly one physical request declaration is required across five methods and `hx-*` / `data-hx-*` forms;
+- all 10 physical five-method `hx-*` / `data-hx-*` request forms are covered;
 - method and raw path must exactly match the issued descriptor;
 - trailing-slash/query-order/method drift fails stale;
 - same-origin is checked before dispatch;
-- later host hooks such as `htmx:configRequest` remain host behavior and are not authorization/binding authority.
+- later host hooks such as `htmx:configRequest` remain host behavior, not SurfaceRelay authorization/binding authority.
 
 ### Action input integrity
 
-- only allowlisted own top-level input names are accepted;
+- only allowlisted own top-level Action-input names are accepted;
 - required names must be own properties;
 - strings, finite numbers, booleans and null map deterministically;
-- arrays/plain objects are recursively validated and JSON-string encoded under one top-level name;
+- arrays/plain objects are recursively validated and encoded under one top-level name;
 - no dotted/bracket flattening;
 - undefined/non-finite numbers/BigInt/Symbol/Function/Date/Map/Set/Blob/custom instances/accessors/non-enumerables/sparse arrays/cycles fail closed;
 - repeated non-cyclic references are allowed;
-- `__proto__` is preserved as an exact own data property rather than triggering prototype assignment semantics;
-- `hasOwnProperty` is rejected because HTMX 2.x object-values conversion calls that method on the values object;
+- `__proto__` is preserved as an exact own mapped data property;
+- `hasOwnProperty` is rejected because HTMX 2.x object-values processing calls that method on the values object;
+- object/array encoding is performed over the validated own data-property graph and does not invoke inherited `Object.prototype.toJSON` / `Array.prototype.toJSON` hooks;
 - ordinary host form/request state remains untrusted host state.
 
 ### Source policy and concurrency
 
-Reference sources fail closed for:
+Reference sources fail closed for `hx-vals`, `hx-vars`, restrictive `hx-params`, `hx-confirm`, `hx-prompt`, `hx-sync`, `hx-indicator`, `hx-ext`, active source validation, and their applicable `data-hx-*` forms. Conservative ancestor scanning is intentional; SurfaceRelay does not reimplement HTMX inheritance/disinheritance.
 
-```text
-hx-vals / data-hx-vals
-hx-vars / data-hx-vars
-restrictive hx-params / data-hx-params
-hx-confirm / data-hx-confirm
-hx-prompt / data-hx-prompt
-hx-sync / data-hx-sync
-hx-indicator / data-hx-indicator
-hx-ext / data-hx-ext
-active source validation
-```
-
-Conservative ancestor detection is intentional; SurfaceRelay does not reimplement HTMX inheritance/disinheritance logic.
-
-Allowed host state includes ordinary form/hidden fields and host behavior such as `hx-include`, `hx-headers`, `hx-request`, `hx-target`, `hx-swap`, and standard `hx-encoding`.
+Allowed ordinary host state includes form/hidden fields plus `hx-include`, `hx-headers`, `hx-request`, `hx-target`, `hx-swap`, and standard `hx-encoding`.
 
 An exact source already carrying the HTMX request class fails `htmx_source_busy`. SurfaceRelay does not queue, replace, or broadly abort HTMX work.
 
 ### Cancellation and result semantics
 
-- already-aborted/pre-dispatch invocations perform no HTMX dispatch and surface the caller's exact abort reason;
-- the synchronous `runtime.ajax()` / `htmx.ajax()` invocation is the dispatch frontier;
+- already-aborted/pre-dispatch invocations perform no HTMX dispatch and preserve the caller abort reason;
+- synchronous `runtime.ajax()` / `htmx.ajax()` invocation is the dispatch frontier;
 - post-frontier caller abort does not call `htmx:abort`, race/replace the promise, or claim network/server cancellation/rollback/reversal;
 - natural HTMX success/failure wins after the frontier;
-- successful execution resolves `undefined` (`Promise<void>` semantics);
+- successful execution resolves `undefined`;
 - underlying HTMX/runtime rejection identity is preserved.
 
 ### Shared expiry
 
-Strict RuntimeBinding RFC3339 expiry parsing/classification moved into `runtime-binding-expiry.ts`. Livewire consumes the shared helper while retaining its previous public type import path and all existing execution/cancellation semantics.
+Strict RuntimeBinding RFC3339 classification moved into `runtime-binding-expiry.ts`. Livewire uses the shared helper while preserving the existing two invalid-expiry message branches and all existing cancellation/execution semantics.
 
 ## Implementation surface
 
@@ -129,7 +116,7 @@ packages/browser-runtime/src/htmx-input-mapping.ts
 packages/browser-runtime/src/htmx-browser-driver.ts
 ```
 
-Tests:
+Focused tests:
 
 ```text
 packages/browser-runtime/tests/runtime-binding-expiry.test.ts
@@ -166,10 +153,13 @@ Driver RED/GREEN:              7310fa5fb3af6009f7106b899812f25df3abb16d / 612c34
 Policy RED/GREEN:              99b6247746254d1c4e86e5b73c6435914eb847bd / 27086b6094d3529bcc2e179742adeb7f9e55eccb
 Cancellation proof:            54548b30c0ab1bb398c89cc3e343c887ac908461
 WebMCP integration:            c887d64cec7f4f9c5c0475a44e5d3c8a3a0c4f3c
-Special-key RED:               a06168befbc10010f8164c0515af0892ec154372 — 295 total / exactly 2 failed
+Special-key RED:               a06168befbc10010f8164c0515af0892ec154372 — 293 passed / exactly 2 failed
 Special-key GREEN:             0d2021674e43c0ec4bf0a3e365e0915221b51e5e
-Final implementation CI:       34695125241 — 7/7 green
-Browser:                       17 files / 295/295 tests + typecheck
+External-review toJSON RED:    adde02f3c457169d9d2c47418b53d2d4413410be — 295 passed / exactly 2 failed
+External-review toJSON GREEN:  2ec197213e966c96264b429be3e316c91c69c19e
+Plan review alignment:         a5f1bd8e5bd64548d78b4a37411314af664e5eb3
+Reviewed-head CI:              34699961997 — 7/7 green
+Browser:                       17 files / 297/297 tests + typecheck
 Contract:                      green
 PHP lint:                      green
 PHP matrix:                    4/4 green
@@ -180,7 +170,7 @@ Focused final counts:
 ```text
 HTMX descriptor                 71/71
 HTMX browser driver             49/49
-HTMX input mapping              26/26
+HTMX input mapping              28/28
 HTMX runtime                    20/20
 HTMX cancellation                5/5
 HTMX WebMCP integration          2/2
@@ -189,6 +179,19 @@ Livewire browser driver         33/33
 Livewire cancellation           11/11
 Livewire WebMCP                  2/2
 ```
+
+## External review closure
+
+PR #11 received one completed CodeRabbit review over the review-prep head with two actionable inline findings, both classified Minor:
+
+1. inherited `toJSON` could alter a validated structured Action value during `JSON.stringify()`;
+2. the implementation plan showed a combined Livewire invalid-expiry message inconsistent with the preserved production behavior.
+
+Both were verified before modification. The serialization finding was reproduced RED with exactly two new failures, fixed with a prototype-hook-free deterministic encoder, and revalidated GREEN. The plan finding required no production change; the plan was aligned with the two existing Livewire error branches.
+
+CodeRabbit explicitly confirmed both fixes in their threads. Both review threads are resolved and the current unresolved-thread count is **0**. A second complete CodeRabbit sweep was not available within the included hourly review quota; this is not represented as a second full review pass.
+
+CodeRabbit also reports a generic docstring-coverage warning for touched functions. This is not a repository CI or contract gate, and no bulk JSDoc churn was added solely to satisfy that external heuristic.
 
 ## Decision state
 
@@ -199,8 +202,8 @@ Livewire WebMCP                  2/2
 
 ## Known limitations / next proof
 
-- HTMX 2.x only; HTMX 4/beta is outside the reference boundary.
-- T-602 unit/integration tests use structural runtime/DOM fakes, not a real browser fixture.
+- HTMX 2.x only; unsupported major versions fail closed.
+- T-602 tests use structural runtime/DOM fakes, not a real browser/server fixture.
 - SurfaceRelay does not sandbox host `htmx:configRequest` or arbitrary host HTMX event handlers.
 - No post-ajax generic network/server cancellation claim.
 - `hasOwnProperty` cannot be a reference-driver Action input name because of HTMX 2.x object-values compatibility.
@@ -208,4 +211,4 @@ Livewire WebMCP                  2/2
 
 ## Current boundary
 
-**T-602 is implemented, self-reviewed, fully verified, and ready for external review.** No PR has been created for T-602, no merge has occurred, and T-603/T-604 are not started. The next allowed action is explicit external-review/PR authorization.
+**T-602 is implemented and externally reviewed; all actionable review findings are resolved. PR #11 is merge-pending.** No merge/main revalidation has occurred yet. `D-020` remains PROPOSED, and T-603/T-604 are not started. The next allowed action is explicit merge authorization for PR #11.
