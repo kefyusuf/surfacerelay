@@ -52,3 +52,25 @@ test('normal human click uses real HTMX POST /items, swaps HTML, and persists se
   await page.reload();
   await expect(page.locator('#items li')).toContainText('human-coffee');
 });
+
+test('SurfaceRelay driver uses real HTMX and overrides stale same-name form state', async ({ page }) => {
+  await page.locator('input[name="name"]').fill('stale-human-value');
+
+  const requestPromise = page.waitForRequest((request) => {
+    return request.method() === 'POST' && new URL(request.url()).pathname === '/items';
+  });
+
+  await page.evaluate(() => globalThis.surfaceRelayFixture.addItem('agent-tea'));
+  const request = await requestPromise;
+  const body = new URLSearchParams(request.postData() ?? '');
+
+  expect(request.headers()['hx-request']).toBe('true');
+  expect(request.headers()['content-type']).toContain('application/x-www-form-urlencoded');
+  expect(body.get('name')).toBe('agent-tea');
+  expect(body.get('uiContext')).toBe('prep-list');
+  expect(body.get('name')).not.toBe('stale-human-value');
+
+  await expect(page.locator('#items li')).toContainText('agent-tea');
+  await page.reload();
+  await expect(page.locator('#items li')).toContainText('agent-tea');
+});
