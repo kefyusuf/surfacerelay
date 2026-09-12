@@ -1,0 +1,42 @@
+name: htmx-fixture
+
+on:
+  push:
+    paths:
+      - 'examples/htmx-prep-list/**'
+      - 'examples/prep-list/action.add-item.json'
+      - 'packages/browser-runtime/src/**'
+      - 'packages/browser-runtime/tsconfig.json'
+      - '.github/workflows/htmx-fixture.yml'
+  pull_request:
+    paths:
+      - 'examples/htmx-prep-list/**'
+      - 'examples/prep-list/action.add-item.json'
+      - 'packages/browser-runtime/src/**'
+      - 'packages/browser-runtime/tsconfig.json'
+      - '.github/workflows/htmx-fixture.yml'
+
+jobs:
+  htmx-fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate fixture lockfile for bootstrap
+        working-directory: examples/htmx-prep-list
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          printf 'LOCKFILE_BASE64='
+          base64 -w 0 package-lock.json
+          printf '\n'
+      - name: Install fixture dependencies
+        working-directory: examples/htmx-prep-list
+        run: npm install
+      - name: Install Chromium
+        working-directory: examples/htmx-prep-list
+        run: npx playwright install --with-deps chromium
+      - name: Run bootstrap RED proof
+        working-directory: examples/htmx-prep-list
+        run: npm test -- --grep "boots real HTMX"
