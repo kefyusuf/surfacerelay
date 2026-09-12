@@ -203,14 +203,20 @@ import {
 } from './runtime-binding-expiry.js';
 ```
 
-Map states exactly:
+Map states while preserving the existing Livewire error-message split exactly:
 
 ```ts
 const expiry = classifyRuntimeBindingExpiry(binding.expiresAt, this.clock.now());
 if (expiry === 'invalid') {
+  if (typeof binding.expiresAt !== 'string') {
+    throw executionError(
+      'binding_target_invalid',
+      'Livewire binding expiresAt must be an RFC3339 string or null.',
+    );
+  }
   throw executionError(
     'binding_target_invalid',
-    'Livewire binding expiresAt must be a valid RFC3339 date-time string, null, or absent.',
+    'Livewire binding expiresAt is not a valid RFC3339 date-time.',
   );
 }
 if (expiry === 'expired') {
@@ -489,6 +495,8 @@ array with extra own property
 object/array cycle
 nested undefined
 nested non-finite number
+inherited Object.prototype.toJSON
+inherited Array.prototype.toJSON
 ```
 
 The returned mapping must be frozen.
@@ -538,8 +546,10 @@ Encoding:
 if (typeof value === 'string') return value;
 if (value === null) return 'null';
 if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-return JSON.stringify(value); // only after recursive validation
+return encodeValidatedJson(value);
 ```
+
+`encodeValidatedJson()` must recursively encode only the already-validated own enumerable data-property graph. It must not call `JSON.stringify()` on an object/array container, because inherited `toJSON` hooks can replace validated content. `JSON.stringify()` may still be used to quote primitive strings/property names.
 
 Top-level input iteration uses `Reflect.ownKeys(input)`, rejects symbol/accessor/non-enumerable entries, rejects unknown names, and checks every `requiredInputNames` member with `hasOwn`.
 
@@ -1220,7 +1230,7 @@ Report the exact review-ready head, CI run, final browser test total, and decisi
 - Type consistency: `BrowserClock`, `RuntimeBindingExpiryState`, `HtmxBindingExecutionError`, `HtmxAjaxMethod`, `HtmxSourceElement`, `HtmxBrowserRuntime`, `mapHtmxActionInput()`, and `HtmxBrowserDriver` have one consistent definition/boundary.
 - File-boundary check: no barrel export, generic HTTP abstraction, HTMX dependency, DOM emulator, Laravel production adapter, or frozen schema change is planned.
 - Cancellation check: HTMX uses the narrower synchronous `runtime.ajax()` frontier; Livewire keeps its existing interceptor/onSend semantics.
-- Input-integrity check: structured Action values remain one top-level JSON string; no form-path flattening.
+- Input-integrity check: structured Action values remain one top-level JSON string; no form-path flattening; validated object/array content is encoded without inherited `toJSON` hooks.
 - Host-state check: ordinary host request state stays untrusted and cannot manufacture actor/tenant/record/selection/confirmation/idempotency authority.
 - T-603/T-604 boundary: no real HTMX fixture/server or shared cross-driver conformance is implemented here.
 - Decision boundary: D-054/D-055/D-056 may become `ACCEPTED` only after complete T-602 verification; D-020 remains `PROPOSED` through T-604.
