@@ -1,6 +1,8 @@
 import type { HtmxBindingTarget } from './htmx-binding-descriptor.js';
 import { HtmxBindingExecutionError } from './htmx-errors.js';
 
+const HTMX_OBJECT_VALUES_RESERVED_INPUT_NAMES = new Set(['hasOwnProperty']);
+
 function mappingError(message: string): HtmxBindingExecutionError {
   return new HtmxBindingExecutionError('binding_input_unmappable', message);
 }
@@ -118,8 +120,19 @@ export function mapHtmxActionInput(
     if (!allowed.has(key)) {
       throw mappingError(`HTMX Action input contains unknown key "${key}".`);
     }
+    if (HTMX_OBJECT_VALUES_RESERVED_INPUT_NAMES.has(key)) {
+      throw mappingError(
+        `HTMX Action input key "${key}" is incompatible with the HTMX 2.x object-values bridge.`,
+      );
+    }
 
-    mapped[key] = encodeActionValue(assertDataProperty(input, key));
+    const encoded = encodeActionValue(assertDataProperty(input, key));
+    Object.defineProperty(mapped, key, {
+      value: encoded,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
   }
 
   for (const required of target.requiredInputNames) {
