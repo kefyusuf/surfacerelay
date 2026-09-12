@@ -26,6 +26,7 @@
 - Stale replacement must fail `binding_stale`, send zero `POST /items` requests, and never retarget to an equivalent replacement source.
 - Generated runtime JS, Playwright results, traces, screenshots, and browser artifacts stay under ignored `.tmp/` / tool-managed cache paths and are never committed.
 - Keep the existing `.github/workflows/validate.yml` behavior unchanged; add a separate path-filtered `.github/workflows/htmx-fixture.yml`.
+- The path-filtered fixture workflow intentionally does not run for tracking-only docs commits. The fixture proof is bound to the last fixture-relevant implementation head; a later review-prep docs head is valid only if a diff check proves it changed no fixture/runtime/workflow input after that green proof.
 - `D-057` remains `PROPOSED` until the complete real-browser fixture verification succeeds. `D-020` remains `PROPOSED` through T-604.
 - Do not add T-604 shared Livewire/HTMX conformance scenarios during T-603.
 
@@ -574,11 +575,18 @@ Then add:
 
 ```js
 test('human and SurfaceRelay execution converge on the same real HTMX request path', async ({ page }) => {
+  const sourceSelector = '[data-surfacerelay-htmx-source]';
   await page.locator('input[name="name"]').fill('human-item');
   const humanRequestPromise = page.waitForRequest((request) =>
     request.method() === 'POST' && new URL(request.url()).pathname === '/items');
-  await page.locator('[data-surfacerelay-htmx-source]').click();
+  await page.locator(sourceSelector).click();
   const humanRequest = await humanRequestPromise;
+
+  await expect(page.locator('#items li')).toContainText('human-item');
+  await page.waitForFunction((selector) => {
+    const source = document.querySelector(selector);
+    return source && !source.classList.contains(globalThis.htmx.config.requestClass);
+  }, sourceSelector);
 
   const agentRequestPromise = page.waitForRequest((request) =>
     request.method() === 'POST' && new URL(request.url()).pathname === '/items');
@@ -590,6 +598,8 @@ test('human and SurfaceRelay execution converge on the same real HTMX request pa
   );
 });
 ```
+
+The explicit wait for the source to lose HTMX's configured request class is required before the agent call. Without it, a still-active human request could legitimately trigger T-602's `htmx_source_busy` gate and make this test race-dependent.
 
 - [ ] **Step 2: Add the page lifecycle renewal test**
 
@@ -749,6 +759,12 @@ test('fixture server rejects invalid mutation and traversal requests fail closed
   });
   expect(empty.status()).toBe(422);
 
+  const duplicate = await request.post('/items', {
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    data: 'name=one&name=two&uiContext=prep-list',
+  });
+  expect(duplicate.status()).toBe(422);
+
   const oversized = await request.post('/items', {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     data: `name=${'x'.repeat(17 * 1024)}`,
@@ -863,6 +879,8 @@ jobs:
         run: npm test
 ```
 
+Do not add tracking/docs paths merely to force this expensive workflow to rerun after docs-only closure commits. Its green result must remain attached to the exact last fixture-relevant implementation head.
+
 Do not change `.github/workflows/validate.yml` unless the new workflow reveals an explicit repository-level contradiction requiring a separate design decision.
 
 - [ ] **Step 2: Write the fixture README with exact proof and commands**
@@ -929,16 +947,16 @@ git add \
 git commit -m "ci(htmx): verify real fixture in Chromium"
 ```
 
-Push/commit through the repository integration and wait for both fresh workflow families on the exact implementation head:
+Wait for both workflow families on this exact fixture-relevant implementation head:
 
 ```text
 validate       -> 7/7 green
 htmx-fixture   -> 1/1 green
 ```
 
-Do not promote D-057 if either workflow is missing, skipped because of a bad path filter, cancelled, flaky, or failing.
+Record this commit SHA as the **verified fixture implementation head**. Do not promote D-057 if either workflow is missing, skipped because of a bad path filter, cancelled, flaky, or failing.
 
-- [ ] **Step 5: After exact-head CI is green, promote D-057 and update T-603 tracking**
+- [ ] **Step 5: After exact implementation-head CI is green, promote D-057 and update T-603 tracking**
 
 Change only after the evidence in Step 4 exists:
 
@@ -954,9 +972,9 @@ T-604: stays NOT STARTED
 `TASKS.md` and `STATUS.md` must record:
 
 ```text
-final implementation head
-validate workflow run ID and 7/7 result
-htmx-fixture workflow run ID and 1/1 result
+verified fixture implementation head
+validate workflow run ID and 7/7 result on that head
+htmx-fixture workflow run ID and 1/1 result on that head
 Playwright test count
 browser-runtime regression count/typecheck result
 D-057 ACCEPTED
@@ -987,20 +1005,22 @@ git add docs/DECISION-REGISTER.md TASKS.md STATUS.md REVIEW_REQUEST.md
 git commit -m "docs(htmx): prepare T-603 fixture review"
 ```
 
-- [ ] **Step 7: Verify the exact review-prep head again**
+- [ ] **Step 7: Verify the exact review-prep head without manufacturing a docs-only Chromium rerun**
 
-On the new exact head, require fresh evidence:
+On the new review-prep head:
 
-```text
-validate       -> 7/7 green
-htmx-fixture   -> 1/1 green
-```
+1. require fresh `validate -> 7/7 green`;
+2. fetch the already-recorded `htmx-fixture -> 1/1 green` run from the verified fixture implementation head;
+3. compare the verified fixture implementation head to the review-prep head and prove every intervening change is limited to `docs/DECISION-REGISTER.md`, `TASKS.md`, `STATUS.md`, and `REVIEW_REQUEST.md`;
+4. confirm no fixture/runtime/workflow input changed after the green real-browser proof.
 
-Fetch the fixture job log and confirm the actual Playwright test count. Fetch the browser job log and confirm TypeScript typecheck plus the browser-runtime regression count. Do not infer success from an earlier commit.
+This preserves the intended path-filter behavior. A docs-only review-prep commit is not expected to trigger Chromium.
+
+Fetch the fixture job log from the verified fixture implementation head and confirm the actual Playwright test count. Fetch the browser job log from the fresh review-prep `validate` run and confirm TypeScript typecheck plus the browser-runtime regression count.
 
 - [ ] **Step 8: Stop at external-review gate**
 
-Report the exact feature head, workflow run IDs, Playwright count, browser-runtime count, accepted/proposed decisions, and changed-file scope. Do not create/merge a PR or begin T-604 without the next explicit user gate.
+Report the review-prep head, verified fixture implementation head, workflow run IDs, Playwright count, browser-runtime count, accepted/proposed decisions, and changed-file scope. Do not create/merge a PR or begin T-604 without the next explicit user gate.
 
 ---
 
@@ -1033,12 +1053,12 @@ Before declaring T-603 ready for external review, verify each item explicitly ag
 23. Stale execution sends zero `/items` requests and leaves server state unchanged.
 24. Test reset endpoint only clears state and never adds business data.
 25. Static runtime route rejects nested/traversal/encoded traversal paths.
-26. Mutation request body is bounded and invalid requests fail closed.
+26. Mutation request body is bounded; duplicate/missing/invalid names and unsupported content fail closed.
 27. Item names are escaped in both fragment and full-page rendering.
 28. Embedded binding JSON is script-safe (`<` escaped as `\u003c`).
 29. Generated artifacts are not committed.
 30. Existing `validate` workflow remains 7/7 green.
-31. Path-filtered `htmx-fixture` workflow executes and is 1/1 green on relevant changes.
+31. Path-filtered `htmx-fixture` workflow executes and is 1/1 green on the verified fixture implementation head; later docs-only review-prep commits are proven not to change any fixture/runtime/workflow input.
 32. `D-057` is accepted only after exact implementation-head real-browser CI succeeds.
 33. `D-020` remains proposed.
 34. T-604 is not started and no shared cross-driver conformance claim is made.
