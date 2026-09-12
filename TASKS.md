@@ -83,9 +83,9 @@ Contract / PHP lint:         green
 
 `D-020` remained PROPOSED. T-601 introduced no DOM/HTMX/network/cancellation behavior.
 
-### T-602 — HTMX browser driver — IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW
+### T-602 — HTMX browser driver — IMPLEMENTED / EXTERNALLY REVIEWED / FINDINGS RESOLVED / MERGE PENDING
 
-**Implementation state:** complete on `feat/htmx-browser-driver`; not merged. T-603 is **NOT STARTED**.
+**Implementation state:** complete and reviewed on `feat/htmx-browser-driver`; PR **#11** is open. T-603 is **NOT STARTED**.
 
 Design / plan:
 
@@ -105,12 +105,13 @@ Accepted implementation boundaries:
 - deterministic allowlisted own Action-input mapping; arrays/plain objects remain one top-level JSON-string value;
 - lossy/non-JSON/accessor/sparse/cyclic/custom values fail closed;
 - `__proto__` is preserved as an exact own mapped data key; `hasOwnProperty` is rejected because it conflicts with HTMX 2.x object-values processing;
+- inherited object/array `toJSON` hooks cannot replace validated content because structured encoding walks the validated own data-property graph directly;
 - ordinary host form/request state remains untrusted host state;
 - reference sources fail closed for `hx-vals`, `hx-vars`, restrictive `hx-params`, `hx-confirm`, `hx-prompt`, `hx-sync`, `hx-indicator`, `hx-ext`, and active source validation;
 - busy exact source returns `htmx_source_busy`; driver never manufactures queue/replace/broad abort behavior;
 - strong no-dispatch cancellation only before `htmx.ajax()` invocation; post-frontier caller abort does not replace the natural HTMX success/failure result;
 - successful execution preserves `Promise<void>` semantics; underlying HTMX rejection identity is preserved;
-- strict RuntimeBinding expiry parsing/classification is shared with Livewire without changing Livewire behavior;
+- strict RuntimeBinding expiry parsing/classification is shared with Livewire while preserving Livewire's separate non-string vs invalid-string error messages;
 - existing `BindingDriver`, `RuntimeBinding`, `DriverRegistry`, and WebMCP lifecycle contracts remain unchanged;
 - no Laravel production or `spec/0.1/**` change;
 - no T-603 fixture or T-604 shared-conformance claim.
@@ -133,47 +134,55 @@ packages/browser-runtime/tests/htmx-cancellation.test.ts
 packages/browser-runtime/tests/htmx-webmcp-integration.test.ts
 ```
 
-TDD / verification evidence:
+Implementation and self-review evidence:
 
 ```text
 Design checkpoint:                 42cca940af35b3dff918a641b619d578f839047d / 34682081839 — 7/7 green
 Plan gate:                         11f5a23cfd28f2b26feb13d880f2eb123b43154d / 34684333012 — 7/7 green
-Expiry RED:                        acdfdd7486674b4374d02ef59837ca91ba5e7f7e / browser failed only missing shared module
+Expiry RED:                        acdfdd7486674b4374d02ef59837ca91ba5e7f7e
 Expiry GREEN/refactor:             14c2e136ae3f8a21557132ee502a7e036892c540 + 0a13befca39a5c58cb29212b0574e68555e141f4
 Runtime RED:                       a97323b16d3bca58147a8162dbeb2be41d9f5b05
 Runtime GREEN/typecheck:           d7873bb64d6d22ab81593914676148638c7944cc + 3a0e1253de50d032f462fff0ed7d256a18548edd + e15fa915a31e61a461e3da6150d7b01baba35260
 Input mapping RED/GREEN:           dad9187d898bf3ce2e5e0a42d181cfb2b0d22c1c / f844f57e1b0a39eb1eda7652c4c3b8b28991d9aa
 Driver-core RED/GREEN:             7310fa5fb3af6009f7106b899812f25df3abb16d / 612c3493ba493e1b4b760dd55adc5f1cb73da0dc
 Source-policy RED/GREEN:           99b6247746254d1c4e86e5b73c6435914eb847bd / 27086b6094d3529bcc2e179742adeb7f9e55eccb
-Cancellation characterization:     54548b30c0ab1bb398c89cc3e343c887ac908461 — green without production correction
+Cancellation characterization:     54548b30c0ab1bb398c89cc3e343c887ac908461
 WebMCP integration:                c887d64cec7f4f9c5c0475a44e5d3c8a3a0c4f3c
-Special-key hardening RED:         a06168befbc10010f8164c0515af0892ec154372 — 295 total / exactly 2 failed
-Special-key hardening GREEN:       0d2021674e43c0ec4bf0a3e365e0915221b51e5e / 34695125241 — 7/7 green
+Special-key RED:                   a06168befbc10010f8164c0515af0892ec154372 — exactly 2 failures
+Special-key GREEN:                 0d2021674e43c0ec4bf0a3e365e0915221b51e5e / 34695125241 — 7/7 green
 ```
 
-Final verified implementation head before review-prep tracking:
+External review / hardening:
 
 ```text
-Implementation head:              0d2021674e43c0ec4bf0a3e365e0915221b51e5e
-CI:                               34695125241 — 7/7 green
-Browser typecheck:                green
-Browser Vitest:                   17 files / 295/295 tests
-HTMX descriptor:                  71/71
-HTMX browser driver:              49/49
-HTMX input mapping:               26/26
-HTMX runtime:                     20/20
-HTMX cancellation:                5/5
-HTMX WebMCP integration:          2/2
-Shared expiry:                    19/19
-Livewire driver regression:       33/33
-Livewire cancellation regression: 11/11
-Livewire WebMCP regression:       2/2
-Contract validator:               green
-PHP lint:                         green
-PHP matrix:                       4/4 green
+Pull request:                       #11 — feat(htmx): add exact-source browser driver
+CodeRabbit review:                  2 actionable inline findings (both Minor)
+Finding 1 RED:                      adde02f3c457169d9d2c47418b53d2d4413410be — 295 passed / exactly 2 failed
+Finding 1 GREEN:                    2ec197213e966c96264b429be3e316c91c69c19e
+Finding 2:                          plan/Livewire error-message mismatch — docs-only correction
+Review-aligned head:                a5f1bd8e5bd64548d78b4a37411314af664e5eb3
+Review-aligned CI:                  34699961997 — 7/7 green
+Browser typecheck:                  green
+Browser Vitest:                     17 files / 297/297 tests
+HTMX descriptor:                    71/71
+HTMX browser driver:                49/49
+HTMX input mapping:                 28/28
+HTMX runtime:                       20/20
+HTMX cancellation:                  5/5
+HTMX WebMCP integration:            2/2
+Shared expiry:                      19/19
+Livewire driver regression:         33/33
+Livewire cancellation regression:   11/11
+Livewire WebMCP regression:         2/2
+Contract validator:                 green
+PHP lint:                           green
+PHP matrix:                         4/4 green
+Review threads:                     2/2 resolved / 0 unresolved
 ```
 
-Decision state after verified implementation:
+CodeRabbit explicitly confirmed both fixes in-thread. A second complete CodeRabbit review pass was unavailable within the included hourly quota; the two findings from the completed review were individually rechecked and confirmed. Its generic docstring-coverage warning is not a SurfaceRelay CI/contract gate and did not trigger bulk JSDoc churn.
+
+Decision state after reviewed implementation:
 
 - `D-054` — **ACCEPTED** for the exact-source host HTMX 2.x execution boundary.
 - `D-055` — **ACCEPTED** for busy-source failure and pre-ajax-only strong cancellation semantics.
@@ -193,7 +202,7 @@ packages/browser-runtime/package-lock.json
 examples/htmx/**
 ```
 
-**Current gate:** external review. Do not create/merge a PR, begin T-603, run T-604 shared conformance, or promote D-020 without explicit authorization.
+**Current gate:** PR #11 merge authorization. Do not merge, begin T-603, run T-604 shared conformance, or promote D-020 without the next explicit gate.
 
 - T-603 — Non-Laravel HTMX fixture app — TODO / NOT STARTED.
 - T-604 — Shared conformance against Livewire + HTMX — TODO.
@@ -207,4 +216,4 @@ examples/htmx/**
 
 ## Current boundary
 
-T-602 is **IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW** on its feature branch. D-054/D-055/D-056 are accepted for the verified reference-driver behavior only. D-020 remains proposed. **T-603 must not start automatically.**
+T-602 is **IMPLEMENTED / EXTERNALLY REVIEWED / FINDINGS RESOLVED / MERGE PENDING** on PR #11. D-054/D-055/D-056 are accepted for the verified reference-driver behavior only. D-020 remains proposed. **T-603 must not start automatically.**
