@@ -75,7 +75,7 @@ CodeRabbit:                        2 actionable / 2 resolved / 0 unresolved
 
 **T-602 is closed.**
 
-### T-603 — Non-Laravel HTMX fixture app — IMPLEMENTED / SELF-REVIEWED / READY FOR EXTERNAL REVIEW
+### T-603 — Non-Laravel HTMX fixture app — IMPLEMENTED / EXTERNAL REVIEW IN PROGRESS
 
 Design / plan:
 
@@ -86,50 +86,51 @@ docs/superpowers/plans/2026-09-12-htmx-fixture.md
 
 Verified proof boundary:
 
-- independent private fixture package at `examples/htmx-prep-list/`;
-- plain Node 22 built-in HTTP server bound to `127.0.0.1:4173`;
-- real pinned `htmx.org@2.0.10` + Playwright Chromium;
-- actual browser-runtime TypeScript compiled into ignored fixture `.tmp/runtime/` ESM;
-- exact existing `prep_list.add_item@1` ActionDefinition reused;
-- one business mutation route: `POST /items`;
-- human click and production `HtmxBrowserDriver.execute()` converge on the same real HTMX request path, server mutation, fragment, target, and swap;
-- explicit agent Action input overrides stale same-name form state while ordinary hidden host state remains present;
-- full reload proves server persistence and renews page-scoped `sourceId` + `bindingId`;
-- equivalent real-DOM replacement cannot inherit the old binding; stale execution sends zero `/items` requests;
-- reset endpoint is test-only and cannot add business data;
-- bounded request body, duplicate/missing/invalid name rejection, method checks, traversal-safe static serving, and HTML/script escaping are covered;
-- fixture-only dependencies do not change browser-runtime/Laravel manifests;
-- `.github/workflows/validate.yml`, production browser-runtime, Laravel source, `spec/0.1/**`, and the existing ActionDefinition remain unchanged.
+- private Node 22 fixture under `examples/htmx-prep-list/`;
+- real `htmx.org@2.0.10` + Playwright Chromium;
+- actual browser-runtime TS compiled to fixture `.tmp/runtime/` ESM;
+- existing `prep_list.add_item@1` ActionDefinition reused;
+- exactly one business mutation route: `POST /items`;
+- human click and production `HtmxBrowserDriver.execute()` converge on the same real HTMX path and DOM swap;
+- explicit Action input overrides stale same-name form state while ordinary host state is preserved;
+- page reload renews sourceId + bindingId;
+- equivalent DOM replacement cannot inherit old binding; stale execution dispatches zero `/items` requests;
+- body bounds, duplicate/missing/invalid input, media-type validation, method checks, traversal safety, and rendering escaping are executable proofs;
+- fixture CI uses read-only contents permission and `persist-credentials: false`;
+- production browser-runtime, Laravel, frozen spec, existing ActionDefinition, and `validate.yml` remain unchanged.
 
-TDD evidence:
+Original implementation evidence:
 
 ```text
-Bootstrap RED:               a61e2899532706059fa76ee38ea781732257da9d / 34710117812
-Bootstrap GREEN:             a436bd2a9a4032877b45218a6cd6a35e801a1d07 / 34710621196
-Human-path RED:              6c11ada77b26fcfe0eddd5940e63f3cecf2af4f2 / 34710804593
-Human-path GREEN:            3a7e6de8777dad5b3889d390df55259bef2e60f6 / 34710965945
-Driver-path RED:             ae2dcd4dab234ef005dd94875a2cc1476e127bab / 34711093202 — 2 passed / exactly 1 failed
-Driver-path GREEN:           e154743cfc8509ec22889cff49581c85ebbbb632 / 34717781774
-Convergence/lifecycle:       28f79fc9dcd172254d4d3ecd3d16e1aa3c4e1d81 / 34717961616 — 5/5 green
-Hardening RED:               d0733055514ddef42907bbcd26018aa3bfef1f63 / 34718189031 — 6 passed / exactly 2 failed
-Hardening GREEN:             06a261636cd45fac2d95fc54228a2902f25c0bf1 + 71262bee0f5f011a87d2f1fb3216ebc528e9241e
+Verified fixture head:        31c0b85af56aaa06cac4efc2bced36bee0befcc2
+validate:                     34719068926 — 7/7 green
+htmx-fixture:                 34719068934 — 1/1 green / 8/8 Playwright
+browser-runtime:              17 files / 297/297 + typecheck
+Review-prep head:             0348bb6b50a6a8f36c4b3f1315515dd6e9213c87
+Review-prep validate:         34722974304 — 7/7 green
+Review-prep diff:             tracking-only
 ```
 
-Verified fixture implementation head:
+External review — PR #12:
 
 ```text
-31c0b85af56aaa06cac4efc2bced36bee0befcc2
+CodeRabbit review:            4 actionable + 1 nitpick initially
+Media-type RED:               da528e4db76af7c04a351c99a20df2e2da7387dd
+Media-type RED run:           34725182292 — 8 total / 7 passed / exactly 1 failed
+Failure:                      expected 415, received 201
+Media-type GREEN:             226f8169ee7cf251a079cd9f763e21791d49b39a
+Workflow security hardening:  7284dd21292c17fc35ddfd3bfb045d50e3dab38c
+Review-fix validate:          34725480849 — 7/7 green
+Review-fix fixture:           34725480861 — 1/1 green / 8/8 Playwright
 ```
 
-Verification on that exact head:
+Review findings addressed:
 
-```text
-validate workflow:       34719068926 — 7/7 green
-htmx-fixture workflow:   34719068934 — 1/1 green
-Playwright:              8/8 real Chromium tests
-browser-runtime:         17 files / 297/297 Vitest + TypeScript typecheck
-contract/php lint/matrix: green
-```
+- near-miss `application/x-www-form-urlencoded-invalid` now fails `415`;
+- fixture workflow token is restricted to `contents: read`;
+- checkout credentials are not persisted into npm-controlled steps;
+- the earlier review-prep readiness proof is now explicitly recorded;
+- `REVIEW_REQUEST.md` is reduced to a concise handoff; historical evidence remains in `STATUS.md` / this task board.
 
 Decision state:
 
@@ -138,7 +139,7 @@ Decision state:
 
 Current gate:
 
-**External review / PR preparation.** Do not begin T-604 automatically.
+**Finish PR #12 review-thread closure and final docs-only exact-head validation. Merge remains pending explicit authorization. Do not begin T-604 automatically.**
 
 ### T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED
 
@@ -153,4 +154,4 @@ Current gate:
 
 ## Current boundary
 
-T-603 implementation and self-review are complete on `feat/htmx-fixture`; external review/PR/merge have not yet occurred. `D-057` is accepted for the verified fixture boundary, while `D-020` remains proposed and T-604 remains not started.
+T-603 implementation is complete and under external review in PR #12. `D-057` is accepted for the verified fixture boundary, while `D-020` remains proposed and T-604 remains not started.
