@@ -24,19 +24,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Generate fixture lockfile for bootstrap
-        working-directory: examples/htmx-prep-list
-        run: |
-          npm install --package-lock-only --ignore-scripts
-          printf 'LOCKFILE_BASE64='
-          base64 -w 0 package-lock.json
-          printf '\n'
+          cache: npm
+          cache-dependency-path: examples/htmx-prep-list/package-lock.json
       - name: Install fixture dependencies
         working-directory: examples/htmx-prep-list
-        run: npm install
+        run: npm ci
       - name: Install Chromium
         working-directory: examples/htmx-prep-list
         run: npx playwright install --with-deps chromium
-      - name: Run bootstrap RED proof
+      - name: Run real HTMX fixture
         working-directory: examples/htmx-prep-list
-        run: npm test -- --grep "boots real HTMX"
+        run: npm test
