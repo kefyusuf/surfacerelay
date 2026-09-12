@@ -1,4 +1,4 @@
-# External Review Request — T-602 HTMX Browser Driver
+# External Review Record — T-602 HTMX Browser Driver
 
 ## Review state
 
@@ -6,12 +6,15 @@
 - **Task:** `T-602 — HTMX browser driver`
 - **Branch:** `feat/htmx-browser-driver`
 - **Base:** `main@536a89f7a7fe6fb10f4284203cffb5a63ecc0fb4`
-- **Verified implementation head:** `0d2021674e43c0ec4bf0a3e365e0915221b51e5e`
-- **Implementation CI:** `34695125241` — **7/7 green**
-- **Browser:** TypeScript typecheck + **295/295 Vitest** across 17 files
+- **Pull request:** `#11 — feat(htmx): add exact-source browser driver`
+- **Pre-review implementation head:** `0d2021674e43c0ec4bf0a3e365e0915221b51e5e`
+- **Review-aligned head before tracking closure:** `a5f1bd8e5bd64548d78b4a37411314af664e5eb3`
+- **Review-aligned CI:** `34699961997` — **7/7 green**
+- **Browser:** TypeScript typecheck + **297/297 Vitest** across 17 files
+- **CodeRabbit findings:** **2 actionable inline findings; 2/2 resolved; 0 unresolved threads**
 - **Decisions:** `D-054`, `D-055`, `D-056` — **ACCEPTED for verified T-602 reference-driver behavior**
 - **Portability:** `D-020` — **PROPOSED; remains gated on T-603/T-604**
-- **PR:** not created yet
+- **Merge:** pending explicit authorization
 - **T-603:** not started
 
 ## What T-602 adds
@@ -34,36 +37,82 @@ RuntimeBinding(driver=htmx, lifecycle=page)
 
 No raw `fetch()`, second HTMX runtime, HTML-to-business-result synthesis, Laravel production coupling, frozen contract change, DOM emulator, or browser-automation dependency was added.
 
-## Review focus
+## Completed review focus
 
-Please concentrate on these risks:
+The external review concentrated on:
 
-1. **Exact identity / stale handling** — any path that could substitute a similar/replacement source, tolerate duplicate `sourceId`, or normalize changed method/path instead of failing stale.
-2. **Physical HTMX request ambiguity** — the driver requires exactly one of the 10 supported physical request attributes (five verbs × `hx-*`/`data-hx-*`). Check missing/duplicate/method/path drift handling.
-3. **Origin boundary** — SurfaceRelay checks the path it passes to HTMX; later `htmx:configRequest` or other host handlers are intentionally outside the SurfaceRelay sandbox. Check that no stronger security claim is implied.
-4. **Input coercion / object hazards** — inspect unknown/required own-key handling, nested JSON validation, accessors, non-enumerables, sparse arrays, cycles, custom instances, `__proto__`, and the deliberate `hasOwnProperty` rejection required by HTMX 2.x object-values conversion.
-5. **HTMX source-policy escape paths** — inspect conservative source/ancestor rejection for `hx-vals`, `hx-vars`, restrictive `hx-params`, `hx-confirm`, `hx-prompt`, `hx-sync`, `hx-indicator`, `hx-ext`, and active source validation, including `data-hx-*` forms.
-6. **Busy-source truthfulness** — look for any path where a currently active exact source could enter HTMX's queue/replace/abort semantics and make `execute()` resolve before the intended request actually runs.
-7. **Cancellation frontier** — no-dispatch guarantee is only before `runtime.ajax()`/`htmx.ajax()` invocation. Post-frontier abort must not call `htmx:abort`, race the promise, or replace natural framework success/failure.
-8. **Shared expiry regression** — strict RFC3339 parsing moved out of Livewire. Verify Livewire behavior/type compatibility is unchanged.
-9. **Generic contract drift** — `BindingDriver`, `RuntimeBinding`, `DriverRegistry`, and WebMCP lifecycle should remain unchanged; HTMX integration is proved through existing seams.
-10. **Scope creep** — confirm no dependency files, `packages/laravel/src/**`, `spec/0.1/**`, T-603 fixture, or T-604 shared-conformance work entered T-602.
+1. exact identity/stale handling and no replacement retargeting;
+2. all 10 physical five-verb HTMX request attributes and ambiguity/drift;
+3. same-origin pre-dispatch boundary vs later host HTMX hooks;
+4. input coercion/object hazards including accessors, sparse arrays, cycles, `__proto__`, `hasOwnProperty`, and prototype serialization hooks;
+5. conservative `hx-*` / `data-hx-*` source-policy escape paths and ancestors;
+6. busy-source truthfulness;
+7. pre-vs-post `htmx.ajax()` cancellation semantics;
+8. shared expiry regression against Livewire;
+9. unchanged generic `BindingDriver` / RuntimeBinding / DriverRegistry / WebMCP contracts;
+10. dependency/Laravel/spec/T-603/T-604 scope boundaries.
+
+## CodeRabbit findings and closure
+
+### Finding 1 — inherited `toJSON` could rewrite validated structured input — FIXED / CONFIRMED
+
+The original structured encoder validated plain object/array values and then called `JSON.stringify(value)`. An inherited `Object.prototype.toJSON` or `Array.prototype.toJSON` could therefore replace already-validated content during serialization.
+
+TDD proof:
+
+```text
+RED commit:        adde02f3c457169d9d2c47418b53d2d4413410be
+RED CI:            34699094234
+Browser result:    297 total — 295 passed / exactly 2 failed
+Failures:          Object.prototype.toJSON and Array.prototype.toJSON rewrote validated input
+
+GREEN commit:      2ec197213e966c96264b429be3e316c91c69c19e
+```
+
+The fix recursively serializes only the already-validated own enumerable data-property graph. `JSON.stringify()` is no longer called on object/array containers, so inherited `toJSON` hooks cannot alter the request. Primitive string quoting still uses JSON string escaping.
+
+CodeRabbit explicitly confirmed the fix in-thread and the thread is resolved.
+
+### Finding 2 — plan example collapsed two preserved Livewire expiry errors — FIXED / CONFIRMED
+
+Production code already preserved the prior Livewire distinction:
+
+```text
+non-string expiresAt
+  -> Livewire binding expiresAt must be an RFC3339 string or null.
+
+invalid RFC3339 string
+  -> Livewire binding expiresAt is not a valid RFC3339 date-time.
+```
+
+The implementation plan showed one combined message despite its own no-behavior-change constraint. The plan was corrected to reflect the existing two branches; no production behavior change was required.
+
+```text
+Plan alignment commit: a5f1bd8e5bd64548d78b4a37411314af664e5eb3
+```
+
+CodeRabbit explicitly confirmed the correction in-thread and the thread is resolved.
+
+### Non-blocking CodeRabbit heuristic
+
+CodeRabbit also reported a generic docstring-coverage warning for touched functions. SurfaceRelay's repository CI and contract validation do not enforce that external heuristic. No bulk JSDoc churn was introduced solely to satisfy it.
+
+A second complete CodeRabbit sweep was not available within the included hourly review quota. This record therefore claims one completed full review plus explicit per-thread rechecks/confirmations, not two full review passes.
 
 ## Verification evidence
 
 ```text
 Design checkpoint:                 42cca940af35b3dff918a641b619d578f839047d / 34682081839 — 7/7 green
 Plan gate:                         11f5a23cfd28f2b26feb13d880f2eb123b43154d / 34684333012 — 7/7 green
-Expiry RED:                        acdfdd7486674b4374d02ef59837ca91ba5e7f7e
-Runtime RED:                       a97323b16d3bca58147a8162dbeb2be41d9f5b05
-Input RED:                         dad9187d898bf3ce2e5e0a42d181cfb2b0d22c1c
-Driver-core RED:                   7310fa5fb3af6009f7106b899812f25df3abb16d
-Source-policy RED:                 99b6247746254d1c4e86e5b73c6435914eb847bd
-Special-key hardening RED:         a06168befbc10010f8164c0515af0892ec154372 — exactly 2/295 failed
-Verified implementation head:     0d2021674e43c0ec4bf0a3e365e0915221b51e5e
-Implementation CI:                34695125241 — 7/7 green
-Browser final:                    295/295 + typecheck
+Pre-review implementation head:   0d2021674e43c0ec4bf0a3e365e0915221b51e5e / 34695125241 — 7/7 green
+Pre-review browser:                295/295 + typecheck
+External-review RED:               adde02f3c457169d9d2c47418b53d2d4413410be / 34699094234 — 295 passed / exactly 2 failed
+External-review GREEN:             2ec197213e966c96264b429be3e316c91c69c19e
+Review-aligned head:               a5f1bd8e5bd64548d78b4a37411314af664e5eb3
+Review-aligned CI:                 34699961997 — 7/7 green
+Browser final:                     17 files / 297/297 + typecheck
 Contract / PHP lint / PHP matrix: green
+Review threads:                    2/2 resolved / 0 unresolved
 ```
 
 Focused browser counts:
@@ -71,7 +120,7 @@ Focused browser counts:
 ```text
 HTMX descriptor                 71/71
 HTMX browser driver             49/49
-HTMX input mapping              26/26
+HTMX input mapping              28/28
 HTMX runtime                    20/20
 HTMX cancellation                5/5
 HTMX WebMCP integration          2/2
@@ -120,4 +169,6 @@ examples/htmx/**
 
 ## Boundary after review
 
-Do not infer T-603/T-604 completion from this task. Even if T-602 review is clean, `D-020` remains PROPOSED until a real non-Laravel HTMX fixture and shared Livewire/HTMX conformance prove the portability claim.
+T-602 is externally reviewed with all actionable inline findings resolved, but it is **not merged yet**. Do not infer T-603/T-604 completion from this task. `D-020` remains PROPOSED until a real non-Laravel HTMX fixture and shared Livewire/HTMX conformance prove the portability claim.
+
+The next gate is explicit merge authorization for PR #11.
