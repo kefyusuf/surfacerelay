@@ -44,7 +44,7 @@ class FakeRuntime implements HtmxBrowserRuntime {
     href: 'https://example.test/page',
     origin: 'https://example.test',
   }));
-  readonly requestClass = vi.fn(() => 'htmx-request');
+  requestClass = vi.fn(() => 'htmx-request');
   readonly ajax = vi.fn(async (
     _method: HtmxAjaxMethod,
     _path: string,
@@ -317,5 +317,210 @@ describe('HtmxBrowserDriver core', () => {
         {},
       ),
     ).rejects.toBe(original);
+  });
+});
+
+describe('HtmxBrowserDriver reference-source policy', () => {
+  const unsupportedNames = [
+    'hx-vals',
+    'hx-vars',
+    'hx-confirm',
+    'hx-prompt',
+    'hx-sync',
+    'hx-indicator',
+    'hx-ext',
+  ] as const;
+
+  const unsupportedPhysicalAttributes = unsupportedNames.flatMap((name) => [
+    name,
+    `data-${name}`,
+  ]);
+
+  it.each(unsupportedPhysicalAttributes)(
+    'rejects source-local unsupported modifier %s before ajax',
+    async (attribute) => {
+      const runtime = new FakeRuntime();
+      runtime.sources.push(source({ [attribute]: 'value' }));
+
+      await expectCode(
+        new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+          binding(),
+          { item: 'coffee' },
+          {},
+        ),
+        'htmx_source_unsupported',
+      );
+      expect(runtime.ajax).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects unsupported modifiers found conservatively on ancestors', async () => {
+    const runtime = new FakeRuntime();
+    const exactSource = source();
+    const parent = new FakeSource('DIV', { 'hx-vals': '{"item":"host"}' });
+    const grandparent = new FakeSource('MAIN', { 'data-hx-sync': 'this:queue last' });
+    parent.parentElement = grandparent;
+    exactSource.parentElement = parent;
+    runtime.sources.push(exactSource);
+
+    await expectCode(
+      new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+        binding(),
+        { item: 'coffee' },
+        {},
+      ),
+      'htmx_source_unsupported',
+    );
+    expect(runtime.ajax).not.toHaveBeenCalled();
+  });
+
+  it.each(['none', 'item', 'not item'])(
+    'rejects restrictive hx-params value %j',
+    async (params) => {
+      const runtime = new FakeRuntime();
+      runtime.sources.push(source({ 'hx-params': params }));
+
+      await expectCode(
+        new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+          binding(),
+          { item: 'coffee' },
+          {},
+        ),
+        'htmx_source_unsupported',
+      );
+      expect(runtime.ajax).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects restrictive data-hx-params inherited from an ancestor', async () => {
+    const runtime = new FakeRuntime();
+    const exactSource = source();
+    exactSource.parentElement = new FakeSource('DIV', { 'data-hx-params': 'none' });
+    runtime.sources.push(exactSource);
+
+    await expectCode(
+      new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+        binding(),
+        { item: 'coffee' },
+        {},
+      ),
+      'htmx_source_unsupported',
+    );
+  });
+
+  it.each([undefined, '*'])(
+    'allows non-restrictive hx-params %j',
+    async (params) => {
+      const runtime = new FakeRuntime();
+      const exactSource = source();
+      if (params !== undefined) exactSource.attrs.set('hx-params', params);
+      runtime.sources.push(exactSource);
+
+      await expect(
+        new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+          binding(),
+          { item: 'coffee' },
+          {},
+        ),
+      ).resolves.toBeUndefined();
+      expect(runtime.ajax).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('allows ordinary host request-state modifiers without promoting them to authority', async () => {
+    const runtime = new FakeRuntime();
+    const exactSource = source({
+      'hx-include': '#csrf',
+      'hx-headers': '{"X-View":"table"}',
+      'hx-request': '{"timeout":1000}',
+      'hx-target': '#result',
+      'hx-swap': 'innerHTML',
+      'hx-encoding': 'multipart/form-data',
+    });
+    runtime.sources.push(exactSource);
+
+    await expect(
+      new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+        binding(),
+        { item: 'coffee' },
+        {},
+      ),
+    ).resolves.toBeUndefined();
+    expect(runtime.ajax).toHaveBeenCalledExactlyOnceWith(
+      'post',
+      '/items',
+      { source: exactSource, values: Object.freeze({ item: 'coffee' }) },
+    );
+  });
+
+  it('rejects a FORM source with active browser validation', async () => {
+    const runtime = new FakeRuntime();
+    runtime.sources.push(new FakeSource('FORM', {
+      'data-surfacerelay-htmx-source': 'src-1',
+      'hx-post': '/items',
+    }));
+
+    await expectCode(
+      new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+        binding(),
+        { item: 'coffee' },
+        {},
+      ),
+      'htmx_source_unsupported',
+    );
+  });
+
+  it('allows a FORM source only when novalidate is physically present', async () => {
+    const runtime = new FakeRuntime();
+    const exactSource = new FakeSource('FORM', {
+      'data-surfacerelay-htmx-source': 'src-1',
+      'hx-post': '/items',
+      novalidate: '',
+    });
+    runtime.sources.push(exactSource);
+
+    await expect(
+      new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+        binding(),
+        { item: 'coffee' },
+        {},
+      ),
+    ).resolves.toBeUndefined();
+  });
+
+  it.each(['hx-validate', 'data-hx-validate'])(
+    'rejects explicit source validation through %s=true',
+    async (attribute) => {
+      const runtime = new FakeRuntime();
+      runtime.sources.push(source({ [attribute]: 'true' }));
+
+      await expectCode(
+        new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+          binding(),
+          { item: 'coffee' },
+          {},
+        ),
+        'htmx_source_unsupported',
+      );
+      expect(runtime.ajax).not.toHaveBeenCalled();
+    },
+  );
+
+  it('fails a busy exact source without entering HTMX ajax', async () => {
+    const runtime = new FakeRuntime();
+    const exactSource = source();
+    exactSource.classTokens.add('htmx-request');
+    runtime.sources.push(exactSource);
+
+    await expectCode(
+      new HtmxBrowserDriver(runtime, { now: () => now }).execute(
+        binding(),
+        { item: 'coffee' },
+        {},
+      ),
+      'htmx_source_busy',
+    );
+    expect(runtime.requestClass).toHaveBeenCalledTimes(1);
+    expect(runtime.ajax).not.toHaveBeenCalled();
   });
 });
