@@ -12,7 +12,7 @@ const driver = new HtmxBrowserDriver(runtime);
 
 globalThis.surfaceRelayFixture = Object.freeze({
   ready: true,
+  addItem(name) {
+    return driver.execute(binding, { name }, {});
+  },
 });
-
-void binding;
-void driver;
