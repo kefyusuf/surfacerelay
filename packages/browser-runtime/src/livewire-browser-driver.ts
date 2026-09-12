@@ -1,19 +1,18 @@
 import { LivewireBindingExecutionError } from './livewire-errors.js';
 import type { LivewireBrowserRuntime, LivewireWire } from './livewire-browser-runtime.js';
 import { isLivewireReservedMethodName } from './livewire-reserved-names.js';
+import {
+  classifyRuntimeBindingExpiry,
+  systemBrowserClock,
+  type BrowserClock as RuntimeBrowserClock,
+} from './runtime-binding-expiry.js';
 import type {
   BindingDriver,
   DriverExecutionContext,
   RuntimeBinding,
 } from './types.js';
 
-export interface BrowserClock {
-  now(): Date;
-}
-
-const systemBrowserClock: BrowserClock = {
-  now: () => new Date(),
-};
+export type { BrowserClock } from './runtime-binding-expiry.js';
 
 interface LivewireTarget {
   componentId: string;
@@ -23,7 +22,6 @@ interface LivewireTarget {
 }
 
 const TARGET_KEYS = ['componentId', 'inputOrder', 'method', 'requiredCount'] as const;
-const RFC3339_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|([+-])(\d{2}):(\d{2}))$/;
 
 function executionError(
   code: LivewireBindingExecutionError['code'],
@@ -93,72 +91,17 @@ function parseTarget(binding: RuntimeBinding): LivewireTarget {
   };
 }
 
-function daysInMonth(year: number, month: number): number {
-  if (month === 2) {
-    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-    return leap ? 29 : 28;
-  }
-  return [4, 6, 9, 11].includes(month) ? 30 : 31;
-}
-
-/** Strict parser for the frozen RuntimeBinding RFC3339-oriented date-time contract. */
-function parseRfc3339Millis(value: string): number | null {
-  const match = RFC3339_PATTERN.exec(value);
-  if (!match) return null;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const hour = Number(match[4]);
-  const minute = Number(match[5]);
-  const second = Number(match[6]);
-  const fraction = match[7] ?? '';
-  const zone = match[8];
-  const offsetSign = match[9];
-  const offsetHour = match[10] === undefined ? 0 : Number(match[10]);
-  const offsetMinute = match[11] === undefined ? 0 : Number(match[11]);
-
-  if (year === 0 || month < 1 || month > 12) return null;
-  if (day < 1 || day > daysInMonth(year, month)) return null;
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) return null;
-  if (zone !== 'Z' && (offsetHour < 0 || offsetHour > 23 || offsetMinute < 0 || offsetMinute > 59)) return null;
-
-  const milliseconds = Number((fraction.slice(0, 3) + '000').slice(0, 3));
-  const local = new Date(0);
-  local.setUTCFullYear(year, month - 1, day);
-  local.setUTCHours(hour, minute, second, milliseconds);
-
-  if (
-    local.getUTCFullYear() !== year
-    || local.getUTCMonth() !== month - 1
-    || local.getUTCDate() !== day
-    || local.getUTCHours() !== hour
-    || local.getUTCMinutes() !== minute
-    || local.getUTCSeconds() !== second
-  ) {
-    return null;
-  }
-
-  let offsetMinutes = 0;
-  if (zone !== 'Z') {
-    offsetMinutes = offsetHour * 60 + offsetMinute;
-    if (offsetSign === '-') offsetMinutes *= -1;
-  }
-
-  return local.getTime() - offsetMinutes * 60_000;
-}
-
 function assertNotExpired(binding: RuntimeBinding, now: Date): void {
-  if (binding.expiresAt === undefined || binding.expiresAt === null) return;
-  if (typeof binding.expiresAt !== 'string') {
-    throw executionError('binding_target_invalid', 'Livewire binding expiresAt must be an RFC3339 string or null.');
-  }
+  const expiry = classifyRuntimeBindingExpiry(binding.expiresAt, now);
 
-  const expiresAt = parseRfc3339Millis(binding.expiresAt);
-  if (expiresAt === null) {
+  if (expiry === 'invalid') {
+    if (typeof binding.expiresAt !== 'string') {
+      throw executionError('binding_target_invalid', 'Livewire binding expiresAt must be an RFC3339 string or null.');
+    }
     throw executionError('binding_target_invalid', 'Livewire binding expiresAt is not a valid RFC3339 date-time.');
   }
-  if (expiresAt <= now.getTime()) {
+
+  if (expiry === 'expired') {
     throw executionError('binding_expired', 'Livewire binding has expired.');
   }
 }
@@ -308,7 +251,7 @@ async function invokeWithCancellation(
 export class LivewireBrowserDriver implements BindingDriver {
   constructor(
     private readonly livewire: LivewireBrowserRuntime,
-    private readonly clock: BrowserClock = systemBrowserClock,
+    private readonly clock: RuntimeBrowserClock = systemBrowserClock,
   ) {}
 
   async execute(
