@@ -4,19 +4,20 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/htmx-browser-driver`
+- **Branch:** `main`
 - **Milestone:** `M6 — HTMX Portability Proof` — **IN_PROGRESS**
-- **Last completed task:** `T-601 — Explicit HTMX binding descriptor`
-- **Current task:** `T-602 — HTMX browser driver`
-- **T-602 state:** **IMPLEMENTED / EXTERNALLY REVIEWED / FINDINGS RESOLVED / MERGE PENDING**
-- **Pull request:** `#11 — feat(htmx): add exact-source browser driver`
-- **Current reviewed head before tracking closure:** `a5f1bd8e5bd64548d78b4a37411314af664e5eb3`
-- **Current reviewed-head CI:** `34699961997` — **7/7 green**
-- **Browser verification:** TypeScript typecheck + **297/297 Vitest** across 17 files
+- **Last completed task:** `T-602 — HTMX browser driver`
+- **Current task:** none; `T-603 — Non-Laravel HTMX fixture app` is next but **NOT STARTED**
+- **T-602 state:** **DONE / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**
+- **Pull request:** `#11 — feat(htmx): add exact-source browser driver` — **MERGED**
+- **Final feature head:** `ebad0f04a3b540a5a1536350038d0919ff600ebd`
+- **Merge commit:** `ee9af986f22cba45b05c59059c11e68ac46111fd`
+- **Post-merge main CI:** `34701911188` — **7/7 green**
+- **Browser verification on main:** TypeScript typecheck + **297/297 Vitest** across 17 files
 - **CodeRabbit:** **2 actionable inline findings; 2/2 resolved; 0 unresolved threads**
 - **Accepted decisions:** `D-054`, `D-055`, `D-056`
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-603/T-604**
-- **Next gate:** merge authorization for PR #11; do not begin T-603 automatically.
+- **Next gate:** explicit authorization to start T-603; do not begin it automatically.
 
 ## Baseline entering T-602
 
@@ -158,11 +159,14 @@ Special-key GREEN:             0d2021674e43c0ec4bf0a3e365e0915221b51e5e
 External-review toJSON RED:    adde02f3c457169d9d2c47418b53d2d4413410be — 295 passed / exactly 2 failed
 External-review toJSON GREEN:  2ec197213e966c96264b429be3e316c91c69c19e
 Plan review alignment:         a5f1bd8e5bd64548d78b4a37411314af664e5eb3
-Reviewed-head CI:              34699961997 — 7/7 green
-Browser:                       17 files / 297/297 tests + typecheck
-Contract:                      green
-PHP lint:                      green
-PHP matrix:                    4/4 green
+Final feature head:            ebad0f04a3b540a5a1536350038d0919ff600ebd
+Final feature CI:              34700403577 — 7/7 green
+Merge commit:                  ee9af986f22cba45b05c59059c11e68ac46111fd
+Post-merge main CI:            34701911188 — 7/7 green
+Browser on main:               17 files / 297/297 tests + typecheck
+Contract on main:              green
+PHP lint on main:              green
+PHP matrix on main:            4/4 green
 ```
 
 Focused final counts:
@@ -189,9 +193,9 @@ PR #11 received one completed CodeRabbit review over the review-prep head with t
 
 Both were verified before modification. The serialization finding was reproduced RED with exactly two new failures, fixed with a prototype-hook-free deterministic encoder, and revalidated GREEN. The plan finding required no production change; the plan was aligned with the two existing Livewire error branches.
 
-CodeRabbit explicitly confirmed both fixes in their threads. Both review threads are resolved and the current unresolved-thread count is **0**. A second complete CodeRabbit sweep was not available within the included hourly review quota; this is not represented as a second full review pass.
+CodeRabbit explicitly confirmed both fixes in their threads. Both review threads are resolved and the unresolved-thread count is **0**. A second complete CodeRabbit sweep was not available within the included hourly review quota; this is not represented as a second full review pass.
 
-CodeRabbit also reports a generic docstring-coverage warning for touched functions. This is not a repository CI or contract gate, and no bulk JSDoc churn was added solely to satisfy that external heuristic.
+CodeRabbit also reported a generic docstring-coverage warning for touched functions. This was not a repository CI or contract gate, and no bulk JSDoc churn was added solely to satisfy that external heuristic.
 
 ## Decision state
 
@@ -211,4 +215,4 @@ CodeRabbit also reports a generic docstring-coverage warning for touched functio
 
 ## Current boundary
 
-**T-602 is implemented and externally reviewed; all actionable review findings are resolved. PR #11 is merge-pending.** No merge/main revalidation has occurred yet. `D-020` remains PROPOSED, and T-603/T-604 are not started. The next allowed action is explicit merge authorization for PR #11.
+**T-602 is closed: externally reviewed, merged through PR #11, and revalidated on `main`.** `D-020` remains PROPOSED. T-603/T-604 are not started; the next allowed action is explicit authorization to begin T-603.
