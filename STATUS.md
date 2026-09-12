@@ -12,6 +12,7 @@
 - **T-602 state:** **IN_PROGRESS — DESIGN APPROVED IN CHAT / WRITTEN SPEC UNDER REVIEW**
 - **T-602 implementation:** **NOT STARTED**
 - **Written spec:** `docs/superpowers/specs/2026-09-12-htmx-browser-driver-design.md`
+- **Design checkpoint:** `58cba157a197a022d269b588bf11990aeecc3359` / CI `34681929700` — **7/7 green**
 - **Proposed decisions:** `D-054`, `D-055`, `D-056`
 - **Portability decision:** `D-020` — **PROPOSED; remains gated on T-604**
 - **Next gate:** user review/approval of the committed T-602 written spec; only then write the implementation plan.
@@ -149,4 +150,4 @@ Full CI must remain green, including PHP compatibility matrix and PHP lint. The 
 
 ## Current boundary
 
-**T-602 implementation is not started.** The design has been approved in chat and is being committed as a written spec. The next allowed action after this checkpoint is user review of that spec. After explicit approval, create the implementation plan. Do not write production code before that approval, and do not begin T-603 automatically.
+**T-602 implementation is not started.** The design is approved in chat, committed, self-reviewed, and validated at the docs-only design checkpoint (`58cba157a197a022d269b588bf11990aeecc3359`, CI `34681929700` — 7/7 green). The next allowed action is user review of the written spec. After explicit approval, create the implementation plan. Do not write production code before that approval, and do not begin T-603 automatically.
