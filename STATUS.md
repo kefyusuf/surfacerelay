@@ -131,14 +131,20 @@ Real-browser verification is a separate path-filtered workflow:
 
 It runs when the fixture, existing ActionDefinition, browser-runtime source/config, or fixture workflow changes.
 
-Required CI state after implementation:
+The evidence model is intentionally split:
 
 ```text
-validate workflow      -> existing 7/7 green
-htmx-fixture workflow  -> 1/1 green when triggered
+verified fixture implementation head:
+  validate workflow      -> 7/7 green
+  htmx-fixture workflow  -> 1/1 green
+
+later tracking-only review-prep head:
+  validate workflow      -> fresh 7/7 green
+  htmx-fixture           -> not expected to rerun
+  diff proof             -> no fixture/runtime/workflow input changed since the green fixture head
 ```
 
-Chromium installation is not added to the always-running validate workflow for unrelated docs/PHP changes.
+This preserves path-filter cost control without pretending a docs-only commit executed Chromium.
 
 ## Proposed decision
 
@@ -146,7 +152,7 @@ Chromium installation is not added to the always-running validate workflow for u
 
 > T-603 proves the merged HTMX adapter against a real non-Laravel Node application, real HTMX 2.x browser runtime, real Chromium network/DOM behavior, and the existing `prep_list.add_item@1` ActionDefinition. Human and SurfaceRelay paths converge on the same rendered HTMX source semantics, same `/items` business route, same server state transition, and same HTMX response-swap behavior. Test-only helpers may isolate state or delegate to the production driver but may not create a second business mutation path. T-603 alone does not establish T-604 shared conformance or accept D-020.
 
-D-057 must not be promoted by design or plan approval. The implementation plan requires exact-head real-browser CI success before D-057 can become `ACCEPTED`.
+D-057 must not be promoted by design or plan approval. The implementation plan requires exact fixture-relevant implementation-head real-browser CI success before D-057 can become `ACCEPTED`.
 
 ## Expected implementation surface after plan approval
 
@@ -182,12 +188,14 @@ Before T-603 can reach external review, the plan requires:
 fresh fixture npm ci + runtime build + Playwright run
 browser-runtime npm ci + typecheck + full regression suite
 python scripts/validate.py
-validate workflow 7/7 green on exact implementation head
-path-filtered htmx-fixture workflow 1/1 green on exact implementation head
-fresh repeat of both workflows on review-prep head
+fixture-relevant implementation head: validate 7/7 + htmx-fixture 1/1
+tracking-only review-prep head: fresh validate 7/7
+compare fixture implementation head -> review-prep head: tracking docs only
+fixture job log: actual Playwright count confirmed
+review-prep browser job log: typecheck + browser regression count confirmed
 ```
 
-Only after the first exact implementation-head real-browser CI succeeds may D-057 be promoted to accepted. D-020 remains proposed and T-604 remains not started.
+Only after the fixture-relevant implementation-head real-browser CI succeeds may D-057 be promoted to accepted. D-020 remains proposed and T-604 remains not started.
 
 ## Current boundary
 
