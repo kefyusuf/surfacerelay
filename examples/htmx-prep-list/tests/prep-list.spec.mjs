@@ -139,3 +139,80 @@ test('full page reload renews sourceId and bindingId together', async ({ page })
   expect(second.sourceId).not.toBe(first.sourceId);
   expect(second.bindingId).not.toBe(first.bindingId);
 });
+
+test('old binding fails stale after equivalent real-DOM source replacement without sending /items', async ({ page }) => {
+  let itemRequests = 0;
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === '/items') {
+      itemRequests += 1;
+    }
+  });
+
+  const replacement = await page.evaluate(() => globalThis.surfaceRelayFixture.replaceSourceForTest());
+  expect(replacement.oldSourceId).not.toBe(replacement.newSourceId);
+
+  const result = await page.evaluate(async () => {
+    try {
+      await globalThis.surfaceRelayFixture.addItem('must-not-run');
+      return { resolved: true };
+    } catch (error) {
+      return { resolved: false, code: error?.code, name: error?.name };
+    }
+  });
+
+  expect(result).toMatchObject({
+    resolved: false,
+    code: 'binding_stale',
+    name: 'HtmxBindingExecutionError',
+  });
+  expect(itemRequests).toBe(0);
+
+  await page.reload();
+  await expect(page.locator('#items')).not.toContainText('must-not-run');
+});
+
+test('fixture server rejects invalid mutation and traversal requests fail closed', async ({ request }) => {
+  expect((await request.get('/does-not-exist')).status()).toBe(404);
+  expect((await request.get('/items')).status()).toBe(405);
+
+  const wrongType = await request.post('/items', {
+    headers: { 'content-type': 'application/json' },
+    data: JSON.stringify({ name: 'x' }),
+  });
+  expect(wrongType.status()).toBe(415);
+
+  const empty = await request.post('/items', {
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    data: 'name=&uiContext=prep-list',
+  });
+  expect(empty.status()).toBe(422);
+
+  const duplicate = await request.post('/items', {
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    data: 'name=one&name=two&uiContext=prep-list',
+  });
+  expect(duplicate.status()).toBe(422);
+
+  const oversized = await request.post('/items', {
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    data: `name=${'x'.repeat(17 * 1024)}`,
+  });
+  expect(oversized.status()).toBe(413);
+
+  expect((await request.get('/runtime/../server.mjs')).status()).toBe(404);
+  expect((await request.get('/runtime/%2e%2e/server.mjs')).status()).toBe(404);
+  expect((await request.get('/runtime/foo/bar.js')).status()).toBe(404);
+});
+
+test('server renders item names as text in partials and full-page reloads', async ({ page }) => {
+  const attack = '<script>globalThis.__fixtureXss = true</script>';
+  await page.locator('input[name="name"]').fill(attack);
+  await page.locator(sourceSelector).click();
+
+  await expect(page.locator('#items li')).toHaveText(attack);
+  expect(await page.evaluate(() => globalThis.__fixtureXss ?? false)).toBe(false);
+
+  await page.reload();
+  await expect(page.locator('#items li')).toHaveText(attack);
+  expect(await page.evaluate(() => globalThis.__fixtureXss ?? false)).toBe(false);
+});
