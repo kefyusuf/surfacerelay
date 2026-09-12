@@ -155,7 +155,10 @@ function readBoundedBody(request) {
 
 async function handleItemsPost(request, response) {
   const contentType = request.headers['content-type'];
-  if (typeof contentType !== 'string' || !contentType.startsWith('application/x-www-form-urlencoded')) {
+  const mediaType = typeof contentType === 'string'
+    ? contentType.split(';', 1)[0].trim().toLowerCase()
+    : '';
+  if (mediaType !== 'application/x-www-form-urlencoded') {
     sendText(response, 415, 'text/plain; charset=utf-8', 'Unsupported media type');
     return;
   }
