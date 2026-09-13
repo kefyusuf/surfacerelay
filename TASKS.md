@@ -75,7 +75,7 @@ CodeRabbit:                        2 actionable / 2 resolved / 0 unresolved
 
 **T-602 is closed.**
 
-### T-603 — Non-Laravel HTMX fixture app — IMPLEMENTED / EXTERNAL REVIEW IN PROGRESS
+### T-603 — Non-Laravel HTMX fixture app — IMPLEMENTED / EXTERNALLY REVIEWED / MERGE READY
 
 Design / plan:
 
@@ -95,7 +95,7 @@ Verified proof boundary:
 - explicit Action input overrides stale same-name form state while ordinary host state is preserved;
 - page reload renews sourceId + bindingId;
 - equivalent DOM replacement cannot inherit old binding; stale execution dispatches zero `/items` requests;
-- body bounds, duplicate/missing/invalid input, media-type validation, method checks, traversal safety, and rendering escaping are executable proofs;
+- body bounds, duplicate/missing/invalid input, exact media-type validation, method checks, traversal safety, and rendering escaping are executable proofs;
 - fixture CI uses read-only contents permission and `persist-credentials: false`;
 - production browser-runtime, Laravel, frozen spec, existing ActionDefinition, and `validate.yml` remain unchanged.
 
@@ -104,7 +104,7 @@ Original implementation evidence:
 ```text
 Verified fixture head:        31c0b85af56aaa06cac4efc2bced36bee0befcc2
 validate:                     34719068926 — 7/7 green
-htmx-fixture:                 34719068934 — 1/1 green / 8/8 Playwright
+htmx-fixture:                 34719068934 — 8/8 Playwright
 browser-runtime:              17 files / 297/297 + typecheck
 Review-prep head:             0348bb6b50a6a8f36c4b3f1315515dd6e9213c87
 Review-prep validate:         34722974304 — 7/7 green
@@ -121,16 +121,23 @@ Failure:                      expected 415, received 201
 Media-type GREEN:             226f8169ee7cf251a079cd9f763e21791d49b39a
 Workflow security hardening:  7284dd21292c17fc35ddfd3bfb045d50e3dab38c
 Review-fix validate:          34725480849 — 7/7 green
-Review-fix fixture:           34725480861 — 1/1 green / 8/8 Playwright
+Review-fix fixture:           34725480861 — 8/8 Playwright
+Final reviewed head:          04f98b9f02c5012d396ece0641e358221ecd92c9
+Final reviewed validate:      34725996245 — 7/7 green
+Final reviewed fixture:       34725996254 — 8/8 Playwright
+Browser regression:           17 files / 297/297 + typecheck
+CodeRabbit threads:           4/4 actionable resolved / 0 unresolved
+Closure diff proof:           7284dd21..04f98b9f — STATUS.md / TASKS.md / REVIEW_REQUEST.md only
 ```
 
-Review findings addressed:
+Review closure:
 
-- near-miss `application/x-www-form-urlencoded-invalid` now fails `415`;
-- fixture workflow token is restricted to `contents: read`;
+- workflow token restricted to `contents: read`;
 - checkout credentials are not persisted into npm-controlled steps;
-- the earlier review-prep readiness proof is now explicitly recorded;
-- `REVIEW_REQUEST.md` is reduced to a concise handoff; historical evidence remains in `STATUS.md` / this task board.
+- near-miss form media types fail `415` and are covered by a RED/GREEN regression;
+- readiness proof is explicitly recorded and independently confirmed by CodeRabbit;
+- `REVIEW_REQUEST.md` is a concise handoff; detailed history remains in `STATUS.md` / this task board;
+- all four actionable CodeRabbit threads were explicitly confirmed and resolved.
 
 Decision state:
 
@@ -139,7 +146,7 @@ Decision state:
 
 Current gate:
 
-**Finish PR #12 review-thread closure and final docs-only exact-head validation. Merge remains pending explicit authorization. Do not begin T-604 automatically.**
+**PR #12 is externally reviewed and merge-ready. Merge remains pending explicit authorization. Do not begin T-604 automatically.**
 
 ### T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED
 
@@ -154,4 +161,4 @@ Current gate:
 
 ## Current boundary
 
-T-603 implementation is complete and under external review in PR #12. `D-057` is accepted for the verified fixture boundary, while `D-020` remains proposed and T-604 remains not started.
+T-603 is **IMPLEMENTED / EXTERNALLY REVIEWED / MERGE READY** in PR #12. `D-057` is accepted for the verified fixture boundary, `D-020` remains proposed, and T-604 remains not started.
