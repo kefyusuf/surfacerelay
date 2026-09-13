@@ -75,7 +75,7 @@ CodeRabbit:                        2 actionable / 2 resolved / 0 unresolved
 
 **T-602 is closed.**
 
-### T-603 — Non-Laravel HTMX fixture app — IMPLEMENTED / EXTERNALLY REVIEWED / MERGE READY
+### T-603 — Non-Laravel HTMX fixture app — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Design / plan:
 
@@ -88,46 +88,43 @@ Verified proof boundary:
 
 - private Node 22 fixture under `examples/htmx-prep-list/`;
 - real `htmx.org@2.0.10` + Playwright Chromium;
-- actual browser-runtime TS compiled to fixture `.tmp/runtime/` ESM;
+- actual browser-runtime TypeScript compiled to fixture `.tmp/runtime/` ESM;
 - existing `prep_list.add_item@1` ActionDefinition reused;
 - exactly one business mutation route: `POST /items`;
 - human click and production `HtmxBrowserDriver.execute()` converge on the same real HTMX path and DOM swap;
-- explicit Action input overrides stale same-name form state while ordinary host state is preserved;
+- explicit Action input overrides stale same-name form state while ordinary host state remains present;
 - page reload renews sourceId + bindingId;
 - equivalent DOM replacement cannot inherit old binding; stale execution dispatches zero `/items` requests;
 - body bounds, duplicate/missing/invalid input, exact media-type validation, method checks, traversal safety, and rendering escaping are executable proofs;
-- fixture CI uses read-only contents permission and `persist-credentials: false`;
+- fixture CI uses `permissions: contents: read` and `persist-credentials: false`;
 - production browser-runtime, Laravel, frozen spec, existing ActionDefinition, and `validate.yml` remain unchanged.
 
-Original implementation evidence:
+External review / closure evidence:
 
 ```text
-Verified fixture head:        31c0b85af56aaa06cac4efc2bced36bee0befcc2
-validate:                     34719068926 — 7/7 green
-htmx-fixture:                 34719068934 — 8/8 Playwright
-browser-runtime:              17 files / 297/297 + typecheck
-Review-prep head:             0348bb6b50a6a8f36c4b3f1315515dd6e9213c87
-Review-prep validate:         34722974304 — 7/7 green
-Review-prep diff:             tracking-only
-```
+Pull request:                    #12 — test(htmx): add real non-Laravel fixture proof
+Decision:                        D-057 — ACCEPTED
+Original verified fixture head:  31c0b85af56aaa06cac4efc2bced36bee0befcc2
+Original validate:               34719068926 — 7/7 green
+Original fixture:                34719068934 — 8/8 Playwright
 
-External review — PR #12:
+CodeRabbit review:               4 actionable + 1 nitpick initially
+Media-type RED:                  da528e4db76af7c04a351c99a20df2e2da7387dd
+Media-type RED run:              34725182292 — 8 total / 7 passed / exactly 1 failed
+Failure:                         expected 415, received 201
+Media-type GREEN:                226f8169ee7cf251a079cd9f763e21791d49b39a
+Workflow security hardening:     7284dd21292c17fc35ddfd3bfb045d50e3dab38c
 
-```text
-CodeRabbit review:            4 actionable + 1 nitpick initially
-Media-type RED:               da528e4db76af7c04a351c99a20df2e2da7387dd
-Media-type RED run:           34725182292 — 8 total / 7 passed / exactly 1 failed
-Failure:                      expected 415, received 201
-Media-type GREEN:             226f8169ee7cf251a079cd9f763e21791d49b39a
-Workflow security hardening:  7284dd21292c17fc35ddfd3bfb045d50e3dab38c
-Review-fix validate:          34725480849 — 7/7 green
-Review-fix fixture:           34725480861 — 8/8 Playwright
-Final reviewed head:          04f98b9f02c5012d396ece0641e358221ecd92c9
-Final reviewed validate:      34725996245 — 7/7 green
-Final reviewed fixture:       34725996254 — 8/8 Playwright
-Browser regression:           17 files / 297/297 + typecheck
-CodeRabbit threads:           4/4 actionable resolved / 0 unresolved
-Closure diff proof:           7284dd21..04f98b9f — STATUS.md / TASKS.md / REVIEW_REQUEST.md only
+Final feature/review head:        076108554d6995fea65108ca07c9b64d3994d459
+Final feature validate:           34727726895 — 7/7 green
+Final feature fixture:            34727726888 — 8/8 Playwright
+Final feature browser:            17 files / 297/297 + typecheck
+CodeRabbit threads:               4/4 actionable resolved / 0 unresolved
+
+Merge commit:                     e98c919b90f9f19b58ae56b88e391f1abbb179e7
+Post-merge main validate:         34758253025 — 7/7 green
+Post-merge main fixture:          34758253003 — 8/8 Playwright
+Post-merge browser:               17 files / 297/297 + typecheck
 ```
 
 Review closure:
@@ -135,22 +132,20 @@ Review closure:
 - workflow token restricted to `contents: read`;
 - checkout credentials are not persisted into npm-controlled steps;
 - near-miss form media types fail `415` and are covered by a RED/GREEN regression;
-- readiness proof is explicitly recorded and independently confirmed by CodeRabbit;
-- `REVIEW_REQUEST.md` is a concise handoff; detailed history remains in `STATUS.md` / this task board;
+- readiness and closure-head evidence was independently rechecked by CodeRabbit;
+- `REVIEW_REQUEST.md` is a concise handoff/closure record;
 - all four actionable CodeRabbit threads were explicitly confirmed and resolved.
 
 Decision state:
 
-- `D-057` — **ACCEPTED** for the verified real non-Laravel HTMX fixture proof.
+- `D-057` — **ACCEPTED** for the real non-Laravel HTMX fixture proof.
 - `D-020` — **PROPOSED**; shared portability remains gated on T-604.
 
-Current gate:
-
-**PR #12 is externally reviewed and merge-ready. Merge remains pending explicit authorization. Do not begin T-604 automatically.**
+**T-603 is closed.**
 
 ### T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED
 
-`D-020` remains proposed until this task proves the shared scenarios and an explicit decision gate promotes or rejects the portability claim.
+No T-604 design, plan, implementation, or decision promotion has started. `D-020` remains proposed until T-604 proves the shared scenarios and an explicit decision gate promotes or rejects the portability claim.
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -161,4 +156,4 @@ Current gate:
 
 ## Current boundary
 
-T-603 is **IMPLEMENTED / EXTERNALLY REVIEWED / MERGE READY** in PR #12. `D-057` is accepted for the verified fixture boundary, `D-020` remains proposed, and T-604 remains not started.
+T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-057` is accepted for the verified fixture boundary. `D-020` remains proposed. T-604 remains **TODO / NOT STARTED** and requires explicit authorization before its design gate begins.
