@@ -1,0 +1,18 @@
+{
+  "name": "@surfacerelay/example-htmx-prep-list",
+  "version": "0.0.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:runtime": "tsc -p tsconfig.runtime.json",
+    "start": "node server.mjs",
+    "test": "npm run build:runtime && playwright test"
+  },
+  "dependencies": {
+    "htmx.org": "2.0.10"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "typescript": "5.9.3"
+  }
+}
