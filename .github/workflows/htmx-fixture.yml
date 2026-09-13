@@ -1,0 +1,42 @@
+name: htmx-fixture
+
+on:
+  push:
+    paths:
+      - 'examples/htmx-prep-list/**'
+      - 'examples/prep-list/action.add-item.json'
+      - 'packages/browser-runtime/src/**'
+      - 'packages/browser-runtime/tsconfig.json'
+      - '.github/workflows/htmx-fixture.yml'
+  pull_request:
+    paths:
+      - 'examples/htmx-prep-list/**'
+      - 'examples/prep-list/action.add-item.json'
+      - 'packages/browser-runtime/src/**'
+      - 'packages/browser-runtime/tsconfig.json'
+      - '.github/workflows/htmx-fixture.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  htmx-fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: examples/htmx-prep-list/package-lock.json
+      - name: Install fixture dependencies
+        working-directory: examples/htmx-prep-list
+        run: npm ci
+      - name: Install Chromium
+        working-directory: examples/htmx-prep-list
+        run: npx playwright install --with-deps chromium
+      - name: Run real HTMX fixture
+        working-directory: examples/htmx-prep-list
+        run: npm test
