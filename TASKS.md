@@ -143,9 +143,31 @@ Decision state:
 
 **T-603 is closed.**
 
-### T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED
+### T-604 — Shared conformance against Livewire + HTMX — DESIGN APPROVED / SPEC WRITTEN / IMPLEMENTATION NOT STARTED
 
-No T-604 design, plan, implementation, or decision promotion has started. `D-020` remains proposed until T-604 proves the shared scenarios and an explicit decision gate promotes or rejects the portability claim.
+Design:
+
+```text
+docs/superpowers/specs/2026-09-13-binding-driver-conformance-design.md
+```
+
+Approved design boundary:
+
+- one shared executable binding-driver conformance matrix will run against the production `LivewireBrowserDriver` and `HtmxBrowserDriver`;
+- shared assertions cover genuinely common observable semantics only: fail-closed target validation, expiry classification, Action-input mappability, exact-target stale/no-retarget behavior, and cancellation before framework dispatch;
+- fail-closed cases must prove zero unintended framework dispatch;
+- Livewire and HTMX retain their different target shapes, lifecycle values, runtime APIs, framework-specific errors, cancellation mechanisms, and successful return-value behavior;
+- the shared matrix uses test-only thin adapters/fake runtimes and does not introduce a new production driver abstraction;
+- existing driver-specific and integration suites remain authoritative for framework-local behavior;
+- T-604 does not implement the repository-wide T-701 executable conformance runner and does not promote runtime fixture-manifest scenarios wholesale;
+- no production implementation, frozen-spec change, or implementation plan is part of this design-writing gate.
+
+Decision state:
+
+- `D-058` — **PROPOSED** for the shared behavioral binding-driver conformance boundary.
+- `D-020` — **PROPOSED** until the complete T-604 implementation, verification, and explicit decision-promotion gate succeeds.
+
+Implementation has **not** started. No T-604 implementation plan has been written. A separate explicit authorization is required before implementation planning or code changes begin.
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -156,4 +178,4 @@ No T-604 design, plan, implementation, or decision promotion has started. `D-020
 
 ## Current boundary
 
-T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-057` is accepted for the verified fixture boundary. `D-020` remains proposed. T-604 remains **TODO / NOT STARTED** and requires explicit authorization before its design gate begins.
+T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-604's three-part binding-driver conformance design is approved and recorded, with `D-058` **PROPOSED**. `D-020` remains **PROPOSED**. T-604 implementation and implementation planning are **NOT STARTED** and require a separate explicit next step.
