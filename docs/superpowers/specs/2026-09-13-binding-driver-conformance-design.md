@@ -6,12 +6,13 @@
 - Milestone: `M6 — HTMX Portability Proof`
 - Branch: `feat/binding-driver-conformance`
 - Base: `main@0e06f140035473ac6f29dfec1a87dd0a78fd068d`
-- Design state: **APPROVED IN CHAT / WRITTEN SPEC UNDER REVIEW**
-- Implementation state: **NOT STARTED**
+- Design state: **APPROVED / HISTORICAL DESIGN-GATE SNAPSHOT**
+- Implementation state at design approval: **NOT STARTED**
+- Current implementation state: **IMPLEMENTED / VERIFIED / READY FOR EXTERNAL REVIEW** — see `STATUS.md`, `TASKS.md`, and `REVIEW_REQUEST.md`
 - Existing Livewire driver decisions: `D-039`, `D-040`, `D-041`, `D-042`, `D-043` — **ACCEPTED**
 - Existing HTMX decisions: `D-053`, `D-054`, `D-055`, `D-056`, `D-057` — **ACCEPTED**
 - Proposed shared-conformance decision: `D-058`
-- Portability decision: `D-020` — remains **PROPOSED** until the T-604 verification gate is complete
+- Portability decision: `D-020` — remains **PROPOSED** pending explicit post-review closure
 
 T-604 is the final M6 portability gate. T-601 proved an explicit HTMX binding descriptor, T-602 proved its browser driver, and T-603 proved that driver against a real non-Laravel HTMX application. T-604 now asks a narrower question: **which browser binding-driver semantics are genuinely shared by the already-implemented Livewire and HTMX paths?**
 
@@ -19,7 +20,7 @@ The answer must come from one shared executable matrix, not from two independent
 
 This task does **not** define a new public browser-driver abstraction, normalize driver-owned targets, or implement the future repository-wide conformance runner from T-701.
 
-Implementation must not begin until this written design is reviewed and explicitly authorized.
+At design approval time, implementation was gated on review and explicit authorization. That gate has since passed; this document preserves the approved design-time constraints while current execution/review state is tracked in the repository status files named above.
 
 ## Objective
 
@@ -395,16 +396,18 @@ The repository architecture says a standalone standard must not be extracted unt
 
 T-604 addresses item 3 only for the browser binding-driver portability slice required by M6. It is evidence toward that future promotion rule, not authorization to perform the extraction now.
 
-## Current gate
+## Historical design gate
 
-This document completes the approved **T-604 design-writing gate only**.
+This section records the state when the T-604 design-writing gate was approved. It is intentionally historical rather than the repository's current status.
 
-At this point:
+At that design gate:
 
-- no T-604 implementation plan has been written;
-- no shared test harness has been created;
-- no production code has changed;
-- no frozen spec has changed;
-- `D-058` is only proposed;
-- `D-020` remains proposed;
-- implementation requires a separate explicit next step.
+- no T-604 implementation plan had been written;
+- no shared test harness had been created;
+- no production code had changed;
+- no frozen spec had changed;
+- `D-058` was proposed;
+- `D-020` remained proposed;
+- implementation required a separate explicit authorization.
+
+That authorization and implementation have since occurred. Current verification and external-review state is maintained in `STATUS.md`, `TASKS.md`, and `REVIEW_REQUEST.md`.
