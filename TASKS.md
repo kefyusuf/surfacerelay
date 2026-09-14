@@ -48,7 +48,7 @@ Browser baseline:         TypeScript typecheck + 103/103 Vitest
 
 **M5 is closed.**
 
-## M6 — HTMX Portability Proof — IN_PROGRESS
+## M6 — HTMX Portability Proof — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 ### T-601 — Explicit HTMX binding descriptor — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -59,6 +59,8 @@ Merge commit:                96581ff9d12dba5487b4831c3bc146081945decb
 Post-merge main CI:          34657967629 — 7/7 green
 Browser on main:             174/174 + typecheck
 ```
+
+T-601 proved that the generic `RuntimeBinding` envelope can carry a page-scoped HTMX target with source/path/named-input semantics without changing `ActionDefinition` or moving trusted authority into browser data.
 
 ### T-602 — HTMX browser driver — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -73,77 +75,24 @@ Browser on final closure main:     17 files / 297/297 + typecheck
 CodeRabbit:                        2 actionable / 2 resolved / 0 unresolved
 ```
 
-**T-602 is closed.**
+T-602 proved exact source resolution, physical request-declaration validation, supported HTMX 2.x public runtime execution, fail-closed input mapping and the HTMX-specific cancellation/dispatch frontier.
 
 ### T-603 — Non-Laravel HTMX fixture app — DONE / REVIEWED / MERGED / MAIN REVALIDATED
-
-Design / plan:
-
-```text
-docs/superpowers/specs/2026-09-12-htmx-fixture-design.md
-docs/superpowers/plans/2026-09-12-htmx-fixture.md
-```
-
-Verified proof boundary:
-
-- private Node 22 fixture under `examples/htmx-prep-list/`;
-- real `htmx.org@2.0.10` + Playwright Chromium;
-- actual browser-runtime TypeScript compiled to fixture `.tmp/runtime/` ESM;
-- existing `prep_list.add_item@1` ActionDefinition reused;
-- exactly one business mutation route: `POST /items`;
-- human click and production `HtmxBrowserDriver.execute()` converge on the same real HTMX path and DOM swap;
-- explicit Action input overrides stale same-name form state while ordinary host state remains present;
-- page reload renews sourceId + bindingId;
-- equivalent DOM replacement cannot inherit old binding; stale execution dispatches zero `/items` requests;
-- body bounds, duplicate/missing/invalid input, exact media-type validation, method checks, traversal safety, and rendering escaping are executable proofs;
-- fixture CI uses `permissions: contents: read` and `persist-credentials: false`;
-- production browser-runtime, Laravel, frozen spec, existing ActionDefinition, and `validate.yml` remain unchanged.
-
-External review / closure evidence:
 
 ```text
 Pull request:                    #12 — test(htmx): add real non-Laravel fixture proof
 Decision:                        D-057 — ACCEPTED
-Original verified fixture head:  31c0b85af56aaa06cac4efc2bced36bee0befcc2
-Original validate:               34719068926 — 7/7 green
-Original fixture:                34719068934 — 8/8 Playwright
-
-CodeRabbit review:               4 actionable + 1 nitpick initially
-Media-type RED:                  da528e4db76af7c04a351c99a20df2e2da7387dd
-Media-type RED run:              34725182292 — 8 total / 7 passed / exactly 1 failed
-Failure:                         expected 415, received 201
-Media-type GREEN:                226f8169ee7cf251a079cd9f763e21791d49b39a
-Workflow security hardening:     7284dd21292c17fc35ddfd3bfb045d50e3dab38c
-
-Final feature/review head:        076108554d6995fea65108ca07c9b64d3994d459
-Final feature validate:           34727726895 — 7/7 green
-Final feature fixture:            34727726888 — 8/8 Playwright
-Final feature browser:            17 files / 297/297 + typecheck
-CodeRabbit threads:               4/4 actionable resolved / 0 unresolved
-
-Merge commit:                     e98c919b90f9f19b58ae56b88e391f1abbb179e7
-Post-merge main validate:         34758253025 — 7/7 green
-Post-merge main fixture:          34758253003 — 8/8 Playwright
-Post-merge browser:               17 files / 297/297 + typecheck
+Final feature/review head:       076108554d6995fea65108ca07c9b64d3994d459
+Merge commit:                    e98c919b90f9f19b58ae56b88e391f1abbb179e7
+Post-merge main validate:        34758253025 — 7/7 green
+Post-merge main fixture:         34758253003 — 8/8 Playwright
+Post-merge browser:              17 files / 297/297 + typecheck
+CodeRabbit threads:              4/4 actionable resolved / 0 unresolved
 ```
 
-Review closure:
+T-603 proved the HTMX adapter against a real non-Laravel Node application, real `htmx.org@2.0.10`, real Chromium DOM/network execution and the existing `prep_list.add_item@1` ActionDefinition. Human and SurfaceRelay paths converge on the same `POST /items` business mutation and response swap. At the T-603 closure point `D-020` was still proposed; it was later accepted only after T-604 completed shared cross-driver conformance.
 
-- workflow token restricted to `contents: read`;
-- checkout credentials are not persisted into npm-controlled steps;
-- near-miss form media types fail `415` and are covered by a RED/GREEN regression;
-- readiness and closure-head evidence was independently rechecked by CodeRabbit;
-- `REVIEW_REQUEST.md` is a concise handoff/closure record;
-- all four actionable CodeRabbit threads were explicitly confirmed and resolved.
-
-Decision state:
-
-- `D-057` — **ACCEPTED** for the real non-Laravel HTMX fixture proof.
-- `D-020` — **PROPOSED**; shared portability remains gated on T-604.
-
-**T-603 is closed.**
-
-### T-604 — Shared conformance against Livewire + HTMX — IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION
+### T-604 — Shared conformance against Livewire + HTMX — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Design / plan:
 
@@ -155,49 +104,31 @@ docs/superpowers/plans/2026-09-14-binding-driver-conformance.md
 Verified implementation boundary:
 
 - one shared executable 11-case matrix is declared once in `packages/browser-runtime/tests/support/binding-driver-conformance-suite.ts`;
-- that exact matrix runs against the production `LivewireBrowserDriver` and production `HtmxBrowserDriver` through thin test-only adapters;
+- that exact matrix runs unchanged against production `LivewireBrowserDriver` and production `HtmxBrowserDriver` through thin test-only adapters;
 - shared assertions cover fail-closed target validation, expiry classification, Action-input mappability, exact-target stale/no-retarget behavior, exact dispatch count, and already-aborted no-dispatch cancellation;
 - every shared failure case proves zero unintended framework dispatch;
 - equivalent replacement identities receive zero dispatch from an old binding;
-- Livewire and HTMX retain their distinct target shapes, lifecycle values, runtime APIs, framework-specific errors, cancellation mechanisms, and successful return-value behavior;
-- the existing driver-specific, cancellation, input-mapping, and WebMCP integration suites remain unchanged and green;
+- framework-specific target shapes, lifecycles, runtime APIs, local error codes, cancellation mechanisms and successful return values remain driver-owned;
 - no production browser-runtime source, frozen spec, Laravel source, T-603 fixture, workflow, package dependency, or `tsconfig.json` changed;
 - T-701 was not implemented or pulled forward.
 
-TDD evidence:
+TDD / executable evidence:
 
 ```text
 Livewire RED head:              ae82c3d3bec6918a45932c3b11278b64b9ffe9d4
 Livewire RED validate:          34793105308 — browser tests failed after typecheck passed
 Livewire GREEN head:            bbb594f91ce2983adf0652fdad12d0fc05ce7509
 Livewire GREEN validate:        34793156495 — browser job green
-
 HTMX RED head:                  7b04d5e04c6d97e51039c680ee78cba374e78413
 HTMX RED validate:              34793193056 — browser tests failed after typecheck passed
-HTMX / complete GREEN head:     9d49c22ac2127c7ade6e235fae488f87490feb43
+Implementation head:            9d49c22ac2127c7ade6e235fae488f87490feb43
+Implementation validate:        34793229849 — 7/7 green
+Shared matrix:                  22/22 — 11 Livewire + 11 HTMX
+Full browser-runtime suite:     19 files / 319/319 + typecheck
+Fresh T-603 regression:         job 103821380728 — 8/8 real Chromium
 ```
 
-Verified executable evidence bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`:
-
-```text
-Shared matrix:                  22/22 passing — 11 Livewire + 11 HTMX
-Full browser-runtime suite:     19 files / 319/319 Vitest
-TypeScript typecheck:           PASS — tsc --noEmit
-Implementation validate:        34793229849 — 7/7 jobs green
-Repository contract validation: PASS in validate contract job
-Implementation diff:            test-only under packages/browser-runtime/tests/**
-```
-
-Fresh T-603 regression evidence:
-
-```text
-Fixture workflow/run:           34758253003 — explicit fresh job rerun
-Fresh fixture job:              103821380728 — SUCCESS
-Fixture revision:               e98c919b90f9f19b58ae56b88e391f1abbb179e7
-Real Chromium result:           8/8 Playwright passing
-```
-
-External review evidence:
+External review / closure evidence:
 
 ```text
 Pull request:                    #13 — test(conformance): add shared Livewire/HTMX binding-driver matrix
@@ -207,17 +138,22 @@ Initial actionable findings:     2 minor documentation consistency findings
 Design-state fix:                26324a20a640940d138c5954351133276fb4f4fb
 Needs-decision fix:              d8396e36b5e335f89f719f425597cd19ac30a7f3
 CodeRabbit threads:              2/2 confirmed addressed and resolved / 0 unresolved
-Fix-head validate:               34803374097 — 7/7 jobs green
+Review-fix validate:             34803374097 — 7/7 green
+Decision-promotion head:         bfcbde90ba2892f2e192a1df8d5c7c84310b23c0
+Decision-promotion PR validate:  34806672450 — 7/7 green
+Decisions:                       D-058 / D-020 — ACCEPTED
+Merge commit:                    2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080
+Post-merge main validate:        34806790431 — 7/7 green
+Post-merge browser:              19 files / 319/319 + typecheck
 ```
 
-The two review findings affected documentation state only: the design spec still presented its design-time `NOT STARTED` state as current, and `STATUS.md` did not place unresolved `D-058` / `D-020` under the repository-required `Needs decision` section. CodeRabbit rechecked each fix directly in its original review thread and resolved both threads. A requested second full PR review was rate-limited by CodeRabbit; that limitation is recorded rather than represented as a completed second full review. No correctness finding against the shared test implementation remains unresolved.
+Closure decisions:
 
-Decision state:
+- `D-058` — **ACCEPTED** for the tested shared behavioral `BindingDriver` overlap. Acceptance does not normalize framework-specific behavior and does not create a public T-701-style conformance SDK/runner.
+- `D-020` — **ACCEPTED**. The T-601–T-603 HTMX path is materially different from Livewire in lifecycle, driver target, input mapping, runtime API and dispatch behavior, while T-604 proves both implementations satisfy the same common binding-driver invariants.
+- Together with `D-009`, this establishes the required two materially different bindings + shared executable scenarios threshold. It does **not** automatically authorize extracting a standalone public specification; that remains a separate future decision/task.
 
-- `D-058` — **PROPOSED** pending explicit closure decision.
-- `D-020` — **PROPOSED** pending the separate explicit portability decision.
-
-T-604 is implemented, verified, and externally reviewed, but it is **not closed**. Do not promote either decision, close M6, or merge automatically without the explicit next gate.
+**T-604 is closed. M6 is closed.**
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -228,4 +164,4 @@ T-604 is implemented, verified, and externally reviewed, but it is **not closed*
 
 ## Current boundary
 
-T-604 is **IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION** on `feat/binding-driver-conformance`. Executable evidence remains bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`; external-review fixes are documentation-only through `d8396e36b5e335f89f719f425597cd19ac30a7f3`. `D-058` and `D-020` remain **PROPOSED**. Explicit closure authorization is required before decision promotion, M6 closure, or merge.
+M6 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-604 is closed and `D-058` / `D-020` are **ACCEPTED**. The next listed task is T-701, but it has **not started** and requires a new explicit user gate.
