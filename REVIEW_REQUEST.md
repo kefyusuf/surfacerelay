@@ -1,29 +1,29 @@
-# External Review Record — T-604 Shared Binding-Driver Conformance
+# External Review / Merge Record — T-604 Shared Binding-Driver Conformance
 
-## Review status
+## Final status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/binding-driver-conformance`
+- **Branch:** `main`
 - **Task:** `T-604 — Shared conformance against Livewire + HTMX`
-- **Pull request:** `#13 — test(conformance): add shared Livewire/HTMX binding-driver matrix` — **OPEN**
-- **State:** **IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION**
+- **Milestone:** `M6 — HTMX Portability Proof` — **CLOSED**
+- **Pull request:** `#13 — test(conformance): add shared Livewire/HTMX binding-driver matrix` — **MERGED**
 - **Implementation head:** `9d49c22ac2127c7ade6e235fae488f87490feb43`
 - **Implementation validate:** `34793229849` — **7/7 jobs green**
-- **Browser:** **19 files / 319/319 Vitest + TypeScript typecheck**
 - **Shared matrix:** **22/22** — 11 Livewire + 11 HTMX
-- **Fresh real HTMX fixture rerun:** run `34758253003`, job `103821380728` — **8/8 Playwright**
-- **Initial review head:** `e71248adb7afbce4c286b4be2504344eb3553da2`
-- **Review-fix head:** `d8396e36b5e335f89f719f425597cd19ac30a7f3`
-- **Review-fix validate:** `34803374097` — **7/7 jobs green**
-- **CodeRabbit:** **LOW merge risk; 2/2 actionable findings confirmed addressed and resolved; 0 unresolved**
-- **D-058:** **PROPOSED**
-- **D-020:** **PROPOSED**
-
-This file records the completed external-review gate. It is not a decision-promotion, merge, or M6-closure record.
+- **Browser:** **19 files / 319/319 Vitest + TypeScript typecheck**
+- **Fresh real HTMX fixture regression:** job `103821380728` — **8/8 Playwright**
+- **CodeRabbit:** **LOW merge risk; 2/2 actionable findings resolved; 0 unresolved**
+- **Decision-promotion head:** `bfcbde90ba2892f2e192a1df8d5c7c84310b23c0`
+- **Decision-promotion PR validate:** `34806672450` — **7/7 green**
+- **D-058:** **ACCEPTED**
+- **D-020:** **ACCEPTED**
+- **Merge commit:** `2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080`
+- **Post-merge main validate:** `34806790431` — **7/7 green**
+- **Post-merge browser:** **19 files / 319/319 + typecheck**
 
 ## Reviewed implementation
 
-T-604 adds one test-only shared behavioral matrix and two thin adapters:
+T-604 adds a deliberately test-only portability proof:
 
 ```text
 packages/browser-runtime/tests/
@@ -38,7 +38,7 @@ packages/browser-runtime/tests/
 
 The shared suite is declared once and executed unchanged against the production `LivewireBrowserDriver` and production `HtmxBrowserDriver`.
 
-It proves only behavior common to both drivers:
+It proves only behavior genuinely common to both drivers:
 
 - exact valid target dispatches once;
 - foreign/invalid target fails closed;
@@ -48,7 +48,7 @@ It proves only behavior common to both drivers:
 - equivalent replacement identity is never silently retargeted;
 - already-aborted invocation performs zero framework dispatch.
 
-It does not normalize driver-owned target structures, lifecycles, framework APIs, framework-specific error codes, post-dispatch cancellation behavior, or successful return values.
+It intentionally does not normalize driver-owned target structures, lifecycles, runtime APIs, framework-specific error codes, post-dispatch cancellation behavior, or successful return values.
 
 ## TDD evidence
 
@@ -63,7 +63,7 @@ HTMX RED run:               34793193056 — browser tests failed after typecheck
 Complete GREEN head:        9d49c22ac2127c7ade6e235fae488f87490feb43
 ```
 
-The RED entries were committed before their required support adapter existed. In each RED run, package typecheck succeeded first and the browser test step then failed. The GREEN changes supplied only the planned test support around the existing production driver.
+Each RED commit added the new test entry before its required test support existed. Typecheck passed and the browser test step failed, proving collection before the corresponding adapter/harness was supplied.
 
 ## Verification evidence
 
@@ -79,11 +79,9 @@ Shared conformance total:       22/22
 Full browser runtime:           19 files / 319/319 tests
 ```
 
-The full browser run includes the existing Livewire driver/cancellation/WebMCP suites, HTMX driver/input-mapping/cancellation/WebMCP suites, and RuntimeBinding expiry regression coverage.
+### Real HTMX regression
 
-### Fresh T-603 real-browser regression
-
-Because `.github/workflows/htmx-fixture.yml` is path-filtered and T-604 changes only browser-runtime tests, the existing fixture job was explicitly rerun:
+The T-603 fixture workflow is intentionally path-filtered and T-604 does not change production browser-runtime source or the fixture. The existing real-browser fixture job was therefore explicitly rerun as regression evidence:
 
 ```text
 Workflow/run:                  34758253003
@@ -92,48 +90,59 @@ Checked-out fixture revision:  e98c919b90f9f19b58ae56b88e391f1abbb179e7
 Playwright:                    8/8 passing in real Chromium
 ```
 
-This is a fresh regression execution of the unchanged fixture revision. The T-604 branch diff contains no changes under `examples/htmx-prep-list/**`, `packages/browser-runtime/src/**`, or `.github/workflows/htmx-fixture.yml`.
+The branch contains no changes under `examples/htmx-prep-list/**`, `packages/browser-runtime/src/**`, or `.github/workflows/htmx-fixture.yml`.
 
-## CodeRabbit external review
+## CodeRabbit review closure
 
-CodeRabbit reviewed the complete substantive PR through `e71248adb7afbce4c286b4be2504344eb3553da2` and classified merge risk as **LOW**.
+CodeRabbit reviewed the substantive PR through `e71248adb7afbce4c286b4be2504344eb3553da2` and classified merge risk as **LOW**.
 
-It raised exactly two actionable findings, both documentation consistency issues and neither a production/test behavior defect:
+It raised exactly two actionable findings, both documentation consistency issues:
 
-1. `docs/superpowers/specs/2026-09-13-binding-driver-conformance-design.md` still presented the design-time `NOT STARTED` state as current;
-2. `STATUS.md` did not list unresolved `D-058` / `D-020` under the `Needs decision` section required by `AGENTS.md`.
+1. the design spec still presented its design-time `NOT STARTED` state as current;
+2. `STATUS.md` did not list unresolved `D-058` / `D-020` under the repository-required `Needs decision` section.
 
-Fix evidence:
+Fix and recheck evidence:
 
 ```text
 Design-state fix:              26324a20a640940d138c5954351133276fb4f4fb
 Needs-decision fix:            d8396e36b5e335f89f719f425597cd19ac30a7f3
-Review-fix validate:           34803374097 — 7/7 jobs green
-Review threads:                2/2 resolved / 0 unresolved
+Review-fix validate:           34803374097 — 7/7 green
+Review threads:                2/2 reviewer-confirmed resolved / 0 unresolved
 ```
 
-CodeRabbit re-ran targeted verification in each original thread, explicitly confirmed both fixes as addressed, and resolved both review threads.
+A second full CodeRabbit sweep of only the two docs-only fix commits was requested, but CodeRabbit reported its included OSS review capacity had been exhausted. This limitation was recorded rather than represented as a completed review. The substantive implementation had already been reviewed, and each actionable finding was directly rechecked and resolved by the same reviewer.
 
-A second full review of only the two docs-only fix commits was requested. CodeRabbit reported that its included OSS review capacity had been exhausted and did not perform that second full sweep. This limitation is recorded explicitly; it is not treated as a completed review. The substantive implementation had already been fully reviewed, and each resulting actionable finding was independently rechecked by the same reviewer after its fix.
+The CodeRabbit docstring-coverage item remained a generic pre-merge metric warning, not an inline correctness finding or repository requirement. Scope was not expanded solely to satisfy that external metric.
 
-The CodeRabbit docstring-coverage item remains a generic pre-merge metric warning rather than an inline correctness finding or repository requirement. T-604 adds test-only harness helpers and no new public production API; scope was not expanded solely to satisfy that external metric.
+## Closure decisions
+
+### D-058 — ACCEPTED
+
+Livewire and HTMX establish shared browser binding-driver conformance through one executable test matrix over their genuine overlap: fail-closed target validation, expiry classification, Action-input mappability, exact-target stale/no-retarget semantics, dispatch/no-dispatch evidence, and cancellation before framework dispatch.
+
+Acceptance is bounded to this tested overlap. It does not require identical driver targets, lifecycle values, runtime APIs, framework-specific errors, post-dispatch cancellation semantics, or success results, and it does not create the future T-701 general conformance runner.
+
+### D-020 — ACCEPTED
+
+HTMX is the materially different second binding used to establish portability. T-601–T-603 prove a page/source/path/named-input model and real non-Laravel HTMX 2.x browser execution materially different from Livewire's component/positional/action-interception model. T-604 then proves both production drivers satisfy the same shared binding-driver matrix.
+
+This satisfies the D-009 two-materially-different-bindings + shared-scenarios threshold. It does not by itself authorize extracting or publishing a standalone cross-framework specification.
+
+## Merge / main revalidation
+
+```text
+Decision-promotion head:        bfcbde90ba2892f2e192a1df8d5c7c84310b23c0
+Decision-promotion PR validate: 34806672450 — 7/7 green
+Merge commit:                   2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080
+Post-merge main validate:       34806790431 — 7/7 green
+Post-merge browser:             19 files / 319/319 + typecheck
+```
 
 ## Scope audit
 
-Implementation additions are limited to:
+T-604 production behavior was not refactored to manufacture portability. Implementation additions remained limited to `packages/browser-runtime/tests/**` plus design/plan/tracking documentation.
 
-```text
-packages/browser-runtime/tests/binding-driver-conformance.livewire.test.ts
-packages/browser-runtime/tests/binding-driver-conformance.htmx.test.ts
-packages/browser-runtime/tests/binding-driver-conformance.typecheck.ts
-packages/browser-runtime/tests/support/binding-driver-conformance-suite.ts
-packages/browser-runtime/tests/support/livewire-conformance-adapter.ts
-packages/browser-runtime/tests/support/htmx-conformance-adapter.ts
-```
-
-The branch also contains approved T-604 design/plan/tracking documentation and documentation-only review fixes/records.
-
-Explicitly unchanged for T-604 implementation:
+Explicitly unchanged by the T-604 implementation:
 
 ```text
 packages/browser-runtime/src/**
@@ -146,22 +155,8 @@ packages/laravel/composer.*
 packages/browser-runtime/tsconfig.json
 ```
 
-## Review conclusion
+## Boundary after closure
 
-The review gate has no unresolved correctness findings:
+T-604 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** and M6 is **CLOSED**.
 
-- shared matrix design remained test-only;
-- no production contract was broadened;
-- fail-closed/no-retarget behavior remained explicit;
-- verification stayed green;
-- both actionable documentation findings were reviewer-confirmed and resolved.
-
-## Decision boundary
-
-- `D-058` remains **PROPOSED** pending explicit closure authorization.
-- `D-020` remains **PROPOSED** pending a separate explicit portability decision.
-- M6 remains **IN_PROGRESS**.
-- PR #13 remains **OPEN**.
-- T-701 remains future work.
-
-Do not merge, promote decisions, or close M6 without the explicit next gate.
+`D-058` and `D-020` are accepted. T-701 remains `TODO`; no M7 implementation starts automatically and a new explicit user gate is required.
