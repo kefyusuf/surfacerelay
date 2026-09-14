@@ -9,7 +9,7 @@ Status values: `PROPOSED`, `ACCEPTED`, `SUPERSEDED`.
 | D-003 | ACCEPTED | Cross-language sharing is semantic/schema-level; Laravel has a real runtime implementation. |
 | D-004 | ACCEPTED | Core semantics are protocol-neutral; WebMCP/MCP annotations are projections. |
 | D-005 | ACCEPTED | Browser WebMCP API changes are isolated behind one adapter. |
-| D-006 | ACCEPTED | Do not implement an MCP transport stack from scratch. Use an existing maintained implementation when MCP projection is added. |
+| D-006 | ACCEPTED | Do not implement an MCP transport stack from scratch. |
 | D-007 | ACCEPTED | Caller input cannot manufacture actor, tenant, selection, confirmation, or binding authority. |
 | D-008 | ACCEPTED | Start as one monorepo; split only with dependency/release evidence. |
 | D-009 | ACCEPTED | Do not promote a public cross-framework spec before two materially different bindings pass shared scenarios. |
