@@ -143,7 +143,7 @@ Decision state:
 
 **T-603 is closed.**
 
-### T-604 — Shared conformance against Livewire + HTMX — IMPLEMENTED / VERIFIED / READY FOR EXTERNAL REVIEW
+### T-604 — Shared conformance against Livewire + HTMX — IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION
 
 Design / plan:
 
@@ -183,7 +183,7 @@ Verified executable evidence bound to implementation head `9d49c22ac2127c7ade6e2
 Shared matrix:                  22/22 passing — 11 Livewire + 11 HTMX
 Full browser-runtime suite:     19 files / 319/319 Vitest
 TypeScript typecheck:           PASS — tsc --noEmit
-Branch-head validate:           34793229849 — 7/7 jobs green
+Implementation validate:        34793229849 — 7/7 jobs green
 Repository contract validation: PASS in validate contract job
 Implementation diff:            test-only under packages/browser-runtime/tests/**
 ```
@@ -197,14 +197,27 @@ Fixture revision:               e98c919b90f9f19b58ae56b88e391f1abbb179e7
 Real Chromium result:           8/8 Playwright passing
 ```
 
-The fixture rerun intentionally executes the unchanged T-603 main fixture revision. The T-604 branch diff contains no change under `examples/htmx-prep-list/**`, `packages/browser-runtime/src/**`, or `.github/workflows/htmx-fixture.yml`, so the fresh rerun is regression evidence for the unchanged real-browser proof rather than a claim that the test-only conformance harness is part of the fixture runtime.
+External review evidence:
+
+```text
+Pull request:                    #13 — test(conformance): add shared Livewire/HTMX binding-driver matrix
+Initial reviewed head:           e71248adb7afbce4c286b4be2504344eb3553da2
+CodeRabbit risk:                 LOW
+Initial actionable findings:     2 minor documentation consistency findings
+Design-state fix:                26324a20a640940d138c5954351133276fb4f4fb
+Needs-decision fix:              d8396e36b5e335f89f719f425597cd19ac30a7f3
+CodeRabbit threads:              2/2 confirmed addressed and resolved / 0 unresolved
+Fix-head validate:               34803374097 — 7/7 jobs green
+```
+
+The two review findings affected documentation state only: the design spec still presented its design-time `NOT STARTED` state as current, and `STATUS.md` did not place unresolved `D-058` / `D-020` under the repository-required `Needs decision` section. CodeRabbit rechecked each fix directly in its original review thread and resolved both threads. A requested second full PR review was rate-limited by CodeRabbit; that limitation is recorded rather than represented as a completed second full review. No correctness finding against the shared test implementation remains unresolved.
 
 Decision state:
 
-- `D-058` — **PROPOSED** pending external review and explicit closure.
-- `D-020` — **PROPOSED** pending an explicit portability decision after external review/closure.
+- `D-058` — **PROPOSED** pending explicit closure decision.
+- `D-020` — **PROPOSED** pending the separate explicit portability decision.
 
-T-604 is implemented and verified at the executable boundary, but it is **not closed**. External review is the next gate. Do not promote either decision, close M6, or merge automatically.
+T-604 is implemented, verified, and externally reviewed, but it is **not closed**. Do not promote either decision, close M6, or merge automatically without the explicit next gate.
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -215,4 +228,4 @@ T-604 is implemented and verified at the executable boundary, but it is **not cl
 
 ## Current boundary
 
-T-604 is **IMPLEMENTED / VERIFIED / READY FOR EXTERNAL REVIEW** on `feat/binding-driver-conformance`. Executable evidence is bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`. `D-058` and `D-020` remain **PROPOSED**. External review and explicit closure authorization are required before any decision promotion, M6 closure, or merge.
+T-604 is **IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION** on `feat/binding-driver-conformance`. Executable evidence remains bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`; external-review fixes are documentation-only through `d8396e36b5e335f89f719f425597cd19ac30a7f3`. `D-058` and `D-020` remain **PROPOSED**. Explicit closure authorization is required before decision promotion, M6 closure, or merge.
