@@ -151,6 +151,15 @@ There are no T-604 implementation changes under production browser runtime, Lara
 - `D-020` — **PROPOSED**. T-604 supplies the shared-driver evidence, but portability promotion remains a separate explicit post-review decision.
 - `D-057` and the accepted T-601/T-602 driver decisions remain unchanged.
 
+## Needs decision
+
+The following required architecture decisions remain unresolved and must not be encoded as accepted public contract state before the explicit post-review closure gate:
+
+- `D-058` — decide whether the verified shared behavioral binding-driver conformance boundary is accepted after external review has no unresolved correctness findings.
+- `D-020` — separately decide whether the accumulated T-601–T-604 evidence is sufficient to accept HTMX as the materially different second binding used to establish portability.
+
+Until those decisions are explicitly promoted or rejected, M6 remains **IN_PROGRESS**.
+
 ## Current boundary
 
 **T-604 is IMPLEMENTED / VERIFIED / READY FOR EXTERNAL REVIEW.**
