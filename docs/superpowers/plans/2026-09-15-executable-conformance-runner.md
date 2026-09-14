@@ -18,7 +18,8 @@
 - Canonical scenario selection and `PASS`/`FAIL` authority belong only to the Python runner.
 - Harnesses emit raw observations only; they do not emit `passed`, `conformant`, `failClosed`, `retargetPrevented`, or `NOT_APPLICABLE`.
 - One target/scenario pair executes in one fresh subprocess.
-- Request is one JSON document on stdin; response is exactly one JSON observation document on stdout; stderr is diagnostics only.
+- Request is one JSON document on stdin; response is exactly one JSON protocol document on stdout containing the raw observation; stderr is diagnostics only.
+- `targetId` may be echoed in the process envelope only as routing/integrity metadata. It is not scenario semantics, target authority, or a normalized runtime target.
 - Production timeout is fixed at 10 seconds per subprocess.
 - Runner exit codes are `0` for all-applicable PASS, `1` for at least one FAIL with no ERROR, and `2` for at least one ERROR.
 - `recommendedCode` is advisory; D-026 remains `PROPOSED` and code mismatch alone does not fail a scenario.
@@ -55,6 +56,7 @@
 - `packages/browser-runtime/conformance/livewire-harness.ts` — Livewire process entrypoint.
 - `packages/browser-runtime/conformance/htmx-harness.ts` — HTMX process entrypoint.
 - `packages/browser-runtime/tsconfig.conformance.json` — emits temporary JS under `.tmp/conformance/` without changing normal `tsconfig.json`.
+- `packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts` — direct RED/GREEN coverage proving the shared scenario executor emits raw observations rather than verdicts.
 
 ### Existing files modified during implementation
 
@@ -77,7 +79,7 @@
 - Create: `scripts/tests/test_conformance_model.py`
 
 **Interfaces:**
-- Produces: `ConformanceConfigError`, `SelectedCase`, `validate_conformance_config(registry, targets) -> list[str]`, `select_cases(registry, target) -> list[SelectedCase]`, `validate_observation(observation) -> list[str]`, `evaluate_observation(expectation, observation) -> list[str]`, `aggregate_exit_code(statuses) -> int`.
+- Produces: `SelectedCase`, `validate_conformance_config(registry, targets) -> list[str]`, `select_cases(registry, target) -> list[SelectedCase]`, `validate_observation(observation) -> list[str]`, `evaluate_observation(expectation, observation) -> list[str]`, `aggregate_exit_code(statuses) -> int`.
 - Consumes later: Task 2 runner and Task 6 `scripts/validate.py` integration.
 
 - [ ] **Step 1: Write RED tests for profile/capability selection and positive-control integrity**
@@ -165,8 +167,6 @@ Also cover duplicate scenario IDs, unknown profile claims, unknown capabilities,
 
 - [ ] **Step 2: Run the model tests and verify RED**
 
-Run:
-
 ```bash
 python -m unittest scripts.tests.test_conformance_model -v
 ```
@@ -179,7 +179,7 @@ Create `scripts/conformance_model.py` around these exact v1 primitives:
 
 ```python
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 PROTOCOL_VERSION = "0.1"
 PASS = "PASS"
@@ -214,13 +214,15 @@ def _is_positive_control(scenario: Mapping[str, Any]) -> bool:
     )
 ```
 
-`validate_conformance_config()` must derive known profiles from executable runtime scenarios and known capabilities from `requiresCapabilities`, reject target claims outside those sets, and require at least one mandatory `_is_positive_control()` per claimed profile.
+`validate_conformance_config()` derives known profiles from executable runtime scenarios and known capabilities from `requiresCapabilities`, rejects target claims outside those sets, and requires at least one mandatory `_is_positive_control()` per claimed profile.
 
-`select_cases()` must return deterministic scenario-ID order and mark capability-missing cases `applicable=False` rather than deleting them.
+`select_cases()` returns deterministic scenario-ID order and marks capability-missing cases `applicable=False` rather than deleting them.
 
-`evaluate_observation()` must compare only fields present in the structured expectation; advisory `errorCode` is not part of the normative comparison.
+`validate_observation()` requires `termination` and non-negative integer `frameworkDispatchCount`, permits optional non-negative integer `replacementDispatchCount`, and permits optional string `errorCode`; unknown observation fields are rejected so harness output stays bounded.
 
-`aggregate_exit_code()` must implement:
+`evaluate_observation()` compares only fields present in the structured expectation; advisory `errorCode` is not part of the normative comparison.
+
+`aggregate_exit_code()` implements:
 
 ```python
 if ERROR in statuses:
@@ -231,8 +233,6 @@ return 0
 ```
 
 - [ ] **Step 4: Run model tests and make them GREEN**
-
-Run:
 
 ```bash
 python -m unittest scripts.tests.test_conformance_model -v
@@ -258,7 +258,7 @@ git commit -m "test(conformance): define runner selection model"
 
 **Interfaces:**
 - Consumes: Task 1 model primitives.
-- Produces: `run_harness(command, request, timeout_seconds=10.0)`, `execute_case(...)`, deterministic text/JSON rendering, `main(argv=None) -> int`.
+- Produces: `HarnessRun`, `run_harness(command, request, timeout_seconds=10.0) -> HarnessRun`, `execute_case(...)`, deterministic text/JSON rendering, `main(argv=None) -> int`.
 - Later tasks provide real target manifests and browser harness commands; Task 2 proves the protocol independently with the fake child.
 
 - [ ] **Step 1: Write the fake harness fixture with deterministic modes**
@@ -340,11 +340,9 @@ result = run_harness(
 self.assertEqual("ERROR", result.status)
 ```
 
-Production CLI must still use 10 seconds.
+Production CLI still passes 10 seconds.
 
 - [ ] **Step 3: Run runner tests and verify RED**
-
-Run:
 
 ```bash
 python -m unittest scripts.tests.test_run_conformance -v
@@ -354,7 +352,18 @@ Expected: import failure because `scripts/run_conformance.py` does not exist.
 
 - [ ] **Step 4: Implement strict one-request/one-response subprocess handling**
 
-Create `scripts/run_conformance.py` with a small dataclass for execution results and strict response-envelope checks. The implementation must:
+Create `scripts/run_conformance.py` with:
+
+```python
+@dataclass(frozen=True)
+class HarnessRun:
+    status: str
+    observation: dict[str, object] | None
+    diagnostics: str
+    infrastructure_error: str | None
+```
+
+`run_harness()` executes:
 
 ```python
 completed = subprocess.run(
@@ -368,13 +377,19 @@ completed = subprocess.run(
 )
 ```
 
-Then require `returncode == 0`, parse `completed.stdout.strip()` with one `json.loads()` call, verify exact echoed `protocolVersion`, `requestId`, `scenarioId`, `targetId`, and `profile`, validate the `observation` through Task 1, and preserve `stderr` only as diagnostics.
+Require `returncode == 0`, parse `completed.stdout.strip()` with one `json.loads()` call, verify exact echoed `protocolVersion`, `requestId`, `scenarioId`, `targetId`, and `profile`, validate `observation` through Task 1, and preserve `stderr` as diagnostics only.
+
+The runner creates deterministic request IDs as:
+
+```python
+request_id = f"{target_id}::{scenario_id}"
+```
 
 No exception message from the child becomes a normative conformance field.
 
 - [ ] **Step 5: Implement deterministic target discovery/filtering and CLI rendering**
 
-`main()` must discover JSON files under `conformance/targets/` once they exist, sort by `targetId`, use `select_cases()`, sort cases by scenario ID, avoid spawning non-applicable cases, and support:
+`main()` discovers JSON files under `conformance/targets/`, sorts by `targetId`, calls `select_cases()`, sorts cases by scenario ID, avoids spawning non-applicable cases, and supports:
 
 ```text
 --target browser/livewire
@@ -382,9 +397,9 @@ No exception message from the child becomes a normative conformance field.
 --json
 ```
 
-Unknown filters are configuration errors and produce process exit `2`, not an empty successful run.
+Unknown filters are configuration `ERROR` and produce process exit `2`, not an empty successful run.
 
-Default text rendering format must be stable:
+Default text rendering is stable:
 
 ```text
 PASS browser/htmx BIND-EXACT-TARGET-EXECUTES
@@ -392,9 +407,7 @@ N/A  browser/htmx BIND-COMPONENT-STALE
 Summary: 1 PASS, 0 FAIL, 0 ERROR, 1 NOT_APPLICABLE
 ```
 
-- [ ] **Step 6: Run the runner tests and make them GREEN**
-
-Run:
+- [ ] **Step 6: Run runner tests and make them GREEN**
 
 ```bash
 python -m unittest scripts.tests.test_run_conformance -v
@@ -428,7 +441,7 @@ git commit -m "feat(conformance): add process runner protocol"
 **Interfaces:**
 - Produces: `CONFORMANCE_NOW`, `BindingDriverConformanceTarget`, `createLivewireConformanceTarget(now?)`, `createHtmxConformanceTarget(now?)`.
 - Preserves: existing T-604 `BindingDriverConformanceAdapter` and unchanged 11-case shared suite behavior.
-- Consumed by: Task 4 and Task 5 process harnesses.
+- Consumed by: Tasks 4–5 process harnesses.
 
 - [ ] **Step 1: Add the Vitest-free target contract**
 
@@ -446,7 +459,6 @@ export interface BindingDriverConformanceTarget {
   readonly invalidTargetBinding: RuntimeBinding;
   readonly unknownInput: Record<string, unknown>;
   readonly missingRequiredInput: Record<string, unknown>;
-
   makeTargetStale(): void;
   replaceTargetWithEquivalentIdentity(): void;
   frameworkDispatchCount(): number;
@@ -456,9 +468,7 @@ export interface BindingDriverConformanceTarget {
 
 - [ ] **Step 2: RED-refactor Livewire target support**
 
-Create `conformance/support/livewire-target.ts` by moving the controlled runtime/binding logic out of the current Vitest adapter. Replace `vi.fn()` with explicit counters/functions; for example the `$call` implementation increments a local integer and returns `{ ok: true }`.
-
-The builder signature is:
+Create `conformance/support/livewire-target.ts` by moving the controlled runtime/binding logic out of the current Vitest adapter. Replace `vi.fn()` with explicit counters/functions. The builder signature is:
 
 ```ts
 export function createLivewireConformanceTarget(
@@ -466,11 +476,11 @@ export function createLivewireConformanceTarget(
 ): BindingDriverConformanceTarget
 ```
 
-Before changing the old adapter, temporarily import the builder in a focused new typecheck assertion or adapter and run the shared tests expecting failure until the adapter points at the new builder.
+Before replacing the adapter, import the builder into `binding-driver-conformance.livewire.test.ts` through a temporary direct construction assertion and run that focused test. Expected RED is a missing builder/module until the file is created; remove the temporary assertion after the adapter is switched.
 
 - [ ] **Step 3: GREEN-refactor the Livewire T-604 adapter to one thin wrapper**
 
-The final adapter should be structurally equivalent to:
+Final adapter:
 
 ```ts
 import { createLivewireConformanceTarget } from '../../conformance/support/livewire-target.js';
@@ -484,7 +494,7 @@ export const livewireConformanceAdapter: BindingDriverConformanceAdapter = {
 
 - [ ] **Step 4: Repeat RED/GREEN extraction for HTMX**
 
-Create `conformance/support/htmx-target.ts` using the current `ConformanceSource`, controlled source array, public runtime shape, and explicit `ajaxDispatches` array instead of `vi.fn()`.
+Create `conformance/support/htmx-target.ts` using the current `ConformanceSource`, controlled source array, public runtime shape, and an explicit `ajaxDispatches` array instead of `vi.fn()`.
 
 Signature:
 
@@ -494,9 +504,9 @@ export function createHtmxConformanceTarget(
 ): BindingDriverConformanceTarget
 ```
 
-The final T-604 HTMX adapter must contain no `vi` import and only wrap this builder.
+The final T-604 HTMX adapter contains no `vi` import and only wraps this builder.
 
-- [ ] **Step 5: Move shared harness type/clock ownership out of the Vitest suite**
+- [ ] **Step 5: Move shared target type/clock ownership out of the Vitest suite**
 
 Modify `binding-driver-conformance-suite.ts` to import:
 
@@ -507,13 +517,9 @@ import {
 } from '../../conformance/support/binding-driver-target.js';
 ```
 
-Keep `BindingDriverConformanceAdapter` test-local, but make `createHarness(): BindingDriverConformanceTarget`.
-
-Do not alter any of the 11 test semantics or expected codes.
+Keep `BindingDriverConformanceAdapter` test-local, with `createHarness(): BindingDriverConformanceTarget`. Do not alter any of the 11 test semantics or expected codes.
 
 - [ ] **Step 6: Run the complete browser baseline**
-
-Run:
 
 ```bash
 cd packages/browser-runtime
@@ -521,45 +527,46 @@ npm run typecheck
 npm test
 ```
 
-Expected: existing T-604 remains `22/22` shared cases and the full browser suite remains green. Record the exact current total; do not hardcode an old count if unrelated baseline tests changed.
+Expected: existing T-604 remains `22/22` shared cases and the full browser suite is green. Record the exact current total rather than copying an older count.
 
 - [ ] **Step 7: Review source diff to prove production files are untouched**
 
-Run from repository root:
+From repository root:
 
 ```bash
-git diff --name-only HEAD~1..HEAD -- packages/browser-runtime/src
+git diff --name-only -- packages/browser-runtime/src
 ```
 
-When run after staging/commit boundaries, expected output for this task is empty.
+Expected output: empty.
 
 - [ ] **Step 8: Commit the shared-target extraction**
 
 ```bash
-git add packages/browser-runtime/conformance/support packages/browser-runtime/tests/support
+git add packages/browser-runtime/conformance/support packages/browser-runtime/tests/support packages/browser-runtime/tests/binding-driver-conformance.livewire.test.ts
 git commit -m "refactor(conformance): share browser target harnesses"
 ```
 
 ---
 
-### Task 4: TypeScript Process Protocol and Livewire Harness
+### Task 4: TypeScript Process Protocol, Shared Observation Executor, and Livewire Harness
 
 **Files:**
 - Create: `packages/browser-runtime/conformance/protocol.ts`
 - Create: `packages/browser-runtime/conformance/node-stdio.ts`
 - Create: `packages/browser-runtime/conformance/run-binding-driver-scenario.ts`
 - Create: `packages/browser-runtime/conformance/livewire-harness.ts`
+- Create: `packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts`
 - Create: `packages/browser-runtime/tsconfig.conformance.json`
 - Modify: `packages/browser-runtime/package.json`
 
 **Interfaces:**
 - Consumes: Task 3 `BindingDriverConformanceTarget` and Livewire target builder.
-- Produces: `ConformanceRequest`, `ConformanceObservation`, `ConformanceResponse`, `observeBindingDriverScenario(target, request)`, compiled Livewire process harness.
+- Produces: `ConformanceRequest`, `ConformanceObservation`, `ConformanceResponse`, `parseConformanceRequest(value)`, `observeBindingDriverScenario(target, request)`, compiled Livewire process harness.
 - No new dependency is added to `package.json`.
 
 - [ ] **Step 1: Add protocol types and strict local request validation**
 
-Create `conformance/protocol.ts` with these exact public shapes:
+Create `conformance/protocol.ts`:
 
 ```ts
 export interface ConformanceRequest {
@@ -588,7 +595,7 @@ export interface ConformanceResponse {
 }
 ```
 
-Provide `parseConformanceRequest(value: unknown): ConformanceRequest` that fails loudly for missing/wrong fields. It does not receive or parse expected results.
+`parseConformanceRequest(value: unknown): ConformanceRequest` fails loudly for missing/wrong fields and never accepts expected results.
 
 - [ ] **Step 2: Add a dependency-free Node stdio adapter**
 
@@ -611,23 +618,45 @@ const nodeProcess = (globalThis as unknown as { process: MinimalNodeProcess }).p
 
 Expose `readSingleStdinDocument(): Promise<string>`, `writeProtocolJson(value: unknown): void`, `writeDiagnostic(message: string): void`, and `setFailureExitCode(): void`.
 
-This avoids adding `@types/node` solely for process globals.
+- [ ] **Step 3: Write an exact RED observation test file**
 
-- [ ] **Step 3: RED-test the common scenario executor via a temporary focused Vitest test or existing target builders**
+Create `packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts` with tests using `createLivewireConformanceTarget()` and the not-yet-created `observeBindingDriverScenario()`:
 
-Add a focused test file only if needed for the RED/GREEN cycle, asserting that:
+```ts
+it('observes one exact successful dispatch without producing a verdict', async () => {
+  const target = createLivewireConformanceTarget();
+  const observation = await observeBindingDriverScenario(target, {
+    protocolVersion: '0.1',
+    requestId: 'livewire::exact',
+    scenarioId: 'BIND-EXACT-TARGET-EXECUTES',
+    targetId: 'browser/livewire',
+    profile: 'runtime-binding/driver',
+    now: '2026-09-14T00:00:00.000Z',
+  });
 
-```text
-BIND-EXACT-TARGET-EXECUTES → returned, dispatch 1, replacement 0
-BIND-EXPIRED-NOT-EXECUTABLE → threw, dispatch 0
-BIND-NO-SILENT-RETARGET → threw, original 0, replacement 0
+  expect(observation).toEqual({
+    termination: 'returned',
+    frameworkDispatchCount: 1,
+    replacementDispatchCount: 0,
+  });
+  expect(observation).not.toHaveProperty('passed');
+});
 ```
 
-The executor must not compare these values with expectations; it only records them.
+Add expiry and no-retarget tests expecting raw `threw` + zero dispatch fields.
 
-- [ ] **Step 4: Implement `observeBindingDriverScenario()`**
+- [ ] **Step 4: Run the focused test and verify RED**
 
-Create `conformance/run-binding-driver-scenario.ts` with a scenario switch limited to the four canonical v1 IDs:
+```bash
+cd packages/browser-runtime
+npx vitest run tests/binding-driver-conformance-observation.test.ts
+```
+
+Expected: FAIL because `run-binding-driver-scenario.ts`/export does not exist.
+
+- [ ] **Step 5: Implement `observeBindingDriverScenario()` and make the focused tests GREEN**
+
+Create `conformance/run-binding-driver-scenario.ts` with:
 
 ```ts
 export async function observeBindingDriverScenario(
@@ -636,16 +665,24 @@ export async function observeBindingDriverScenario(
 ): Promise<ConformanceObservation>
 ```
 
-Setup rules:
+Scenario setup is limited to:
 
-- `BIND-EXACT-TARGET-EXECUTES`: execute the unmodified exact binding.
-- `BIND-EXPIRED-NOT-EXECUTABLE`: clone `binding` with `expiresAt` exactly equal to one millisecond before `request.now`.
+- `BIND-EXACT-TARGET-EXECUTES`: execute unmodified exact binding.
+- `BIND-EXPIRED-NOT-EXECUTABLE`: clone binding with `expiresAt` one millisecond before `request.now`.
 - `BIND-COMPONENT-STALE`: call `target.makeTargetStale()` before execution.
 - `BIND-NO-SILENT-RETARGET`: call `target.replaceTargetWithEquivalentIdentity()` before execution.
 
-Catch the production exception only to classify `termination='threw'` and, when `typeof error === 'object'` and it has a string `code`, copy that raw code into `errorCode`. Do not infer stale/expired semantics from exception class/message.
+Catch production exceptions only to classify `termination='threw'` and copy a raw string `error.code` when present. Do not infer stale/expired semantics from class/message.
 
-- [ ] **Step 5: Add Livewire process entrypoint**
+Run:
+
+```bash
+npx vitest run tests/binding-driver-conformance-observation.test.ts
+```
+
+Expected: PASS.
+
+- [ ] **Step 6: Add the Livewire process entrypoint**
 
 Create `conformance/livewire-harness.ts`:
 
@@ -667,9 +704,9 @@ writeProtocolJson({
 });
 ```
 
-Top-level infrastructure exceptions must write diagnostics to stderr, set a non-zero exit code, and emit no fake observation.
+Top-level infrastructure exceptions write diagnostics to stderr, set non-zero exit code, and emit no fake observation.
 
-- [ ] **Step 6: Add dedicated emit config and package build script**
+- [ ] **Step 7: Add dedicated emit config and package build script**
 
 Create `tsconfig.conformance.json`:
 
@@ -690,7 +727,7 @@ Create `tsconfig.conformance.json`:
 }
 ```
 
-Add exactly one script to `package.json`:
+Add exactly one package script:
 
 ```json
 "conformance:build": "tsc -p tsconfig.conformance.json"
@@ -698,30 +735,23 @@ Add exactly one script to `package.json`:
 
 Do not add devDependencies.
 
-- [ ] **Step 7: Build and manually smoke the Livewire harness**
-
-Run:
+- [ ] **Step 8: Build and manually smoke the Livewire harness**
 
 ```bash
-cd packages/browser-runtime
 npm run conformance:build
 printf '%s' '{"protocolVersion":"0.1","requestId":"smoke-livewire","scenarioId":"BIND-EXACT-TARGET-EXECUTES","targetId":"browser/livewire","profile":"runtime-binding/driver","now":"2026-09-14T00:00:00.000Z"}' \
   | node .tmp/conformance/conformance/livewire-harness.js
 ```
 
-Expected stdout is exactly one JSON document whose observation contains:
+Expected stdout: exactly one JSON document whose observation contains returned/dispatch-1/replacement-0.
 
-```json
-{"termination":"returned","frameworkDispatchCount":1,"replacementDispatchCount":0}
-```
-
-- [ ] **Step 8: Re-run browser typecheck/tests and commit**
+- [ ] **Step 9: Run browser regression and commit**
 
 ```bash
 npm run typecheck
 npm test
 cd ../..
-git add packages/browser-runtime/conformance packages/browser-runtime/tsconfig.conformance.json packages/browser-runtime/package.json
+git add packages/browser-runtime/conformance packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts packages/browser-runtime/tsconfig.conformance.json packages/browser-runtime/package.json
 git commit -m "feat(conformance): add Livewire process harness"
 ```
 
@@ -731,44 +761,18 @@ git commit -m "feat(conformance): add Livewire process harness"
 
 **Files:**
 - Create: `packages/browser-runtime/conformance/htmx-harness.ts`
-- Reuse: `packages/browser-runtime/conformance/protocol.ts`
-- Reuse: `packages/browser-runtime/conformance/node-stdio.ts`
-- Reuse: `packages/browser-runtime/conformance/run-binding-driver-scenario.ts`
-- Reuse: `packages/browser-runtime/conformance/support/htmx-target.ts`
+- Modify: `packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts`
 
 **Interfaces:**
+- Consumes: Task 4 protocol/executor and Task 3 HTMX target builder.
 - Produces: process-compatible `browser/htmx` harness with no separate scenario semantics.
-- Preserves: HTMX has no `lifecycle.component` capability claim in T-701; the Python runner will never send `BIND-COMPONENT-STALE` in the canonical run.
+- HTMX has no `lifecycle.component` capability claim; the Python runner will not send `BIND-COMPONENT-STALE` in the canonical run.
 
-- [ ] **Step 1: Add the HTMX entrypoint with the same response envelope**
+- [ ] **Step 1: Add RED HTMX observation tests before the process entrypoint**
 
-Create `conformance/htmx-harness.ts` mirroring the Livewire entrypoint except:
+Extend `binding-driver-conformance-observation.test.ts` with HTMX exact execution and no-retarget cases using the same `observeBindingDriverScenario()` function.
 
-```ts
-if (request.targetId !== 'browser/htmx') throw new Error('Unexpected targetId.');
-const target = createHtmxConformanceTarget(now);
-```
-
-Do not add HTMX-specific result fields.
-
-- [ ] **Step 2: Build and smoke positive exact execution**
-
-Run:
-
-```bash
-cd packages/browser-runtime
-npm run conformance:build
-printf '%s' '{"protocolVersion":"0.1","requestId":"smoke-htmx","scenarioId":"BIND-EXACT-TARGET-EXECUTES","targetId":"browser/htmx","profile":"runtime-binding/driver","now":"2026-09-14T00:00:00.000Z"}' \
-  | node .tmp/conformance/conformance/htmx-harness.js
-```
-
-Expected observation: returned, framework dispatch `1`, replacement dispatch `0`.
-
-- [ ] **Step 3: Smoke no-silent-retarget negative proof**
-
-Run the same command with `scenarioId=BIND-NO-SILENT-RETARGET`.
-
-Expected observation includes:
+Expected raw no-retarget observation:
 
 ```json
 {
@@ -778,22 +782,51 @@ Expected observation includes:
 }
 ```
 
-The raw `errorCode` may be present; it remains advisory to the Python runner.
+Run the focused test and verify RED until `createHtmxConformanceTarget()` and shared executor integration are correct.
 
-- [ ] **Step 4: Run the full browser regression suite**
+- [ ] **Step 2: Make HTMX observation tests GREEN**
+
+```bash
+cd packages/browser-runtime
+npx vitest run tests/binding-driver-conformance-observation.test.ts
+```
+
+Expected: all Livewire + HTMX raw-observation tests PASS.
+
+- [ ] **Step 3: Add the HTMX entrypoint**
+
+Create `conformance/htmx-harness.ts` mirroring Livewire except:
+
+```ts
+if (request.targetId !== 'browser/htmx') throw new Error('Unexpected targetId.');
+const target = createHtmxConformanceTarget(now);
+```
+
+Do not add HTMX-specific result fields.
+
+- [ ] **Step 4: Build and smoke positive exact execution**
+
+```bash
+npm run conformance:build
+printf '%s' '{"protocolVersion":"0.1","requestId":"smoke-htmx","scenarioId":"BIND-EXACT-TARGET-EXECUTES","targetId":"browser/htmx","profile":"runtime-binding/driver","now":"2026-09-14T00:00:00.000Z"}' \
+  | node .tmp/conformance/conformance/htmx-harness.js
+```
+
+Expected observation: returned, framework dispatch `1`, replacement dispatch `0`.
+
+- [ ] **Step 5: Smoke no-silent-retarget negative proof**
+
+Run the same command with `scenarioId=BIND-NO-SILENT-RETARGET`.
+
+Expected observation: threw, framework dispatch `0`, replacement dispatch `0`; raw `errorCode` may be present but remains advisory.
+
+- [ ] **Step 6: Run the full browser regression suite and commit**
 
 ```bash
 npm run typecheck
 npm test
-```
-
-Expected: all browser tests PASS; T-604 remains unchanged semantically.
-
-- [ ] **Step 5: Commit the HTMX process harness**
-
-```bash
 cd ../..
-git add packages/browser-runtime/conformance/htmx-harness.ts
+git add packages/browser-runtime/conformance/htmx-harness.ts packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts
 git commit -m "feat(conformance): add HTMX process harness"
 ```
 
@@ -815,7 +848,7 @@ git commit -m "feat(conformance): add HTMX process harness"
 
 - [ ] **Step 1: RED-test canonical structural rules in the Python model**
 
-Extend `test_conformance_model.py` with cases proving:
+Extend `test_conformance_model.py` to prove:
 
 - executable runtime scenario without `profile` fails;
 - executable runtime scenario without structured `expectation` fails;
@@ -825,29 +858,27 @@ Extend `test_conformance_model.py` with cases proving:
 - claimed profile with only negative controls fails;
 - a mandatory positive control makes the same profile valid.
 
-Run:
-
 ```bash
 python -m unittest scripts.tests.test_conformance_model -v
 ```
 
-Expected: new tests FAIL until Task 1 model is tightened as required.
+Expected: new cases FAIL until model validation is tightened.
 
 - [ ] **Step 2: Promote exactly the approved scenario set**
 
 Edit `spec/0.1/fixtures/conformance-scenarios.json`:
 
 1. Add `BIND-EXACT-TARGET-EXECUTES` as `kind=runtime`, `status=executable`, profile `runtime-binding/driver`, no required capabilities, expectation returned/dispatch-1/replacement-0.
-2. Promote `BIND-EXPIRED-NOT-EXECUTABLE` to executable with the same profile and expectation threw/dispatch-0; keep `recommendedCode=binding_expired` advisory.
-3. Promote `BIND-COMPONENT-STALE` to executable with `requiresCapabilities=["lifecycle.component"]` and expectation threw/dispatch-0; keep `recommendedCode=binding_stale` advisory.
-4. Promote `BIND-NO-SILENT-RETARGET` to executable with no required capabilities and expectation threw/dispatch-0/replacement-0; keep `recommendedCode=binding_stale` advisory.
+2. Promote `BIND-EXPIRED-NOT-EXECUTABLE` to executable with same profile and expectation threw/dispatch-0; keep `recommendedCode=binding_expired` advisory.
+3. Promote `BIND-COMPONENT-STALE` with `requiresCapabilities=["lifecycle.component"]` and expectation threw/dispatch-0; keep `recommendedCode=binding_stale` advisory.
+4. Promote `BIND-NO-SILENT-RETARGET` with no required capabilities and expectation threw/dispatch-0/replacement-0; keep `recommendedCode=binding_stale` advisory.
 5. Leave `BIND-ID-UNKNOWN`, `BIND-DRIVER-UNKNOWN`, and `BIND-ACTION-VERSION-UNAVAILABLE` documented.
 
-Do not create canonical IDs for T-604 malformed target/input/cancellation cases in this task.
+Do not create canonical IDs for T-604 malformed-target/input/cancellation cases.
 
-- [ ] **Step 3: Add the exact target manifests**
+- [ ] **Step 3: Add exact target manifests**
 
-Create `conformance/targets/browser-livewire.json`:
+`conformance/targets/browser-livewire.json`:
 
 ```json
 {
@@ -855,20 +886,15 @@ Create `conformance/targets/browser-livewire.json`:
   "protocolVersion": "0.1",
   "profiles": ["runtime-binding/driver"],
   "capabilities": ["lifecycle.component"],
-  "command": [
-    "node",
-    "packages/browser-runtime/.tmp/conformance/conformance/livewire-harness.js"
-  ]
+  "command": ["node", "packages/browser-runtime/.tmp/conformance/conformance/livewire-harness.js"]
 }
 ```
 
-Create `conformance/targets/browser-htmx.json` with the same profile, empty capabilities, and HTMX harness path.
+`browser-htmx.json` uses empty capabilities and the HTMX harness path.
 
 - [ ] **Step 4: Integrate structural conformance validation into `scripts/validate.py`**
 
-Import `validate_conformance_config` from `conformance_model` and replace the old runtime-only `fail_closed + recommendedCode` assumption with model-based validation while preserving schema scenario fixture checks.
-
-Load all target manifests from `conformance/targets/*.json`, then:
+Import `validate_conformance_config` from `conformance_model`, preserve schema scenario fixture checks, load `conformance/targets/*.json`, and report each configuration error:
 
 ```python
 config_errors = validate_conformance_config({"scenarios": scenarios}, targets)
@@ -881,19 +907,9 @@ Do not invoke `run_conformance.py` from `validate.py`.
 
 - [ ] **Step 5: Document the repo-local protocol boundary**
 
-Create `conformance/README.md` describing:
+Create `conformance/README.md` describing repo-local experimental status, canonical semantic registry, target manifest fields, process protocol, runner verdict authority, advisory `recommendedCode`, current profile/capability vocabulary, exact targets, and explicit non-certification/public-SDK status.
 
-- repo-local experimental status;
-- canonical semantic registry location;
-- target manifest fields;
-- one-request/one-observation protocol;
-- PASS/FAIL authority belonging to the runner;
-- `recommendedCode` advisory status;
-- current profile/capability vocabulary;
-- exact v1 target set;
-- explicit statement that this is not a public certification SDK/spec.
-
-- [ ] **Step 6: Run structural validation and Python tests**
+- [ ] **Step 6: Make model/structural tests GREEN**
 
 ```bash
 python -m unittest discover -s scripts/tests -p 'test_conformance_*.py' -v
@@ -902,7 +918,7 @@ python scripts/validate.py
 
 Expected: all runner/model tests PASS and starter validation PASS.
 
-- [ ] **Step 7: Build browser harnesses and run the real canonical matrix**
+- [ ] **Step 7: Build harnesses and run the real canonical matrix**
 
 ```bash
 cd packages/browser-runtime
@@ -917,11 +933,11 @@ Expected exact summary:
 7 PASS, 0 FAIL, 0 ERROR, 1 NOT_APPLICABLE
 ```
 
-Verify that HTMX `BIND-COMPONENT-STALE` is reported N/A and that no child process is spawned for that case using the runner test instrumentation, not harness self-reporting.
+HTMX `BIND-COMPONENT-STALE` is runner-owned N/A and its subprocess is not spawned.
 
-- [ ] **Step 8: Verify advisory code mismatch cannot flip PASS**
+- [ ] **Step 8: Prove advisory code mismatch cannot flip PASS**
 
-Use a Python unit fixture observation with a missing or different `errorCode` but correct normative fields and prove `evaluate_observation()` returns no normative mismatch. The renderer may show advisory mismatch separately.
+Add a unit case with correct normative fields and a missing/different `errorCode`; `evaluate_observation()` must report no normative mismatch. Renderer may report advisory mismatch separately.
 
 - [ ] **Step 9: Commit canonical config and validation**
 
@@ -937,29 +953,20 @@ git commit -m "feat(conformance): execute canonical binding scenarios"
 **Files:**
 - Modify: `.github/workflows/validate.yml`
 - Modify: `CONFORMANCE.md`
-- Test: complete existing workflow plus local commands.
 
 **Interfaces:**
-- Consumes: complete T-701 runner/harness/config from Tasks 1–6.
-- Produces: T-701 as a required part of the existing seven-job `validate` workflow; no new job.
+- Consumes: Tasks 1–6 complete runner/harness/config.
+- Produces: T-701 required inside the existing seven-job workflow; no new job.
 
-- [ ] **Step 1: Update `CONFORMANCE.md` to match implemented state**
+- [ ] **Step 1: Update `CONFORMANCE.md` to implemented state**
 
-Replace future-T-701 wording only where now implemented. State precisely:
+State precisely that schema scenarios remain executable via `scripts/validate.py`; four `runtime-binding/driver` scenarios are executable through T-701; Livewire applies to all four; HTMX applies to three and reports component stale N/A; T-604 still owns broader 11-case package regression; T-603 remains separate real-browser evidence; binding lookup/driver-registry/action-availability scenarios remain documented.
 
-- schema scenarios remain executable via `scripts/validate.py`/fixture manifest;
-- four `runtime-binding/driver` scenarios are executable through T-701;
-- Livewire applies to all four;
-- HTMX applies to the three non-component-specific scenarios and reports component stale N/A;
-- T-604 still owns its broader 11-case package regression set;
-- T-603 remains separate real-browser evidence;
-- documented binding lookup/driver-registry/action-availability scenarios remain not executable through T-701 v1.
-
-Do not claim full Trust/Output/Projection conformance.
+Do not claim Trust/Output/Projection conformance.
 
 - [ ] **Step 2: Extend the existing browser CI job without adding a job**
 
-After `Run browser-runtime tests`, add:
+After browser tests add:
 
 ```yaml
       - uses: actions/setup-python@v5
@@ -974,11 +981,9 @@ After `Run browser-runtime tests`, add:
         run: python scripts/run_conformance.py
 ```
 
-Do not install Python requirements in the browser job because the runner tests and runtime runner are stdlib-only. The separate `contract` job continues to install `requirements-dev.txt` for `jsonschema` and run `scripts/validate.py`.
+No Python requirements install is needed in browser job; contract job still owns `requirements-dev.txt` + `scripts/validate.py`.
 
 - [ ] **Step 3: Run the complete local verification set**
-
-From repo root:
 
 ```bash
 python -m unittest discover -s scripts/tests -p 'test_conformance_*.py' -v
@@ -994,27 +999,23 @@ python scripts/run_conformance.py --scenario BIND-NO-SILENT-RETARGET
 python scripts/run_conformance.py --json
 ```
 
-Expected: no failures/errors; full canonical run is `7 PASS / 1 NOT_APPLICABLE`; filtered runs include only requested target/scenario while preserving deterministic order.
+Expected: no failures/errors; full canonical run `7 PASS / 1 NOT_APPLICABLE`; filtered runs include only requested cases in deterministic order.
 
 - [ ] **Step 4: Verify no dependency drift**
-
-Run:
 
 ```bash
 git diff -- packages/browser-runtime/package-lock.json requirements-dev.txt
 ```
 
-Expected: empty. If non-empty solely because an unnecessary type/test dependency was introduced, remove it before proceeding.
+Expected: empty.
 
 - [ ] **Step 5: Verify production browser source was not changed**
-
-Run:
 
 ```bash
 git diff 05b020c94279c295068895a8163a892549327d3f...HEAD -- packages/browser-runtime/src
 ```
 
-Expected: empty. Any required semantic production change reopens the design gate.
+Expected: empty. Any required semantic production change reopens design gate.
 
 - [ ] **Step 6: Commit CI/docs integration**
 
@@ -1023,18 +1024,18 @@ git add .github/workflows/validate.yml CONFORMANCE.md
 git commit -m "ci(conformance): run canonical browser matrix"
 ```
 
-- [ ] **Step 7: Verify the resulting GitHub Actions run**
+- [ ] **Step 7: Inspect the push-triggered GitHub Actions run for the exact implementation head**
 
-Wait only for the current push-triggered run already created by the commit; inspect it rather than promising future/background work. Required evidence before the implementation can be described as verified:
+Required evidence before calling implementation verified:
 
 ```text
 7 workflow jobs total
 7/7 success
-browser job includes typecheck + Vitest + runner unit tests + harness build + canonical runner
-contract job includes scripts/validate.py success
+browser: typecheck + Vitest + runner unit tests + harness build + canonical runner
+contract: scripts/validate.py success
 ```
 
-Record the exact workflow run ID and exact implementation head SHA.
+Record exact run ID and exact implementation head SHA.
 
 ---
 
@@ -1053,18 +1054,14 @@ Record the exact workflow run ID and exact implementation head SHA.
 
 - [ ] **Step 1: Review the full implementation diff against the approved design base**
 
-Run:
-
 ```bash
 git diff --stat 05b020c94279c295068895a8163a892549327d3f...HEAD
 git diff --name-only 05b020c94279c295068895a8163a892549327d3f...HEAD
 ```
 
-Check line-by-line that changes are limited to the planned runner, conformance metadata/manifests/docs, browser conformance test infrastructure, package script, and workflow. Confirm no Laravel production source, T-603 fixture behavior, standalone spec extraction, T-702/T-703/T-704 implementation, or dependency expansion appeared.
+Confirm changes are limited to planned runner, metadata/manifests/docs, browser conformance test infrastructure, package script, and workflow. Confirm no Laravel production source, T-603 fixture behavior, standalone spec extraction, T-702/T-703/T-704 implementation, or dependency expansion appeared.
 
-- [ ] **Step 2: Re-run fresh implementation verification on the exact review-prep head before claiming completion**
-
-Run:
+- [ ] **Step 2: Re-run fresh implementation verification on the exact review-prep head**
 
 ```bash
 python -m unittest discover -s scripts/tests -p 'test_conformance_*.py' -v
@@ -1083,53 +1080,32 @@ Required runtime summary:
 7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
 ```
 
-- [ ] **Step 3: Update `TASKS.md` with implementation evidence but keep review/merge state honest**
+- [ ] **Step 3: Update `TASKS.md` with implementation evidence while keeping review/merge state honest**
 
-Record:
-
-- design and plan paths;
-- implementation head SHA;
-- Python runner test result;
-- browser test/typecheck result;
-- canonical matrix `7 PASS / 1 N/A`;
-- validation workflow run ID/result;
-- D-059/D-060/D-061 still `PROPOSED`;
-- T-701 state as implementation-complete/verification-complete but **not** reviewed/merged unless those later gates actually occur.
+Record design/plan paths, implementation head, Python runner tests, browser tests/typecheck, canonical matrix, validation run, D-059/D-060/D-061 still PROPOSED, and T-701 as implementation/verification complete but not reviewed/merged unless those gates actually occurred.
 
 - [ ] **Step 4: Update `STATUS.md` with exact active boundary**
 
-State that the next gate is external review of T-701, not T-702. Preserve all existing M6 historical evidence.
-
-Under `Needs decision`, keep:
-
-```text
-D-059 — PROPOSED
-D-060 — PROPOSED
-D-061 — PROPOSED
-D-026 — PROPOSED and unchanged by T-701
-```
+Next gate is external review of T-701, not T-702. Preserve M6 historical evidence. Under `Needs decision`, keep D-059/D-060/D-061 and D-026 as PROPOSED.
 
 - [ ] **Step 5: Replace `REVIEW_REQUEST.md` with a T-701 review handoff**
 
-Include:
-
-- scope and non-goals;
-- exact implementation head;
-- exact changed-file list summary;
-- TDD/verification evidence;
-- canonical `7 PASS / 1 N/A` matrix;
-- explicit review questions around runner authority, process protocol, capability applicability, advisory error-code behavior, no-retarget evidence, and scope containment;
-- statement that decision promotion and merge require later explicit gates.
+Include scope/non-goals, exact implementation head, changed-file summary, TDD/verification evidence, canonical `7 PASS / 1 N/A`, review questions around runner authority/process protocol/capability applicability/advisory codes/no-retarget evidence/scope containment, and statement that decision promotion + merge need later explicit gates.
 
 - [ ] **Step 6: Confirm proposed decisions were not prematurely promoted**
 
-Run:
+Use a Python one-liner rather than shell-specific grep:
 
 ```bash
-grep -E '\| D-0(26|59|60|61) \|' docs/DECISION-REGISTER.md
+python - <<'PY'
+from pathlib import Path
+text = Path('docs/DECISION-REGISTER.md').read_text(encoding='utf-8')
+for decision in ('D-026', 'D-059', 'D-060', 'D-061'):
+    line = next(line for line in text.splitlines() if f'| {decision} |' in line)
+    print(line)
+    assert '| PROPOSED |' in line
+PY
 ```
-
-Expected: D-026, D-059, D-060, D-061 all show `PROPOSED` at review handoff.
 
 - [ ] **Step 7: Commit review-prep tracking**
 
@@ -1138,9 +1114,9 @@ git add TASKS.md STATUS.md REVIEW_REQUEST.md
 git commit -m "docs(conformance): prepare T-701 external review"
 ```
 
-- [ ] **Step 8: Run/inspect fresh CI for the exact review-prep commit and stop**
+- [ ] **Step 8: Inspect fresh CI for the exact review-prep commit and stop**
 
-Required before reporting the gate ready:
+Required:
 
 ```text
 validate workflow: 7/7 green on exact review-prep SHA
@@ -1148,13 +1124,13 @@ canonical runner: 7 PASS / 1 N/A
 D-059/D-060/D-061: still PROPOSED
 ```
 
-Stop here. Do not create/merge a PR, accept architecture decisions, or begin T-702 without the next explicit user gate.
+Stop here. Do not merge, accept architecture decisions, or begin T-702 without the next explicit user gate.
 
 ---
 
 ## Final Plan Verification Checklist
 
-Before implementation is called review-ready, the executor must be able to point to evidence for every item below:
+Before implementation is called review-ready, evidence must exist for every item:
 
 - [ ] Canonical runner owns scenario selection and verdicts.
 - [ ] Harness output contains raw observations only.
