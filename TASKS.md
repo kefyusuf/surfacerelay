@@ -143,12 +143,13 @@ Decision state:
 
 **T-603 is closed.**
 
-### T-604 — Shared conformance against Livewire + HTMX — DESIGN APPROVED / SPEC WRITTEN / IMPLEMENTATION NOT STARTED
+### T-604 — Shared conformance against Livewire + HTMX — DESIGN APPROVED / IMPLEMENTATION PLAN WRITTEN / IMPLEMENTATION NOT STARTED
 
-Design:
+Design / plan:
 
 ```text
 docs/superpowers/specs/2026-09-13-binding-driver-conformance-design.md
+docs/superpowers/plans/2026-09-14-binding-driver-conformance.md
 ```
 
 Approved design boundary:
@@ -159,15 +160,24 @@ Approved design boundary:
 - Livewire and HTMX retain their different target shapes, lifecycle values, runtime APIs, framework-specific errors, cancellation mechanisms, and successful return-value behavior;
 - the shared matrix uses test-only thin adapters/fake runtimes and does not introduce a new production driver abstraction;
 - existing driver-specific and integration suites remain authoritative for framework-local behavior;
-- T-604 does not implement the repository-wide T-701 executable conformance runner and does not promote runtime fixture-manifest scenarios wholesale;
-- no production implementation, frozen-spec change, or implementation plan is part of this design-writing gate.
+- T-604 does not implement the repository-wide T-701 executable conformance runner and does not promote runtime fixture-manifest scenarios wholesale.
+
+Implementation-plan boundary:
+
+- create one shared 11-case Vitest suite under `packages/browser-runtime/tests/support/`;
+- run that exact suite through one Livewire adapter and one HTMX adapter using the production drivers;
+- add one `.typecheck.ts` sentinel so both test adapters are included by the existing TypeScript configuration;
+- expected new shared proof: 2 test files / 22 tests, taking the current full browser baseline from 17 files / 297 tests to 19 files / 319 tests;
+- no production `packages/browser-runtime/src/**`, frozen spec, Laravel, fixture, workflow, package dependency, or `tsconfig.json` change is planned;
+- explicit verification includes the original driver-specific suites, full browser suite, TypeScript typecheck, contract validation, branch-head 7/7 `validate`, and a fresh T-603 8/8 Chromium fixture run;
+- execution stops at external-review preparation; decision promotion and M6 closure remain separate explicit gates.
 
 Decision state:
 
 - `D-058` — **PROPOSED** for the shared behavioral binding-driver conformance boundary.
-- `D-020` — **PROPOSED** until the complete T-604 implementation, verification, and explicit decision-promotion gate succeeds.
+- `D-020` — **PROPOSED** until the complete T-604 implementation, verification, external review, and explicit decision-promotion gate succeeds.
 
-Implementation has **not** started. No T-604 implementation plan has been written. A separate explicit authorization is required before implementation planning or code changes begin.
+Implementation has **not** started. The implementation plan is written and ready for review, but code/test execution requires a separate explicit authorization.
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -178,4 +188,4 @@ Implementation has **not** started. No T-604 implementation plan has been writte
 
 ## Current boundary
 
-T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-604's three-part binding-driver conformance design is approved and recorded, with `D-058` **PROPOSED**. `D-020` remains **PROPOSED**. T-604 implementation and implementation planning are **NOT STARTED** and require a separate explicit next step.
+T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-604 design and implementation plan are recorded on `feat/binding-driver-conformance`; `D-058` and `D-020` remain **PROPOSED**. T-604 implementation is **NOT STARTED** and requires a separate explicit next step.
