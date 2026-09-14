@@ -1,128 +1,141 @@
-# External Review / Merge Record — T-603 Non-Laravel HTMX Fixture
+# External Review Request — T-604 Shared Binding-Driver Conformance
 
-## Final status
+## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Task:** `T-603 — Non-Laravel HTMX fixture app`
-- **Pull request:** `#12 — test(htmx): add real non-Laravel fixture proof` — **MERGED**
-- **Base entering T-603:** `main@83df122d84f6881a4a3541bd5c72e1108e5d1e48`
-- **Original verified fixture head:** `31c0b85af56aaa06cac4efc2bced36bee0befcc2`
-- **Review-fix executable head:** `7284dd21292c17fc35ddfd3bfb045d50e3dab38c`
-- **Final feature/review-closure head:** `076108554d6995fea65108ca07c9b64d3994d459`
-- **Final feature validate:** `34727726895` — **7/7 green**
-- **Final feature fixture:** `34727726888` — **8/8 real Chromium tests**
-- **Merge commit:** `e98c919b90f9f19b58ae56b88e391f1abbb179e7`
-- **Post-merge main validate:** `34758253025` — **7/7 green**
-- **Post-merge main fixture:** `34758253003` — **8/8 real Chromium tests**
-- **Browser on post-merge main:** **17 files / 297/297 Vitest + TypeScript typecheck**
-- **CodeRabbit:** **4/4 actionable threads resolved; 0 unresolved**, 1 handoff nitpick addressed
-- **Decision:** `D-057` — **ACCEPTED**
-- **Portability:** `D-020` — **PROPOSED; remains gated on T-604**
-- **T-604:** **NOT STARTED**
+- **Branch:** `feat/binding-driver-conformance`
+- **Task:** `T-604 — Shared conformance against Livewire + HTMX`
+- **State:** **IMPLEMENTED / VERIFIED / READY FOR EXTERNAL REVIEW**
+- **Implementation head:** `9d49c22ac2127c7ade6e235fae488f87490feb43`
+- **Implementation validate:** `34793229849` — **7/7 jobs green**
+- **Browser:** **19 files / 319/319 Vitest + TypeScript typecheck**
+- **Shared matrix:** **22/22** — 11 Livewire + 11 HTMX
+- **Fresh real HTMX fixture rerun:** run `34758253003`, job `103821380728` — **8/8 Playwright**
+- **D-058:** **PROPOSED**
+- **D-020:** **PROPOSED**
 
-## Reviewed behavior
+This is a review handoff, not a decision-promotion or merge record.
 
-T-603 proves the already-merged T-601/T-602 HTMX path in a real non-Laravel browser/server fixture:
+## What changed
+
+T-604 adds one test-only shared behavioral matrix and two thin adapters:
 
 ```text
-prep_list.add_item@1
-  -> server-issued page RuntimeBinding
-  -> real htmx.org 2.0.10
-  -> human click OR production HtmxBrowserDriver.execute()
-  -> POST /items
-  -> same server mutation
-  -> same HTML fragment
-  -> same hx-target / hx-swap
+packages/browser-runtime/tests/
+├── binding-driver-conformance.livewire.test.ts
+├── binding-driver-conformance.htmx.test.ts
+├── binding-driver-conformance.typecheck.ts
+└── support/
+    ├── binding-driver-conformance-suite.ts
+    ├── livewire-conformance-adapter.ts
+    └── htmx-conformance-adapter.ts
 ```
 
-The review and executable proofs confirmed:
+The shared suite is declared once and is executed unchanged against the production `LivewireBrowserDriver` and production `HtmxBrowserDriver`.
 
-- production `HtmxBrowserDriver` is exercised; there is no duplicate agent mutation route;
-- human and agent converge on the same `/items` HTMX path;
-- page-scoped `sourceId` / `bindingId` renew on reload;
-- an equivalent rendered replacement never inherits the old binding; stale execution dispatches zero `/items` requests;
-- `POST /__test/reset` and the browser bridge remain test-only controls;
-- Action input overrides stale same-name form state while ordinary host request state remains present;
-- request/body/media-type/method validation, traversal protection, and render escaping fail closed;
-- fixture CI uses read-only `contents` permission and does not persist checkout credentials;
-- fixture dependencies stay isolated from production browser-runtime/Laravel packages;
-- T-603 does not claim T-604 shared conformance and does not promote `D-020`.
+It covers only behavior common to both drivers:
 
-## CodeRabbit closure
+- exact valid target dispatches once;
+- foreign/invalid target fails closed;
+- malformed/expired expiry fails closed;
+- unknown/missing Action input fails closed;
+- missing exact target is stale;
+- equivalent replacement identity is never silently retargeted;
+- already-aborted invocation performs zero framework dispatch.
 
-CodeRabbit initially raised **4 actionable comments + 1 nitpick**.
+It intentionally does not normalize driver-owned target structures, lifecycles, framework APIs, framework-specific error codes, post-dispatch cancellation behavior, or successful return values.
 
-### Workflow credential hardening — FIXED / CONFIRMED
+## Review focus
+
+Please verify these exact points:
+
+1. The same shared matrix, not duplicated case definitions, runs against both production drivers.
+2. The matrix covers only genuinely common behavior and does not normalize target shapes, lifecycle, framework errors, cancellation internals, or success results.
+3. Every fail-closed case proves zero unintended framework dispatch.
+4. Equivalent replacement identities receive zero dispatch from an old binding.
+5. The harness is test-only and does not duplicate either production driver.
+6. Existing Livewire/HTMX driver-specific, cancellation, input-mapping, and WebMCP integration behavior remains covered by its original suites.
+7. The real T-603 Chromium fixture remains green.
+8. No T-701 runner, frozen-spec change, production refactor, workflow expansion, dependency expansion, or `tsconfig.json` change leaked into T-604.
+9. `D-058` and `D-020` remain proposed until explicit post-review closure.
+
+## TDD evidence
 
 ```text
-permissions: contents: read
-checkout: persist-credentials: false
+Livewire RED head:          ae82c3d3bec6918a45932c3b11278b64b9ffe9d4
+Livewire RED run:           34793105308 — browser tests failed after typecheck passed
+Livewire GREEN head:        bbb594f91ce2983adf0652fdad12d0fc05ce7509
+Livewire GREEN run:         34793156495 — browser job green
+
+HTMX RED head:              7b04d5e04c6d97e51039c680ee78cba374e78413
+HTMX RED run:               34793193056 — browser tests failed after typecheck passed
+Complete GREEN head:        9d49c22ac2127c7ade6e235fae488f87490feb43
 ```
 
-Both workflow-security threads were explicitly rechecked and resolved.
-
-### Near-miss form media type — RED / GREEN FIXED / CONFIRMED
-
-```text
-RED:        da528e4db76af7c04a351c99a20df2e2da7387dd
-RED run:    34725182292 — 8 total / 7 passed / exactly 1 failed
-Failure:    expected 415, received 201
-GREEN:      226f8169ee7cf251a079cd9f763e21791d49b39a
-```
-
-The final server parses the media type token and accepts only exact `application/x-www-form-urlencoded` while allowing normal parameters. CodeRabbit explicitly confirmed the fix and resolved the thread.
-
-### Review-prep readiness / handoff — CONFIRMED
-
-The original review-prep and later review-closure heads were both independently validated. The detailed historical timeline remains in `STATUS.md` and `TASKS.md`; this file remains a concise handoff/closure record.
+The RED entries were committed before their required support adapter existed. In each RED run, package typecheck succeeded first and the browser test step then failed. The GREEN runs add only the planned test support around the existing production driver.
 
 ## Verification evidence
 
-```text
-Original verified fixture head:  31c0b85af56aaa06cac4efc2bced36bee0befcc2
-Original validate:               34719068926 — 7/7 green
-Original fixture:                34719068934 — 8/8 Playwright
-
-Review-fix executable head:      7284dd21292c17fc35ddfd3bfb045d50e3dab38c
-Review-fix validate:             34725480849 — 7/7 green
-Review-fix fixture:              34725480861 — 8/8 Playwright
-
-Final feature/review head:       076108554d6995fea65108ca07c9b64d3994d459
-Final feature validate:          34727726895 — 7/7 green
-Final feature fixture:           34727726888 — 8/8 Playwright
-Final feature browser:           297/297 + typecheck
-Review threads:                  4/4 actionable resolved / 0 unresolved
-
-Merge commit:                    e98c919b90f9f19b58ae56b88e391f1abbb179e7
-Post-merge main validate:        34758253025 — 7/7 green
-Post-merge main fixture:         34758253003 — 8/8 Playwright
-Post-merge browser:              297/297 + typecheck
-```
-
-## Scope
-
-Changed runtime/example surface is limited to:
+Bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`:
 
 ```text
-.github/workflows/htmx-fixture.yml
-examples/htmx-prep-list/**
+Validate run:                   34793229849 — 7/7 jobs green
+Contract validation:            PASS
+TypeScript typecheck:           PASS
+Livewire shared matrix:         11/11
+HTMX shared matrix:             11/11
+Shared conformance total:       22/22
+Full browser runtime:           19 files / 319/319 tests
 ```
 
-plus design/tracking documentation.
+The full browser run includes the existing Livewire driver/cancellation/WebMCP suites, HTMX driver/input-mapping/cancellation/WebMCP suites, and RuntimeBinding expiry regression coverage.
 
-Explicitly unchanged by T-603:
+### Fresh T-603 real-browser regression
+
+Because `.github/workflows/htmx-fixture.yml` is intentionally path-filtered and T-604 changes only browser-runtime tests, its existing fixture job was explicitly rerun:
+
+```text
+Workflow/run:                  34758253003
+Fresh job:                     103821380728 — SUCCESS
+Checked-out fixture revision:  e98c919b90f9f19b58ae56b88e391f1abbb179e7
+Playwright:                    8/8 passing in real Chromium
+```
+
+This is a fresh regression execution of the unchanged fixture revision. The T-604 branch diff contains no changes under `examples/htmx-prep-list/**`, `packages/browser-runtime/src/**`, or `.github/workflows/htmx-fixture.yml`.
+
+## Scope audit
+
+Implementation additions are limited to:
+
+```text
+packages/browser-runtime/tests/binding-driver-conformance.livewire.test.ts
+packages/browser-runtime/tests/binding-driver-conformance.htmx.test.ts
+packages/browser-runtime/tests/binding-driver-conformance.typecheck.ts
+packages/browser-runtime/tests/support/binding-driver-conformance-suite.ts
+packages/browser-runtime/tests/support/livewire-conformance-adapter.ts
+packages/browser-runtime/tests/support/htmx-conformance-adapter.ts
+```
+
+The branch also contains the approved T-604 design/plan/tracking documentation.
+
+Explicitly unchanged for T-604 implementation:
 
 ```text
 packages/browser-runtime/src/**
-packages/browser-runtime/package*.json
-packages/laravel/**
 spec/0.1/**
-examples/prep-list/action.add-item.json
-.github/workflows/validate.yml
+packages/laravel/src/**
+examples/htmx-prep-list/**
+.github/workflows/**
+packages/browser-runtime/package*.json
+packages/laravel/composer.*
+packages/browser-runtime/tsconfig.json
 ```
 
-## Boundary after merge
+## Decision boundary
 
-T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
+- `D-058` remains **PROPOSED** pending external review and explicit closure.
+- `D-020` remains **PROPOSED** pending a separate explicit portability decision after review.
+- M6 remains **IN_PROGRESS**.
+- T-701 remains future work.
 
-`D-057` is accepted only for the verified real HTMX fixture boundary. `D-020` remains PROPOSED. T-604 has not started; beginning its shared-conformance design requires a new explicit user gate.
+Do not merge, promote decisions, or close M6 as part of this review request without an explicit follow-up gate.
