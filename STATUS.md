@@ -8,12 +8,14 @@
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed task:** `T-604 — Shared conformance against Livewire + HTMX`
 - **Current task:** `T-701 — Executable conformance runner`
-- **T-701 state:** **IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **T-701 state:** **IN_PROGRESS / DESIGN APPROVED / PLAN WRITTEN / IMPLEMENTATION NOT STARTED**
 - **Design:** `docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md`
+- **Plan:** `docs/superpowers/plans/2026-09-15-executable-conformance-runner.md`
 - **Design branch base:** `main@67474d98152c7883af6106c92ca327bcd2e87307`
+- **Plan self-review head:** `5eafdeb4e6c462c6e5a0c422ea79eec368d76c65`
 - **Proposed decisions:** `D-059`, `D-060`, `D-061` — **PROPOSED**
 - **Existing provisional decision:** `D-026` — remains **PROPOSED**
-- **Next gate:** explicit user review of the committed T-701 design artifact; do not create an implementation plan or start implementation automatically.
+- **Next gate:** explicit user authorization to execute the written T-701 implementation plan; implementation must not start automatically.
 
 ## M6 delivered proof
 
@@ -150,8 +152,6 @@ T-701 turns a bounded subset of canonical runtime conformance semantics into a r
 
 ### Claimed profile and targets
 
-T-701 v1 claims exactly:
-
 ```text
 profile: runtime-binding/driver
 
@@ -180,8 +180,6 @@ Expected full canonical v1 result after implementation:
 `BIND-ID-UNKNOWN`, `BIND-DRIVER-UNKNOWN`, and `BIND-ACTION-VERSION-UNAVAILABLE` remain documented rather than executable in T-701 v1.
 
 ### Core runner boundary
-
-Approved design rules:
 
 - profiles define atomic conformance claim boundaries;
 - capabilities define conditional applicability inside a profile;
@@ -215,9 +213,9 @@ canonical evaluator
 PASS / FAIL / ERROR / NOT_APPLICABLE
 ```
 
-One target/scenario pair uses one fresh subprocess. Request is one JSON document on stdin; stdout is exactly one observation JSON; stderr is diagnostics. The request does not contain expected results. Fixed v1 timeout is 10 seconds.
+One target/scenario pair uses one fresh subprocess. Request is one JSON document on stdin; stdout is exactly one protocol JSON containing raw observation; stderr is diagnostics. Expected results are not sent to harnesses. Fixed v1 timeout is 10 seconds.
 
-Runner exit semantics are designed as:
+Runner exit semantics:
 
 ```text
 0 → all applicable scenarios PASS
@@ -233,19 +231,55 @@ Canonical runtime scenario semantics remain in:
 spec/0.1/fixtures/conformance-scenarios.json
 ```
 
-Repo-local target command/profile/capability wiring remains outside the spec, under T-701 conformance infrastructure.
+Repo-local target command/profile/capability wiring remains outside the spec.
 
 `scripts/validate.py` remains responsible for structural integrity; `scripts/run_conformance.py` will be responsible for runtime execution and verdicts. The runner will not import Livewire, HTMX, or Laravel runtime implementations and will not act as a package/build manager.
 
 ### Test/harness reuse boundary
 
-T-701 should extract reusable Vitest-free controlled target setup where practical so T-604 tests and T-701 harnesses do not drift into two independent Livewire/HTMX behavioral models.
+T-701 should extract reusable Vitest-free controlled target setup so T-604 tests and T-701 harnesses do not drift into two independent Livewire/HTMX behavioral models.
 
-Production browser runtime files under `packages/browser-runtime/src/**` are not expected to require changes for T-701 v1.
+Production browser runtime files under `packages/browser-runtime/src/**` are not expected to require semantic changes for T-701 v1.
+
+## T-701 implementation plan gate
+
+The committed implementation plan is:
+
+```text
+docs/superpowers/plans/2026-09-15-executable-conformance-runner.md
+```
+
+Plan commits:
+
+```text
+Initial plan:          0fed4f3015a7e39a97906646f82a6a9c7dacc527
+Self-review refinement: 5eafdeb4e6c462c6e5a0c422ea79eec368d76c65
+```
+
+The plan is split into eight reviewable TDD units:
+
+```text
+1. Python selection/evaluation model
+2. strict subprocess runner + fake-harness protocol tests
+3. shared Vitest-free browser target support preserving T-604
+4. raw observation executor + Livewire harness
+5. HTMX harness on the same executor/protocol
+6. canonical registry promotion + target manifests + structural validation
+7. seven-job CI integration + implemented conformance docs
+8. review/tracking handoff, then STOP before merge/decision promotion
+```
+
+Plan self-review findings were resolved before this status update:
+
+- no placeholder/TBD items remain;
+- an undefined `ConformanceConfigError` interface reference was removed;
+- Task 4 now uses one explicit permanent raw-observation Vitest file rather than an ambiguous temporary-test choice;
+- Node process typing is dependency-free through a local structural `globalThis.process` adapter;
+- production-source diff checks and decision-status checks are explicit.
 
 ## Needs decision
 
-The following T-701 decisions are intentionally unresolved until implementation evidence and external review exist:
+The following T-701 decisions remain intentionally unresolved until implementation evidence and external review exist:
 
 - `D-059` — **PROPOSED** — conformance authority uses profile + capability; runner owns canonical scenario selection and PASS/FAIL, harnesses emit raw observations only.
 - `D-060` — **PROPOSED** — language-neutral one-scenario/one-subprocess JSON protocol with Python stdlib orchestrator, stderr diagnostics and fixed timeout.
@@ -255,8 +289,6 @@ The following T-701 decisions are intentionally unresolved until implementation 
 No implementation should promote D-059/D-060/D-061 automatically merely because tests pass. Promotion requires a later explicit decision gate after executable verification and external review.
 
 ## Required later implementation evidence
-
-The approved design requires at minimum:
 
 ```text
 Python runner unit tests          PASS
@@ -290,4 +322,4 @@ T-701 v1 does not create or claim:
 
 **M6 is closed. T-604 is closed.**
 
-T-701 design is approved and written, but implementation has **not started**. `D-059`, `D-060`, and `D-061` are **PROPOSED**, not accepted. The next gate is explicit user review of `docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md`. Only after that approval may the workflow move to implementation planning; do not implement T-701 or begin T-702 automatically.
+T-701 design has been reviewed and the implementation plan has been written/self-reviewed. Implementation has **not started**. `D-059`, `D-060`, `D-061`, and `D-026` remain **PROPOSED**. The next gate is explicit user authorization to execute the T-701 plan. Do not start T-702, promote decisions, merge, or publish automatically.
