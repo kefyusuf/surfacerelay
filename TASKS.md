@@ -155,13 +155,46 @@ Closure decisions:
 
 **T-604 is closed. M6 is closed.**
 
-## M7 — Conformance / Ecosystem Bridges — TODO
+## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
 
-- T-701 — Executable conformance runner — TODO.
+### T-701 — Executable conformance runner — IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED
+
+Design:
+
+```text
+docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md
+```
+
+Approved design boundary:
+
+- v1 claims only `runtime-binding/driver` conformance against production `LivewireBrowserDriver` and `HtmxBrowserDriver`;
+- canonical scenario selection and PASS/FAIL authority belong to a repo-local runner; harnesses return raw observations only;
+- target applicability is selected by profile + capability; mandatory scenarios cannot be adapter-skipped;
+- canonical runtime semantics remain in `spec/0.1/fixtures/conformance-scenarios.json`, while process wiring remains outside the spec;
+- v1 adds one mandatory positive exact-execution scenario so an always-rejecting implementation cannot appear conformant;
+- the language-neutral process protocol is one scenario / one subprocess with JSON stdin/stdout, stderr diagnostics, deterministic time, and a fixed timeout;
+- the orchestrator is Python stdlib and imports no runtime implementation;
+- v1 excludes driver-registry/binding-lookup/action-availability claims, Laravel/PHP targets, public SDK/spec extraction, real-browser orchestration, and the remaining M7 tasks;
+- `D-059`, `D-060`, and `D-061` are PROPOSED only; `D-026` remains PROPOSED.
+
+Design acceptance target for later implementation:
+
+```text
+Canonical v1 runtime result:     7 PASS / 1 NOT_APPLICABLE
+Python runner unit tests:        PASS
+scripts/validate.py:             PASS
+Browser typecheck + Vitest:      PASS
+Conformance harness compile:     PASS
+Full validate workflow:          7/7 green
+External review:                 required before decision promotion
+```
+
+**Current T-701 gate:** written design artifact is awaiting explicit user review. Do not write the implementation plan or implementation code until that review gate is approved.
+
 - T-702 — Adapter author guide — TODO.
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-604 is closed and `D-058` / `D-020` are **ACCEPTED**. The next listed task is T-701, but it has **not started** and requires a new explicit user gate.
+M6 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 design is approved in principle and written on `feat/executable-conformance-runner`, but implementation has **not started**. The next gate is explicit user review of the committed T-701 design spec; do not create an implementation plan or begin implementation automatically.
