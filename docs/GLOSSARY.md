@@ -181,3 +181,27 @@ A short-lived runtime-issued request for human approval of one exact confirmatio
 ## Confirmation receipt
 
 A short-lived, single-use opaque bearer capability issued by the runtime after trusted human approval. The server stores only the token hash and authoritative state. The receipt is bound to exact action ID/version, validated invocation input, surface/binding reference, and relevant trusted actor/tenant/record/selection/browser-session context. It is valid only before expiry and only once; replay, mismatch, unknown, pending, or expired candidates grant no `human_confirmation` authority. Caller booleans, input, metadata, and merely constructing a `ConfirmationChallenge` never grant authority (D-015/D-044).
+
+## Proposed T-701 conformance vocabulary
+
+The following vocabulary is **proposed by T-701** and is not part of implemented/frozen v0.1 behavior until the corresponding decisions are promoted after executable verification and review.
+
+### Conformance profile
+
+An atomic conformance claim boundary naming the production behavior under test rather than a framework. A target that claims a profile accepts the profile's mandatory canonical executable scenarios. T-701 v1 proposes `runtime-binding/driver` as the only claimed profile (D-059/D-061).
+
+### Conformance capability
+
+A declared applicability feature inside a conformance profile. Capabilities do not prove correctness and do not let a target choose its tests; they add scenario obligations when canonical scenarios require them. T-701 v1 proposes `lifecycle.component` so component-lifecycle scenarios apply to Livewire without pretending they apply to the HTMX page lifecycle (D-059).
+
+### Conformance target
+
+A repo-local executable subject that claims one or more profiles/capabilities and provides process wiring for a harness. Target wiring is not canonical SurfaceRelay semantic truth and remains outside `spec/0.1` (D-061).
+
+### Conformance observation
+
+A raw fact returned by a target harness after executing one canonical scenario, such as whether execution returned/threw and how many framework/replacement dispatches occurred. Observations are not verdicts; the runner compares them to canonical expectations (D-059/D-060).
+
+### Conformance verdict
+
+The runner-owned result of comparing an applicable canonical expectation to a valid observation: `PASS` or `FAIL`. Infrastructure/protocol inability to obtain a trustworthy observation is `ERROR`; canonical capability selection may produce `NOT_APPLICABLE` before a harness is spawned. Harnesses do not self-report verdicts (D-059/D-060).
