@@ -143,9 +143,81 @@ Decision state:
 
 **T-603 is closed.**
 
-### T-604 — Shared conformance against Livewire + HTMX — TODO / NOT STARTED
+### T-604 — Shared conformance against Livewire + HTMX — IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION
 
-No T-604 design, plan, implementation, or decision promotion has started. `D-020` remains proposed until T-604 proves the shared scenarios and an explicit decision gate promotes or rejects the portability claim.
+Design / plan:
+
+```text
+docs/superpowers/specs/2026-09-13-binding-driver-conformance-design.md
+docs/superpowers/plans/2026-09-14-binding-driver-conformance.md
+```
+
+Verified implementation boundary:
+
+- one shared executable 11-case matrix is declared once in `packages/browser-runtime/tests/support/binding-driver-conformance-suite.ts`;
+- that exact matrix runs against the production `LivewireBrowserDriver` and production `HtmxBrowserDriver` through thin test-only adapters;
+- shared assertions cover fail-closed target validation, expiry classification, Action-input mappability, exact-target stale/no-retarget behavior, exact dispatch count, and already-aborted no-dispatch cancellation;
+- every shared failure case proves zero unintended framework dispatch;
+- equivalent replacement identities receive zero dispatch from an old binding;
+- Livewire and HTMX retain their distinct target shapes, lifecycle values, runtime APIs, framework-specific errors, cancellation mechanisms, and successful return-value behavior;
+- the existing driver-specific, cancellation, input-mapping, and WebMCP integration suites remain unchanged and green;
+- no production browser-runtime source, frozen spec, Laravel source, T-603 fixture, workflow, package dependency, or `tsconfig.json` changed;
+- T-701 was not implemented or pulled forward.
+
+TDD evidence:
+
+```text
+Livewire RED head:              ae82c3d3bec6918a45932c3b11278b64b9ffe9d4
+Livewire RED validate:          34793105308 — browser tests failed after typecheck passed
+Livewire GREEN head:            bbb594f91ce2983adf0652fdad12d0fc05ce7509
+Livewire GREEN validate:        34793156495 — browser job green
+
+HTMX RED head:                  7b04d5e04c6d97e51039c680ee78cba374e78413
+HTMX RED validate:              34793193056 — browser tests failed after typecheck passed
+HTMX / complete GREEN head:     9d49c22ac2127c7ade6e235fae488f87490feb43
+```
+
+Verified executable evidence bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`:
+
+```text
+Shared matrix:                  22/22 passing — 11 Livewire + 11 HTMX
+Full browser-runtime suite:     19 files / 319/319 Vitest
+TypeScript typecheck:           PASS — tsc --noEmit
+Implementation validate:        34793229849 — 7/7 jobs green
+Repository contract validation: PASS in validate contract job
+Implementation diff:            test-only under packages/browser-runtime/tests/**
+```
+
+Fresh T-603 regression evidence:
+
+```text
+Fixture workflow/run:           34758253003 — explicit fresh job rerun
+Fresh fixture job:              103821380728 — SUCCESS
+Fixture revision:               e98c919b90f9f19b58ae56b88e391f1abbb179e7
+Real Chromium result:           8/8 Playwright passing
+```
+
+External review evidence:
+
+```text
+Pull request:                    #13 — test(conformance): add shared Livewire/HTMX binding-driver matrix
+Initial reviewed head:           e71248adb7afbce4c286b4be2504344eb3553da2
+CodeRabbit risk:                 LOW
+Initial actionable findings:     2 minor documentation consistency findings
+Design-state fix:                26324a20a640940d138c5954351133276fb4f4fb
+Needs-decision fix:              d8396e36b5e335f89f719f425597cd19ac30a7f3
+CodeRabbit threads:              2/2 confirmed addressed and resolved / 0 unresolved
+Fix-head validate:               34803374097 — 7/7 jobs green
+```
+
+The two review findings affected documentation state only: the design spec still presented its design-time `NOT STARTED` state as current, and `STATUS.md` did not place unresolved `D-058` / `D-020` under the repository-required `Needs decision` section. CodeRabbit rechecked each fix directly in its original review thread and resolved both threads. A requested second full PR review was rate-limited by CodeRabbit; that limitation is recorded rather than represented as a completed second full review. No correctness finding against the shared test implementation remains unresolved.
+
+Decision state:
+
+- `D-058` — **PROPOSED** pending explicit closure decision.
+- `D-020` — **PROPOSED** pending the separate explicit portability decision.
+
+T-604 is implemented, verified, and externally reviewed, but it is **not closed**. Do not promote either decision, close M6, or merge automatically without the explicit next gate.
 
 ## M7 — Conformance / Ecosystem Bridges — TODO
 
@@ -156,4 +228,4 @@ No T-604 design, plan, implementation, or decision promotion has started. `D-020
 
 ## Current boundary
 
-T-603 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-057` is accepted for the verified fixture boundary. `D-020` remains proposed. T-604 remains **TODO / NOT STARTED** and requires explicit authorization before its design gate begins.
+T-604 is **IMPLEMENTED / VERIFIED / REVIEWED / READY FOR CLOSURE DECISION** on `feat/binding-driver-conformance`. Executable evidence remains bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`; external-review fixes are documentation-only through `d8396e36b5e335f89f719f425597cd19ac30a7f3`. `D-058` and `D-020` remain **PROPOSED**. Explicit closure authorization is required before decision promotion, M6 closure, or merge.
