@@ -157,39 +157,47 @@ Closure decisions:
 
 ## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
 
-### T-701 — Executable conformance runner — IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED
+### T-701 — Executable conformance runner — IN_PROGRESS / DESIGN APPROVED / PLAN WRITTEN / IMPLEMENTATION NOT STARTED
 
-Design:
+Design / plan:
 
 ```text
 docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md
+docs/superpowers/plans/2026-09-15-executable-conformance-runner.md
 ```
 
-Approved design boundary:
-
-- v1 claims only `runtime-binding/driver` conformance against production `LivewireBrowserDriver` and `HtmxBrowserDriver`;
-- canonical scenario selection and PASS/FAIL authority belong to a repo-local runner; harnesses return raw observations only;
-- target applicability is selected by profile + capability; mandatory scenarios cannot be adapter-skipped;
-- canonical runtime semantics remain in `spec/0.1/fixtures/conformance-scenarios.json`, while process wiring remains outside the spec;
-- v1 adds one mandatory positive exact-execution scenario so an always-rejecting implementation cannot appear conformant;
-- the language-neutral process protocol is one scenario / one subprocess with JSON stdin/stdout, stderr diagnostics, deterministic time, and a fixed timeout;
-- the orchestrator is Python stdlib and imports no runtime implementation;
-- v1 excludes driver-registry/binding-lookup/action-availability claims, Laravel/PHP targets, public SDK/spec extraction, real-browser orchestration, and the remaining M7 tasks;
-- `D-059`, `D-060`, and `D-061` are PROPOSED only; `D-026` remains PROPOSED.
-
-Design acceptance target for later implementation:
+Plan gate evidence:
 
 ```text
-Canonical v1 runtime result:     7 PASS / 1 NOT_APPLICABLE
-Python runner unit tests:        PASS
-scripts/validate.py:             PASS
-Browser typecheck + Vitest:      PASS
-Conformance harness compile:     PASS
-Full validate workflow:          7/7 green
-External review:                 required before decision promotion
+Design branch base:             main@67474d98152c7883af6106c92ca327bcd2e87307
+Design/tracking head before plan: 05b020c94279c295068895a8163a892549327d3f
+Plan initial commit:            0fed4f3015a7e39a97906646f82a6a9c7dacc527
+Plan self-review refinement:    5eafdeb4e6c462c6e5a0c422ea79eec368d76c65
 ```
 
-**Current T-701 gate:** written design artifact is awaiting explicit user review. Do not write the implementation plan or implementation code until that review gate is approved.
+Locked implementation sequence:
+
+1. pure Python conformance model and evaluator;
+2. subprocess runner/protocol error handling with deterministic fake harness tests;
+3. Vitest-free Livewire/HTMX target-support extraction while preserving T-604;
+4. shared raw-observation executor + Livewire process harness;
+5. HTMX process harness on the same protocol;
+6. canonical scenario promotion + target manifests + structural validation;
+7. existing seven-job CI integration + implemented conformance docs;
+8. internal review/tracking handoff, stopping before decision promotion or merge.
+
+Plan invariants:
+
+- v1 claims only `runtime-binding/driver` against `browser/livewire` and `browser/htmx`;
+- expected canonical result is `7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR`;
+- `recommendedCode` remains advisory and D-026 remains PROPOSED;
+- no dependency addition is planned; Node stdio typing remains local/structural;
+- no semantic production changes are expected under `packages/browser-runtime/src/**`;
+- D-059/D-060/D-061 remain PROPOSED through implementation/review;
+- implementation stops at external-review handoff before merge/decision promotion;
+- T-702/T-703/T-704 remain unstarted.
+
+**Current T-701 gate:** implementation plan is written and self-reviewed. Implementation has not started. The next gate is explicit user authorization of the execution path; no implementation begins automatically.
 
 - T-702 — Adapter author guide — TODO.
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
@@ -197,4 +205,4 @@ External review:                 required before decision promotion
 
 ## Current boundary
 
-M6 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 design is approved in principle and written on `feat/executable-conformance-runner`, but implementation has **not started**. The next gate is explicit user review of the committed T-701 design spec; do not create an implementation plan or begin implementation automatically.
+M6 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 design has been reviewed and its implementation plan is written/self-reviewed on `feat/executable-conformance-runner`; implementation has **not started**. The next gate is explicit user authorization to execute the T-701 plan. Do not begin T-702, promote D-059/D-060/D-061, merge, or publish automatically.
