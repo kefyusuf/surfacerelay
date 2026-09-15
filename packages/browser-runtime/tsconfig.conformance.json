@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".tmp/conformance",
+    "rootDir": ".",
+    "declaration": false,
+    "types": []
+  },
+  "include": [
+    "src/**/*.ts",
+    "conformance/**/*.ts"
+  ]
+}
