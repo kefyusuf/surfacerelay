@@ -176,7 +176,7 @@ class RunConformanceTest(unittest.TestCase):
                 profile="runtime-binding/driver",
                 status=PASS,
                 observation={"termination": "returned", "frameworkDispatchCount": 1},
-                diagostics="",
+                diagnostics="",
                 infrastructure_error=None,
                 mismatches=(),
             ),
@@ -224,7 +224,7 @@ class RunConformanceTest(unittest.TestCase):
 
         result = execute_case(case, target)
 
-        self.assertEqual(PASS, presult.status)
+        self.assertEqual(PASS, result.status)
         self.assertEqual((), result.mismatches)
 
     def test_execute_case_does_not_spawn_not_applicable_case(self):

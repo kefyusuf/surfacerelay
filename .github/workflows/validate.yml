@@ -109,3 +109,13 @@ jobs:
       - name: Run browser-runtime tests
         working-directory: packages/browser-runtime
         run: npm test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run conformance runner unit tests
+        run: python -m unittest discover -s scripts/tests -p 'test_*conformance*.py' -v
+      - name: Build browser conformance harnesses
+        working-directory: packages/browser-runtime
+        run: npm run conformance:build
+      - name: Run canonical runtime conformance
+        run: python scripts/run_conformance.py
