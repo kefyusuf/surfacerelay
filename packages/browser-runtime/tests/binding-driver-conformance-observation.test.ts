@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest';
 import {
   parseConformanceRequest,
   type ConformanceRequest,
 } from '../conformance/protocol.js';
 import { observeBindingDriverScenario } from '../conformance/run-binding-driver-scenario.js';
+import { createHtmxConformanceTarget } from '../conformance/support/htmx-target.js';
 import { createLivewireConformanceTarget } from '../conformance/support/livewire-target.js';
+import { describe, expect, it } from 'vitest';
 
 function requestFor(scenarioId: string): ConformanceRequest {
   return {
@@ -12,6 +13,17 @@ function requestFor(scenarioId: string): ConformanceRequest {
     requestId: `browser/livewire::${scenarioId}`,
     scenarioId,
     targetId: 'browser/livewire',
+    profile: 'runtime-binding/driver',
+    now: '2026-09-14T00:00:00.000Z',
+  };
+}
+
+function htmxRequestFor(scenarioId: string): ConformanceRequest {
+  return {
+    protocolVersion: '0.1',
+    requestId: `browser/htmx::${scenarioId}`,
+    scenarioId,
+    targetId: 'browser/htmx',
     profile: 'runtime-binding/driver',
     now: '2026-09-14T00:00:00.000Z',
   };
@@ -100,6 +112,37 @@ describe('binding driver conformance observation', () => {
     const observation = await observeBindingDriverScenario(
       target,
       requestFor('BIND-NO-SILENT-RETARGET'),
+    );
+
+    expect(observation).toEqual({
+      termination: 'threw',
+      errorCode: 'binding_stale',
+      frameworkDispatchCount: 0,
+      replacementDispatchCount: 0,
+    });
+  });
+
+  it('observes one exact HTMX dispatch through the shared scenario executor', async () => {
+    const target = createHtmxConformanceTarget();
+    const observation = await observeBindingDriverScenario(
+      target,
+      htmxRequestFor('BIND-EXACT-TARGET-EXECUTES'),
+    );
+
+    expect(observation).toEqual({
+      termination: 'returned',
+      frameworkDispatchCount: 1,
+      replacementDispatchCount: 0,
+    });
+    expect(observation).not.toHaveProperty('passed');
+    expect(observation).not.toHaveProperty('conformant');
+  });
+
+  it('observes HTMX no-retarget failure without dispatching the replacement', async () => {
+    const target = createHtmxConformanceTarget();
+    const observation = await observeBindingDriverScenario(
+      target,
+      htmxRequestFor('BIND-NO-SILENT-RETARGET'),
     );
 
     expect(observation).toEqual({
