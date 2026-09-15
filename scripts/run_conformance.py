@@ -11,6 +11,10 @@ import subprocess
 import sys
 from typing import Any, Mapping, Sequence
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from scripts.conformance_model import (
     ERROR,
     FAIL,
@@ -26,7 +30,6 @@ from scripts.conformance_model import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "spec" / "0.1" / "fixtures" / "conformance-scenarios.json"
 TARGETS_DIR = ROOT / "conformance" / "targets"
 DEFAULT_NOW = "2026-09-14T00:00:00.000Z"

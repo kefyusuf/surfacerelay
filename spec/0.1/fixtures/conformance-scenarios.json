@@ -1,5 +1,5 @@
 {
-  "comment": "SurfaceRelay 0.1 runtime binding conformance scenarios (T-003). kind=schema scenarios are executable today: scripts/validate.py asserts their fixture passes or fails via the fixture manifest. kind=runtime scenarios are semantic (schema-valid but not executable / not permitted); they are documented here and become executable conformance in T-604/T-701 when real runtimes exist. schema-invalid is NOT the same as runtime-stale.",
+  "comment": "SurfaceRelay 0.1 runtime binding conformance scenarios (T-003/T-701). kind=schema scenarios remain executable through scripts/validate.py fixture checks. The approved runtime-binding/driver subset is executable through the repo-local T-701 process runner; other runtime scenarios remain documented fail-closed semantics. schema-invalid is NOT the same as runtime-stale.",
   "scenarios": [
     {
       "id": "BIND-PAGE-VALID",
@@ -44,10 +44,28 @@
       "detail": "A binding without an exact action version is rejected by schema; bindings never float across versions (D-022)."
     },
     {
+      "id": "BIND-EXACT-TARGET-EXECUTES",
+      "kind": "runtime",
+      "status": "executable",
+      "profile": "runtime-binding/driver",
+      "requiresCapabilities": [],
+      "expectation": {
+        "termination": "returned",
+        "frameworkDispatchCount": 1,
+        "replacementDispatchCount": 0
+      },
+      "detail": "An exact, still-valid target executes exactly once and does not dispatch an equivalent replacement."
+    },
+    {
       "id": "BIND-EXPIRED-NOT-EXECUTABLE",
       "kind": "runtime",
-      "status": "documented",
-      "expect": "fail_closed",
+      "status": "executable",
+      "profile": "runtime-binding/driver",
+      "requiresCapabilities": [],
+      "expectation": {
+        "termination": "threw",
+        "frameworkDispatchCount": 0
+      },
       "recommendedCode": "binding_expired",
       "detail": "A schema-valid binding whose expiresAt has passed must be rejected at invocation time. Cumulative validity (D-024): expiry wins independently of lifecycle state."
     },
@@ -70,16 +88,29 @@
     {
       "id": "BIND-COMPONENT-STALE",
       "kind": "runtime",
-      "status": "documented",
-      "expect": "fail_closed",
+      "status": "executable",
+      "profile": "runtime-binding/driver",
+      "requiresCapabilities": [
+        "lifecycle.component"
+      ],
+      "expectation": {
+        "termination": "threw",
+        "frameworkDispatchCount": 0
+      },
       "recommendedCode": "binding_stale",
       "detail": "A component-scoped binding whose component instance was unmounted/destroyed/replaced must fail closed; a rerender of the same instance may remain valid. The issuing adapter detects lifecycle end."
     },
     {
       "id": "BIND-NO-SILENT-RETARGET",
       "kind": "runtime",
-      "status": "documented",
-      "expect": "fail_closed",
+      "status": "executable",
+      "profile": "runtime-binding/driver",
+      "requiresCapabilities": [],
+      "expectation": {
+        "termination": "threw",
+        "frameworkDispatchCount": 0,
+        "replacementDispatchCount": 0
+      },
       "recommendedCode": "binding_stale",
       "detail": "Old binding + replacement component (same class, method name, DOM position, or business record) must NOT execute; the old binding returns stale, and the replacement requires a newly issued binding ID (D-022/D-025)."
     },
