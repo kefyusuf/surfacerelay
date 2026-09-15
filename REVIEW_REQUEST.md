@@ -1,162 +1,314 @@
-# External Review / Merge Record — T-604 Shared Binding-Driver Conformance
+# External Review Request — T-701 Executable Conformance Runner
 
-## Final status
+## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Task:** `T-604 — Shared conformance against Livewire + HTMX`
-- **Milestone:** `M6 — HTMX Portability Proof` — **CLOSED**
-- **Pull request:** `#13 — test(conformance): add shared Livewire/HTMX binding-driver matrix` — **MERGED**
-- **Implementation head:** `9d49c22ac2127c7ade6e235fae488f87490feb43`
-- **Implementation validate:** `34793229849` — **7/7 jobs green**
-- **Shared matrix:** **22/22** — 11 Livewire + 11 HTMX
-- **Browser:** **19 files / 319/319 Vitest + TypeScript typecheck**
-- **Fresh real HTMX fixture regression:** job `103821380728` — **8/8 Playwright**
-- **CodeRabbit:** **LOW merge risk; 2/2 actionable findings resolved; 0 unresolved**
-- **Decision-promotion head:** `bfcbde90ba2892f2e192a1df8d5c7c84310b23c0`
-- **Decision-promotion PR validate:** `34806672450` — **7/7 green**
-- **D-058:** **ACCEPTED**
-- **D-020:** **ACCEPTED**
-- **Merge commit:** `2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080`
-- **Post-merge main validate:** `34806790431` — **7/7 green**
-- **Post-merge browser:** **19 files / 319/319 + typecheck**
+- **Branch:** `feat/executable-conformance-runner`
+- **Task:** `T-701 — Executable conformance runner`
+- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
+- **Review state:** **IMPLEMENTATION VERIFIED / EXTERNAL REVIEW PENDING**
+- **Approved design diff base:** `05b020c94279c295068895a8163a892549327d3f`
+- **Verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
+- **Push validate:** run `#789` / `35016612915` — **7/7 jobs SUCCESS**
+- **Conformance unit tests:** **45/45 PASS** on CPython 3.12.14
+- **Browser regression:** **20 files / 328/328 Vitest + TypeScript typecheck**
+- **Canonical runtime matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **Decisions:** `D-026`, `D-059`, `D-060`, `D-061` remain **PROPOSED**
+- **Merge:** not performed
+- **T-702/T-703/T-704:** not started
 
-## Reviewed implementation
+This document is a review handoff. It is not a decision-promotion record and not a merge record.
 
-T-604 adds a deliberately test-only portability proof:
+## Design / plan
 
 ```text
-packages/browser-runtime/tests/
-├── binding-driver-conformance.livewire.test.ts
-├── binding-driver-conformance.htmx.test.ts
-├── binding-driver-conformance.typecheck.ts
-└── support/
-    ├── binding-driver-conformance-suite.ts
-    ├── livewire-conformance-adapter.ts
-    └── htmx-conformance-adapter.ts
+docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md
+docs/superpowers/plans/2026-09-15-executable-conformance-runner.md
 ```
 
-The shared suite is declared once and executed unchanged against the production `LivewireBrowserDriver` and production `HtmxBrowserDriver`.
+T-701 implements a bounded repo-local executable conformance runner for the shared browser `runtime-binding/driver` profile. It does not create a public conformance SDK, standalone specification, certification program, or generalized runtime framework.
 
-It proves only behavior genuinely common to both drivers:
+## Scope under review
 
-- exact valid target dispatches once;
-- foreign/invalid target fails closed;
-- malformed/expired expiry fails closed;
-- unknown/missing Action input fails closed;
-- missing exact target is stale;
-- equivalent replacement identity is never silently retargeted;
-- already-aborted invocation performs zero framework dispatch.
+The implementation consists of five connected layers:
 
-It intentionally does not normalize driver-owned target structures, lifecycles, runtime APIs, framework-specific error codes, post-dispatch cancellation behavior, or successful return values.
+1. **Pure Python conformance model**
+   - validates executable runtime scenarios and target claims;
+   - selects canonical scenarios by profile/capability;
+   - evaluates normative raw observations;
+   - aggregates exit semantics.
 
-## TDD evidence
+2. **Strict Python process runner**
+   - one target/scenario pair per fresh subprocess;
+   - argv command execution with `shell=False`;
+   - fixed 10-second timeout;
+   - one JSON request on stdin;
+   - exactly one protocol JSON response on stdout;
+   - stderr diagnostics only;
+   - protocol/infrastructure problems become `ERROR`.
+
+3. **Vitest-free browser target support and process harnesses**
+   - shared controlled Livewire/HTMX target builders;
+   - one shared raw-observation executor;
+   - separate thin Livewire and HTMX process entrypoints;
+   - T-604 package tests reuse the same controlled target support.
+
+4. **Canonical scenario registry + repo-local target manifests**
+   - semantic truth remains in `spec/0.1/fixtures/conformance-scenarios.json`;
+   - command/profile/capability wiring remains under `conformance/targets/`;
+   - `scripts/validate.py` checks structure only and never executes harnesses.
+
+5. **Existing CI integration**
+   - no eighth workflow job;
+   - existing browser job now also runs Python conformance unit tests, harness build and canonical runtime matrix.
+
+## Explicit non-goals
+
+Review should reject accidental expansion into any of the following because they are outside T-701 v1:
+
+- public conformance package/SDK or certification API;
+- standalone SurfaceRelay specification extraction;
+- Laravel/PHP conformance target;
+- binding lookup, driver-registry or action-availability executable profiles;
+- Trust/confirmation/idempotency conformance;
+- Output/Projection conformance;
+- real-browser orchestration inside the runner;
+- remote targets, persistent workers, parallelism, retries, watch mode or plugin discovery;
+- generic assertion DSL;
+- semantic production changes under `packages/browser-runtime/src/**`;
+- implementation of T-702/T-703/T-704.
+
+## Canonical v1 profile and targets
 
 ```text
-Livewire RED head:          ae82c3d3bec6918a45932c3b11278b64b9ffe9d4
-Livewire RED run:           34793105308 — browser tests failed after typecheck passed
-Livewire GREEN head:        bbb594f91ce2983adf0652fdad12d0fc05ce7509
-Livewire GREEN run:         34793156495 — browser job green
+profile: runtime-binding/driver
 
-HTMX RED head:              7b04d5e04c6d97e51039c680ee78cba374e78413
-HTMX RED run:               34793193056 — browser tests failed after typecheck passed
-Complete GREEN head:        9d49c22ac2127c7ade6e235fae488f87490feb43
+targets:
+  browser/livewire
+    capabilities: [lifecycle.component]
+
+  browser/htmx
+    capabilities: []
 ```
 
-Each RED commit added the new test entry before its required test support existed. Typecheck passed and the browser test step failed, proving collection before the corresponding adapter/harness was supplied.
+Canonical executable scenarios:
 
-## Verification evidence
+| Scenario | Livewire | HTMX | Normative observation intent |
+|---|---|---|---|
+| `BIND-EXACT-TARGET-EXECUTES` | applicable | applicable | returns; framework dispatch 1; replacement dispatch 0 |
+| `BIND-EXPIRED-NOT-EXECUTABLE` | applicable | applicable | throws; framework dispatch 0 |
+| `BIND-COMPONENT-STALE` | applicable | runner-owned N/A | throws; framework dispatch 0 |
+| `BIND-NO-SILENT-RETARGET` | applicable | applicable | throws; framework dispatch 0; replacement dispatch 0 |
 
-Bound to implementation head `9d49c22ac2127c7ade6e235fae488f87490feb43`:
+Verified full result:
 
 ```text
-Validate run:                   34793229849 — 7/7 jobs green
-Contract validation:            PASS
-TypeScript typecheck:           PASS
-Livewire shared matrix:         11/11
-HTMX shared matrix:             11/11
-Shared conformance total:       22/22
-Full browser runtime:           19 files / 319/319 tests
+7 PASS, 0 FAIL, 0 ERROR, 1 NOT_APPLICABLE
 ```
 
-### Real HTMX regression
+HTMX `BIND-COMPONENT-STALE` is determined `NOT_APPLICABLE` before process execution because HTMX does not claim `lifecycle.component`. The harness cannot self-report N/A.
 
-The T-603 fixture workflow is intentionally path-filtered and T-604 does not change production browser-runtime source or the fixture. The existing real-browser fixture job was therefore explicitly rerun as regression evidence:
+## Runner authority boundary
+
+The central architecture question is whether the implementation preserves the authority split from D-059/D-061 without prematurely accepting those decisions.
+
+Implemented behavior:
 
 ```text
-Workflow/run:                  34758253003
-Fresh job:                     103821380728 — SUCCESS
-Checked-out fixture revision:  e98c919b90f9f19b58ae56b88e391f1abbb179e7
-Playwright:                    8/8 passing in real Chromium
+canonical scenario registry
++
+target profile claims
++
+target capabilities
+=
+runner-selected execution set
 ```
 
-The branch contains no changes under `examples/htmx-prep-list/**`, `packages/browser-runtime/src/**`, or `.github/workflows/htmx-fixture.yml`.
+The target cannot provide an ad-hoc scenario allowlist. Mandatory profile scenarios cannot be skipped. A capability can add applicability obligations but cannot remove mandatory scenarios.
 
-## CodeRabbit review closure
-
-CodeRabbit reviewed the substantive PR through `e71248adb7afbce4c286b4be2504344eb3553da2` and classified merge risk as **LOW**.
-
-It raised exactly two actionable findings, both documentation consistency issues:
-
-1. the design spec still presented its design-time `NOT STARTED` state as current;
-2. `STATUS.md` did not list unresolved `D-058` / `D-020` under the repository-required `Needs decision` section.
-
-Fix and recheck evidence:
+Harnesses emit only bounded raw facts:
 
 ```text
-Design-state fix:              26324a20a640940d138c5954351133276fb4f4fb
-Needs-decision fix:            d8396e36b5e335f89f719f425597cd19ac30a7f3
-Review-fix validate:           34803374097 — 7/7 green
-Review threads:                2/2 reviewer-confirmed resolved / 0 unresolved
+termination: returned | threw
+errorCode?: string
+frameworkDispatchCount: non-negative integer
+replacementDispatchCount?: non-negative integer
 ```
 
-A second full CodeRabbit sweep of only the two docs-only fix commits was requested, but CodeRabbit reported its included OSS review capacity had been exhausted. This limitation was recorded rather than represented as a completed review. The substantive implementation had already been reviewed, and each actionable finding was directly rechecked and resolved by the same reviewer.
+Harnesses do not emit `passed`, `conformant`, `failClosed`, `retargetPrevented`, `NOT_APPLICABLE`, or other interpretive verdict fields.
 
-The CodeRabbit docstring-coverage item remained a generic pre-merge metric warning, not an inline correctness finding or repository requirement. Scope was not expanded solely to satisfy that external metric.
+Only the Python runner compares canonical expectations and decides `PASS` or `FAIL`.
 
-## Closure decisions
+## Process protocol boundary
 
-### D-058 — ACCEPTED
-
-Livewire and HTMX establish shared browser binding-driver conformance through one executable test matrix over their genuine overlap: fail-closed target validation, expiry classification, Action-input mappability, exact-target stale/no-retarget semantics, dispatch/no-dispatch evidence, and cancellation before framework dispatch.
-
-Acceptance is bounded to this tested overlap. It does not require identical driver targets, lifecycle values, runtime APIs, framework-specific errors, post-dispatch cancellation semantics, or success results, and it does not create the future T-701 general conformance runner.
-
-### D-020 — ACCEPTED
-
-HTMX is the materially different second binding used to establish portability. T-601–T-603 prove a page/source/path/named-input model and real non-Laravel HTMX 2.x browser execution materially different from Livewire's component/positional/action-interception model. T-604 then proves both production drivers satisfy the same shared binding-driver matrix.
-
-This satisfies the D-009 two-materially-different-bindings + shared-scenarios threshold. It does not by itself authorize extracting or publishing a standalone cross-framework specification.
-
-## Merge / main revalidation
+One selected applicable case gets one new child process:
 
 ```text
-Decision-promotion head:        bfcbde90ba2892f2e192a1df8d5c7c84310b23c0
-Decision-promotion PR validate: 34806672450 — 7/7 green
-Merge commit:                   2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080
-Post-merge main validate:       34806790431 — 7/7 green
-Post-merge browser:             19 files / 319/319 + typecheck
+one target × one scenario = one subprocess
 ```
 
-## Scope audit
+Request envelope contains routing/clock information only; expected results are deliberately absent.
 
-T-604 production behavior was not refactored to manufacture portability. Implementation additions remained limited to `packages/browser-runtime/tests/**` plus design/plan/tracking documentation.
+Process contract:
 
-Explicitly unchanged by the T-604 implementation:
+- stdin: exactly one JSON request document;
+- stdout: exactly one protocol JSON response document;
+- stderr: diagnostics only;
+- child exit `0`: trustworthy protocol observation was produced;
+- non-zero child exit: infrastructure `ERROR`;
+- timeout: `ERROR`;
+- empty/invalid/extra stdout: `ERROR`;
+- wrong echoed protocol/request/scenario/target/profile: `ERROR`.
+
+Expected production exceptions are observations with `termination=threw`; they are not represented by non-zero child process exit.
+
+## Positive-control / fail-closed boundary
+
+Every claimed executable profile must contain a mandatory positive scenario. T-701 uses `BIND-EXACT-TARGET-EXECUTES` for this purpose.
+
+This prevents an implementation that simply rejects every invocation from appearing conformant merely because all negative scenarios fail closed.
+
+Negative cases additionally prove dispatch absence:
+
+- expired binding → zero framework dispatch;
+- stale exact target → zero framework dispatch;
+- equivalent replacement target → zero framework dispatch and zero replacement dispatch.
+
+## Advisory error-code boundary
+
+`recommendedCode` remains advisory. Canonical expectations compare only the bounded normative observation fields.
+
+A missing or different raw `errorCode` cannot by itself flip an otherwise matching case to FAIL. This is deliberate so T-701 does not silently promote `D-026` into a globally normative error-code enum.
+
+## Changed-file summary
+
+Against approved design diff base `05b020c94279c295068895a8163a892549327d3f`, the implementation/review scope is limited to:
+
+```text
+.github/workflows/validate.yml
+CONFORMANCE.md
+TASKS.md / STATUS.md / REVIEW_REQUEST.md tracking
+conformance/**
+docs/superpowers/plans/2026-09-15-executable-conformance-runner.md
+packages/browser-runtime/conformance/**
+packages/browser-runtime/tests/binding-driver-conformance-observation.test.ts
+packages/browser-runtime/tests/support/**
+packages/browser-runtime/tsconfig.conformance.json
+packages/browser-runtime/package.json
+scripts/conformance_model.py
+scripts/run_conformance.py
+scripts/tests/**conformance**
+scripts/validate.py
+spec/0.1/fixtures/conformance-scenarios.json
+```
+
+Scope audit confirms no semantic changes under:
 
 ```text
 packages/browser-runtime/src/**
-spec/0.1/**
 packages/laravel/src/**
 examples/htmx-prep-list/**
-.github/workflows/**
-packages/browser-runtime/package*.json
-packages/laravel/composer.*
-packages/browser-runtime/tsconfig.json
 ```
 
-## Boundary after closure
+There is no T-701 dependency expansion in `packages/browser-runtime/package-lock.json` or `requirements-dev.txt`.
 
-T-604 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** and M6 is **CLOSED**.
+## TDD / implementation progression
 
-`D-058` and `D-020` are accepted. T-701 remains `TODO`; no M7 implementation starts automatically and a new explicit user gate is required.
+```text
+Task 1 — model/evaluator:               8351954b95b94902ca91f3d0d8fe78c0d6675a49
+Task 2 — subprocess runner:             ecc14a0a9ff571e9c0de20fba7e3fc2f43387a13
+Task 3 — shared target support:         706a476b5178e9dcbfb9af942446f810cdcc470c
+Task 4 — Livewire process harness:      9563299aec93508b7275a44efe82325f4a69fa26
+Task 5 — HTMX process harness:          7ef086d7547837331ca5662ebcbce49ce7b1f44a
+Task 6 — canonical config/validation:   65e978393b55ffa2f908cb1518f9b768c9e3fbc3
+Task 7 — CI + conformance docs:         2c15515a77d2dd1d79ea970a2811ca0c40191ceb
+```
+
+Observed RED evidence included missing model/process modules, missing Vitest-free target builders, missing process entrypoints and an initially non-executable direct Python runner command. Each was resolved in the owning slice before progressing.
+
+Task 7 also exposed a verification gap in the written unittest discovery pattern: `test_conformance_*.py` omitted `test_run_conformance.py`. The CI pattern was widened to `test_*conformance*.py`, and the now-executed runner suite exposed two existing test-only typos that were corrected without production behavior changes.
+
+## Verification evidence bound to implementation head
+
+Exact head:
+
+```text
+2c15515a77d2dd1d79ea970a2811ca0c40191ceb
+```
+
+Push workflow:
+
+```text
+validate run:        #789 / 35016612915
+workflow jobs:       7 total
+result:              7/7 SUCCESS
+```
+
+Browser job evidence:
+
+```text
+Node:                         22.23.2
+TypeScript typecheck:         PASS
+Vitest:                       20 files / 328/328 PASS
+Python:                       CPython 3.12.14
+Conformance unit tests:       45/45 PASS
+Conformance harness build:    PASS
+Canonical runner:             7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+Contract job evidence:
+
+```text
+python scripts/validate.py    PASS
+```
+
+The existing T-603 real-browser evidence remains separate from T-701 and is not reclassified as runner-owned evidence.
+
+## Notable implementation deltas for reviewer attention
+
+These deviations from the literal file-by-file plan were discovered during executable verification and are intentionally narrow:
+
+1. Task 6 added regression cases in `scripts/tests/test_conformance_task6.py` instead of appending them to `test_conformance_model.py`.
+2. `scripts/run_conformance.py` received a minimal repository-root bootstrap so the plan's direct invocation `python scripts/run_conformance.py` works; runner selection/verdict semantics were not changed by that fix.
+3. Task 7 uses `test_*conformance*.py` instead of the plan's `test_conformance_*.py` because the latter does not include `test_run_conformance.py`.
+4. Two pre-existing runner-test typos were fixed once that test file actually entered CI.
+
+Review should determine whether these are acceptable plan corrections or require consolidation before decision promotion.
+
+## Review questions
+
+Please review specifically:
+
+1. **Runner authority:** Is canonical selection/verdict ownership kept entirely in the runner, with no harness self-certification path?
+2. **Protocol strictness:** Do malformed stdout, wrong envelope echoes, non-zero exit and timeout fail closed as infrastructure `ERROR` rather than semantic FAIL?
+3. **Capability applicability:** Is HTMX component-stale correctly runner-owned N/A before spawn, without capabilities becoming scenario-skipping controls?
+4. **Positive control:** Does the mandatory exact-execution case adequately prevent an always-reject target from claiming the profile?
+5. **Advisory codes:** Is ignoring `errorCode` for normative verdicts appropriate while D-026 remains PROPOSED?
+6. **No-retarget evidence:** Does the raw dispatch/replacement-dispatch evidence sufficiently prove that old bindings do not execute equivalent replacements?
+7. **Fresh-process isolation:** Does one scenario/one subprocess provide the intended state-isolation and crash attribution boundary without unnecessary framework abstraction?
+8. **Scope containment:** Did implementation stay inside the approved v1 boundary with no production-driver semantic change, dependency expansion or premature standalone-spec/public-SDK work?
+9. **Documentation claims:** Are T-603, T-604 and T-701 evidence layers kept distinct and are Trust/Output/Projection claims correctly excluded?
+10. **Plan corrections:** Are the four implementation deltas listed above acceptable and sufficiently documented?
+
+## Decision state
+
+The implementation provides evidence for later decision review but does **not** promote decisions itself:
+
+- `D-026` — **PROPOSED**
+- `D-059` — **PROPOSED**
+- `D-060` — **PROPOSED**
+- `D-061` — **PROPOSED**
+
+A favorable implementation review does not automatically change those statuses. Decision promotion requires a later explicit gate and should be followed by fresh CI evidence before merge.
+
+## Merge / next-task boundary
+
+At this handoff:
+
+- no merge is authorized;
+- no architecture decision promotion is authorized;
+- T-702 is not authorized;
+- T-703/T-704 are not authorized;
+- no standalone spec or public conformance package is authorized.
+
+After external review, any review fixes must be applied and reverified first. Decision promotion, merge, post-merge main revalidation and starting T-702 each require their own explicit gate.
