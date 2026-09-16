@@ -233,54 +233,64 @@ Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 
 **T-701 is closed.**
 
-### T-702 — Adapter author guide — IN_PROGRESS
+### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / REVIEW PENDING
 
-Design:
+Design / plan:
 
 ```text
 docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md
+docs/superpowers/plans/2026-09-16-adapter-author-guide.md
 ```
 
-Current gate:
+Implemented documentation:
 
 ```text
-Branch:                  feat/t-702-adapter-author-guide
-Scope/design:            APPROVED
-Implementation:          NOT STARTED
-Decision D-062:          PROPOSED
-Production changes:      NONE
-Canonical spec changes:  NONE
-T-703/T-704 work:        NOT STARTED
+docs/adapters/README.md
+docs/adapters/author-guide.md
+docs/adapters/conformance.md
+docs/adapters/security.md
 ```
 
-Approved design boundary:
-
-- the Adapter Author Guide is an author-facing explanation of existing canonical contracts, accepted decisions, trust/security invariants, and executable conformance semantics; it is not a second specification;
-- author-facing adapter roles are classified as definition/import, runtime/binding, and surface/projection without creating a new universal adapter interface;
-- the guide must make core/runner authority versus adapter/harness responsibility explicit;
-- trusted context cannot be manufactured from caller input, discovery is not invocation authorization, exposure remains explicit, and unsupported/ambiguous authority states fail closed;
-- runtime/binding guidance preserves exact issued targets, no silent retargeting, deterministic mapping, lifecycle/expiry semantics, and bounded cancellation guarantees;
-- profile/capability guidance follows D-059 through D-061 exactly: targets advertise only real capabilities; the runner owns scenario selection, applicability, and verdicts; harnesses emit bounded raw observations only;
-- compatibility claims must be bounded to the actual profile, target, declared capabilities, runner/repository revision, and executable evidence;
-- examples must distinguish portable invariants from Livewire/HTMX-specific implementation techniques and remain illustrative/non-normative;
-- D-026 remains PROPOSED; T-702 creates no new global error enum;
-- any newly discovered semantic requirement requires a separate task/decision gate rather than being introduced through guide prose.
-
-Preferred future documentation shape, not yet implemented:
+Verified implementation gate:
 
 ```text
-docs/adapters/
-├── README.md
-├── author-guide.md
-├── conformance.md
-└── security.md
+Branch:                         feat/t-702-adapter-author-guide
+Scope/design:                   APPROVED
+Implementation:                 IMPLEMENTED / REVIEW PENDING
+Verified docs/navigation head:  04e69ecb8a4d752732f2ab85eaf0f14798944e68
+Validate:                       #821 / 35150202622 — 7/7 SUCCESS
+Contract / scripts/validate.py: PASS
+PHP matrix:                     4/4 PASS
+PHP lint:                       PASS
+Browser:                        20 files / 328/328 Vitest + typecheck
+Python conformance:             47/47 PASS on CPython 3.12.14
+Harness build:                  PASS
+Canonical runtime matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Decision D-062:                 PROPOSED
+Decision D-026:                 PROPOSED
+Production changes:             NONE
+Canonical spec changes:         NONE
+Conformance semantic changes:   NONE
+T-703/T-704 work:               NOT STARTED
 ```
 
-T-702 implementation must not begin automatically from the approved design. The next explicit gate may authorize an implementation plan and/or documentation implementation.
+Implemented boundary:
+
+- the Adapter Author Guide is explicitly subordinate to canonical contracts, accepted decisions, and executable conformance semantics; it does not create a second specification;
+- `docs/adapters/README.md` provides the author entry point, role picker, canonical reference map, and non-normative authority warning;
+- `docs/adapters/author-guide.md` documents definition/import, runtime/binding, and surface/projection roles, the core/runner responsibility matrix, the 12-step author workflow, exact-target/runtime invariants, and portable-invariant vs Livewire/HTMX reference techniques;
+- `docs/adapters/security.md` documents explicit exposure, discovery-vs-invocation, caller-input vs trusted-context authority, exact-target/no-retarget, fail-closed behavior, bounded cancellation, and review checks;
+- `docs/adapters/conformance.md` carries D-059 through D-061 forward without widening them: truthful profile/capability claims, runner-owned selection/applicability/verdicts, bounded raw harness observations, repo-local process semantics, revision-bounded evidence, and bounded compatibility wording;
+- D-026 remains PROPOSED and no new global error enum is introduced;
+- D-062 remains PROPOSED through implementation and requires separate review/decision evidence before any promotion;
+- T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started;
+- `main..feat/t-702-adapter-author-guide` contains no semantic changes under `packages/browser-runtime/src/**`, `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
+
+T-702 is not closed. External review is the next gate; decision promotion, merge, main revalidation, T-703, and T-704 do not begin automatically.
 
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS at DESIGN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` are **PROPOSED**. T-703/T-704 remain TODO. No implementation begins automatically; a new explicit user gate is required.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEW PENDING** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. T-703/T-704 remain TODO. The next gate is T-702 external review; no decision promotion, merge, or subsequent task begins automatically.
