@@ -7,12 +7,18 @@
 - **Branch:** `feat/t-702-adapter-author-guide`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-701 — Executable conformance runner`
-- **Current task:** `T-702 — Adapter author guide` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **Current task:** `T-702 — Adapter author guide` — **IMPLEMENTED / REVIEW PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **T-702 state:** **IN_PROGRESS — DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **T-702 state:** **IN_PROGRESS — IMPLEMENTED / REVIEW PENDING**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
-- **T-702 design branch:** `feat/t-702-adapter-author-guide`
-- **Approved T-702 design base:** `main` after T-701 closure
+- **T-702 implementation plan:** `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
+- **T-702 branch:** `feat/t-702-adapter-author-guide`
+- **T-702 verified documentation head:** `04e69ecb8a4d752732f2ab85eaf0f14798944e68`
+- **T-702 implementation-head CI:** `#821` / `35150202622` — **7/7 jobs SUCCESS**
+- **T-702 browser evidence:** **20 files / 328/328 Vitest + typecheck**
+- **T-702 Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **T-702 canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **T-702 contract validation:** **PASS**
 - **T-701 verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
 - **T-701 external-review code-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
 - **T-701 final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
@@ -26,7 +32,7 @@
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061` — **ACCEPTED**
 - **Proposed decisions:** `D-026`, `D-062` — **PROPOSED**
-- **Next gate:** explicit T-702 implementation-plan/documentation gate only if separately authorized; implementation has not started and T-703/T-704 remain untouched.
+- **Next gate:** T-702 external review. T-702 is not closed; D-062 is not promoted; merge and T-703/T-704 do not begin automatically.
 
 ## M6 historical evidence — preserved
 
@@ -224,50 +230,102 @@ Post-merge canonical matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
 
 The main-branch execution checked out exact merge SHA `50c8c482165a115b8b3b8cb740f123ecf4203041`; the canonical runner remained green after integration.
 
-## T-702 design gate
+## T-702 implementation
 
-T-702 has now passed the scope/design gate only. The approved written design is:
+T-702 design and implementation plan:
 
 ```text
 docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md
+docs/superpowers/plans/2026-09-16-adapter-author-guide.md
 ```
 
-The design establishes these boundaries:
+Implemented documentation:
 
-- the Adapter Author Guide is explanatory and must not become a shadow specification;
+```text
+docs/adapters/README.md
+docs/adapters/author-guide.md
+docs/adapters/conformance.md
+docs/adapters/security.md
+```
+
+The implementation preserves the approved design boundary:
+
+- the guide is explanatory and explicitly subordinate to canonical contracts, accepted decisions, and executable conformance semantics;
 - import/definition, runtime/binding, and surface/projection roles are author-facing responsibility categories, not new core interfaces;
-- trusted context, exposure, authorization, exact-target, and fail-closed invariants remain canonical and are not redefined by examples;
-- profile/capability claims follow D-059 through D-061 exactly;
-- canonical scenario selection, applicability, and verdicts remain runner-owned;
-- harnesses remain raw-observation producers only;
-- verified compatibility claims must be bounded to actual profile/target/capability/revision evidence;
-- D-026 remains PROPOSED and no new global error enum is introduced;
-- T-703/T-704 are explicitly outside T-702.
+- trusted context, explicit exposure, discovery-vs-invocation, exact-target, no-retarget, deterministic mapping, lifecycle/expiry, fail-closed, and bounded cancellation invariants remain canonical rather than being redefined by examples;
+- `docs/adapters/author-guide.md` provides the responsibility matrix and 12-step author workflow;
+- `docs/adapters/security.md` makes trust/security constraints part of adapter correctness rather than an appendix;
+- `docs/adapters/conformance.md` carries D-059 through D-061 forward exactly: truthful profile/capability claims, runner-owned selection/applicability/verdicts, bounded raw harness observations, current repo-local process boundary, revision-scoped evidence, and bounded compatibility wording;
+- Livewire and HTMX are documented as materially different reference techniques for shared portable invariants, not a universal target shape;
+- D-026 remains PROPOSED; no global error enum is created;
+- D-062 remains PROPOSED; implementation does not promote it;
+- T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started.
 
-`D-062` is recorded as **PROPOSED**: guide prose/examples/recipes explain existing canonical behavior and cannot override or silently extend it. Any genuinely new semantic requirement discovered while authoring the guide requires a separate task/decision gate.
+### T-702 implementation verification
 
-No `docs/adapters/**` implementation has been written yet, and no production/runtime/spec/conformance semantics have changed.
+Verified documentation/navigation head:
+
+```text
+04e69ecb8a4d752732f2ab85eaf0f14798944e68
+```
+
+Exact-head GitHub Actions evidence:
+
+```text
+Validate:                       #821 / 35150202622 — 7/7 SUCCESS
+Contract / scripts/validate.py: PASS
+PHP matrix:                     4/4 PASS
+PHP lint:                       PASS
+Browser typecheck:              PASS
+Browser Vitest:                 20 files / 328/328 PASS
+Python conformance:             47/47 PASS on CPython 3.12.14
+Harness build:                  PASS
+Canonical runtime matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+The canonical runtime result remained unchanged:
+
+```text
+BIND-EXACT-TARGET-EXECUTES       Livewire PASS / HTMX PASS
+BIND-EXPIRED-NOT-EXECUTABLE     Livewire PASS / HTMX PASS
+BIND-COMPONENT-STALE             Livewire PASS / HTMX NOT_APPLICABLE
+BIND-NO-SILENT-RETARGET          Livewire PASS / HTMX PASS
+```
 
 ## Scope audit
 
-T-701's approved design diff base was `05b020c94279c295068895a8163a892549327d3f`.
+`main..feat/t-702-adapter-author-guide` was inspected before review tracking was recorded.
 
-Review, decision promotion, post-merge validation, and the T-702 design gate confirm:
+T-702 implementation adds documentation/navigation/tracking only and introduces no semantic changes under:
 
-- no T-702 production implementation has started;
-- no semantic changes under `packages/browser-runtime/src/**`;
-- no `packages/laravel/src/**` production changes;
-- no `spec/0.1/**` semantic changes for T-702;
-- no T-701 runner/verdict changes for T-702;
-- no T-703/T-704 implementation;
-- D-062 remains PROPOSED rather than accepted.
+```text
+packages/browser-runtime/src/**
+packages/laravel/src/**
+spec/0.1/**
+conformance/targets/**
+scripts/conformance_model.py
+scripts/run_conformance.py
+```
+
+Additional boundaries remain intact:
+
+- no new dependency;
+- no new profile/capability/canonical scenario;
+- no T-701 runner/applicability/verdict change;
+- no Livewire/HTMX production behavior change;
+- no MCP implementation;
+- no OpenAPI importer;
+- no standalone public-spec extraction;
+- no compatibility badge/certification/signing/registry infrastructure;
+- D-026 remains PROPOSED;
+- D-062 remains PROPOSED.
 
 ## Explicit non-goals
 
-The current T-702 design gate does not create or claim an adapter SDK, universal adapter interface, scaffolding CLI, plugin loader, new profile/capability, new canonical scenario, new failure-code enum, compatibility registry, certification program, remote conformance system, MCP implementation, OpenAPI importer, or production Livewire/HTMX behavior change.
+T-702 does not create or claim an adapter SDK, universal adapter interface, scaffolding CLI, plugin loader, new RuntimeBinding/BindingDriver abstraction, new Action Definition field, new profile/capability, new canonical scenario, new failure-code enum, compatibility registry, certification program, remote conformance system, MCP implementation, OpenAPI importer, production Livewire/HTMX behavior change, or standalone public-spec extraction.
 
 ## Current boundary
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **IN_PROGRESS at DESIGN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and newly recorded `D-062` remain **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. No implementation starts automatically; the next work requires a separate explicit user gate.
+T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEW PENDING** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. The next gate is T-702 external review; no decision promotion, merge, or subsequent task begins automatically.
