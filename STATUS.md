@@ -4,11 +4,11 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/executable-conformance-runner`
+- **Branch:** `main`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
-- **Last completed/reviewed gate:** `T-701 — external review + decision promotion`
-- **Current task:** `T-701 — Executable conformance runner`
-- **T-701 state:** **IN_PROGRESS / REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **Last completed/reviewed task:** `T-701 — Executable conformance runner`
+- **Current task:** none — awaiting an explicit next-task gate
+- **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **Design:** `docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md`
 - **Plan:** `docs/superpowers/plans/2026-09-15-executable-conformance-runner.md`
 - **Approved design diff base:** `05b020c94279c295068895a8163a892549327d3f`
@@ -17,10 +17,15 @@
 - **Final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
 - **Review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
 - **Decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
-- **Decision-promotion PR CI:** `#802` / `35058068033` — **7/7 jobs SUCCESS**
+- **Final feature/tracking head:** `5da153c3c0a0f6c38d9b5f01b26899efa24ea949`
+- **Merge commit:** `50c8c482165a115b8b3b8cb740f123ecf4203041`
+- **Post-merge main CI:** `#809` / `35080877519` — **7/7 jobs SUCCESS**
+- **Post-merge browser:** **20 files / 328/328 Vitest + typecheck**
+- **Post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **Post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061` — **ACCEPTED**
 - **Existing provisional decision:** `D-026` — **PROPOSED**
-- **Next gate:** explicit T-701 merge. Post-merge main revalidation and T-702 remain separate later gates.
+- **Next gate:** explicit T-702 scope/design gate only if separately authorized; T-702/T-703/T-704 are not started.
 
 ## M6 historical evidence — preserved
 
@@ -189,6 +194,8 @@ Decision-promotion evidence:
 ```text
 Decision-promotion head:           1efe11714e9d3abcd0e8a12fcb90912b23522ad4
 Decision-promotion PR validate:    #802 / 35058068033 — 7/7 SUCCESS
+Tracking-closure head:             5da153c3c0a0f6c38d9b5f01b26899efa24ea949
+Tracking-closure push validate:    #803 / 35058313792 — 7/7 SUCCESS
 Browser:                           20 files / 328/328 PASS + typecheck
 Python conformance tests:          47/47 PASS
 Harness build:                     PASS
@@ -198,19 +205,36 @@ Contract validation:               PASS
 
 The accepted vocabulary remains bounded to the reviewed repo-local T-701 v1 runner. It does not publish a standalone specification, certification program, or global error-code enum.
 
+## Merge / main revalidation
+
+PR #14 was merged from the exact reviewed/tracking head into `main`.
+
+```text
+Final feature/tracking head:       5da153c3c0a0f6c38d9b5f01b26899efa24ea949
+Merge commit:                      50c8c482165a115b8b3b8cb740f123ecf4203041
+Post-merge main validate:          #809 / 35080877519 — 7/7 SUCCESS
+Post-merge contract validation:    PASS
+Post-merge browser typecheck:      PASS
+Post-merge browser Vitest:         20 files / 328/328 PASS
+Post-merge Python conformance:     47/47 PASS on CPython 3.12.14
+Post-merge harness build:          PASS
+Post-merge canonical matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+The main-branch execution checked out exact merge SHA `50c8c482165a115b8b3b8cb740f123ecf4203041`; the canonical runner remained green after integration.
+
 ## Scope audit
 
 Approved design diff base: `05b020c94279c295068895a8163a892549327d3f`.
 
-Review and decision promotion confirm:
+Review, decision promotion, and post-merge validation confirm:
 
 - no semantic changes under `packages/browser-runtime/src/**`;
 - no `packages/laravel/src/**` production changes;
 - no T-603 fixture behavior changes;
 - no standalone spec extraction;
 - no Python/npm dependency expansion for T-701;
-- no T-702/T-703/T-704 implementation;
-- PR #14 remains open and unmerged.
+- no T-702/T-703/T-704 implementation.
 
 ## Explicit non-goals
 
@@ -218,6 +242,6 @@ T-701 v1 does not create or claim a public conformance SDK/certification system,
 
 ## Current boundary
 
-**M6 is closed. T-604 is closed.**
+**M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-701 implementation, external review, and decision promotion are complete, but T-701 is **not yet merged or main-revalidated**. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. The next gate is explicit T-701 merge. Post-merge main revalidation and T-702/T-703/T-704 remain separate later gates.
+T-701 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-702/T-703/T-704 remain TODO. No next task starts automatically; the next work requires a separate explicit user gate.

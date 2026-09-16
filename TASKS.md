@@ -143,7 +143,7 @@ Post-merge browser:              19 files / 319/319 + typecheck
 
 ## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
 
-### T-701 — Executable conformance runner — IN_PROGRESS / REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
+### T-701 — Executable conformance runner — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Design / plan:
 
@@ -167,6 +167,7 @@ External-review correctness fixes:                 89a968785a09032cbf3b71f7f60c3
 Concise review handoff:                            b7d2c4aee175da80f0c97d103f915f751c6b0fc7
 Review-closure tracking:                           3777fce830ae2d4a1bcc64925af24563f611ea3e
 Decision promotion:                                1efe11714e9d3abcd0e8a12fcb90912b23522ad4
+Final feature/tracking head:                       5da153c3c0a0f6c38d9b5f01b26899efa24ea949
 ```
 
 Verified review + decision evidence:
@@ -178,6 +179,7 @@ Review-fix validate:                  #796 / 35049689721 — SUCCESS
 Final reviewed PR-head validate:      #798 / 35049891609 — SUCCESS, 7 jobs total
 Review-closure push validate:         #799 / 35050355079 — 7/7 SUCCESS
 Decision-promotion PR validate:       #802 / 35058068033 — 7/7 SUCCESS
+Tracking-closure push validate:       #803 / 35058313792 — 7/7 SUCCESS
 Python runtime:                       CPython 3.12.14
 Conformance model + runner tests:     47/47 PASS
 Browser runtime:                      20 files / 328/328 Vitest + typecheck
@@ -217,7 +219,19 @@ Decision state after promotion:
 - `D-061` — **ACCEPTED**;
 - `D-026` — **PROPOSED** independently; failure-code recommendations remain advisory.
 
-External review and decision promotion are complete, but **T-701 is not yet merged or main-revalidated**. The next explicit gate is merge of PR #14; post-merge main revalidation remains a separate later gate.
+Merge / post-merge main evidence:
+
+```text
+Merge commit:                        50c8c482165a115b8b3b8cb740f123ecf4203041
+Post-merge main validate:            #809 / 35080877519 — 7/7 SUCCESS
+Post-merge contract validation:      PASS
+Post-merge browser runtime:          20 files / 328/328 Vitest + typecheck
+Post-merge Python conformance tests: 47/47 PASS on CPython 3.12.14
+Post-merge harness build:            PASS
+Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+**T-701 is closed.**
 
 - T-702 — Adapter author guide — TODO.
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
@@ -225,4 +239,4 @@ External review and decision promotion are complete, but **T-701 is not yet merg
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 implementation, external review, and decision promotion are complete on `feat/executable-conformance-runner`. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. The next gate is explicit T-701 merge; do not begin T-702/T-703/T-704 or publish automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on `main`. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN_PROGRESS** because T-702/T-703/T-704 remain TODO. No next task begins automatically; a new explicit user gate is required.
