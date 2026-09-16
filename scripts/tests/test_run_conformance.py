@@ -295,24 +295,62 @@ class RunConformanceTest(unittest.TestCase):
                                 "frameworkDispatchCount": 1,
                                 "replacementDispatchCount": 0,
                             },
-                        }
+                        },
+                        {
+                            "id": "BIND-EXPIRED-NOT-EXECUTABLE",
+                            "kind": "runtime",
+                            "status": "executable",
+                            "profile": "runtime-binding/driver",
+                            "requiresCapabilities": [],
+                            "expectation": {
+                                "termination": "threw",
+                                "frameworkDispatchCount": 0,
+                            },
+                        },
+                        {
+                            "id": "BIND-COMPONENT-STALE",
+                            "kind": "runtime",
+                            "status": "executable",
+                            "profile": "runtime-binding/driver",
+                            "requiresCapabilities": ["lifecycle.component"],
+                            "expectation": {
+                                "termination": "threw",
+                                "frameworkDispatchCount": 0,
+                            },
+                        },
+                        {
+                            "id": "BIND-NO-SILENT-RETARGET",
+                            "kind": "runtime",
+                            "status": "executable",
+                            "profile": "runtime-binding/driver",
+                            "requiresCapabilities": [],
+                            "expectation": {
+                                "termination": "threw",
+                                "frameworkDispatchCount": 0,
+                                "replacementDispatchCount": 0,
+                            },
+                        },
                     ]
                 }
             ),
             encoding="utf-8",
         )
-        (targets_dir / "browser-livewire.json").write_text(
-            json.dumps(
-                {
-                    "targetId": "browser/livewire",
-                    "protocolVersion": "0.1",
-                    "profiles": ["runtime-binding/driver"],
-                    "capabilities": [],
-                    "command": command("valid"),
-                }
-            ),
-            encoding="utf-8",
-        )
+        for target_id, capabilities in (
+            ("browser/livewire", ["lifecycle.component"]),
+            ("browser/htmx", []),
+        ):
+            (targets_dir / f"{target_id.split('/')[-1]}.json").write_text(
+                json.dumps(
+                    {
+                        "targetId": target_id,
+                        "protocolVersion": "0.1",
+                        "profiles": ["runtime-binding/driver"],
+                        "capabilities": capabilities,
+                        "command": command("valid"),
+                    }
+                ),
+                encoding="utf-8",
+            )
         return registry_path, targets_dir
 
     def test_main_json_executes_fake_target_and_returns_zero(self):
@@ -322,11 +360,12 @@ class RunConformanceTest(unittest.TestCase):
             with patch("scripts.run_conformance.REGISTRY_PATH", registry_path), patch(
                 "scripts.run_conformance.TARGETS_DIR", targets_dir
             ), redirect_stdout(stdout):
-                exit_code = main(["--json"])
+                exit_code = main(["--scenario", "BIND-EXACT-TARGET-EXECUTES", "--json"])
 
         self.assertEqual(0, exit_code)
         payload = json.loads(stdout.getvalue())
-        self.assertEqual(PASS, payload["results"][0]["status"])
+        self.assertEqual(2, len(payload["results"]))
+        self.assertTrue(all(result["status"] == PASS for result in payload["results"]))
 
     def test_main_unknown_target_filter_is_configuration_error(self):
         with tempfile.TemporaryDirectory() as tmp:

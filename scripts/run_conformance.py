@@ -25,8 +25,8 @@ from scripts.conformance_model import (
     aggregate_exit_code,
     evaluate_observation,
     select_cases,
-    validate_conformance_config,
     validate_observation,
+    validate_v1_conformance_config,
 )
 
 
@@ -92,6 +92,7 @@ def run_harness(
             timeout=timeout_seconds,
             shell=False,
             check=False,
+            cwd=ROOT,
         )
     except subprocess.TimeoutExpired as exc:
         return _error_run(
@@ -331,7 +332,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         registry = load_registry(REGISTRY_PATH)
         targets = discover_targets(TARGETS_DIR)
-        config_errors = validate_conformance_config(registry, targets)
+        config_errors = validate_v1_conformance_config(registry, targets)
         if config_errors:
             raise ConfigurationError("; ".join(config_errors))
 

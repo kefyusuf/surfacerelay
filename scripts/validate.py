@@ -3,7 +3,7 @@
 from pathlib import Path
 import json, sys
 
-from conformance_model import validate_conformance_config
+from conformance_model import validate_v1_conformance_config
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -93,7 +93,7 @@ for orphan in orphans:
 # Conformance scenario registry integrity: schema scenarios remain tied to
 # manifest fixtures. Documented runtime scenarios keep the historical
 # fail-closed note; executable runtime scenarios are validated structurally
-# together with repo-local target manifests by validate_conformance_config().
+# together with the closed T-701 v1 target/scenario matrix.
 scenarios_path = ROOT / 'spec' / '0.1' / 'fixtures' / 'conformance-scenarios.json'
 scenarios = json.loads(scenarios_path.read_text(encoding='utf-8'))['scenarios']
 allowed_kinds = {'schema', 'runtime'}
@@ -143,7 +143,7 @@ else:
             continue
         targets.append(target)
 
-config_errors = validate_conformance_config({'scenarios': scenarios}, targets)
+config_errors = validate_v1_conformance_config({'scenarios': scenarios}, targets)
 for error in config_errors:
     print(f'FAIL conformance config: {error}')
     failures += 1

@@ -22,6 +22,15 @@ ALLOWED_OBSERVATION_KEYS = {
     "frameworkDispatchCount",
     "replacementDispatchCount",
 }
+V1_EXECUTABLE_RUNTIME_SCENARIO_IDS = frozenset(
+    {
+        "BIND-EXACT-TARGET-EXECUTES",
+        "BIND-EXPIRED-NOT-EXECUTABLE",
+        "BIND-COMPONENT-STALE",
+        "BIND-NO-SILENT-RETARGET",
+    }
+)
+V1_TARGET_IDS = frozenset({"browser/livewire", "browser/htmx"})
 
 
 @dataclass(frozen=True)
@@ -101,7 +110,7 @@ def _is_positive_control(scenario: Mapping[str, Any]) -> bool:
 def validate_conformance_config(
     registry: Mapping[str, Any], targets: list[Mapping[str, Any]]
 ) -> list[str]:
-    """Validate the v1 registry/target relationship without performing I/O."""
+    """Validate registry/target structure without performing I/O."""
 
     errors: list[str] = []
 
@@ -229,6 +238,47 @@ def validate_conformance_config(
                 errors.append(
                     f"{context} claimed profile {profile!r} has no mandatory positive control"
                 )
+
+    return errors
+
+
+def validate_v1_conformance_config(
+    registry: Mapping[str, Any], targets: list[Mapping[str, Any]]
+) -> list[str]:
+    """Validate structure plus the closed T-701 v1 reference matrix."""
+
+    errors = validate_conformance_config(registry, targets)
+
+    scenarios = registry.get("scenarios") if isinstance(registry, Mapping) else None
+    executable_ids: set[str] = set()
+    if isinstance(scenarios, list):
+        for scenario in scenarios:
+            if not isinstance(scenario, Mapping):
+                continue
+            if scenario.get("kind") != "runtime" or scenario.get("status") != "executable":
+                continue
+            scenario_id = scenario.get("id")
+            if isinstance(scenario_id, str) and scenario_id:
+                executable_ids.add(scenario_id)
+
+    for scenario_id in sorted(V1_EXECUTABLE_RUNTIME_SCENARIO_IDS - executable_ids):
+        errors.append(f"missing executable runtime scenario for T-701 v1: {scenario_id}")
+    for scenario_id in sorted(executable_ids - V1_EXECUTABLE_RUNTIME_SCENARIO_IDS):
+        errors.append(f"unexpected executable runtime scenario for T-701 v1: {scenario_id}")
+
+    target_ids: set[str] = set()
+    if isinstance(targets, list):
+        for target in targets:
+            if not isinstance(target, Mapping):
+                continue
+            target_id = target.get("targetId")
+            if isinstance(target_id, str) and target_id:
+                target_ids.add(target_id)
+
+    for target_id in sorted(V1_TARGET_IDS - target_ids):
+        errors.append(f"missing target for T-701 v1: {target_id}")
+    for target_id in sorted(target_ids - V1_TARGET_IDS):
+        errors.append(f"unexpected target for T-701 v1: {target_id}")
 
     return errors
 
