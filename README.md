@@ -83,6 +83,7 @@ Start with:
 3. [`TASKS.md`](TASKS.md)
 4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 5. [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
+6. [`docs/adapters/README.md`](docs/adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
 
 Run:
 
