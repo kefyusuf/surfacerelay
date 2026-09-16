@@ -6,20 +6,21 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `feat/executable-conformance-runner`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
-- **Last completed/reviewed task:** `T-604 — Shared conformance against Livewire + HTMX`
+- **Last completed/reviewed gate:** `T-701 — external review + decision promotion`
 - **Current task:** `T-701 — Executable conformance runner`
-- **T-701 state:** **IN_PROGRESS / IMPLEMENTATION VERIFIED / EXTERNAL REVIEW COMPLETE / DECISION GATE PENDING**
+- **T-701 state:** **IN_PROGRESS / REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
 - **Design:** `docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md`
 - **Plan:** `docs/superpowers/plans/2026-09-15-executable-conformance-runner.md`
 - **Approved design diff base:** `05b020c94279c295068895a8163a892549327d3f`
 - **Verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
 - **External-review code-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
 - **Final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
-- **Final reviewed PR CI:** `#798` / `35049891609` — **SUCCESS, 7 jobs total**
-- **CodeRabbit:** **4/4 threads resolved / 0 unresolved**; one original HTMX finding was rechecked and confirmed invalid rather than implemented
-- **Proposed decisions:** `D-059`, `D-060`, `D-061` — **PROPOSED**
+- **Review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
+- **Decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
+- **Decision-promotion PR CI:** `#802` / `35058068033` — **7/7 jobs SUCCESS**
+- **Accepted decisions:** `D-059`, `D-060`, `D-061` — **ACCEPTED**
 - **Existing provisional decision:** `D-026` — **PROPOSED**
-- **Next gate:** explicit T-701 decision promotion. Merge and T-702 remain separate later gates.
+- **Next gate:** explicit T-701 merge. Post-merge main revalidation and T-702 remain separate later gates.
 
 ## M6 historical evidence — preserved
 
@@ -163,6 +164,8 @@ Correctness-fix head:             89a968785a09032cbf3b71f7f60c3f14b76c10ab
 Correctness-fix validate:         #796 / 35049689721 — SUCCESS
 Final reviewed PR head:           b7d2c4aee175da80f0c97d103f915f751c6b0fc7
 Final reviewed PR validate:       #798 / 35049891609 — SUCCESS, 7 jobs total
+Review-closure tracking:          3777fce830ae2d4a1bcc64925af24563f611ea3e
+Review-closure push validate:     #799 / 35050355079 — 7/7 SUCCESS
 Final Python conformance suite:    47/47 PASS on CPython 3.12.14
 Final browser suite:               20 files / 328/328 PASS + typecheck
 Final harness build:               PASS
@@ -172,11 +175,34 @@ CodeRabbit threads:                4/4 individually rechecked/resolved / 0 unres
 
 No second full CodeRabbit sweep is claimed; review closure is based on the initial full review, thread-specific reviewer rechecks, and fresh exact-head CI.
 
+## Decision promotion
+
+External review confirmed the implemented T-701 architecture, and the decision-promotion gate accepted the decisions that exactly describe that reviewed implementation:
+
+- `D-059` — **ACCEPTED** — profile + capability applicability; runner-owned canonical selection/applicability/verdicts; raw harness observations only.
+- `D-060` — **ACCEPTED** — repo-local one-scenario/one-subprocess JSON protocol, fixed timeout, Python stdlib orchestrator, repo-root command execution.
+- `D-061` — **ACCEPTED** — canonical scenario semantics in the registry, execution wiring outside the spec, mandatory positive control, closed four-scenario/two-target browser v1 claim.
+- `D-026` — **PROPOSED** independently; provisional binding failure codes remain advisory rather than globally normative.
+
+Decision-promotion evidence:
+
+```text
+Decision-promotion head:           1efe11714e9d3abcd0e8a12fcb90912b23522ad4
+Decision-promotion PR validate:    #802 / 35058068033 — 7/7 SUCCESS
+Browser:                           20 files / 328/328 PASS + typecheck
+Python conformance tests:          47/47 PASS
+Harness build:                     PASS
+Canonical matrix:                  7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Contract validation:               PASS
+```
+
+The accepted vocabulary remains bounded to the reviewed repo-local T-701 v1 runner. It does not publish a standalone specification, certification program, or global error-code enum.
+
 ## Scope audit
 
 Approved design diff base: `05b020c94279c295068895a8163a892549327d3f`.
 
-Review confirms:
+Review and decision promotion confirm:
 
 - no semantic changes under `packages/browser-runtime/src/**`;
 - no `packages/laravel/src/**` production changes;
@@ -184,16 +210,7 @@ Review confirms:
 - no standalone spec extraction;
 - no Python/npm dependency expansion for T-701;
 - no T-702/T-703/T-704 implementation;
-- PR #14 remains open and unmerged after external-review closure.
-
-## Needs decision
-
-The reviewed implementation supplies evidence for the next decision gate, but does not promote decisions automatically:
-
-- `D-059` — **PROPOSED** — profile + capability applicability; runner-owned canonical selection/verdicts; raw harness observations only.
-- `D-060` — **PROPOSED** — one-scenario/one-subprocess JSON protocol with Python stdlib orchestrator and fixed timeout.
-- `D-061` — **PROPOSED** — canonical scenario semantics in the registry, execution wiring outside the spec, mandatory positive control, closed browser `runtime-binding/driver` v1 claim.
-- `D-026` — **PROPOSED** independently; provisional binding failure codes remain advisory rather than globally normative.
+- PR #14 remains open and unmerged.
 
 ## Explicit non-goals
 
@@ -203,4 +220,4 @@ T-701 v1 does not create or claim a public conformance SDK/certification system,
 
 **M6 is closed. T-604 is closed.**
 
-T-701 implementation and external review are complete, but T-701 is **not yet decision-promoted, merged, or main-revalidated**. `D-026`, `D-059`, `D-060`, and `D-061` remain **PROPOSED**. The next gate is explicit T-701 decision promotion. Merge, T-702/T-703/T-704, and publication remain separate later gates.
+T-701 implementation, external review, and decision promotion are complete, but T-701 is **not yet merged or main-revalidated**. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. The next gate is explicit T-701 merge. Post-merge main revalidation and T-702/T-703/T-704 remain separate later gates.

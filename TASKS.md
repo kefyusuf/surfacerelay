@@ -56,7 +56,7 @@ Browser baseline:         TypeScript typecheck + 103/103 Vitest
 Decision:                    D-053 — ACCEPTED
 Final feature head:          e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
 Merge commit:                96581ff9d12dba5487b4831c3bc146081945decb
-Post-merge main CI:          34657967629 — 7/7 green
+Post-merge CI:               34657967629 — 7/7 green
 Browser on main:             174/174 + typecheck
 ```
 
@@ -143,7 +143,7 @@ Post-merge browser:              19 files / 319/319 + typecheck
 
 ## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
 
-### T-701 — Executable conformance runner — IN_PROGRESS / IMPLEMENTATION VERIFIED / EXTERNAL REVIEW COMPLETE / DECISION GATE PENDING
+### T-701 — Executable conformance runner — IN_PROGRESS / REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
 
 Design / plan:
 
@@ -165,15 +165,19 @@ Task 7 — CI + implemented conformance docs:       2c15515a77d2dd1d79ea970a2811
 Review-prep tracking:                              041dc9126f63225de0338bdb557446906da78c62
 External-review correctness fixes:                 89a968785a09032cbf3b71f7f60c3f14b76c10ab
 Concise review handoff:                            b7d2c4aee175da80f0c97d103f915f751c6b0fc7
+Review-closure tracking:                           3777fce830ae2d4a1bcc64925af24563f611ea3e
+Decision promotion:                                1efe11714e9d3abcd0e8a12fcb90912b23522ad4
 ```
 
-Verified external-review head evidence:
+Verified review + decision evidence:
 
 ```text
 Pull request:                         #14 — feat(conformance): add executable browser conformance runner
 External-review RED:                  #794 / 35049387890 — expected failure on new review regressions
 Review-fix validate:                  #796 / 35049689721 — SUCCESS
 Final reviewed PR-head validate:      #798 / 35049891609 — SUCCESS, 7 jobs total
+Review-closure push validate:         #799 / 35050355079 — 7/7 SUCCESS
+Decision-promotion PR validate:       #802 / 35058068033 — 7/7 SUCCESS
 Python runtime:                       CPython 3.12.14
 Conformance model + runner tests:     47/47 PASS
 Browser runtime:                      20 files / 328/328 Vitest + typecheck
@@ -206,14 +210,14 @@ Implemented v1 boundary remains:
 - no semantic production changes exist under `packages/browser-runtime/src/**`;
 - no dependency expansion, Laravel production change, T-603 fixture behavior change, standalone-spec extraction, or T-702/T-703/T-704 implementation appeared.
 
-Decision state after external review:
+Decision state after promotion:
 
-- `D-059` — **PROPOSED**;
-- `D-060` — **PROPOSED**;
-- `D-061` — **PROPOSED**;
+- `D-059` — **ACCEPTED**;
+- `D-060` — **ACCEPTED**;
+- `D-061` — **ACCEPTED**;
 - `D-026` — **PROPOSED** independently; failure-code recommendations remain advisory.
 
-External review is complete, but **T-701 is not yet decision-promoted, merged, or main-revalidated**. The next explicit gate is decision promotion for the reviewed T-701 architecture; merge remains a separate later gate.
+External review and decision promotion are complete, but **T-701 is not yet merged or main-revalidated**. The next explicit gate is merge of PR #14; post-merge main revalidation remains a separate later gate.
 
 - T-702 — Adapter author guide — TODO.
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
@@ -221,4 +225,4 @@ External review is complete, but **T-701 is not yet decision-promoted, merged, o
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 implementation and external review are complete on `feat/executable-conformance-runner`, with **4/4 CodeRabbit threads resolved and 0 unresolved**. `D-026`, `D-059`, `D-060`, and `D-061` remain **PROPOSED**. The next gate is explicit T-701 decision promotion; do not merge, begin T-702/T-703/T-704, or publish automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 implementation, external review, and decision promotion are complete on `feat/executable-conformance-runner`. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. The next gate is explicit T-701 merge; do not begin T-702/T-703/T-704 or publish automatically.

@@ -1,4 +1,4 @@
-# External Review Record — T-701 Executable Conformance Runner
+# T-701 Review and Decision Record — Executable Conformance Runner
 
 ## Status
 
@@ -9,12 +9,14 @@
 - **Review-prep head:** `041dc9126f63225de0338bdb557446906da78c62`
 - **External-review correctness-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
 - **Final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
-- **Final reviewed PR validate:** #798 / `35049891609` — **SUCCESS, 7 jobs total**
+- **Review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
+- **Decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
+- **Decision-promotion PR validate:** #802 / `35058068033` — **7/7 SUCCESS**
 - **CodeRabbit:** **4/4 actionable threads individually rechecked/resolved / 0 unresolved**
-- **Task state:** implementation verified; external review complete; decision gate pending; not merged
-- **Decisions:** D-026, D-059, D-060, D-061 remain **PROPOSED**
+- **Task state:** implementation verified; external review complete; decisions accepted; merge pending
+- **Decisions:** D-059, D-060, D-061 **ACCEPTED**; D-026 remains **PROPOSED**
 
-Detailed architecture and history remain in `STATUS.md`, `TASKS.md`, the approved design, and the implementation plan.
+Detailed architecture and implementation history remain in `STATUS.md`, `TASKS.md`, the approved design, and the implementation plan.
 
 ## Reviewed boundary
 
@@ -51,6 +53,8 @@ No second full CodeRabbit sweep is claimed. Closure evidence is the initial full
 External-review RED:            #794 / 35049387890 — expected failure on new review regressions
 Correctness-fix validate:       #796 / 35049689721 — SUCCESS
 Final reviewed PR validate:     #798 / 35049891609 — SUCCESS, 7 jobs total
+Review-closure push validate:   #799 / 35050355079 — 7/7 SUCCESS
+Decision-promotion PR validate: #802 / 35058068033 — 7/7 SUCCESS
 TypeScript typecheck:           PASS
 Vitest:                         20 files / 328/328 PASS
 CPython:                        3.12.14
@@ -60,15 +64,21 @@ Canonical runtime matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
 Contract validation:            PASS
 ```
 
-PR #14 remains open, mergeable, and unmerged at external-review closure.
+PR #14 remains open, mergeable, and unmerged at the decision-promotion checkpoint.
 
-## Decision / merge boundary
+## Decision promotion outcome
 
-External review supplies evidence for a later decision gate; it does not promote or merge anything.
+The reviewed implementation now carries accepted architecture decisions for the behavior it actually implements:
 
-- D-026 — PROPOSED
-- D-059 — PROPOSED
-- D-060 — PROPOSED
-- D-061 — PROPOSED
+- **D-059 — ACCEPTED:** profile + capability applicability; runner-owned canonical selection/applicability/PASS-FAIL verdicts; raw harness observations only; harnesses cannot self-certify or self-report N/A for mandatory scenarios.
+- **D-060 — ACCEPTED:** repo-local one-scenario/one-subprocess JSON process protocol with fixed 10-second timeout; argv + `shell=False`; repo-root command execution; Python stdlib orchestrator imports no runtime implementation.
+- **D-061 — ACCEPTED:** canonical scenario semantics remain in the registry; target wiring remains outside the spec; positive control is mandatory; T-701 v1 is the closed reviewed four-scenario/two-browser-target claim.
+- **D-026 — PROPOSED:** provisional binding failure-code names remain advisory and are not promoted by T-701.
 
-The next explicit gate is T-701 decision promotion. Merge is a separate later gate, and T-702/T-703/T-704 must not start automatically.
+The accepted vocabulary remains bounded to the reviewed repo-local T-701 v1 runner. It is not a standalone specification, public certification API, or global error-code enum.
+
+## Merge boundary
+
+Decision promotion does **not** merge PR #14 and does not start another task.
+
+The next explicit gate is T-701 merge. Post-merge main revalidation is a separate later gate. T-702/T-703/T-704 must not start automatically.
