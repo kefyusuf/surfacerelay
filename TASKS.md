@@ -56,11 +56,9 @@ Browser baseline:         TypeScript typecheck + 103/103 Vitest
 Decision:                    D-053 — ACCEPTED
 Final feature head:          e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
 Merge commit:                96581ff9d12dba5487b4831c3bc146081945decb
-Post-merge main CI:          34657967629 — 7/7 green
+Post-merge CI:               34657967629 — 7/7 green
 Browser on main:             174/174 + typecheck
 ```
-
-T-601 proved that the generic `RuntimeBinding` envelope can carry a page-scoped HTMX target with source/path/named-input semantics without changing `ActionDefinition` or moving trusted authority into browser data.
 
 ### T-602 — HTMX browser driver — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -75,8 +73,6 @@ Browser on final closure main:     17 files / 297/297 + typecheck
 CodeRabbit:                        2 actionable / 2 resolved / 0 unresolved
 ```
 
-T-602 proved exact source resolution, physical request-declaration validation, supported HTMX 2.x public runtime execution, fail-closed input mapping and the HTMX-specific cancellation/dispatch frontier.
-
 ### T-603 — Non-Laravel HTMX fixture app — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 ```text
@@ -90,7 +86,7 @@ Post-merge browser:              17 files / 297/297 + typecheck
 CodeRabbit threads:              4/4 actionable resolved / 0 unresolved
 ```
 
-T-603 proved the HTMX adapter against a real non-Laravel Node application, real `htmx.org@2.0.10`, real Chromium DOM/network execution and the existing `prep_list.add_item@1` ActionDefinition. Human and SurfaceRelay paths converge on the same `POST /items` business mutation and response swap. At the T-603 closure point `D-020` was still proposed; it was later accepted only after T-604 completed shared cross-driver conformance.
+T-603 proved the HTMX adapter against a real non-Laravel Node application, real `htmx.org@2.0.10`, real Chromium DOM/network execution and the existing `prep_list.add_item@1` ActionDefinition.
 
 ### T-604 — Shared conformance against Livewire + HTMX — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -103,14 +99,10 @@ docs/superpowers/plans/2026-09-14-binding-driver-conformance.md
 
 Verified implementation boundary:
 
-- one shared executable 11-case matrix is declared once in `packages/browser-runtime/tests/support/binding-driver-conformance-suite.ts`;
-- that exact matrix runs unchanged against production `LivewireBrowserDriver` and production `HtmxBrowserDriver` through thin test-only adapters;
-- shared assertions cover fail-closed target validation, expiry classification, Action-input mappability, exact-target stale/no-retarget behavior, exact dispatch count, and already-aborted no-dispatch cancellation;
-- every shared failure case proves zero unintended framework dispatch;
+- one shared executable 11-case matrix runs unchanged against production `LivewireBrowserDriver` and `HtmxBrowserDriver` through thin test-only adapters;
+- shared assertions cover fail-closed target validation, expiry, Action-input mappability, exact-target stale/no-retarget behavior, dispatch counts and already-aborted no-dispatch cancellation;
 - equivalent replacement identities receive zero dispatch from an old binding;
-- framework-specific target shapes, lifecycles, runtime APIs, local error codes, cancellation mechanisms and successful return values remain driver-owned;
-- no production browser-runtime source, frozen spec, Laravel source, T-603 fixture, workflow, package dependency, or `tsconfig.json` changed;
-- T-701 was not implemented or pulled forward.
+- framework-specific target shapes, lifecycles, runtime APIs, local errors, cancellation mechanisms and successful return values remain driver-owned.
 
 TDD / executable evidence:
 
@@ -147,21 +139,90 @@ Post-merge main validate:        34806790431 — 7/7 green
 Post-merge browser:              19 files / 319/319 + typecheck
 ```
 
-Closure decisions:
-
-- `D-058` — **ACCEPTED** for the tested shared behavioral `BindingDriver` overlap. Acceptance does not normalize framework-specific behavior and does not create a public T-701-style conformance SDK/runner.
-- `D-020` — **ACCEPTED**. The T-601–T-603 HTMX path is materially different from Livewire in lifecycle, driver target, input mapping, runtime API and dispatch behavior, while T-604 proves both implementations satisfy the same common binding-driver invariants.
-- Together with `D-009`, this establishes the required two materially different bindings + shared executable scenarios threshold. It does **not** automatically authorize extracting a standalone public specification; that remains a separate future decision/task.
-
 **T-604 is closed. M6 is closed.**
 
-## M7 — Conformance / Ecosystem Bridges — TODO
+## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
 
-- T-701 — Executable conformance runner — TODO.
+### T-701 — Executable conformance runner — IN_PROGRESS / REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
+
+Design / plan:
+
+```text
+docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md
+docs/superpowers/plans/2026-09-15-executable-conformance-runner.md
+```
+
+Implementation sequence:
+
+```text
+Task 1 — pure model/evaluator:                    8351954b95b94902ca91f3d0d8fe78c0d6675a49
+Task 2 — subprocess runner/protocol tests:        ecc14a0a9ff571e9c0de20fba7e3fc2f43387a13
+Task 3 — Vitest-free shared target support:       706a476b5178e9dcbfb9af942446f810cdcc470c
+Task 4 — Livewire process harness:                9563299aec93508b7275a44efe82325f4a69fa26
+Task 5 — HTMX process harness:                    7ef086d7547837331ca5662ebcbce49ce7b1f44a
+Task 6 — canonical scenarios/manifests:           65e978393b55ffa2f908cb1518f9b768c9e3fbc3
+Task 7 — CI + implemented conformance docs:       2c15515a77d2dd1d79ea970a2811ca0c40191ceb
+Review-prep tracking:                              041dc9126f63225de0338bdb557446906da78c62
+External-review correctness fixes:                 89a968785a09032cbf3b71f7f60c3f14b76c10ab
+Concise review handoff:                            b7d2c4aee175da80f0c97d103f915f751c6b0fc7
+Review-closure tracking:                           3777fce830ae2d4a1bcc64925af24563f611ea3e
+Decision promotion:                                1efe11714e9d3abcd0e8a12fcb90912b23522ad4
+```
+
+Verified review + decision evidence:
+
+```text
+Pull request:                         #14 — feat(conformance): add executable browser conformance runner
+External-review RED:                  #794 / 35049387890 — expected failure on new review regressions
+Review-fix validate:                  #796 / 35049689721 — SUCCESS
+Final reviewed PR-head validate:      #798 / 35049891609 — SUCCESS, 7 jobs total
+Review-closure push validate:         #799 / 35050355079 — 7/7 SUCCESS
+Decision-promotion PR validate:       #802 / 35058068033 — 7/7 SUCCESS
+Python runtime:                       CPython 3.12.14
+Conformance model + runner tests:     47/47 PASS
+Browser runtime:                      20 files / 328/328 Vitest + typecheck
+Harness build:                        PASS
+Structural validation:                PASS
+Canonical runtime matrix:             7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+CodeRabbit external review:
+
+- four actionable threads were opened;
+- three valid findings were addressed: closed-v1 scenario/target completeness, repo-root subprocess cwd, and review-handoff concision;
+- the HTMX replacement-identity suggestion was not applied because D-053 requires replacement targets to receive a new opaque source identity; CodeRabbit independently rechecked and confirmed that original finding invalid;
+- all four threads were individually rechecked and resolved by CodeRabbit: **4/4 resolved / 0 unresolved**;
+- no second full CodeRabbit sweep is claimed; closure evidence is thread-level recheck plus fresh CI.
+
+Implemented v1 boundary remains:
+
+- exactly one profile: `runtime-binding/driver`;
+- exact target set: `browser/livewire`, `browser/htmx`;
+- exact executable runtime scenario set: exact execution, expiry, component stale and no-silent-retarget;
+- Livewire applies to all four; HTMX applies to three and receives runner-owned `NOT_APPLICABLE` for component stale;
+- Python runner owns canonical selection/applicability/verdicts and enforces the closed v1 target/scenario membership;
+- harnesses emit bounded raw observations only;
+- one target/scenario pair uses one fresh subprocess with a fixed 10-second timeout;
+- manifest commands execute from repository `ROOT`, independent of caller cwd;
+- `recommendedCode` / raw `errorCode` remain advisory;
+- every claimed profile requires a mandatory positive control;
+- `scripts/validate.py` validates structure/configuration and never executes harnesses;
+- no semantic production changes exist under `packages/browser-runtime/src/**`;
+- no dependency expansion, Laravel production change, T-603 fixture behavior change, standalone-spec extraction, or T-702/T-703/T-704 implementation appeared.
+
+Decision state after promotion:
+
+- `D-059` — **ACCEPTED**;
+- `D-060` — **ACCEPTED**;
+- `D-061` — **ACCEPTED**;
+- `D-026` — **PROPOSED** independently; failure-code recommendations remain advisory.
+
+External review and decision promotion are complete, but **T-701 is not yet merged or main-revalidated**. The next explicit gate is merge of PR #14; post-merge main revalidation remains a separate later gate.
+
 - T-702 — Adapter author guide — TODO.
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-604 is closed and `D-058` / `D-020` are **ACCEPTED**. The next listed task is T-701, but it has **not started** and requires a new explicit user gate.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 implementation, external review, and decision promotion are complete on `feat/executable-conformance-runner`. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. The next gate is explicit T-701 merge; do not begin T-702/T-703/T-704 or publish automatically.

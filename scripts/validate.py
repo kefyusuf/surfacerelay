@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
-"""Validate SurfaceRelay 0.1 schemas and the fixture matrix.
-
-Every fixture listed in spec/0.1/fixtures/manifest.json must pass (valid)
-or fail for the recorded reason (invalid: matching validator keyword and,
-when specified, instance path). Fixture files under spec/0.1/fixtures that
-are missing from the manifest are a hard error so nothing is silently
-skipped.
-"""
+"""Validate SurfaceRelay 0.1 schemas, fixtures, and repo-local conformance config."""
 from pathlib import Path
 import json, sys
+
+from conformance_model import validate_v1_conformance_config
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,11 +30,6 @@ for name, schema in schemas.items():
 
 failures = 0
 
-# Contract-consistency assertion (T-004/T-005): Action Definition, Runtime
-# Binding ActionReference, and Invocation ActionReference must share one
-# canonical Action Identity (action.id + action.version). If any location
-# drifts without the others, validation fails here. No $ref/shared-schema
-# infrastructure by design; a small explicit comparison is intentional.
 canonical = schemas['action-definition']['properties']
 references = {
     'runtime-binding.action': schemas['runtime-binding']['properties']['action']['properties'],
@@ -60,9 +50,6 @@ for prop, keys in identity_constraints.items():
                       f'{ref_name}.{prop}.{key}={actual!r} != canonical {key}={expected!r}')
                 failures += 1
 
-# Contract-consistency assertion (H-001.5): Invocation.bindingId represents
-# the same identity as RuntimeBinding.bindingId and must keep identical
-# lexical constraints (minLength/maxLength), while remaining nullable.
 binding_binding_id = schemas['runtime-binding']['properties']['bindingId']
 invocation_binding_id = schemas['invocation']['properties']['bindingId']
 if binding_binding_id.get('type') != 'string':
@@ -103,9 +90,10 @@ for orphan in orphans:
     print(f'FAIL orphan fixture (not in manifest): {orphan}')
     failures += 1
 
-# Conformance scenario registry integrity (T-003): schema scenarios must be
-# executable through manifest fixtures; runtime scenarios are documented
-# fail-closed semantics (executable conformance arrives with T-604/T-701).
+# Conformance scenario registry integrity: schema scenarios remain tied to
+# manifest fixtures. Documented runtime scenarios keep the historical
+# fail-closed note; executable runtime scenarios are validated structurally
+# together with the closed T-701 v1 target/scenario matrix.
 scenarios_path = ROOT / 'spec' / '0.1' / 'fixtures' / 'conformance-scenarios.json'
 scenarios = json.loads(scenarios_path.read_text(encoding='utf-8'))['scenarios']
 allowed_kinds = {'schema', 'runtime'}
@@ -127,10 +115,38 @@ for scen in scenarios:
         if scen.get('fixture') not in manifest_paths:
             print(f'FAIL schema scenario fixture not in manifest: {sid} ({scen.get("fixture")})')
             failures += 1
-    else:
-        if scen.get('expect') != 'fail_closed' or scen.get('recommendedCode') not in allowed_codes:
-            print(f'FAIL runtime scenario must be fail_closed with a recommended code: {sid}')
+        continue
+
+    recommended_code = scen.get('recommendedCode')
+    if recommended_code is not None and recommended_code not in allowed_codes:
+        print(f'FAIL runtime scenario has unknown recommended code: {sid} ({recommended_code})')
+        failures += 1
+    if scen['status'] == 'documented':
+        if scen.get('expect') != 'fail_closed' or recommended_code not in allowed_codes:
+            print(f'FAIL documented runtime scenario must be fail_closed with a recommended code: {sid}')
             failures += 1
+
+
+targets_dir = ROOT / 'conformance' / 'targets'
+target_paths = sorted(targets_dir.glob('*.json')) if targets_dir.is_dir() else []
+targets = []
+if not target_paths:
+    print(f'FAIL conformance config: no target manifests found in {targets_dir}')
+    failures += 1
+else:
+    for target_path in target_paths:
+        try:
+            target = json.loads(target_path.read_text(encoding='utf-8'))
+        except json.JSONDecodeError as exc:
+            print(f'FAIL conformance config: invalid JSON in {target_path}: {exc.msg}')
+            failures += 1
+            continue
+        targets.append(target)
+
+config_errors = validate_v1_conformance_config({'scenarios': scenarios}, targets)
+for error in config_errors:
+    print(f'FAIL conformance config: {error}')
+    failures += 1
 
 for entry in entries:
     path = ROOT / entry['path']
@@ -170,8 +186,6 @@ for entry in entries:
         if want_path is not None and instance_path_str(e) != want_path:
             return False
         if want_prop is not None:
-            # jsonschema reports additionalProperties violations at the object
-            # level; the offending property name appears quoted in the message.
             return f"'{want_prop}'" in e.message
         return True
 

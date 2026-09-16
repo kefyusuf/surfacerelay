@@ -1,28 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type {
-  BindingDriver,
-  RuntimeBinding,
-} from '../../src/types.js';
-
-export const CONFORMANCE_NOW = new Date('2026-09-14T00:00:00.000Z');
-
-export interface BindingDriverConformanceHarness {
-  readonly driver: BindingDriver;
-  readonly binding: RuntimeBinding;
-  readonly validInput: Record<string, unknown>;
-  readonly invalidTargetBinding: RuntimeBinding;
-  readonly unknownInput: Record<string, unknown>;
-  readonly missingRequiredInput: Record<string, unknown>;
-
-  makeTargetStale(): void;
-  replaceTargetWithEquivalentIdentity(): void;
-  frameworkDispatchCount(): number;
-  replacementDispatchCount(): number;
-}
+import {
+  CONFORMANCE_NOW,
+  type BindingDriverConformanceTarget,
+} from '../../conformance/support/binding-driver-target.js';
 
 export interface BindingDriverConformanceAdapter {
   readonly name: 'livewire' | 'htmx';
-  createHarness(): BindingDriverConformanceHarness;
+  createHarness(): BindingDriverConformanceTarget;
 }
 
 export function defineBindingDriverConformance(
@@ -76,9 +60,10 @@ export function defineBindingDriverConformance(
 
     it('rejects a binding expired before the conformance clock', async () => {
       const harness = adapter.createHarness();
+      const expiredAt = new Date(CONFORMANCE_NOW.getTime() - 1_000).toISOString();
 
       await expect(harness.driver.execute(
-        { ...harness.binding, expiresAt: '2026-09-13T23:59:59Z' },
+        { ...harness.binding, expiresAt: expiredAt },
         harness.validInput,
         {},
       )).rejects.toMatchObject({ code: 'binding_expired' });
@@ -90,7 +75,7 @@ export function defineBindingDriverConformance(
       const harness = adapter.createHarness();
 
       await expect(harness.driver.execute(
-        { ...harness.binding, expiresAt: '2026-09-14T00:00:00Z' },
+        { ...harness.binding, expiresAt: CONFORMANCE_NOW.toISOString() },
         harness.validInput,
         {},
       )).rejects.toMatchObject({ code: 'binding_expired' });

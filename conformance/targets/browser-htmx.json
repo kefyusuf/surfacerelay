@@ -1,0 +1,12 @@
+{
+  "targetId": "browser/htmx",
+  "protocolVersion": "0.1",
+  "profiles": [
+    "runtime-binding/driver"
+  ],
+  "capabilities": [],
+  "command": [
+    "node",
+    "packages/browser-runtime/.tmp/conformance/conformance/htmx-harness.js"
+  ]
+}

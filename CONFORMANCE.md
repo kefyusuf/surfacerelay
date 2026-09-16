@@ -1,73 +1,82 @@
 # SurfaceRelay Conformance Scenarios
 
-These are SurfaceRelay adapter/runtime scenarios, not W3C WebMCP browser conformance tests.
+SurfaceRelay conformance is a repo-local project contract. It is **not** W3C WebMCP browser certification and it is not a public certification program or SDK compatibility badge.
 
-Scenario IDs referenced below are registered in `spec/0.1/fixtures/conformance-scenarios.json`, which distinguishes:
+Canonical scenario IDs live in `spec/0.1/fixtures/conformance-scenarios.json`. There are two executable paths:
 
-- `kind=schema` / `status=executable` — provable today by `scripts/validate.py` through the fixture manifest;
-- `kind=runtime` / `status=documented` — schema-valid semantic scenarios whose shared cross-runtime execution remains future work in T-604/T-701.
+- `kind=schema` / `status=executable` scenarios are validated structurally through `scripts/validate.py` and the fixture manifest.
+- Four `kind=runtime` / `status=executable` scenarios in profile `runtime-binding/driver` are executed by `scripts/run_conformance.py` through fresh target subprocesses.
 
-Some documented runtime scenarios are already exercised by package-level reference-runtime tests before the shared T-701 runner exists. That package test coverage does not change the fixture-manifest status or claim cross-runtime conformance.
+The distinction remains normative: **schema-invalid is not the same as schema-valid but runtime-invalid/stale.** JSON Schema proves structure; runtime authority and target identity are execution properties.
 
-This distinction is normative: **schema-invalid is not the same as schema-valid but runtime-invalid/stale.** JSON Schema validates structure only; runtime authority is an execution property.
+## Executable `runtime-binding/driver` profile
 
-## Definition
+T-701 v1 executes exactly these canonical runtime scenarios:
 
-1. Valid Action Definition accepted.
-2. Duplicate ID/version rejected by registry.
-3. Action Definition containing runtime target fields is rejected by schema/additional-properties rule.
+| Scenario | Normative observation | Livewire | HTMX |
+| --- | --- | --- | --- |
+| `BIND-EXACT-TARGET-EXECUTES` | `returned`, framework dispatch `1`, replacement dispatch `0` | applicable | applicable |
+| `BIND-EXPIRED-NOT-EXECUTABLE` | `threw`, framework dispatch `0` | applicable | applicable |
+| `BIND-COMPONENT-STALE` | `threw`, framework dispatch `0` | applicable through `lifecycle.component` | `NOT_APPLICABLE` |
+| `BIND-NO-SILENT-RETARGET` | `threw`, framework dispatch `0`, replacement dispatch `0` | applicable | applicable |
 
-## Binding
+The canonical two-target matrix is therefore **7 applicable executions + 1 runner-owned `NOT_APPLICABLE`**. A missing capability is resolved before subprocess execution; a harness cannot self-report `NOT_APPLICABLE`.
 
-### Structural (schema-level)
+Current targets are:
 
-4. Binding references exact action ID/version (`BIND-ACTION-VERSION-EXACT`: a binding without an exact version is schema-invalid).
-5. Unknown lifecycle value is rejected by schema (`BIND-LIFECYCLE-UNKNOWN`).
-6. Valid page/component/session/persistent bindings are structurally valid (`BIND-PAGE-VALID`, `BIND-COMPONENT-VALID`, `BIND-SESSION-VALID`, `BIND-PERSISTENT-VALID`).
-7. Binding name collision never silently overwrites another action (registry-level; concretely exercised in T-102).
+- `browser/livewire` — profile `runtime-binding/driver`, capability `lifecycle.component`;
+- `browser/htmx` — profile `runtime-binding/driver`, no capability claims.
 
-### Runtime semantics (fail closed; shared runner pending T-604/T-701)
+`recommendedCode` remains advisory. Raw `errorCode` may be observed and reported, but only the structured expectation fields (`termination`, `frameworkDispatchCount`, and where present `replacementDispatchCount`) determine PASS/FAIL. Harnesses emit observations; the Python runner owns verdicts.
 
-8. Unknown binding ID fails closed (`BIND-ID-UNKNOWN`, recommended code `binding_not_found`). A binding ID is a reference, never proof of authorization by itself.
-9. Unknown driver fails closed (`BIND-DRIVER-UNKNOWN`, `driver_unsupported`). Drivers are extensible identifiers with an explicit registry (D-016); JSON Schema deliberately cannot express registry membership. No fallback driver is permitted.
-10. Expired binding fails closed (`BIND-EXPIRED-NOT-EXECUTABLE`, `binding_expired`). Validity is cumulative (D-024): existence AND non-revocation AND lifecycle authority AND `expiresAt` AND exact action id/version availability AND driver support; whichever invalidates first wins.
-11. Binding whose referenced action id/version is unavailable fails closed (`BIND-ACTION-VERSION-UNAVAILABLE`, `binding_stale`).
-12. Unmounted/destroyed/replaced component binding fails closed (`BIND-COMPONENT-STALE`, `binding_stale`); rerender of the same instance may remain valid.
-13. Old binding must never silently retarget to a replacement component/target — even with the same class, method name, DOM position, or business record (`BIND-NO-SILENT-RETARGET`, `binding_stale`). Replacement requires a newly issued binding ID (D-022/D-025).
+## Related browser evidence
 
-Recommended provisional binding error codes (D-026, not a closed enum): `binding_not_found`, `binding_stale`, `binding_expired`, `driver_unsupported`.
+T-701 does not replace the broader browser-runtime regression layers:
 
-### Lifecycle reference (D-023)
+- **T-604** owns the shared package-level BindingDriver conformance suite: 11 cases for Livewire and the same 11 cases for HTMX. That suite includes malformed target/input and cancellation behavior that is intentionally not promoted into the T-701 canonical runtime registry.
+- **T-603** remains separate real-browser evidence for the non-Laravel HTMX fixture using real HTMX and Chromium. It is end-to-end fixture evidence, not a substitute for the repo-local T-701 process matrix.
 
-- `page` — one runtime-defined page/surface instance; not necessarily a browser document.
-- `component` — one specific component instance; rerenders keep validity, replacements never inherit the binding.
-- `session` — trusted runtime session authority; identity never comes from caller input; expiry/revocation/logout/rotation makes bindings stale.
-- `persistent` — not tied to page/component/session lifetime, but never permanent, global, anonymous, or cache-forever: still subject to revocation, `expiresAt`, exact action version availability, driver availability, and all runtime policy.
+No T-701 change grants HTMX a `lifecycle.component` capability or changes production browser-driver semantics.
 
-## Trust
+## Structural Binding scenarios
 
-9. Caller `tenant_id` does not override trusted tenant.
-10. Caller `user_id` does not override authenticated actor.
-11. Caller record IDs do not satisfy `current_selection` authority.
-12. Discovery permission does not bypass invocation authorization.
-13. `confirmed=true` does not satisfy `human_confirmation`.
-14. Confirmation receipt is scoped and expiration/replay is enforced.
-15. Required idempotency key prevents duplicate side effect.
+Schema-level binding scenarios remain executable through `scripts/validate.py`:
 
-**Laravel reference-runtime coverage:** T-401 exercises Trust scenarios 13 and 14 with unit and full ActionBus integration tests, including caller boolean/metadata spoofing, exact action/version/input/actor/tenant/binding/record/selection/session scope mismatches, expiry equality, replay, and single-use consumption. T-402 exercises Trust scenario 15 with server-side required/recommended/none policy enforcement, raw-key hashing, exact validated-intent fingerprints, authority partition isolation, same-key intent conflicts, atomic execution claims, lost-response completed replay, authorization-before-replay, active in-progress/indeterminate refusal, executor/codec/completion-persistence failure safety, and exact retention-expiry behavior. These are Laravel package/reference-runtime proofs only; the shared T-701 conformance runner remains unimplemented and no cross-runtime conformance claim is made.
+- `BIND-ACTION-VERSION-EXACT` — a binding without an exact action version is schema-invalid.
+- `BIND-LIFECYCLE-UNKNOWN` — an unknown lifecycle value is rejected by schema.
+- `BIND-PAGE-VALID`, `BIND-COMPONENT-VALID`, `BIND-SESSION-VALID`, `BIND-PERSISTENT-VALID` — the four lifecycle forms are structurally valid.
 
-## Output
+The lifecycle meanings remain:
 
-16. Sensitive output passes through output policy/redaction.
-17. Untrusted output is projected to the appropriate surface hint where supported.
+- `page` — one runtime-defined page/surface instance;
+- `component` — one exact component instance; rerenders may preserve identity, replacements do not inherit it;
+- `session` — trusted runtime session authority, never caller-supplied identity;
+- `persistent` — not page/component/session bound, but still revocable and subject to expiry, action-version availability, driver availability, and runtime policy.
 
-## Projection
+## Runtime scenarios still documented, not executable in T-701
 
-18. Read effect maps to WebMCP read-only hint without changing core definition.
-19. Consequential risk maps to supported WebMCP consequential semantics without changing core definition.
-20. Browser cancellation is propagated but is not represented as proven rollback.
+These canonical runtime scenarios remain `status=documented`:
 
-## Portability
+- `BIND-ID-UNKNOWN` — binding lookup/not-found behavior;
+- `BIND-DRIVER-UNKNOWN` — driver-registry membership and fail-closed unsupported-driver behavior;
+- `BIND-ACTION-VERSION-UNAVAILABLE` — exact referenced action/version availability.
 
-21. Same action definition can be bound through Livewire and HTMX without changing base action semantics.
-22. Shared trust scenarios pass for both bindings.
+They are intentionally outside the v1 `runtime-binding/driver` executable profile. Their package/runtime evidence, where present, does not create a T-701 cross-target conformance claim.
+
+## Trust, Output, and Projection
+
+T-701 makes **no** Trust, Output, or Projection conformance claim.
+
+Existing Laravel trust/idempotency/confirmation tests, output-policy behavior, WebMCP projection tests, and browser cancellation tests remain package/reference-runtime evidence under their own tasks and decisions. They are not promoted into the T-701 executable scenario set by this implementation.
+
+## Runner boundary
+
+Target manifests under `conformance/targets/` declare target identity, protocol version, profiles, capabilities, and argv command. Each applicable target/scenario pair runs in a fresh subprocess using protocol version `0.1`:
+
+1. the runner writes one JSON request to stdin;
+2. the harness writes exactly one JSON response to stdout;
+3. stderr is diagnostic-only;
+4. a non-zero child exit, timeout, malformed protocol response, or invalid observation is `ERROR`;
+5. a valid raw observation is evaluated centrally against the canonical structured expectation.
+
+Use `conformance/README.md` for the repo-local protocol and target-manifest details.

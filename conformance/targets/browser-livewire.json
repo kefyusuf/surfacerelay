@@ -1,0 +1,14 @@
+{
+  "targetId": "browser/livewire",
+  "protocolVersion": "0.1",
+  "profiles": [
+    "runtime-binding/driver"
+  ],
+  "capabilities": [
+    "lifecycle.component"
+  ],
+  "command": [
+    "node",
+    "packages/browser-runtime/.tmp/conformance/conformance/livewire-harness.js"
+  ]
+}
