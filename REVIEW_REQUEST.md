@@ -1,84 +1,136 @@
-# T-701 External Review / Merge Closure Record — Executable Conformance Runner
+# T-702 External Review Request — Adapter Author Guide
 
-## Final status
+## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Task:** `T-701 — Executable conformance runner`
-- **Pull request:** #14 — `feat(conformance): add executable browser conformance runner` — **MERGED**
-- **Verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
-- **External-review correctness-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
-- **Final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
-- **Review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
-- **Decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
-- **Final feature/tracking head:** `5da153c3c0a0f6c38d9b5f01b26899efa24ea949`
-- **Merge commit:** `50c8c482165a115b8b3b8cb740f123ecf4203041`
-- **Post-merge main validate:** #809 / `35080877519` — **7/7 SUCCESS**
-- **Post-merge browser:** **20 files / 328/328 Vitest + TypeScript typecheck**
-- **Post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
-- **Post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
-- **CodeRabbit:** **4/4 actionable threads individually rechecked/resolved / 0 unresolved**
-- **Decisions:** D-059, D-060, D-061 **ACCEPTED**; D-026 remains **PROPOSED**
-- **Task state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **Branch:** `feat/t-702-adapter-author-guide`
+- **Task:** `T-702 — Adapter author guide`
+- **State:** **IMPLEMENTED / REVIEW PENDING**
+- **Design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
+- **Implementation plan:** `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
+- **Verified documentation implementation head:** `04e69ecb8a4d752732f2ab85eaf0f14798944e68`
+- **Implementation-head validate:** `#821 / 35150202622` — **7/7 SUCCESS**
+- **D-059 / D-060 / D-061:** **ACCEPTED** and unchanged
+- **D-026 / D-062:** **PROPOSED** and unchanged
+- **T-703 / T-704:** **NOT STARTED**
 
-Detailed architecture and implementation history remain in `STATUS.md`, `TASKS.md`, the approved design, and the implementation plan.
+T-702 is intentionally documentation-only. It is not closed by this request and no decision promotion is implied.
 
-## Closed v1 boundary
+## Primary review surface
 
-T-701 v1 remains deliberately bounded to:
+Review these files first:
 
-- profile `runtime-binding/driver`;
-- targets `browser/livewire` and `browser/htmx`;
-- exactly four executable runtime scenarios: exact execution, expiry, component stale, and no-silent-retarget;
-- runner-owned canonical scenario selection, capability applicability and PASS/FAIL verdicts;
-- raw harness observations only;
-- one fresh subprocess per applicable target/scenario pair;
-- one JSON request on stdin, exactly one protocol JSON response on stdout, stderr diagnostics only, fixed 10-second timeout;
-- repo-root argv execution with `shell=False`;
-- HTMX component-stale as runner-owned `NOT_APPLICABLE` before spawn;
-- mandatory positive control for each claimed profile;
-- advisory `recommendedCode` / raw `errorCode`;
-- canonical semantics in `spec/0.1/fixtures/conformance-scenarios.json` and target wiring outside the spec.
+1. `docs/adapters/README.md`
+2. `docs/adapters/author-guide.md`
+3. `docs/adapters/security.md`
+4. `docs/adapters/conformance.md`
+5. `README.md`
+6. `TASKS.md`
+7. `STATUS.md`
 
-It does not create a public conformance SDK/certification API, standalone specification extraction, Laravel/PHP target coverage, Trust/Output/Projection conformance, real-browser orchestration in the runner, remote targets, retries, parallelism, watch mode, plugin discovery, or a generic assertion DSL.
+The design and plan are the review contracts for scope:
 
-## External review outcome
+- `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
+- `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
 
-CodeRabbit opened four actionable threads:
+## Intended documentation boundary
 
-1. **HTMX replacement identity** — not implemented; reviewer recheck confirmed the original suggestion invalid because accepted D-053 exact source identity requires replacement targets to receive a new `sourceId`.
-2. **Concise review handoff** — addressed in `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`.
-3. **Closed v1 matrix completeness** — addressed in `89a968785a09032cbf3b71f7f60c3f14b76c10ab` with dedicated v1 membership validation plus regression coverage.
-4. **Repo-relative harness cwd** — addressed in `89a968785a09032cbf3b71f7f60c3f14b76c10ab` with `cwd=ROOT` plus an external-cwd regression.
+The guide should explain existing SurfaceRelay architecture without becoming another specification.
 
-All four threads were individually rechecked and resolved. No second full CodeRabbit sweep is claimed.
-
-## Verification and decision evidence
+It classifies adapter work into three author-facing responsibility categories:
 
 ```text
-External-review RED:            #794 / 35049387890 — expected regression failure
-Correctness-fix validate:       #796 / 35049689721 — SUCCESS
-Final reviewed PR validate:     #798 / 35049891609 — SUCCESS
-Review-closure push validate:   #799 / 35050355079 — SUCCESS
-Decision-promotion PR validate: #802 / 35058068033 — 7/7 SUCCESS
-Tracking-closure push validate: #803 / 35058313792 — 7/7 SUCCESS
-Merge commit:                   50c8c482165a115b8b3b8cb740f123ecf4203041
-Post-merge main validate:       #809 / 35080877519 — 7/7 SUCCESS
-Post-merge browser:             20 files / 328/328 + typecheck
-Post-merge Python suite:        47/47 PASS
-Post-merge harness build:       PASS
-Post-merge canonical matrix:    7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+definition / import
+runtime / binding
+surface / projection
 ```
 
-Decision outcome:
+Those categories must not become a universal `Adapter` interface, plugin loader, shared lifecycle abstraction, or cross-role registry.
 
-- **D-059 — ACCEPTED:** profile + capability applicability; runner-owned selection/applicability/verdicts; raw harness observations only.
-- **D-060 — ACCEPTED:** repo-local one-scenario/one-subprocess JSON protocol, fixed 10-second timeout, argv + `shell=False`, repo-root child execution.
-- **D-061 — ACCEPTED:** canonical scenario semantics remain in the registry; target wiring stays outside the spec; mandatory positive control; closed four-scenario/two-browser-target v1 claim.
-- **D-026 — PROPOSED:** provisional binding failure-code names remain advisory and were not promoted by T-701.
+The implementation should preserve these existing invariants:
 
-## Boundary after closure
+- explicit exposure;
+- discovery permission is not invocation authorization;
+- caller input/client metadata cannot manufacture trusted actor, tenant, record, selection, confirmation, or binding authority;
+- RuntimeBindings resolve exact issued Action versions and exact issued targets;
+- stale/unknown/ambiguous/unsupported states fail closed rather than silently retargeting or guessing;
+- driver-owned host mapping remains deterministic and bounded;
+- cancellation guarantees stop at the actual framework dispatch frontier;
+- profile/capability claims follow D-059 through D-061;
+- the runner owns canonical scenario selection, applicability, and verdicts;
+- harnesses emit bounded raw observations only;
+- compatibility claims are bounded to profile, target, capabilities, repository/adapter revision, and runner revision;
+- Livewire/HTMX examples distinguish portable invariants from framework-specific techniques;
+- D-026 is not promoted into a global error enum;
+- D-062 remains proposed during implementation/review.
 
-T-701 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on `main`.
+## Verification evidence
 
-M7 remains **IN PROGRESS** because T-702/T-703/T-704 remain TODO. No T-702 implementation or publication starts automatically; the next work requires a new explicit user gate.
+Implementation-head GitHub Actions run:
+
+```text
+Head:                         04e69ecb8a4d752732f2ab85eaf0f14798944e68
+Validate run:                 #821 / 35150202622 — 7/7 SUCCESS
+Contract / scripts/validate:  PASS
+PHP matrix:                   4/4 PASS
+PHP lint:                     PASS
+Browser typecheck:            PASS
+Browser Vitest:               20 files / 328/328 PASS
+Python conformance tests:     47/47 PASS on CPython 3.12.14
+Harness build:                PASS
+Canonical runtime matrix:     7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+The canonical matrix remained:
+
+```text
+N/A  browser/htmx BIND-COMPONENT-STALE
+PASS browser/htmx BIND-EXACT-TARGET-EXECUTES
+PASS browser/htmx BIND-EXPIRED-NOT-EXECUTABLE
+PASS browser/htmx BIND-NO-SILENT-RETARGET
+PASS browser/livewire BIND-COMPONENT-STALE
+PASS browser/livewire BIND-EXACT-TARGET-EXECUTES
+PASS browser/livewire BIND-EXPIRED-NOT-EXECUTABLE
+PASS browser/livewire BIND-NO-SILENT-RETARGET
+```
+
+## Scope audit
+
+`main..feat/t-702-adapter-author-guide` contains the prior T-702 design/tracking artifacts plus the implementation plan, four adapter documents, root README navigation, and review/tracking updates only.
+
+T-702 introduces no semantic change under:
+
+```text
+packages/browser-runtime/src/**
+packages/laravel/src/**
+spec/0.1/**
+conformance/targets/**
+scripts/conformance_model.py
+scripts/run_conformance.py
+```
+
+No new dependency, profile, capability, canonical scenario, runtime driver behavior, projection implementation, OpenAPI importer, or MCP transport/projection implementation is part of this task.
+
+## Review questions
+
+Please review specifically:
+
+1. Does any guide prose accidentally create a second specification or override canonical artifacts?
+2. Are definition/import, runtime/binding, and surface/projection responsibilities clearly separated without creating a universal adapter abstraction?
+3. Is trusted context protected from caller payload/client metadata authority?
+4. Are explicit exposure and discovery-vs-invocation authorization kept separate?
+5. Are exact-target, no-silent-retarget, lifecycle/expiry, deterministic mapping, and fail-closed invariants preserved?
+6. Do cancellation statements avoid claiming rollback/server cancellation beyond the supported dispatch frontier?
+7. Are D-059/D-060/D-061 represented exactly, especially runner-owned selection/applicability/verdicts?
+8. Are harnesses described as bounded raw-observation producers only?
+9. Are capability advertisements and compatibility claims truthful and evidence-bounded?
+10. Are Livewire and HTMX techniques clearly examples rather than a universal host shape?
+11. Do D-026 and D-062 remain **PROPOSED** rather than being silently promoted through documentation?
+12. Do T-703 Laravel MCP projection and T-704 OpenAPI import remain unimplemented?
+13. Did T-702 avoid production code, canonical schema, target-manifest, and conformance-verdict semantic changes?
+
+## Required outcome before closure
+
+T-702 should remain **IMPLEMENTED / REVIEW PENDING** until external review is complete and any actionable findings are resolved with fresh exact-head verification.
+
+Do not promote D-062, close T-702, merge the branch, or begin T-703/T-704 automatically from this review request.
