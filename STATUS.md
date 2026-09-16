@@ -4,28 +4,29 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/t-702-adapter-author-guide`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-701 — Executable conformance runner`
-- **Current task:** none — awaiting an explicit next-task gate
+- **Current task:** `T-702 — Adapter author guide` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Design:** `docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md`
-- **Plan:** `docs/superpowers/plans/2026-09-15-executable-conformance-runner.md`
-- **Approved design diff base:** `05b020c94279c295068895a8163a892549327d3f`
-- **Verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
-- **External-review code-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
-- **Final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
-- **Review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
-- **Decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
-- **Final feature/tracking head:** `5da153c3c0a0f6c38d9b5f01b26899efa24ea949`
-- **Merge commit:** `50c8c482165a115b8b3b8cb740f123ecf4203041`
-- **Post-merge main CI:** `#809` / `35080877519` — **7/7 jobs SUCCESS**
-- **Post-merge browser:** **20 files / 328/328 Vitest + typecheck**
-- **Post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
-- **Post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **T-702 state:** **IN_PROGRESS — DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
+- **T-702 design branch:** `feat/t-702-adapter-author-guide`
+- **Approved T-702 design base:** `main` after T-701 closure
+- **T-701 verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
+- **T-701 external-review code-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
+- **T-701 final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
+- **T-701 review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
+- **T-701 decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
+- **T-701 final feature/tracking head:** `5da153c3c0a0f6c38d9b5f01b26899efa24ea949`
+- **T-701 merge commit:** `50c8c482165a115b8b3b8cb740f123ecf4203041`
+- **T-701 post-merge main CI:** `#809` / `35080877519` — **7/7 jobs SUCCESS**
+- **T-701 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
+- **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061` — **ACCEPTED**
-- **Existing provisional decision:** `D-026` — **PROPOSED**
-- **Next gate:** explicit T-702 scope/design gate only if separately authorized; T-702/T-703/T-704 are not started.
+- **Proposed decisions:** `D-026`, `D-062` — **PROPOSED**
+- **Next gate:** explicit T-702 implementation-plan/documentation gate only if separately authorized; implementation has not started and T-703/T-704 remain untouched.
 
 ## M6 historical evidence — preserved
 
@@ -72,7 +73,7 @@ T-604 merge:                    2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080
 T-604 post-merge validate:      34806790431 — 7/7 green
 ```
 
-`D-058` and `D-020` remain ACCEPTED from the T-604 closure. T-701 does not alter that bounded portability conclusion.
+`D-058` and `D-020` remain ACCEPTED from the T-604 closure. T-702 does not alter that bounded portability conclusion.
 
 ## T-701 implemented boundary
 
@@ -223,25 +224,50 @@ Post-merge canonical matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
 
 The main-branch execution checked out exact merge SHA `50c8c482165a115b8b3b8cb740f123ecf4203041`; the canonical runner remained green after integration.
 
+## T-702 design gate
+
+T-702 has now passed the scope/design gate only. The approved written design is:
+
+```text
+docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md
+```
+
+The design establishes these boundaries:
+
+- the Adapter Author Guide is explanatory and must not become a shadow specification;
+- import/definition, runtime/binding, and surface/projection roles are author-facing responsibility categories, not new core interfaces;
+- trusted context, exposure, authorization, exact-target, and fail-closed invariants remain canonical and are not redefined by examples;
+- profile/capability claims follow D-059 through D-061 exactly;
+- canonical scenario selection, applicability, and verdicts remain runner-owned;
+- harnesses remain raw-observation producers only;
+- verified compatibility claims must be bounded to actual profile/target/capability/revision evidence;
+- D-026 remains PROPOSED and no new global error enum is introduced;
+- T-703/T-704 are explicitly outside T-702.
+
+`D-062` is recorded as **PROPOSED**: guide prose/examples/recipes explain existing canonical behavior and cannot override or silently extend it. Any genuinely new semantic requirement discovered while authoring the guide requires a separate task/decision gate.
+
+No `docs/adapters/**` implementation has been written yet, and no production/runtime/spec/conformance semantics have changed.
+
 ## Scope audit
 
-Approved design diff base: `05b020c94279c295068895a8163a892549327d3f`.
+T-701's approved design diff base was `05b020c94279c295068895a8163a892549327d3f`.
 
-Review, decision promotion, and post-merge validation confirm:
+Review, decision promotion, post-merge validation, and the T-702 design gate confirm:
 
+- no T-702 production implementation has started;
 - no semantic changes under `packages/browser-runtime/src/**`;
 - no `packages/laravel/src/**` production changes;
-- no T-603 fixture behavior changes;
-- no standalone spec extraction;
-- no Python/npm dependency expansion for T-701;
-- no T-702/T-703/T-704 implementation.
+- no `spec/0.1/**` semantic changes for T-702;
+- no T-701 runner/verdict changes for T-702;
+- no T-703/T-704 implementation;
+- D-062 remains PROPOSED rather than accepted.
 
 ## Explicit non-goals
 
-T-701 v1 does not create or claim a public conformance SDK/certification system, standalone specification extraction, Laravel/PHP conformance target, Trust/Output/Projection conformance, real-browser orchestration in the runner, remote targets, retries, parallelism, watch mode, plugin discovery, generic assertion DSL, or automatic T-702/T-703/T-704 work.
+The current T-702 design gate does not create or claim an adapter SDK, universal adapter interface, scaffolding CLI, plugin loader, new profile/capability, new canonical scenario, new failure-code enum, compatibility registry, certification program, remote conformance system, MCP implementation, OpenAPI importer, or production Livewire/HTMX behavior change.
 
 ## Current boundary
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-701 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-702/T-703/T-704 remain TODO. No next task starts automatically; the next work requires a separate explicit user gate.
+T-702 is **IN_PROGRESS at DESIGN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and newly recorded `D-062` remain **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. No implementation starts automatically; the next work requires a separate explicit user gate.
