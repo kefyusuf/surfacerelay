@@ -143,7 +143,7 @@ Post-merge browser:              19 files / 319/319 + typecheck
 
 ## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
 
-### T-701 — Executable conformance runner — IN_PROGRESS / IMPLEMENTATION VERIFIED / EXTERNAL REVIEW PENDING
+### T-701 — Executable conformance runner — IN_PROGRESS / IMPLEMENTATION VERIFIED / EXTERNAL REVIEW COMPLETE / DECISION GATE PENDING
 
 Design / plan:
 
@@ -152,7 +152,7 @@ docs/superpowers/specs/2026-09-14-executable-conformance-runner-design.md
 docs/superpowers/plans/2026-09-15-executable-conformance-runner.md
 ```
 
-Implementation sequence completed on `feat/executable-conformance-runner`:
+Implementation sequence:
 
 ```text
 Task 1 — pure model/evaluator:                    8351954b95b94902ca91f3d0d8fe78c0d6675a49
@@ -162,53 +162,58 @@ Task 4 — Livewire process harness:                9563299aec93508b7275a44efe82
 Task 5 — HTMX process harness:                    7ef086d7547837331ca5662ebcbce49ce7b1f44a
 Task 6 — canonical scenarios/manifests:           65e978393b55ffa2f908cb1518f9b768c9e3fbc3
 Task 7 — CI + implemented conformance docs:       2c15515a77d2dd1d79ea970a2811ca0c40191ceb
+Review-prep tracking:                              041dc9126f63225de0338bdb557446906da78c62
+External-review correctness fixes:                 89a968785a09032cbf3b71f7f60c3f14b76c10ab
+Concise review handoff:                            b7d2c4aee175da80f0c97d103f915f751c6b0fc7
 ```
 
-Verified implementation head:
+Verified external-review head evidence:
 
 ```text
-Implementation head:                 2c15515a77d2dd1d79ea970a2811ca0c40191ceb
-Push validate run:                    #789 / 35016612915 — 7/7 jobs SUCCESS
+Pull request:                         #14 — feat(conformance): add executable browser conformance runner
+External-review RED:                  #794 / 35049387890 — expected failure on new review regressions
+Review-fix validate:                  #796 / 35049689721 — SUCCESS
+Final reviewed PR-head validate:      #798 / 35049891609 — SUCCESS, 7 jobs total
 Python runtime:                       CPython 3.12.14
-Conformance model + runner tests:     45/45 PASS
+Conformance model + runner tests:     47/47 PASS
 Browser runtime:                      20 files / 328/328 Vitest + typecheck
-Harness build:                        PASS (`npm run conformance:build`)
-Structural validation:                PASS (`python scripts/validate.py`)
+Harness build:                        PASS
+Structural validation:                PASS
 Canonical runtime matrix:             7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
 ```
 
-Implemented v1 boundary:
+CodeRabbit external review:
 
-- one claimed profile: `runtime-binding/driver`;
-- targets: `browser/livewire`, `browser/htmx`;
-- canonical executable scenarios: exact execution, expiry, component stale and no-silent-retarget;
+- four actionable threads were opened;
+- three valid findings were addressed: closed-v1 scenario/target completeness, repo-root subprocess cwd, and review-handoff concision;
+- the HTMX replacement-identity suggestion was not applied because D-053 requires replacement targets to receive a new opaque source identity; CodeRabbit independently rechecked and confirmed that original finding invalid;
+- all four threads were individually rechecked and resolved by CodeRabbit: **4/4 resolved / 0 unresolved**;
+- no second full CodeRabbit sweep is claimed; closure evidence is thread-level recheck plus fresh CI.
+
+Implemented v1 boundary remains:
+
+- exactly one profile: `runtime-binding/driver`;
+- exact target set: `browser/livewire`, `browser/htmx`;
+- exact executable runtime scenario set: exact execution, expiry, component stale and no-silent-retarget;
 - Livewire applies to all four; HTMX applies to three and receives runner-owned `NOT_APPLICABLE` for component stale;
-- canonical selection and PASS/FAIL authority belong to the Python runner;
+- Python runner owns canonical selection/applicability/verdicts and enforces the closed v1 target/scenario membership;
 - harnesses emit bounded raw observations only;
 - one target/scenario pair uses one fresh subprocess with a fixed 10-second timeout;
-- `recommendedCode` remains advisory;
+- manifest commands execute from repository `ROOT`, independent of caller cwd;
+- `recommendedCode` / raw `errorCode` remain advisory;
 - every claimed profile requires a mandatory positive control;
-- `scripts/validate.py` validates structure and never executes harnesses;
-- T-604 still owns the broader 11+11 package-level regression matrix;
-- T-603 remains separate real-browser/Chromium evidence.
+- `scripts/validate.py` validates structure/configuration and never executes harnesses;
+- no semantic production changes exist under `packages/browser-runtime/src/**`;
+- no dependency expansion, Laravel production change, T-603 fixture behavior change, standalone-spec extraction, or T-702/T-703/T-704 implementation appeared.
 
-Scope containment evidence:
-
-- no semantic changes under `packages/browser-runtime/src/**`;
-- no Laravel production source changes;
-- no T-603 fixture behavior changes;
-- no new Python/npm dependency for T-701;
-- no standalone-spec extraction;
-- no T-702/T-703/T-704 implementation.
-
-Decision state at external-review handoff:
+Decision state after external review:
 
 - `D-059` — **PROPOSED**;
 - `D-060` — **PROPOSED**;
 - `D-061` — **PROPOSED**;
-- `D-026` — **PROPOSED** independently; error-code recommendations remain advisory.
+- `D-026` — **PROPOSED** independently; failure-code recommendations remain advisory.
 
-Implementation and executable verification are complete. **T-701 is not yet REVIEWED or MERGED.** The next gate is external review of the exact implementation/review-prep branch. Decision promotion and merge require later explicit gates.
+External review is complete, but **T-701 is not yet decision-promoted, merged, or main-revalidated**. The next explicit gate is decision promotion for the reviewed T-701 architecture; merge remains a separate later gate.
 
 - T-702 — Adapter author guide — TODO.
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
@@ -216,4 +221,4 @@ Implementation and executable verification are complete. **T-701 is not yet REVI
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 implementation and automated verification are complete on `feat/executable-conformance-runner`, but external review and merge have not occurred. The next gate is **external review of T-701**, not T-702. Do not promote D-026/D-059/D-060/D-061, merge, begin T-702/T-703/T-704, or publish automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 implementation and external review are complete on `feat/executable-conformance-runner`, with **4/4 CodeRabbit threads resolved and 0 unresolved**. `D-026`, `D-059`, `D-060`, and `D-061` remain **PROPOSED**. The next gate is explicit T-701 decision promotion; do not merge, begin T-702/T-703/T-704, or publish automatically.
