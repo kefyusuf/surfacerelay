@@ -233,10 +233,54 @@ Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 
 **T-701 is closed.**
 
-- T-702 — Adapter author guide — TODO.
+### T-702 — Adapter author guide — IN_PROGRESS
+
+Design:
+
+```text
+docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md
+```
+
+Current gate:
+
+```text
+Branch:                  feat/t-702-adapter-author-guide
+Scope/design:            APPROVED
+Implementation:          NOT STARTED
+Decision D-062:          PROPOSED
+Production changes:      NONE
+Canonical spec changes:  NONE
+T-703/T-704 work:        NOT STARTED
+```
+
+Approved design boundary:
+
+- the Adapter Author Guide is an author-facing explanation of existing canonical contracts, accepted decisions, trust/security invariants, and executable conformance semantics; it is not a second specification;
+- author-facing adapter roles are classified as definition/import, runtime/binding, and surface/projection without creating a new universal adapter interface;
+- the guide must make core/runner authority versus adapter/harness responsibility explicit;
+- trusted context cannot be manufactured from caller input, discovery is not invocation authorization, exposure remains explicit, and unsupported/ambiguous authority states fail closed;
+- runtime/binding guidance preserves exact issued targets, no silent retargeting, deterministic mapping, lifecycle/expiry semantics, and bounded cancellation guarantees;
+- profile/capability guidance follows D-059 through D-061 exactly: targets advertise only real capabilities; the runner owns scenario selection, applicability, and verdicts; harnesses emit bounded raw observations only;
+- compatibility claims must be bounded to the actual profile, target, declared capabilities, runner/repository revision, and executable evidence;
+- examples must distinguish portable invariants from Livewire/HTMX-specific implementation techniques and remain illustrative/non-normative;
+- D-026 remains PROPOSED; T-702 creates no new global error enum;
+- any newly discovered semantic requirement requires a separate task/decision gate rather than being introduced through guide prose.
+
+Preferred future documentation shape, not yet implemented:
+
+```text
+docs/adapters/
+├── README.md
+├── author-guide.md
+├── conformance.md
+└── security.md
+```
+
+T-702 implementation must not begin automatically from the approved design. The next explicit gate may authorize an implementation plan and/or documentation implementation.
+
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on `main`. `D-059`, `D-060`, and `D-061` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN_PROGRESS** because T-702/T-703/T-704 remain TODO. No next task begins automatically; a new explicit user gate is required.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS at DESIGN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` are **PROPOSED**. T-703/T-704 remain TODO. No implementation begins automatically; a new explicit user gate is required.
