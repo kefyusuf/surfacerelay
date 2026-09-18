@@ -44,7 +44,7 @@
 - **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
 - **T-703 decisions:** `D-063`, `D-064` — **PROPOSED**
 - **T-703 implementation plan:** `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**
-- **T-703 implementation:** **STARTED — TASK 1 COMPLETE**
+- **T-703 implementation:** **STARTED — TASK 2 COMPLETE**
 - **T-703 Task 1 head:** `407a8a9c7c8a2d1d14db9252e600cf4284cb3175`
 - **T-703 Task 1 CI:** `#839` / `35324030173` — **11/11 jobs SUCCESS**
 - **T-703 Task 1 bridge matrix:** **4/4 SUCCESS**, each with **1 architecture test / 157 assertions**
@@ -380,4 +380,4 @@ Locked design direction:
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 2 COMPLETE** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation begins automatically.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 2 COMPLETE** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
