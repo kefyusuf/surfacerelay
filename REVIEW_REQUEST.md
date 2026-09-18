@@ -1,35 +1,43 @@
-# T-703 External Review Handoff — Laravel MCP Projection
+# T-703 External Review Closure — Laravel MCP Projection
 
-## Review target
+## Review state
 
 - **PR:** #16 — `feat(mcp): add optional Laravel MCP projection`
 - **Branch:** `feat/t-703-laravel-mcp-projection`
-- **State:** **IMPLEMENTED / EXTERNAL REVIEW IN PROGRESS**
+- **State:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**
+- **Review-fix head:** `2616213489228d5b47daeaafed108fa5c326e457`
 - **D-063 / D-064 / D-026:** **PROPOSED**
 - **T-704:** **NOT STARTED**
 
-This is review-only. Do not merge, promote decisions, close T-703, or begin T-704 in this gate.
+External review is complete. This record does not promote decisions, merge the PR, close T-703, or start T-704.
 
-## Key review boundaries
+## Review result
 
-- `packages/laravel` remains MCP-independent; `packages/laravel-mcp` is optional and one-way.
-- Exposure is explicit by exact Action `id + version`; only `portable` and `headless` scopes are eligible.
-- MCP arguments remain untrusted business input; trusted actor/tenant state comes only from existing server-side resolvers.
-- Confirmation receipt and idempotency key are bounded namespaced candidates, not authority.
-- Invocation converges on the existing `ActionBus` + `ActionResultNormalizer` path.
-- v1 copies canonical input schema and maps only `effect=read -> readOnlyHint=true`.
-- Route placement, authentication, OAuth, transport, and network policy remain host-owned.
-- T-701 conformance profile, targets, model, and runner remain unchanged.
+CodeRabbit's full review reported **3 actionable Minor findings**:
 
-## Verification summary
+1. design status was stale after implementation;
+2. the base-Laravel MCP namespace guard was case-sensitive;
+3. the external-review handoff was too verbose.
 
-The pre-review handoff head passed both push and PR validation at **11/11 jobs SUCCESS**. Bridge coverage was **47 tests / 337 assertions** across 4/4 Laravel MCP compatibility jobs; base Laravel remained **595 tests / 3164 assertions** across 4/4 compatibility jobs; browser remained **328/328 + typecheck**; Python conformance remained **47/47** with **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**.
+All three were fixed in `2616213489228d5b47daeaafed108fa5c326e457`, independently rechecked by CodeRabbit, and resolved: **3/3 resolved / 0 unresolved**.
 
-Detailed implementation history, exact heads, CI runs, and review-fix evidence are tracked in:
+An incremental review then inspected only the three review-fix files across `fb71d595…2616213` and completed with **CodeRabbit SUCCESS**, **review finished**, and **0 new actionable findings**.
 
-- `STATUS.md`
-- `TASKS.md`
+## Verification
 
-## External review focus
+```text
+Initial handoff push:   #864 / 35400789828 — 11/11 SUCCESS
+Initial handoff PR:     #865 / 35400893305 — 11/11 SUCCESS
+Review-fix push:        #866 / 35406029527 — 11/11 SUCCESS
+Review-fix PR:          #867 / 35406031980 — 11/11 SUCCESS
+CodeRabbit threads:     3/3 resolved / 0 unresolved
+Incremental review:     SUCCESS / no new actionable findings
+```
 
-Check dependency leakage, explicit exposure, eligible scopes, exact identity/schema projection, trust escalation, metadata authority, ActionBus convergence, structured result/error semantics, annotations, host-owned auth/OAuth/routes, unchanged T-701 conformance, and proposed-decision boundaries.
+Detailed implementation and test evidence remains in `STATUS.md` and `TASKS.md`.
+
+## Boundary after review
+
+The reviewed implementation still preserves the approved T-703 boundary: optional one-way Laravel MCP bridge, explicit exact-identity exposure, portable/headless eligibility only, untrusted MCP arguments, server-owned trusted context and confirmation/idempotency authority, ActionBus/ActionResult convergence, host-owned route/auth/OAuth policy, and unchanged T-701 conformance semantics.
+
+The next gate is **decision promotion only for D-063 and D-064**. D-026 remains independently PROPOSED. Merge/closure and T-704 remain out of scope.

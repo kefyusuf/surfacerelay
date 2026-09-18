@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / REVIEW PENDING
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED — EXTERNAL REVIEW PENDING**.
+Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED — DECISION PROMOTION PENDING**.
 
 Task 1 evidence:
 
@@ -445,7 +445,7 @@ Laravel MCP bridge suite:       47 tests / 337 assertions
 Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
 Existing validation baseline:   7/7 prior jobs remain SUCCESS
 Production bridge/core changes: NONE
-Task 8 docs/review handoff:      DOCUMENTATION VERIFIED — EXTERNAL REVIEW HANDOFF
+Task 8 docs/review handoff:      COMPLETE / EXTERNALLY REVIEWED
 ```
 
 Confirmation evidence uses the real production `ConfirmationService`, `ConfirmationStage`, `ConfirmationScopeHasher`, and `ActionExecutionStage`. A consequential call without a receipt returns `confirmation_required`; caller `confirmed=true` does not bypass; an unapproved token candidate grants no authority; a server-approved exact-scope receipt allows one execution; and the consumed receipt cannot be reused.
@@ -512,10 +512,29 @@ Task 8 created `packages/laravel-mcp/README.md`, linked the optional bridge cons
 
 Self-review passed for scope alignment, invariant/decision consistency, dependency direction, unnecessary-complexity avoidance, brownfield safety, and verification evidence. The `main...ca03e02` audit contains no changes under `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
 
-The next gate is **external review only**. D-063/D-064 and D-026 remain PROPOSED. Do not merge, close T-703, promote those decisions, or begin T-704.
+External review closure evidence:
+
+```text
+Pull request:                       #16 — feat(mcp): add optional Laravel MCP projection
+Initial review handoff head:        fb71d595053c827b740eb3cd05e8e410a76672ce
+Initial handoff push validate:      #864 / 35400789828 — 11/11 SUCCESS
+Initial handoff PR validate:        #865 / 35400893305 — 11/11 SUCCESS
+CodeRabbit actionable findings:     3 Minor
+Review-fix head:                    2616213489228d5b47daeaafed108fa5c326e457
+Review-fix push validate:           #866 / 35406029527 — 11/11 SUCCESS
+Review-fix PR validate:             #867 / 35406031980 — 11/11 SUCCESS
+CodeRabbit threads:                 3/3 confirmed addressed + resolved / 0 unresolved
+Incremental review range:           fb71d595053c827b740eb3cd05e8e410a76672ce..2616213489228d5b47daeaafed108fa5c326e457
+Incremental review files:           3
+Incremental review result:          SUCCESS / review finished / 0 new actionable findings
+```
+
+The three reviewed fixes were bounded to design-status accuracy, a case-insensitive architecture-test guard for the base-Laravel MCP dependency boundary, and a concise `REVIEW_REQUEST.md`. No production runtime behavior, canonical schema, trusted-authority rule, or T-701 conformance semantics changed.
+
+The next gate is **decision promotion only** for D-063/D-064. D-026 remains independently PROPOSED. Do not merge or close T-703, and do not begin T-704.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / REVIEW PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
