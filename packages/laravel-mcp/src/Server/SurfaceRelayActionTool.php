@@ -14,11 +14,12 @@ use SurfaceRelay\LaravelMcp\Invocation\McpActionGateway;
 use SurfaceRelay\LaravelMcp\Invocation\McpInvocationMetadata;
 
 /**
- * Discovery-only MCP representation of one explicitly exposed Action.
+ * MCP representation of one explicitly exposed SurfaceRelay Action.
  *
- * Task 3 deliberately owns no invocation behavior. Task 4 adds the gateway
- * and handle() path; this class currently projects canonical discovery data
- * only and creates no authorization or trusted runtime authority.
+ * Discovery projects canonical Action metadata only. Invocation delegates to
+ * McpActionGateway, which resolves trusted runtime context through existing
+ * server-side resolvers and converges on the existing ActionBus pipeline.
+ * This Tool creates no independent authorization or trusted runtime authority.
  */
 final class SurfaceRelayActionTool extends Tool
 {
