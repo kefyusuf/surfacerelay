@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 4 COMPLETE
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 5 COMPLETE
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **STARTED — TASK 4 COMPLETE**.
+Implementation: **STARTED — TASK 5 COMPLETE**.
 
 Task 1 evidence:
 
@@ -399,7 +399,27 @@ GREEN validate:                 #850 / 35362116668 — 11/11 SUCCESS
 Laravel MCP bridge suite:       28 tests / 236 assertions
 Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
 Existing validation baseline:   7/7 prior jobs remain SUCCESS
-Task 5 server/provider wiring:   NOT STARTED
+Task 5 server/provider wiring:   COMPLETE
+
+Task 5 evidence:
+
+```text
+Task:                           dynamic Laravel MCP server + service-provider wiring
+Initial RED contract head:      4056ecb110100d0048fee6112afa091ade23a782
+RED support-load fix head:      d9d3aa927ff9730940faf6cc156bb545d7cd5b46
+RED validate:                   #853 / 35379467242 — expected FAILURE
+RED proof:                      4 missing SurfaceRelayMcpServer errors + 1 exposure-registry singleton failure
+GREEN implementation head:      d859d822d49f497713411b780ab434ebffc27d0b
+GREEN validate:                 #854 / 35379570033 — 11/11 SUCCESS
+Laravel MCP bridge suite:       33 tests / 254 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 6 trust/output/audit work:  NOT STARTED
+```
+
+Task 5 adds `SurfaceRelayMcpServer`, which materializes only the existing explicit MCP exposure registry through `McpToolProjector`. Registered-but-unexposed Actions remain absent; projected tools are deterministic; MCP `tools/call` reaches the existing gateway/ActionBus path; rejected and confirmation-required results remain structured ActionResult envelopes.
+
+`SurfaceRelayMcpServiceProvider` now registers only one bridge-local `McpActionExposureRegistry` singleton backed by the host-provided `ActionRegistry`. It does not register routes, transports, authentication/OAuth policy, Actions, or implicit exposures.
 ```
 
 Task 4 extracts only `io.surfacerelay/confirmationReceipt` and `io.surfacerelay/idempotencyKey` from MCP metadata; unknown metadata is ignored and never copied into trusted context or generic invocation metadata. Confirmation candidates are bounded to 4096 characters; idempotency candidates must be non-empty strings up to 240 characters.
@@ -421,15 +441,15 @@ Implementation rulings:
 - canonical `ActionDefinition` ID validation already excludes characters outside the MCP tool-name character set, so Task 3 does not fabricate an invalid ActionDefinition to test impossible invalid characters. The projector still retains the full MCP name-pattern guard as defense in depth.
 ```
 
-Task 2 implements the explicit allow-list, Task 3 adds discovery projection, and Task 4 now routes MCP tool invocation through the existing trusted ActionBus pipeline. Server/provider registration remains unimplemented until Task 5.
+Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Task 4 routes invocation through the existing trusted ActionBus pipeline, and Task 5 now provides dynamic server/provider wiring without taking ownership of host route/transport/auth policy.
 ```
 
 Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 5 — dynamic Laravel MCP server + service-provider wiring. No later task begins automatically.
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 6 — trust, authorization, output-policy, and audit convergence evidence. No later task begins automatically.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 4 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 5 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
