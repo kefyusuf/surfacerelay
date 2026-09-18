@@ -53,10 +53,9 @@ final class McpPipelineTrustIntegrationTest extends TestCase
     public function test_caller_current_record_and_selection_cannot_materialize_missing_trusted_context(): void
     {
         foreach ([
-            ContextRequirement::CurrentRecord => ['current_record' => ['id' => 99]],
-            ContextRequirement::CurrentSelection => ['current_selection' => [99]],
-        ] as $requirement => $input) {
-            $requirement = ContextRequirement::from($requirement);
+            [ContextRequirement::CurrentRecord, ['current_record' => ['id' => 99]]],
+            [ContextRequirement::CurrentSelection, ['current_selection' => [99]]],
+        ] as [$requirement, $input]) {
             $definition = McpTestRuntime::pipelineDefinition(
                 'orders.context_probe',
                 1,
