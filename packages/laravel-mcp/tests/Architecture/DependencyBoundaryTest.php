@@ -45,8 +45,8 @@ final class DependencyBoundaryTest extends TestCase
                 throw new RuntimeException('Unable to read '.$file->getPathname().'.');
             }
 
-            self::assertStringNotContainsString(
-                'Laravel\\Mcp\\',
+            self::assertDoesNotMatchRegularExpression(
+                '/Laravel\\\\Mcp\\\\/i',
                 $source,
                 'Base Laravel runtime must remain MCP-independent: '.$file->getPathname(),
             );
