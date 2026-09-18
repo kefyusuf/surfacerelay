@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 7 COMPLETE
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / REVIEW PENDING
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **STARTED — TASK 7 COMPLETE**.
+Implementation: **IMPLEMENTED — EXTERNAL REVIEW PENDING**.
 
 Task 1 evidence:
 
@@ -445,7 +445,7 @@ Laravel MCP bridge suite:       47 tests / 337 assertions
 Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
 Existing validation baseline:   7/7 prior jobs remain SUCCESS
 Production bridge/core changes: NONE
-Task 8 docs/review handoff:      NOT STARTED
+Task 8 docs/review handoff:      DOCUMENTATION VERIFIED — EXTERNAL REVIEW HANDOFF
 ```
 
 Confirmation evidence uses the real production `ConfirmationService`, `ConfirmationStage`, `ConfirmationScopeHasher`, and `ActionExecutionStage`. A consequential call without a receipt returns `confirmation_required`; caller `confirmed=true` does not bypass; an unapproved token candidate grants no authority; a server-approved exact-scope receipt allows one execution; and the consumed receipt cannot be reused.
@@ -487,10 +487,35 @@ Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Tas
 
 Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 8 — documentation, full verification, and external-review handoff. No later task begins automatically.
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**.
+
+Task 8 documentation + full-verification evidence:
+
+```text
+Documentation / review-prep head:   ca03e02abfb53c1b260e05f02014bb11c2787d58
+Validate:                            #863 / 35400607926 — 11/11 SUCCESS
+Laravel MCP compatibility:           4/4 matrix jobs SUCCESS
+Laravel MCP bridge suite:            47 tests / 337 assertions
+Base Laravel compatibility:          4/4 matrix jobs SUCCESS
+Base Laravel suite:                  595 tests / 3164 assertions
+PHP lint:                            PASS
+Contract / scripts/validate.py:      PASS
+Browser typecheck:                   PASS
+Browser Vitest:                      20 files / 328/328 PASS
+Python conformance:                  47/47 PASS on CPython 3.12.14
+Harness build:                       PASS
+Canonical runtime matrix:            7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Forbidden diff audit:                EMPTY
+```
+
+Task 8 created `packages/laravel-mcp/README.md`, linked the optional bridge conservatively from the root README, and corrected the stale `SurfaceRelayActionTool` class documentation without changing behavior. The bridge remains explicitly subordinate to the maintained `laravel/mcp` implementation; the host owns route/authentication/OAuth/network policy; MCP arguments remain untrusted business input; namespaced confirmation/idempotency metadata remains non-authoritative until existing server verification.
+
+Self-review passed for scope alignment, invariant/decision consistency, dependency direction, unnecessary-complexity avoidance, brownfield safety, and verification evidence. The `main...ca03e02` audit contains no changes under `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
+
+The next gate is **external review only**. D-063/D-064 and D-026 remain PROPOSED. Do not merge, close T-703, promote those decisions, or begin T-704.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 7 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / REVIEW PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.

@@ -1,105 +1,137 @@
-# T-702 Final Closure Record — Adapter Author Guide
+# T-703 External Review Handoff — Laravel MCP Projection
 
-## Final review status
+## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Task:** `T-702 — Adapter author guide`
-- **State:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Review-only PR:** #15 — **CLOSED WITHOUT MERGE**
-- **Review base:** `7d96160286a7a8a618635fa54f1bf40a3bcc2baa`
-- **Reviewed integration/tracking head:** `618f4698f775ea5057caed0e3c7e4bcbf47f83b7`
-- **Review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
-- **CodeRabbit:** **1 actionable Minor / 1 confirmed addressed / 0 unresolved**
-- **Review-fix validate:** #830 / `35299933662` — **7/7 SUCCESS**
-- **Post-review main validate:** #832 / `35300067389` — **7/7 SUCCESS**
-- **D-059 / D-060 / D-061:** **ACCEPTED** and unchanged
+- **Branch:** `feat/t-703-laravel-mcp-projection`
+- **Task:** `T-703 — Laravel MCP projection using a maintained MCP implementation`
+- **State:** **IMPLEMENTED / REVIEW PENDING**
+- **Review base:** `912bcbdcc53f4b2340c56e2b940f2e1521f7de37`
+- **Verified documentation / review-prep head:** `ca03e02abfb53c1b260e05f02014bb11c2787d58`
+- **Validate:** #863 / `35400607926` — **11/11 SUCCESS**
+- **D-063 / D-064:** **PROPOSED**
 - **D-026:** **PROPOSED** and unchanged
-- **D-062:** **ACCEPTED**
-- **Decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
-- **Decision-promotion validate:** #834 / `35302680228` — **7/7 SUCCESS**
-- **T-703 / T-704:** **NOT STARTED**
+- **T-704:** **NOT STARTED**
 
-T-702 is externally reviewed, D-062 is accepted, and the decision-promotion head passed exact-head validation. This record closes T-702 without starting any subsequent task.
+This is an external-review handoff, not a merge or decision-promotion request. Do not treat discovery as authorization, do not widen trusted authority, and do not broaden T-701 conformance while reviewing this change.
 
 ## Review scope
 
-The review-only PR isolated the exact T-702 range from the pre-implementation main revision through the merged documentation/tracking state. CodeRabbit reviewed the design, implementation plan, four adapter documents, repository navigation, decision record, and task/status/review tracking.
+T-703 adds an optional `packages/laravel-mcp` bridge that projects explicitly exposed SurfaceRelay Actions through the maintained `laravel/mcp` package.
 
-Primary author-facing documents remain:
+Review the following boundaries:
 
-- `docs/adapters/README.md`
-- `docs/adapters/author-guide.md`
-- `docs/adapters/security.md`
-- `docs/adapters/conformance.md`
+1. **Dependency direction** — `packages/laravel` must remain MCP-independent; the optional bridge may depend on `surfacerelay/laravel` and `laravel/mcp`, never the reverse.
+2. **Explicit exposure** — only exact `Action id + version` entries explicitly added to `McpActionExposureRegistry` may appear in MCP discovery. No registry-wide, wildcard, reflection, or "latest" exposure path may exist.
+3. **Eligible scopes** — only `portable` and `headless` Actions may be exposed. `page_scoped` and `browser_local` must fail closed.
+4. **Exact projection** — tool identity must be deterministic and fail closed; canonical `inputSchema`, title, and description must not be widened or rebuilt through a second schema model.
+5. **Trust boundary** — MCP arguments remain untrusted Action input. Caller actor/tenant/current-record/current-selection fields must not become trusted context.
+6. **Metadata authority** — `io.surfacerelay/confirmationReceipt` and `io.surfacerelay/idempotencyKey` are bounded, namespaced candidates only. Existing server-side confirmation/idempotency stages remain authoritative.
+7. **Invocation convergence** — every tool call must converge on the existing `ActionBus` and `ActionResultNormalizer`; there must be no second business execution path.
+8. **Result/error boundary** — normalized `ActionResult` semantics, including rejection, failure, and `confirmation_required`, must remain structured and unchanged.
+9. **Annotations** — v1 maps only `effect=read -> readOnlyHint=true`; no unsupported semantics should be inferred.
+10. **Host authority** — route placement, authentication, OAuth, transport/network policy remain host-owned; the service provider must not auto-register them.
+11. **Conformance isolation** — T-701's closed browser conformance profile, targets, model, and runner must remain unchanged.
+12. **Decision state** — D-063/D-064 and D-026 must remain PROPOSED until a separate post-review decision gate.
 
-The approved scope contracts remain:
+## Implemented surface
 
-- `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
-- `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
+Primary bridge files:
 
-## External review finding
+- `packages/laravel-mcp/src/Exposure/**`
+- `packages/laravel-mcp/src/Projection/**`
+- `packages/laravel-mcp/src/Invocation/**`
+- `packages/laravel-mcp/src/Server/**`
+- `packages/laravel-mcp/src/SurfaceRelayMcpServiceProvider.php`
+- `packages/laravel-mcp/README.md`
 
-CodeRabbit reported one actionable Minor finding in the implementation plan preflight gate.
+Test evidence covers:
 
-Before review fix:
+- dependency isolation;
+- exact exposure and unsupported-scope rejection;
+- deterministic tool projection and schema/annotation mapping;
+- bounded MCP metadata extraction;
+- trusted-context separation;
+- authorization denial before execution;
+- sensitive-output fail-closed behavior and trusted redaction;
+- structured audit minimization;
+- maintained Laravel MCP tools/list + tools/call integration;
+- confirmation challenge/approval/single-use authority;
+- idempotency required-key, exact replay, and changed-intent conflict behavior.
 
-```bash
-git status --short
-```
+## Full verification
 
-That command displayed dirty working-tree state but did not enforce the plan's documented `working tree: clean` invariant.
-
-Reviewed fix:
-
-```bash
-test -z "$(git status --short)"
-```
-
-The fix is bounded to plan execution safety. It does not change adapter architecture, runtime behavior, canonical contracts, conformance semantics, profile/capability vocabulary, or trust authority.
-
-CodeRabbit subsequently confirmed the finding as addressed and the single review thread was resolved.
-
-## Verification evidence
-
-Review-fix exact head:
-
-```text
-Head:                         d5c67a5ee403cdd6cc5805ac072dc05f6139d309
-Validate:                     #830 / 35299933662 — 7/7 SUCCESS
-Contract / scripts/validate:  PASS
-PHP matrix:                   4/4 PASS
-PHP lint:                     PASS
-Browser typecheck:            PASS
-Browser Vitest:               20 files / 328/328 PASS
-Python conformance tests:     47/47 PASS
-Harness build:                PASS
-Canonical runtime matrix:     7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
-```
-
-The reviewed fix was then fast-forwarded to `main`.
-
-Post-review main evidence:
+Verified at `ca03e02abfb53c1b260e05f02014bb11c2787d58`:
 
 ```text
-Main head:                    d5c67a5ee403cdd6cc5805ac072dc05f6139d309
-Validate:                     #832 / 35300067389 — 7/7 SUCCESS
-Contract:                     PASS
-PHP matrix:                   4/4 PASS
-PHP lint:                     PASS
-Browser + conformance:        PASS
+Validate:                         #863 / 35400607926 — 11/11 SUCCESS
+Laravel MCP compatibility:        4/4 matrix jobs SUCCESS
+Laravel MCP bridge suite:         47 tests / 337 assertions
+Bridge composer validate:         PASS
+Base Laravel compatibility:       4/4 matrix jobs SUCCESS
+Base Laravel suite:               595 tests / 3164 assertions
+Base Laravel composer validate:   PASS
+PHP lint:                         PASS
+Contract / scripts/validate.py:   PASS
+Browser typecheck:                PASS
+Browser Vitest:                   20 files / 328/328 PASS
+Python conformance:               47/47 PASS on CPython 3.12.14
+Harness build:                    PASS
+Canonical runtime matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
 ```
 
-## Review conclusion
+Canonical runtime result remains unchanged:
 
-External review found no shadow-spec drift, authority widening, caller-input-to-trusted-context path, discovery/invocation conflation, exact-target/no-retarget regression, fail-open ambiguity, conformance-runner authority change, profile/capability expansion, D-026/D-062 promotion, or T-703/T-704 implementation.
+```text
+BIND-EXACT-TARGET-EXECUTES       Livewire PASS / HTMX PASS
+BIND-EXPIRED-NOT-EXECUTABLE     Livewire PASS / HTMX PASS
+BIND-COMPONENT-STALE             Livewire PASS / HTMX NOT_APPLICABLE
+BIND-NO-SILENT-RETARGET          Livewire PASS / HTMX PASS
+```
 
-The one actionable plan-safety finding was fixed, exact-head verified, reviewer-confirmed, and main-revalidated.
+## Scope audit
 
-## Boundary after review
+`main...ca03e02abfb53c1b260e05f02014bb11c2787d58` was audited across every changed path.
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
+The required forbidden-diff set is empty:
 
-`D-062` is **ACCEPTED** only as the reviewed guide-authority boundary. It does not authorize new adapter semantics.
+```text
+packages/laravel/src/**
+spec/0.1/**
+conformance/targets/**
+scripts/conformance_model.py
+scripts/run_conformance.py
+```
 
-**T-702 is closed.** T-703 and T-704 remain not started and require a separate explicit scope/design gate.
+No base Laravel production semantics, canonical spec semantics, or T-701 conformance semantics changed.
+
+The Task 8 documentation commit also corrected one stale class-level comment in `SurfaceRelayActionTool` that still described the pre-Task-4 discovery-only state. The change is comment-only and introduces no behavior.
+
+## Self-review
+
+**PASS** on:
+
+- scope alignment;
+- design / decision / invariant consistency;
+- one-way dependency direction;
+- explicit exposure and discovery-vs-authorization separation;
+- caller-input vs trusted-context authority;
+- confirmation/idempotency authority;
+- ActionBus/result convergence;
+- no unnecessary second protocol/runtime abstraction;
+- brownfield safety: optional package, no automatic route/auth/exposure registration;
+- verification evidence and forbidden-diff audit.
+
+No self-review blocker remains before external review.
+
+## Stop boundary
+
+T-703 is **implemented but not closed**.
+
+External review must complete before any decision-promotion or merge gate. Until then:
+
+- keep D-063 / D-064 PROPOSED;
+- keep D-026 PROPOSED;
+- do not merge T-703;
+- do not mark T-703 DONE/REVIEWED;
+- do not begin T-704.
