@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-703-laravel-mcp-projection`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-702 — Adapter author guide`
-- **Current task:** `T-703 — Laravel MCP projection` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **Current task:** `T-703 — Laravel MCP projection` — **DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -43,9 +43,10 @@
 - **T-702 decision-promotion CI:** `#834` / `35302680228` — **7/7 jobs SUCCESS**
 - **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
 - **T-703 decisions:** `D-063`, `D-064` — **PROPOSED**
-- **T-703 implementation plan:** **NOT WRITTEN**
+- **T-703 implementation plan:** `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**
 - **T-703 implementation:** **NOT STARTED**
-- **Next gate:** review/approval of the committed T-703 design, then a separate implementation-plan gate. T-704 remains TODO.
+- **T-703 design-head CI:** `#837` / `35319627802` — **7/7 jobs SUCCESS**
+- **Next gate:** explicit T-703 implementation-start approval only. T-704 remains outside the active task.
 
 ## M6 historical evidence — preserved
 
@@ -339,14 +340,14 @@ T-702 does not create or claim an adapter SDK, universal adapter interface, scaf
 
 ## T-703 scope/design gate
 
-T-703 design is approved but implementation has not started.
+T-703 design and implementation plan are approved, but implementation has not started.
 
 ```text
 Branch:                   feat/t-703-laravel-mcp-projection
 Design:                   docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
 D-063:                    PROPOSED
 D-064:                    PROPOSED
-Implementation plan:      NOT WRITTEN
+Implementation plan:      docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md — APPROVED
 Implementation:           NOT STARTED
 Production changes:       NONE
 Dependency changes:       NONE
@@ -372,4 +373,4 @@ Locked design direction:
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation begins automatically.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation begins automatically.
