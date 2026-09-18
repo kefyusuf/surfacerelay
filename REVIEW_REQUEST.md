@@ -5,7 +5,7 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `main`
 - **Task:** `T-702 — Adapter author guide`
-- **State:** **IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING**
+- **State:** **IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING**
 - **Review-only PR:** #15 — **CLOSED WITHOUT MERGE**
 - **Review base:** `7d96160286a7a8a618635fa54f1bf40a3bcc2baa`
 - **Reviewed integration/tracking head:** `618f4698f775ea5057caed0e3c7e4bcbf47f83b7`
@@ -14,10 +14,11 @@
 - **Review-fix validate:** #830 / `35299933662` — **7/7 SUCCESS**
 - **Post-review main validate:** #832 / `35300067389` — **7/7 SUCCESS**
 - **D-059 / D-060 / D-061:** **ACCEPTED** and unchanged
-- **D-026 / D-062:** **PROPOSED** and unchanged
+- **D-026:** **PROPOSED** and unchanged
+- **D-062:** **ACCEPTED** from this explicit decision-promotion gate
 - **T-703 / T-704:** **NOT STARTED**
 
-T-702 is externally reviewed but is intentionally not decision-closed by this record. D-062 promotion, if appropriate, remains a separate explicit gate.
+T-702 is externally reviewed and D-062 is now accepted by the explicit decision-promotion gate. Final task closure remains pending exact-head validation of the promotion commit.
 
 ## Review scope
 
@@ -95,8 +96,8 @@ The one actionable plan-safety finding was fixed, exact-head verified, reviewer-
 
 ## Boundary after review
 
-T-702 is **IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING**.
+T-702 is **IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING**.
 
-`D-062` remains **PROPOSED**. This review does not automatically accept it.
+`D-062` is **ACCEPTED** only as the reviewed guide-authority boundary. It does not authorize new adapter semantics.
 
-The next safe gate is only an explicit **D-062 decision-promotion / T-702 closure** decision. T-703 and T-704 remain not started.
+The next safe gate is final **T-702 closure tracking** after exact-head validation of this decision promotion. T-703 and T-704 remain not started.

@@ -233,7 +233,7 @@ Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 
 **T-701 is closed.**
 
-### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING
+### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING
 
 Design / plan:
 
@@ -268,7 +268,7 @@ Browser:                        20 files / 328/328 Vitest + typecheck
 Python conformance:             47/47 PASS on CPython 3.12.14
 Harness build:                  PASS
 Canonical runtime matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
-Decision D-062:                 PROPOSED
+Decision D-062:                 ACCEPTED
 Decision D-026:                 PROPOSED
 Production changes:             NONE
 Canonical spec changes:         NONE
@@ -284,7 +284,7 @@ Implemented boundary:
 - `docs/adapters/security.md` documents explicit exposure, discovery-vs-invocation, caller-input vs trusted-context authority, exact-target/no-retarget, fail-closed behavior, bounded cancellation, and review checks;
 - `docs/adapters/conformance.md` carries D-059 through D-061 forward without widening them: truthful profile/capability claims, runner-owned selection/applicability/verdicts, bounded raw harness observations, repo-local process semantics, revision-bounded evidence, and bounded compatibility wording;
 - D-026 remains PROPOSED and no new global error enum is introduced;
-- D-062 remains PROPOSED through implementation and requires separate review/decision evidence before any promotion;
+- D-062 is ACCEPTED only as the reviewed guide-authority boundary; it does not create or authorize new adapter semantics;
 - T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started;
 - `main..feat/t-702-adapter-author-guide` contains no semantic changes under `packages/browser-runtime/src/**`, `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
 
@@ -303,11 +303,11 @@ Post-review main validate:       #832 / 35300067389 — 7/7 SUCCESS
 
 The only actionable review finding was a documentation-plan preflight gap: `git status --short` printed dirty state without enforcing it. The plan now uses `test -z "$(git status --short)"`, matching the documented clean-working-tree gate. No adapter/runtime/spec/conformance semantics changed.
 
-T-702 is not decision-closed. D-062 remains PROPOSED and requires a separate explicit decision/closure gate. T-703/T-704 do not begin automatically.
+D-062 is now ACCEPTED from the reviewed T-702 evidence. T-702 remains closure-pending until this decision-promotion head passes exact-head validation. T-703/T-704 do not begin automatically.
 
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING** on `main`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. T-703/T-704 remain TODO. The next gate is an explicit D-062 decision-promotion / T-702 closure gate only; T-703/T-704 do not begin automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING** on `main`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. T-703/T-704 remain TODO. The next gate is final T-702 closure tracking after exact-head validation; T-703/T-704 do not begin automatically.

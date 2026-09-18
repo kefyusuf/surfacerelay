@@ -7,9 +7,9 @@
 - **Branch:** `main`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-701 — Executable conformance runner`
-- **Current task:** `T-702 — Adapter author guide` — **IMPLEMENTED / REVIEWED / DECISION PENDING**
+- **Current task:** `T-702 — Adapter author guide` — **IMPLEMENTED / REVIEWED / DECISION PROMOTED / CLOSURE PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **T-702 state:** **IN_PROGRESS — IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING**
+- **T-702 state:** **IN_PROGRESS — IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
 - **T-702 implementation plan:** `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
 - **T-702 integration:** fast-forwarded from `feat/t-702-adapter-author-guide` to `main`
@@ -32,14 +32,14 @@
 - **T-701 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
-- **Accepted decisions:** `D-059`, `D-060`, `D-061` — **ACCEPTED**
-- **Proposed decisions:** `D-026`, `D-062` — **PROPOSED**
+- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062` — **ACCEPTED**
+- **Proposed decisions:** `D-026` — **PROPOSED**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
 - **T-702 review-fix CI:** `#830` / `35299933662` — **7/7 jobs SUCCESS**
 - **T-702 post-review main CI:** `#832` / `35300067389` — **7/7 jobs SUCCESS**
-- **Next gate:** explicit D-062 decision-promotion / T-702 closure gate only. D-062 remains PROPOSED; T-703/T-704 do not begin automatically.
+- **Next gate:** final T-702 closure tracking after exact-head decision-promotion validation. D-062 is ACCEPTED; T-703/T-704 do not begin automatically.
 
 ## M6 historical evidence — preserved
 
@@ -325,7 +325,7 @@ Additional boundaries remain intact:
 - no standalone public-spec extraction;
 - no compatibility badge/certification/signing/registry infrastructure;
 - D-026 remains PROPOSED;
-- D-062 remains PROPOSED.
+- D-062 is ACCEPTED as the externally reviewed guide-authority boundary; it does not authorize new adapter semantics.
 
 ## Explicit non-goals
 
@@ -335,4 +335,4 @@ T-702 does not create or claim an adapter SDK, universal adapter interface, scaf
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING** on `main`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. The next gate is an explicit D-062 decision-promotion / T-702 closure gate only; T-703/T-704 do not begin automatically.
+T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING** on `main`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. The next gate is final T-702 closure tracking after exact-head validation; T-703/T-704 do not begin automatically.
