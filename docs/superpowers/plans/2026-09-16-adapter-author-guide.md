@@ -83,7 +83,7 @@ The implementer must prove that execution is occurring on the approved T-702 bra
 
 ```bash
 test "$(git branch --show-current)" = "feat/t-702-adapter-author-guide"
-git status --short
+test -z "$(git status --short)"
 test -f docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md
 test -f docs/superpowers/plans/2026-09-16-adapter-author-guide.md
 test ! -e docs/adapters
