@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/t-703-laravel-mcp-projection`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-702 — Adapter author guide`
-- **Current task:** none — next task requires a separate explicit gate
+- **Current task:** `T-703 — Laravel MCP projection` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -33,7 +33,7 @@
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062` — **ACCEPTED**
-- **Proposed decisions:** `D-026` — **PROPOSED**
+- **Proposed decisions:** `D-026`, `D-063`, `D-064` — **PROPOSED**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
@@ -41,7 +41,11 @@
 - **T-702 post-review main CI:** `#832` / `35300067389` — **7/7 jobs SUCCESS**
 - **T-702 decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
 - **T-702 decision-promotion CI:** `#834` / `35302680228` — **7/7 jobs SUCCESS**
-- **Next gate:** none automatically. T-703/T-704 remain TODO and require a separate explicit scope/design gate.
+- **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
+- **T-703 decisions:** `D-063`, `D-064` — **PROPOSED**
+- **T-703 implementation plan:** **NOT WRITTEN**
+- **T-703 implementation:** **NOT STARTED**
+- **Next gate:** review/approval of the committed T-703 design, then a separate implementation-plan gate. T-704 remains TODO.
 
 ## M6 historical evidence — preserved
 
@@ -333,8 +337,39 @@ Additional boundaries remain intact:
 
 T-702 does not create or claim an adapter SDK, universal adapter interface, scaffolding CLI, plugin loader, new RuntimeBinding/BindingDriver abstraction, new Action Definition field, new profile/capability, new canonical scenario, new failure-code enum, compatibility registry, certification program, remote conformance system, MCP implementation, OpenAPI importer, production Livewire/HTMX behavior change, or standalone public-spec extraction.
 
+## T-703 scope/design gate
+
+T-703 design is approved but implementation has not started.
+
+```text
+Branch:                   feat/t-703-laravel-mcp-projection
+Design:                   docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
+D-063:                    PROPOSED
+D-064:                    PROPOSED
+Implementation plan:      NOT WRITTEN
+Implementation:           NOT STARTED
+Production changes:       NONE
+Dependency changes:       NONE
+Canonical spec changes:   NONE
+T-701 conformance change: NONE
+T-704 work:               NOT STARTED
+```
+
+Locked design direction:
+
+- maintained `laravel/mcp` rather than an in-house MCP protocol implementation;
+- optional `packages/laravel-mcp` bridge with one-way dependency on `packages/laravel`;
+- MCP Tools only for v1;
+- explicit MCP exposure by exact Action identity;
+- only portable/headless action scopes;
+- MCP request arguments remain untrusted business input;
+- trusted actor/tenant authority remains existing Laravel runtime state;
+- namespaced confirmation/idempotency metadata remains non-authoritative until existing server-side verification;
+- all business invocation converges on ActionBus and ActionResultNormalizer;
+- no expansion of T-701's closed conformance profile.
+
 ## Current boundary
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on `main`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-703/T-704 remain TODO. No subsequent task begins automatically.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation begins automatically.

@@ -314,9 +314,41 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-- T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED
+
+Design:
+
+```text
+docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
+```
+
+Approved scope/design boundary:
+
+- integration uses maintained official `laravel/mcp`; SurfaceRelay does not implement MCP protocol/transports;
+- MCP integration is isolated in optional `packages/laravel-mcp`; `packages/laravel` remains MCP-independent;
+- v1 projects MCP Tools only;
+- exposure is an explicit exact-`id + version` MCP allow-list; `ActionRegistry::all()` is not exposure authority;
+- only `portable` and `headless` actions are eligible; `page_scoped` and `browser_local` fail closed;
+- MCP arguments remain untrusted Action input;
+- actor/tenant authority remains existing trusted Laravel runtime state;
+- confirmation receipt and idempotency key may enter only as namespaced non-authoritative metadata candidates and remain subject to existing server verification;
+- invocation converges on the existing ActionBus / ActionResultNormalizer path;
+- T-701 conformance scope is not broadened;
+- MCP Resources, Prompts, Apps/client support and T-704 are out of scope.
+
+Decision state:
+
+- D-063 — PROPOSED;
+- D-064 — PROPOSED;
+- D-026 remains PROPOSED independently.
+
+Implementation plan: **NOT WRITTEN**.  
+Implementation: **NOT STARTED**.
+
+The next gate is review/approval of the committed T-703 design, followed only then by an implementation-plan gate. No production code or dependency change begins automatically.
+
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-703/T-704 remain TODO. No subsequent task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / IMPLEMENTATION NOT STARTED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation or subsequent task begins automatically.
