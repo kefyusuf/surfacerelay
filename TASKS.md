@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 1 COMPLETE
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 2 COMPLETE
 
 Design:
 
@@ -356,15 +356,32 @@ Bridge architecture test:        1 test / 157 assertions on every bridge matrix 
 Composer validate --strict:      PASS on all 4 bridge jobs
 Existing validation baseline:    7/7 prior jobs remain SUCCESS
 Production MCP behavior:         NOT STARTED
-Task 2 exposure registry:        NOT STARTED
+Task 2 exposure registry:        COMPLETE
+
+Task 2 evidence:
+
+```text
+Task:                           explicit exact-identity MCP exposure registry
+RED contract head:              d7881d9f4eed15edc45ca1a1c4260a7134c78864
+RED validate:                   #841 / 35327036473 — expected FAILURE
+RED proof:                      8 exposure tests ERROR — McpActionExposureRegistry class not found
+GREEN implementation head:      d73811fb3f8a6c24ea47eb04ef3c3acf771dd3e5
+GREEN validate:                 #842 / 35327114009 — 11/11 SUCCESS
+Laravel MCP bridge suite:       9 tests / 171 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 3 projection/tool work:     NOT STARTED
+```
+
+Task 2 implements an explicit exact-`id + version` MCP allow-list only. It resolves through `ActionRegistry::get()`, never `ActionRegistry::all()`; only `portable` and `headless` scopes are eligible; `page_scoped` / `browser_local`, duplicates, and unknown exact identities fail closed. No tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been added yet.
 ```
 
 Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 2 — explicit exact-identity MCP exposure registry. No later task begins automatically.
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 3 — exact MCP tool identity and discovery projection. No later task begins automatically.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 1 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation or subsequent task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 2 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation or subsequent task begins automatically.
