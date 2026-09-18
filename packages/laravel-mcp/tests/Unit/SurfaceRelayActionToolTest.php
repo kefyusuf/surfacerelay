@@ -38,7 +38,7 @@ final class SurfaceRelayActionToolTest extends TestCase
             outputSchema: ['type' => 'object', 'properties' => ['id' => ['type' => 'string']]],
         );
 
-        $tool = new SurfaceRelayActionTool($definition, 'orders.find.v1');
+        $tool = new SurfaceRelayActionTool($definition, 'orders.find.v1', McpTestRuntime::gateway($definition)['gateway']);
 
         self::assertSame(
             [
@@ -62,7 +62,7 @@ final class SurfaceRelayActionToolTest extends TestCase
             inputSchema: ['type' => 'object'],
         );
 
-        $tool = new SurfaceRelayActionTool($definition, 'orders.cancel.v2');
+        $tool = new SurfaceRelayActionTool($definition, 'orders.cancel.v2', McpTestRuntime::gateway($definition)['gateway']);
         $array = $tool->toArray();
 
         self::assertEquals((object) [], $array['annotations']);
@@ -77,7 +77,7 @@ final class SurfaceRelayActionToolTest extends TestCase
         $first = $this->definition('alpha.action', 1, ActionEffect::Read, ['type' => 'object']);
         $second = $this->definition('zeta.action', 2, ActionEffect::ReversibleWrite, ['type' => 'object']);
 
-        $projector = new McpToolProjector(new McpToolNameProjector());
+        $projector = new McpToolProjector(new McpToolNameProjector(), McpTestRuntime::gateway($first)['gateway']);
 
         $tools = $projector->projectAll([
             new McpActionExposure($first),
@@ -92,7 +92,7 @@ final class SurfaceRelayActionToolTest extends TestCase
 
     public function test_projector_rejects_non_exposure_values(): void
     {
-        $projector = new McpToolProjector(new McpToolNameProjector());
+        $projector = new McpToolProjector(new McpToolNameProjector(), McpTestRuntime::gateway($this->definition('tools.probe', 1, ActionEffect::Read, ['type' => 'object']))['gateway']);
 
         $this->expectException(InvalidMcpToolProjection::class);
         $this->expectExceptionMessage('McpActionExposure');
@@ -104,12 +104,46 @@ final class SurfaceRelayActionToolTest extends TestCase
     {
         $definition = $this->definition('orders.find', 1, ActionEffect::Read, ['type' => 'object']);
         $exposure = new McpActionExposure($definition);
-        $projector = new McpToolProjector(new McpToolNameProjector());
+        $projector = new McpToolProjector(new McpToolNameProjector(), McpTestRuntime::gateway($definition)['gateway']);
 
         $this->expectException(InvalidMcpToolProjection::class);
         $this->expectExceptionMessage('duplicate');
 
         $projector->projectAll([$exposure, $exposure]);
+    }
+
+    public function test_handle_routes_arguments_and_meta_through_gateway_and_returns_structured_action_result(): void
+    {
+        $definition = $this->definition(
+            id: 'orders.find',
+            version: 1,
+            effect: ActionEffect::Read,
+            inputSchema: ['type' => 'object'],
+        );
+        ['gateway' => $gateway, 'auditor' => $auditor] = McpTestRuntime::gateway(
+            $definition,
+            executionOutput: ['orderId' => '42'],
+        );
+
+        $tool = new SurfaceRelayActionTool($definition, 'orders.find.v1', $gateway);
+
+        $response = $tool->handle(new Request(
+            arguments: ['orderId' => '42'],
+            meta: [
+                'io.surfacerelay/idempotencyKey' => 'idem-42',
+                'other/vendor' => 'ignored',
+            ],
+        ));
+
+        self::assertSame(
+            [
+                'status' => 'succeeded',
+                'correlationId' => $auditor->calls[0]->context->correlationId,
+                'data' => ['orderId' => '42'],
+            ],
+            $response->getStructuredContent(),
+        );
+        self::assertFalse($response->responses()->first()->isError());
     }
 
     /**
