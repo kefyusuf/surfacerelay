@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION NOT STARTED
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 1 COMPLETE
 
 Design:
 
@@ -343,12 +343,28 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **NOT STARTED**.
+Implementation: **STARTED — TASK 1 COMPLETE**.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. The next gate is explicit T-703 implementation-start approval only. No production code or dependency change begins automatically.
+Task 1 evidence:
+
+```text
+Task:                           optional Laravel MCP bridge scaffold + architecture/CI guard
+Implementation head:            407a8a9c7c8a2d1d14db9252e600cf4284cb3175
+Validate:                        #839 / 35324030173 — 11/11 SUCCESS
+Laravel MCP compatibility:       4/4 matrix jobs SUCCESS
+Bridge architecture test:        1 test / 157 assertions on every bridge matrix job
+Composer validate --strict:      PASS on all 4 bridge jobs
+Existing validation baseline:    7/7 prior jobs remain SUCCESS
+Production MCP behavior:         NOT STARTED
+Task 2 exposure registry:        NOT STARTED
+```
+
+Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
+
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 2 — explicit exact-identity MCP exposure registry. No later task begins automatically.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION NOT STARTED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation or subsequent task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 1 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No implementation or subsequent task begins automatically.
