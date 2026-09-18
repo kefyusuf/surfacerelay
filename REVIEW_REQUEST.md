@@ -3,18 +3,20 @@
 ## Review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/t-702-adapter-author-guide`
+- **Branch:** `main`
 - **Task:** `T-702 — Adapter author guide`
-- **State:** **IMPLEMENTED / REVIEW PENDING**
+- **State:** **IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING**
 - **Design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
 - **Implementation plan:** `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
 - **Verified documentation implementation head:** `04e69ecb8a4d752732f2ab85eaf0f14798944e68`
 - **Implementation-head validate:** `#821 / 35150202622` — **7/7 SUCCESS**
+- **Merged main head:** `ffd97c9a6608e37a4042d899e079ab751ecc5272`
+- **Post-merge main validate:** `#825 / 35299100221` — **7/7 SUCCESS**
 - **D-059 / D-060 / D-061:** **ACCEPTED** and unchanged
 - **D-026 / D-062:** **PROPOSED** and unchanged
 - **T-703 / T-704:** **NOT STARTED**
 
-T-702 is intentionally documentation-only. It is not closed by this request and no decision promotion is implied.
+T-702 is intentionally documentation-only. The implementation has been fast-forwarded to `main` by explicit user choice and revalidated there, but the task is not review-closed and no decision promotion is implied.
 
 ## Primary review surface
 
@@ -96,7 +98,7 @@ PASS browser/livewire BIND-NO-SILENT-RETARGET
 
 ## Scope audit
 
-`main..feat/t-702-adapter-author-guide` contains the prior T-702 design/tracking artifacts plus the implementation plan, four adapter documents, root README navigation, and review/tracking updates only.
+The pre-merge `main..feat/t-702-adapter-author-guide` diff contained only the prior T-702 design/tracking artifacts, implementation plan, four adapter documents, root README navigation, and review/tracking updates. That exact feature head was fast-forwarded to `main`.
 
 T-702 introduces no semantic change under:
 
@@ -133,4 +135,4 @@ Please review specifically:
 
 T-702 should remain **IMPLEMENTED / REVIEW PENDING** until external review is complete and any actionable findings are resolved with fresh exact-head verification.
 
-Do not promote D-062, close T-702, merge the branch, or begin T-703/T-704 automatically from this review request.
+Do not promote D-062, mark T-702 reviewed/closed, or begin T-703/T-704 automatically from this review request.

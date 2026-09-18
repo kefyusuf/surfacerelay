@@ -233,7 +233,7 @@ Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 
 **T-701 is closed.**
 
-### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / REVIEW PENDING
+### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING
 
 Design / plan:
 
@@ -254,11 +254,13 @@ docs/adapters/security.md
 Verified implementation gate:
 
 ```text
-Branch:                         feat/t-702-adapter-author-guide
+Integration:                    main fast-forward from feat/t-702-adapter-author-guide
 Scope/design:                   APPROVED
 Implementation:                 IMPLEMENTED / REVIEW PENDING
 Verified docs/navigation head:  04e69ecb8a4d752732f2ab85eaf0f14798944e68
-Validate:                       #821 / 35150202622 — 7/7 SUCCESS
+Implementation validate:        #821 / 35150202622 — 7/7 SUCCESS
+Fast-forward main head:             ffd97c9a6608e37a4042d899e079ab751ecc5272
+Post-merge main validate:           #825 / 35299100221 — 7/7 SUCCESS
 Contract / scripts/validate.py: PASS
 PHP matrix:                     4/4 PASS
 PHP lint:                       PASS
@@ -286,11 +288,11 @@ Implemented boundary:
 - T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started;
 - `main..feat/t-702-adapter-author-guide` contains no semantic changes under `packages/browser-runtime/src/**`, `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
 
-T-702 is not closed. External review is the next gate; decision promotion, merge, main revalidation, T-703, and T-704 do not begin automatically.
+T-702 is not closed. Integration to `main` occurred by explicit user choice and exact-head post-merge validation is green. External review remains the next gate; D-062 promotion and T-703/T-704 do not begin automatically.
 
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEW PENDING** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. T-703/T-704 remain TODO. The next gate is T-702 external review; no decision promotion, merge, or subsequent task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING** on `main`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. T-703/T-704 remain TODO. The next gate is T-702 external review; no D-062 promotion or subsequent task begins automatically.

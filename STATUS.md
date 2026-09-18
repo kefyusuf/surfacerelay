@@ -4,17 +4,19 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/t-702-adapter-author-guide`
+- **Branch:** `main`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-701 — Executable conformance runner`
 - **Current task:** `T-702 — Adapter author guide` — **IMPLEMENTED / REVIEW PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **T-702 state:** **IN_PROGRESS — IMPLEMENTED / REVIEW PENDING**
+- **T-702 state:** **IN_PROGRESS — IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
 - **T-702 implementation plan:** `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
-- **T-702 branch:** `feat/t-702-adapter-author-guide`
+- **T-702 integration:** fast-forwarded from `feat/t-702-adapter-author-guide` to `main`
 - **T-702 verified documentation head:** `04e69ecb8a4d752732f2ab85eaf0f14798944e68`
 - **T-702 implementation-head CI:** `#821` / `35150202622` — **7/7 jobs SUCCESS**
+- **T-702 merged main head:** `ffd97c9a6608e37a4042d899e079ab751ecc5272`
+- **T-702 post-merge main CI:** `#825` / `35299100221` — **7/7 jobs SUCCESS**
 - **T-702 browser evidence:** **20 files / 328/328 Vitest + typecheck**
 - **T-702 Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-702 canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
@@ -32,7 +34,7 @@
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061` — **ACCEPTED**
 - **Proposed decisions:** `D-026`, `D-062` — **PROPOSED**
-- **Next gate:** T-702 external review. T-702 is not closed; D-062 is not promoted; merge and T-703/T-704 do not begin automatically.
+- **Next gate:** T-702 external review. T-702 is not closed; D-062 remains PROPOSED; T-703/T-704 do not begin automatically.
 
 ## M6 historical evidence — preserved
 
@@ -294,7 +296,7 @@ BIND-NO-SILENT-RETARGET          Livewire PASS / HTMX PASS
 
 ## Scope audit
 
-`main..feat/t-702-adapter-author-guide` was inspected before review tracking was recorded.
+The pre-merge `main..feat/t-702-adapter-author-guide` diff was inspected before integration; the same exact feature head was then fast-forwarded to `main`.
 
 T-702 implementation adds documentation/navigation/tracking only and introduces no semantic changes under:
 
@@ -328,4 +330,4 @@ T-702 does not create or claim an adapter SDK, universal adapter interface, scaf
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEW PENDING** on `feat/t-702-adapter-author-guide`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. The next gate is T-702 external review; no decision promotion, merge, or subsequent task begins automatically.
+T-702 is **IN_PROGRESS / IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING** on `main`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. M7 remains **IN PROGRESS**. T-703/T-704 remain TODO. The next gate is T-702 external review; no D-062 promotion or subsequent task begins automatically.
