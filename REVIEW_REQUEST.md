@@ -1,27 +1,40 @@
-# T-703 Decision Promotion Record — Laravel MCP Projection
+# T-703 Final Closure Record — Laravel MCP Projection
 
-## State
+## Final state
 
-- **PR:** #16 — OPEN / UNMERGED
-- **Branch:** `feat/t-703-laravel-mcp-projection`
-- **T-703:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **Task:** T-703 — Laravel MCP projection
+- **State:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **PR:** #16 — **MERGED**
+- **Final feature head:** `9c6fe28296801158ca86810fc04ed48a3099707c`
+- **Merge commit:** `99551c4f796c25c560821930c8b4ffc2443aadef`
 - **D-063:** **ACCEPTED**
 - **D-064:** **ACCEPTED**
 - **D-026:** **PROPOSED** — unchanged
 - **T-704:** **NOT STARTED**
 
-This gate promotes only the two reviewed T-703 decisions. It does not merge the PR, close T-703, or start T-704.
+## Closure evidence
 
-## Promotion basis
+```text
+Decision-promotion push:     #870 / 35407058010 — 11/11 SUCCESS
+Decision-promotion PR:       #871 / 35407059787 — 11/11 SUCCESS
+Post-merge main:             #872 / 35407443826 — 11/11 SUCCESS
+Laravel MCP matrix:          4/4 SUCCESS
+Laravel MCP bridge suite:    47 tests / 337 assertions
+Base Laravel matrix:         4/4 SUCCESS
+Base Laravel suite:          595 tests / 3164 assertions
+Browser:                     20 files / 328/328 PASS + typecheck
+Python conformance:          47/47 PASS
+Canonical runtime matrix:    7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Contract validation:         PASS
+PHP lint:                    PASS
+```
 
-D-063 matches the reviewed implementation: maintained `laravel/mcp` is isolated in optional `packages/laravel-mcp`; base `packages/laravel` remains MCP-independent; SurfaceRelay does not implement MCP protocol, transport, OAuth, session, or generic compatibility mechanics.
+External review previously closed **3/3 actionable findings / 0 unresolved**, and the incremental review completed with **0 new actionable findings**.
 
-D-064 matches the reviewed implementation: only explicitly exposed exact Action identities with `portable` or `headless` scope project as tools; MCP arguments remain untrusted; trusted actor/tenant state comes from existing server resolvers; confirmation/idempotency metadata remains non-authoritative until existing server verification; invocation converges on `ActionBus` and normalized `ActionResult`.
+## Preserved boundaries
 
-External review closed **3/3 actionable findings / 0 unresolved**, followed by an incremental CodeRabbit **SUCCESS** with **0 new actionable findings**. Review-fix push/PR CI and review-closure push/PR CI were all green.
+Closure does not alter the reviewed T-703 semantics: the MCP bridge remains optional and one-way; exposure remains explicit and exact-versioned; only portable/headless Actions are eligible; MCP arguments remain untrusted; trusted actor/tenant and confirmation/idempotency authority remain server-owned; invocation converges on the existing ActionBus and normalized ActionResult path; host auth/OAuth/routes remain host-owned; T-701 conformance remains unchanged.
 
-## Boundary
+## Next boundary
 
-D-063/D-064 acceptance is revision- and scope-bounded to the reviewed T-703 Laravel MCP bridge. It does not promote D-026, expand T-701 conformance, modify canonical schemas, authorize automatic MCP exposure, or approve T-704.
-
-The next gate is merge + post-merge main revalidation planning only.
+No later task starts automatically. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.

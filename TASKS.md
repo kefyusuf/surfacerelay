@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
+### T-703 — Laravel MCP projection using a maintained MCP implementation — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED — MERGE PENDING**.
+Implementation: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
 
 Task 1 evidence:
 
@@ -548,10 +548,29 @@ T-704 work:                         NOT STARTED
 
 D-063 is accepted because the reviewed implementation uses maintained `laravel/mcp` only inside the optional bridge and preserves base-Laravel MCP independence. D-064 is accepted because the reviewed implementation exactly enforces explicit exact-identity exposure, portable/headless eligibility, untrusted MCP arguments, server-owned trusted context and confirmation/idempotency authority, and ActionBus/normalized-ActionResult convergence.
 
-The next gate is **merge + post-merge main revalidation planning only**. Do not merge automatically in this decision-promotion gate, do not close T-703 yet, and do not begin T-704.
+Final merge / main revalidation evidence:
+
+```text
+Final feature head:                  9c6fe28296801158ca86810fc04ed48a3099707c
+Decision-promotion push validate:    #870 / 35407058010 — 11/11 SUCCESS
+Decision-promotion PR validate:      #871 / 35407059787 — 11/11 SUCCESS
+Pull request:                        #16 — MERGED
+Merge commit:                        99551c4f796c25c560821930c8b4ffc2443aadef
+Post-merge main validate:            #872 / 35407443826 — 11/11 SUCCESS
+Laravel MCP compatibility:           4/4 matrix jobs SUCCESS
+Laravel MCP bridge suite:            47 tests / 337 assertions
+Base Laravel compatibility:          4/4 matrix jobs SUCCESS
+Base Laravel suite:                  595 tests / 3164 assertions
+Browser:                             20 files / 328/328 PASS + typecheck
+Python conformance:                  47/47 PASS
+Canonical runtime matrix:            7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Contract / lint:                     PASS
+```
+
+T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
