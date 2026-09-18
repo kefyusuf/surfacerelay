@@ -233,7 +233,7 @@ Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 
 **T-701 is closed.**
 
-### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING
+### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING
 
 Design / plan:
 
@@ -256,7 +256,7 @@ Verified implementation gate:
 ```text
 Integration:                    main fast-forward from feat/t-702-adapter-author-guide
 Scope/design:                   APPROVED
-Implementation:                 IMPLEMENTED / REVIEW PENDING
+Implementation:                 IMPLEMENTED / REVIEWED / DECISION PENDING
 Verified docs/navigation head:  04e69ecb8a4d752732f2ab85eaf0f14798944e68
 Implementation validate:        #821 / 35150202622 — 7/7 SUCCESS
 Fast-forward main head:             ffd97c9a6608e37a4042d899e079ab751ecc5272
@@ -288,11 +288,26 @@ Implemented boundary:
 - T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started;
 - `main..feat/t-702-adapter-author-guide` contains no semantic changes under `packages/browser-runtime/src/**`, `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
 
-T-702 is not closed. Integration to `main` occurred by explicit user choice and exact-head post-merge validation is green. External review remains the next gate; D-062 promotion and T-703/T-704 do not begin automatically.
+External review closure:
+
+```text
+Review-only PR:                 #15 — CLOSED WITHOUT MERGE
+Review range:                    7d96160286a7a8a618635fa54f1bf40a3bcc2baa..618f4698f775ea5057caed0e3c7e4bcbf47f83b7
+CodeRabbit actionable findings:  1 Minor
+Review fix:                      d5c67a5ee403cdd6cc5805ac072dc05f6139d309
+Review-fix validate:             #830 / 35299933662 — 7/7 SUCCESS
+CodeRabbit threads:              1/1 confirmed addressed / 0 unresolved
+Reviewed fix on main:            d5c67a5ee403cdd6cc5805ac072dc05f6139d309
+Post-review main validate:       #832 / 35300067389 — 7/7 SUCCESS
+```
+
+The only actionable review finding was a documentation-plan preflight gap: `git status --short` printed dirty state without enforcing it. The plan now uses `test -z "$(git status --short)"`, matching the documented clean-working-tree gate. No adapter/runtime/spec/conformance semantics changed.
+
+T-702 is not decision-closed. D-062 remains PROPOSED and requires a separate explicit decision/closure gate. T-703/T-704 do not begin automatically.
 
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / MERGED / MAIN REVALIDATED / REVIEW PENDING** on `main`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. T-703/T-704 remain TODO. The next gate is T-702 external review; no D-062 promotion or subsequent task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PENDING** on `main`. `D-059`, `D-060`, and `D-061` remain **ACCEPTED**; `D-026` and `D-062` remain **PROPOSED**. T-703/T-704 remain TODO. The next gate is an explicit D-062 decision-promotion / T-702 closure gate only; T-703/T-704 do not begin automatically.
