@@ -175,6 +175,10 @@ final class SurfaceRelayMcpServerIntegrationTest extends TestCase
             $registry->register($definition);
         }
 
+        // Load the Task 4 support file through its PSR-4 primary class before
+        // using the additional test-only classes declared in that same file.
+        $trustedContext = McpTestRuntime::composer('trusted-user', 'trusted-tenant');
+
         $auditor = new CapturingActionPipelineAuditor();
         $handlers = [];
 
@@ -212,7 +216,6 @@ final class SurfaceRelayMcpServerIntegrationTest extends TestCase
         }
 
         $bus = new ActionBus($registry, $auditor, $handlers);
-        $trustedContext = McpTestRuntime::composer('trusted-user', 'trusted-tenant');
 
         $this->app->instance(ActionRegistry::class, $registry);
         $this->app->instance(ActionBus::class, $bus);
