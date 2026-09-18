@@ -11,6 +11,15 @@ use SurfaceRelay\Laravel\Audit\AuditEvent;
 use SurfaceRelay\Laravel\Audit\AuditEventFactory;
 use SurfaceRelay\Laravel\Audit\AuditEventStore;
 use SurfaceRelay\Laravel\Audit\StructuredActionPipelineAuditor;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationClock;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationRecord;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationRecordState;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationScopeHasher;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationService;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationStage;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationStore;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationTokenGenerator;
+use SurfaceRelay\Laravel\Contracts\ActionExecutor;
 use SurfaceRelay\Laravel\Contracts\AuthenticatedActorResolver;
 use SurfaceRelay\Laravel\Contracts\TenantResolver;
 use SurfaceRelay\Laravel\Definition\ActionDefinition;
@@ -22,6 +31,17 @@ use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
 use SurfaceRelay\Laravel\Enums\OutputContentTrust;
 use SurfaceRelay\Laravel\Enums\OutputSensitivity;
 use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyClock;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyIntentHasher;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyKeyHasher;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyKeyValidator;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyRecord;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyRecordState;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyReplayCodec;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyService;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyStage;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyStore;
+use SurfaceRelay\Laravel\Idempotency\IdempotencyStoreClaimResult;
 use SurfaceRelay\Laravel\OutputPolicy\OutputPolicyContext;
 use SurfaceRelay\Laravel\OutputPolicy\OutputPolicyStage;
 use SurfaceRelay\Laravel\OutputPolicy\OutputRedactionResult;
@@ -32,6 +52,7 @@ use SurfaceRelay\Laravel\Runtime\Context\ContextProvenance;
 use SurfaceRelay\Laravel\Runtime\Context\ResolvedTrustedValue;
 use SurfaceRelay\Laravel\Runtime\Context\TrustedContextComposer;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionBus;
+use SurfaceRelay\Laravel\Runtime\Pipeline\ActionExecutionStage;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionCall;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineAuditor;
 use SurfaceRelay\Laravel\Runtime\Pipeline\ActionPipelineDecision;
@@ -201,6 +222,138 @@ final class McpTestRuntime
             ],
             JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE,
         );
+    }
+
+    /**
+     * @return array{
+     *   definition: ActionDefinition,
+     *   gateway: McpActionGateway,
+     *   confirmationService: ConfirmationService,
+     *   executor: CountingMcpActionExecutor
+     * }
+     */
+    public static function confirmationAuthorityRuntime(): array
+    {
+        $definition = new ActionDefinition(
+            id: 'orders.cancel',
+            version: 1,
+            title: 'Cancel order',
+            description: 'Exercises MCP confirmation authority.',
+            inputSchema: ['type' => 'object'],
+            scope: ActionScope::Portable,
+            effect: ActionEffect::ExternalSideEffect,
+            risk: ActionRisk::Consequential,
+            idempotency: IdempotencyPolicy::None,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
+            contextRequirements: [],
+        );
+
+        $registry = new InMemoryActionRegistry();
+        $registry->register($definition);
+
+        $clock = new FixedMcpAuthorityClock();
+        $confirmationStore = new InMemoryMcpConfirmationStore();
+        $confirmationService = new ConfirmationService(
+            $confirmationStore,
+            $clock,
+            new SequentialMcpConfirmationTokenGenerator(),
+        );
+        $executor = new CountingMcpActionExecutor();
+
+        $bus = new ActionBus(
+            $registry,
+            new CapturingActionPipelineAuditor(),
+            [
+                new McpTestStageHandler(ActionPipelineStage::InputValidation),
+                new McpTestStageHandler(ActionPipelineStage::Authorization),
+                new McpTestStageHandler(ActionPipelineStage::Idempotency),
+                new ConfirmationStage(
+                    $confirmationService,
+                    new ConfirmationScopeHasher(),
+                ),
+                new ActionExecutionStage($executor),
+                new OutputPolicyStage(),
+            ],
+        );
+
+        return [
+            'definition' => $definition,
+            'gateway' => new McpActionGateway(
+                $bus,
+                new ActionResultNormalizer(),
+                self::composer('trusted-user', 'trusted-tenant'),
+            ),
+            'confirmationService' => $confirmationService,
+            'executor' => $executor,
+        ];
+    }
+
+    /**
+     * @return array{
+     *   definition: ActionDefinition,
+     *   gateway: McpActionGateway,
+     *   executor: CountingMcpActionExecutor,
+     *   idempotencyStore: InMemoryMcpIdempotencyStore
+     * }
+     */
+    public static function idempotencyAuthorityRuntime(): array
+    {
+        $definition = new ActionDefinition(
+            id: 'orders.update',
+            version: 1,
+            title: 'Update order',
+            description: 'Exercises MCP idempotency authority.',
+            inputSchema: ['type' => 'object'],
+            scope: ActionScope::Portable,
+            effect: ActionEffect::ReversibleWrite,
+            risk: ActionRisk::Low,
+            idempotency: IdempotencyPolicy::RequiredKey,
+            outputSensitivity: OutputSensitivity::Normal,
+            outputContentTrust: OutputContentTrust::TrustedApplicationData,
+            contextRequirements: [],
+        );
+
+        $registry = new InMemoryActionRegistry();
+        $registry->register($definition);
+
+        $clock = new FixedMcpAuthorityClock();
+        $store = new InMemoryMcpIdempotencyStore();
+        $service = new IdempotencyService(
+            $store,
+            $clock,
+            new IdempotencyReplayCodec(),
+        );
+        $executor = new CountingMcpActionExecutor();
+
+        $bus = new ActionBus(
+            $registry,
+            new CapturingActionPipelineAuditor(),
+            [
+                new McpTestStageHandler(ActionPipelineStage::InputValidation),
+                new McpTestStageHandler(ActionPipelineStage::Authorization),
+                new IdempotencyStage(
+                    new IdempotencyKeyValidator(),
+                    new IdempotencyKeyHasher(),
+                    new IdempotencyIntentHasher(),
+                    $service,
+                ),
+                new McpTestStageHandler(ActionPipelineStage::Confirmation),
+                new ActionExecutionStage($executor, $service),
+                new OutputPolicyStage(),
+            ],
+        );
+
+        return [
+            'definition' => $definition,
+            'gateway' => new McpActionGateway(
+                $bus,
+                new ActionResultNormalizer(),
+                self::composer('trusted-user', 'trusted-tenant'),
+            ),
+            'executor' => $executor,
+            'idempotencyStore' => $store,
+        ];
     }
 
     public static function composer(
@@ -388,5 +541,191 @@ final class InMemoryMcpAuditEventStore implements AuditEventStore
     public function append(AuditEvent $event): void
     {
         $this->events[] = $event;
+    }
+}
+
+
+final class FixedMcpAuthorityClock implements ConfirmationClock, IdempotencyClock
+{
+    public function __construct(
+        private int $timestamp = 1_800_000_000,
+    ) {}
+
+    public function now(): int
+    {
+        return $this->timestamp;
+    }
+}
+
+final class SequentialMcpConfirmationTokenGenerator implements ConfirmationTokenGenerator
+{
+    private int $sequence = 0;
+
+    public function generate(): string
+    {
+        $prefix = str_pad(
+            base_convert((string) $this->sequence++, 10, 36),
+            6,
+            '0',
+            STR_PAD_LEFT,
+        );
+
+        return $prefix.str_repeat('A', 37);
+    }
+}
+
+final class InMemoryMcpConfirmationStore implements ConfirmationStore
+{
+    /** @var array<string, ConfirmationRecord> */
+    private array $records = [];
+
+    public function createPending(
+        string $tokenHash,
+        ConfirmationRecord $record,
+        int $ttlSeconds,
+    ): bool {
+        if (isset($this->records[$tokenHash])) {
+            return false;
+        }
+
+        $this->records[$tokenHash] = $record;
+
+        return true;
+    }
+
+    public function approvePending(
+        string $tokenHash,
+        int $now,
+        int $receiptExpiresAt,
+    ): bool {
+        $record = $this->records[$tokenHash] ?? null;
+
+        if (
+            $record === null
+            || $record->state !== ConfirmationRecordState::Pending
+            || $now >= $record->challengeExpiresAt
+        ) {
+            return false;
+        }
+
+        $this->records[$tokenHash] = new ConfirmationRecord(
+            state: ConfirmationRecordState::Approved,
+            scopeFingerprint: $record->scopeFingerprint,
+            summary: $record->summary,
+            issuedAt: $record->issuedAt,
+            challengeExpiresAt: $record->challengeExpiresAt,
+            receiptExpiresAt: $receiptExpiresAt,
+        );
+
+        return true;
+    }
+
+    public function consumeApproved(
+        string $tokenHash,
+        string $expectedScopeFingerprint,
+        int $now,
+    ): bool {
+        $record = $this->records[$tokenHash] ?? null;
+
+        if (
+            $record === null
+            || $record->state !== ConfirmationRecordState::Approved
+            || $record->receiptExpiresAt === null
+            || $now >= $record->receiptExpiresAt
+            || !hash_equals($record->scopeFingerprint, $expectedScopeFingerprint)
+        ) {
+            return false;
+        }
+
+        unset($this->records[$tokenHash]);
+
+        return true;
+    }
+}
+
+final class InMemoryMcpIdempotencyStore implements IdempotencyStore
+{
+    /** @var array<string, IdempotencyRecord> */
+    private array $records = [];
+
+    public function find(string $keyHash): ?IdempotencyRecord
+    {
+        return $this->records[$keyHash] ?? null;
+    }
+
+    public function claim(
+        IdempotencyRecord $fresh,
+        int $now,
+    ): IdempotencyStoreClaimResult {
+        $existing = $this->records[$fresh->keyHash] ?? null;
+
+        if ($existing !== null && $existing->isActiveAt($now)) {
+            return IdempotencyStoreClaimResult::existing($existing);
+        }
+
+        $this->records[$fresh->keyHash] = $fresh;
+
+        return IdempotencyStoreClaimResult::claimed($fresh);
+    }
+
+    public function complete(
+        string $keyHash,
+        string $intentFingerprint,
+        string $outputPayload,
+    ): void {
+        $record = $this->records[$keyHash]
+            ?? throw new \RuntimeException('Missing MCP idempotency claim.');
+
+        if (!hash_equals($record->intentFingerprint, $intentFingerprint)) {
+            throw new \RuntimeException('MCP idempotency intent mismatch.');
+        }
+
+        $this->records[$keyHash] = new IdempotencyRecord(
+            keyHash: $record->keyHash,
+            intentFingerprint: $record->intentFingerprint,
+            state: IdempotencyRecordState::Completed,
+            outputPayload: $outputPayload,
+            createdAt: $record->createdAt,
+            expiresAt: $record->expiresAt,
+        );
+    }
+
+    public function markIndeterminate(
+        string $keyHash,
+        string $intentFingerprint,
+    ): void {
+        $record = $this->records[$keyHash]
+            ?? throw new \RuntimeException('Missing MCP idempotency claim.');
+
+        if (!hash_equals($record->intentFingerprint, $intentFingerprint)) {
+            throw new \RuntimeException('MCP idempotency intent mismatch.');
+        }
+
+        $this->records[$keyHash] = new IdempotencyRecord(
+            keyHash: $record->keyHash,
+            intentFingerprint: $record->intentFingerprint,
+            state: IdempotencyRecordState::Indeterminate,
+            outputPayload: null,
+            createdAt: $record->createdAt,
+            expiresAt: $record->expiresAt,
+        );
+    }
+}
+
+final class CountingMcpActionExecutor implements ActionExecutor
+{
+    public int $calls = 0;
+
+    public function execute(
+        ActionDefinition $definition,
+        array $input,
+        \SurfaceRelay\Laravel\Runtime\InvocationContext $context,
+    ): mixed {
+        $this->calls++;
+
+        return [
+            'action' => $definition->id,
+            'input' => $input,
+        ];
     }
 }
