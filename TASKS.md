@@ -233,7 +233,7 @@ Post-merge canonical matrix:         7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 
 **T-701 is closed.**
 
-### T-702 — Adapter author guide — IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING
+### T-702 — Adapter author guide — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Design / plan:
 
@@ -256,7 +256,7 @@ Verified implementation gate:
 ```text
 Integration:                    main fast-forward from feat/t-702-adapter-author-guide
 Scope/design:                   APPROVED
-Implementation:                 IMPLEMENTED / REVIEWED / DECISION PENDING
+Implementation:                 DONE / REVIEWED / MERGED / MAIN REVALIDATED
 Verified docs/navigation head:  04e69ecb8a4d752732f2ab85eaf0f14798944e68
 Implementation validate:        #821 / 35150202622 — 7/7 SUCCESS
 Fast-forward main head:             ffd97c9a6608e37a4042d899e079ab751ecc5272
@@ -303,11 +303,20 @@ Post-review main validate:       #832 / 35300067389 — 7/7 SUCCESS
 
 The only actionable review finding was a documentation-plan preflight gap: `git status --short` printed dirty state without enforcing it. The plan now uses `test -z "$(git status --short)"`, matching the documented clean-working-tree gate. No adapter/runtime/spec/conformance semantics changed.
 
-D-062 is now ACCEPTED from the reviewed T-702 evidence. T-702 remains closure-pending until this decision-promotion head passes exact-head validation. T-703/T-704 do not begin automatically.
+Decision promotion / closure evidence:
+
+```text
+Decision:                        D-062 — ACCEPTED
+Decision-promotion head:         f37955979bf0c45878b449b5dd7c608046d94fb4
+Decision-promotion validate:     #834 / 35302680228 — 7/7 SUCCESS
+Contract / PHP / browser matrix: PASS
+```
+
+**T-702 is closed.** T-703/T-704 do not begin automatically.
 
 - T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-702 is **IN_PROGRESS / IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING** on `main`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. T-703/T-704 remain TODO. The next gate is final T-702 closure tracking after exact-head validation; T-703/T-704 do not begin automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-703/T-704 remain TODO. No subsequent task begins automatically.

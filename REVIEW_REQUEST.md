@@ -1,11 +1,11 @@
-# T-702 External Review Closure Record — Adapter Author Guide
+# T-702 Final Closure Record — Adapter Author Guide
 
 ## Final review status
 
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `main`
 - **Task:** `T-702 — Adapter author guide`
-- **State:** **IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING**
+- **State:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **Review-only PR:** #15 — **CLOSED WITHOUT MERGE**
 - **Review base:** `7d96160286a7a8a618635fa54f1bf40a3bcc2baa`
 - **Reviewed integration/tracking head:** `618f4698f775ea5057caed0e3c7e4bcbf47f83b7`
@@ -15,10 +15,12 @@
 - **Post-review main validate:** #832 / `35300067389` — **7/7 SUCCESS**
 - **D-059 / D-060 / D-061:** **ACCEPTED** and unchanged
 - **D-026:** **PROPOSED** and unchanged
-- **D-062:** **ACCEPTED** from this explicit decision-promotion gate
+- **D-062:** **ACCEPTED**
+- **Decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
+- **Decision-promotion validate:** #834 / `35302680228` — **7/7 SUCCESS**
 - **T-703 / T-704:** **NOT STARTED**
 
-T-702 is externally reviewed and D-062 is now accepted by the explicit decision-promotion gate. Final task closure remains pending exact-head validation of the promotion commit.
+T-702 is externally reviewed, D-062 is accepted, and the decision-promotion head passed exact-head validation. This record closes T-702 without starting any subsequent task.
 
 ## Review scope
 
@@ -96,8 +98,8 @@ The one actionable plan-safety finding was fixed, exact-head verified, reviewer-
 
 ## Boundary after review
 
-T-702 is **IMPLEMENTED / REVIEWED / MERGED / MAIN REVALIDATED / DECISION PROMOTED / CLOSURE PENDING**.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
 
 `D-062` is **ACCEPTED** only as the reviewed guide-authority boundary. It does not authorize new adapter semantics.
 
-The next safe gate is final **T-702 closure tracking** after exact-head validation of this decision promotion. T-703 and T-704 remain not started.
+**T-702 is closed.** T-703 and T-704 remain not started and require a separate explicit scope/design gate.
