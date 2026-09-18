@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 2 COMPLETE
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 3 COMPLETE
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **STARTED — TASK 1 COMPLETE**.
+Implementation: **STARTED — TASK 3 COMPLETE**.
 
 Task 1 evidence:
 
@@ -370,18 +370,40 @@ GREEN validate:                 #842 / 35327114009 — 11/11 SUCCESS
 Laravel MCP bridge suite:       9 tests / 171 assertions
 Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
 Existing validation baseline:   7/7 prior jobs remain SUCCESS
-Task 3 projection/tool work:     NOT STARTED
+Task 3 projection/tool work:     COMPLETE
+
+Task 3 evidence:
+
+```text
+Task:                           exact MCP tool identity + discovery projection
+RED contract head:              624392b0ba03d652100a4c7dbf7a41952afc7ed1
+RED validate:                   #845 / 35328979749 — expected FAILURE
+RED proof:                      9 new projection/tool tests ERROR — projector/tool classes not found
+GREEN implementation head:      5892bb4361a1f829c5b2ebae9185b1d11ae4781a
+GREEN validate:                 #846 / 35329092370 — 11/11 SUCCESS
+Laravel MCP bridge suite:       18 tests / 190 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 4 invocation work:          NOT STARTED
 ```
 
-Task 2 implements an explicit exact-`id + version` MCP allow-list only. It resolves through `ActionRegistry::get()`, never `ActionRegistry::all()`; only `portable` and `headless` scopes are eligible; `page_scoped` / `browser_local`, duplicates, and unknown exact identities fail closed. No tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been added yet.
+Task 3 projects exact tool names as `<action-id>.v<version>`, rejects projected names outside the MCP 128-character grammar, copies the canonical Action input schema directly, maps only `effect=read -> readOnlyHint=true`, emits no MCP output schema, and rejects duplicate/non-exposure projector input.
+
+Implementation rulings:
+
+- `McpActionGateway` remains owned by Task 4; Task 3 does not introduce a fake or empty invocation gateway merely to satisfy a future constructor shape. `SurfaceRelayActionTool` is discovery-only until Task 4 adds invocation.
+- canonical `ActionDefinition` ID validation already excludes characters outside the MCP tool-name character set, so Task 3 does not fabricate an invalid ActionDefinition to test impossible invalid characters. The projector still retains the full MCP name-pattern guard as defense in depth.
+```
+
+Task 2 implements an explicit exact-`id + version` MCP allow-list only. Task 3 now adds discovery projection over that explicit list. MCP invocation gateway, server wiring, and trusted-authority behavior remain unimplemented.
 ```
 
 Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 3 — exact MCP tool identity and discovery projection. No later task begins automatically.
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 4 — bounded MCP request metadata parsing + ActionBus gateway. No later task begins automatically.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 2 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 3 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
