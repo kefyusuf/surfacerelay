@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
 
 Design:
 
@@ -338,12 +338,12 @@ Approved scope/design boundary:
 
 Decision state:
 
-- D-063 — PROPOSED;
-- D-064 — PROPOSED;
+- D-063 — ACCEPTED;
+- D-064 — ACCEPTED;
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED — DECISION PROMOTION PENDING**.
+Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED — MERGE PENDING**.
 
 Task 1 evidence:
 
@@ -531,10 +531,27 @@ Incremental review result:          SUCCESS / review finished / 0 new actionable
 
 The three reviewed fixes were bounded to design-status accuracy, a case-insensitive architecture-test guard for the base-Laravel MCP dependency boundary, and a concise `REVIEW_REQUEST.md`. No production runtime behavior, canonical schema, trusted-authority rule, or T-701 conformance semantics changed.
 
-The next gate is **decision promotion only** for D-063/D-064. D-026 remains independently PROPOSED. Do not merge or close T-703, and do not begin T-704.
+Decision-promotion result:
+
+```text
+Promotion basis:                    reviewed T-703 implementation at 2616213489228d5b47daeaafed108fa5c326e457
+Review-closure tracking head:       8a96615e705de87b607a09844b5350940b8428ab
+D-063:                              ACCEPTED
+D-064:                              ACCEPTED
+D-026:                              PROPOSED — unchanged
+Promotion scope:                    reviewed Laravel MCP bridge boundary only
+Production/runtime semantic change: NONE
+Canonical spec change:              NONE
+T-701 conformance change:           NONE
+T-704 work:                         NOT STARTED
+```
+
+D-063 is accepted because the reviewed implementation uses maintained `laravel/mcp` only inside the optional bridge and preserves base-Laravel MCP independence. D-064 is accepted because the reviewed implementation exactly enforces explicit exact-identity exposure, portable/headless eligibility, untrusted MCP arguments, server-owned trusted context and confirmation/idempotency authority, and ActionBus/normalized-ActionResult convergence.
+
+The next gate is **merge + post-merge main revalidation planning only**. Do not merge automatically in this decision-promotion gate, do not close T-703 yet, and do not begin T-704.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.

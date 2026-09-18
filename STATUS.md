@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-703-laravel-mcp-projection`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-702 — Adapter author guide`
-- **Current task:** `T-703 — Laravel MCP projection` — **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**
+- **Current task:** `T-703 — Laravel MCP projection` — **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -32,8 +32,8 @@
 - **T-701 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
-- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062` — **ACCEPTED**
-- **Proposed decisions:** `D-026`, `D-063`, `D-064` — **PROPOSED**
+- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064` — **ACCEPTED**
+- **Proposed decisions:** `D-026` — **PROPOSED**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
@@ -42,9 +42,9 @@
 - **T-702 decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
 - **T-702 decision-promotion CI:** `#834` / `35302680228` — **7/7 jobs SUCCESS**
 - **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
-- **T-703 decisions:** `D-063`, `D-064` — **PROPOSED**
+- **T-703 decisions:** `D-063`, `D-064` — **ACCEPTED**
 - **T-703 implementation plan:** `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**
-- **T-703 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED — DECISION PROMOTION PENDING**
+- **T-703 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED — MERGE PENDING**
 - **T-703 Task 1 head:** `407a8a9c7c8a2d1d14db9252e600cf4284cb3175`
 - **T-703 Task 1 CI:** `#839` / `35324030173` — **11/11 jobs SUCCESS**
 - **T-703 Task 1 bridge matrix:** **4/4 SUCCESS**, each with **1 architecture test / 157 assertions**
@@ -89,7 +89,10 @@
 - **T-703 review-fix CI:** push `#866` + PR `#867` — **11/11 SUCCESS each**
 - **T-703 CodeRabbit closure:** **3/3 confirmed addressed + resolved / 0 unresolved**
 - **T-703 incremental CodeRabbit:** `fb71d595…2616213` — **SUCCESS / review finished / 0 new actionable findings**
-- **Next gate:** **decision promotion only** for D-063/D-064. D-026 remains PROPOSED; do not merge/close T-703 or begin T-704.
+- **T-703 decision promotion:** D-063 + D-064 — **ACCEPTED**
+- **T-703 decision-promotion basis:** review-fix head `2616213489228d5b47daeaafed108fa5c326e457` + review-closure head `8a96615e705de87b607a09844b5350940b8428ab`
+- **D-026:** **PROPOSED** — unchanged
+- **Next gate:** **merge + post-merge main revalidation planning only**. Do not merge automatically, close T-703, or begin T-704.
 
 ## M6 historical evidence — preserved
 
@@ -383,13 +386,13 @@ T-702 does not create or claim an adapter SDK, universal adapter interface, scaf
 
 ## T-703 scope/design gate
 
-T-703 design and implementation plan are approved, Tasks 1–8 are implemented, and external review is complete with all actionable findings resolved. Decision promotion is now the only open gate before any merge/closure consideration.
+T-703 design and implementation plan are approved, Tasks 1–8 are implemented, external review is complete, and D-063/D-064 are accepted. Merge and post-merge main revalidation are now the only remaining gates before T-703 closure.
 
 ```text
 Branch:                   feat/t-703-laravel-mcp-projection
 Design:                   docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
-D-063:                    PROPOSED
-D-064:                    PROPOSED
+D-063:                    ACCEPTED
+D-064:                    ACCEPTED
 Implementation plan:      docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md — APPROVED
 Implementation:           IMPLEMENTED / EXTERNALLY REVIEWED
 Documentation head:       ca03e02abfb53c1b260e05f02014bb11c2787d58
@@ -417,4 +420,4 @@ Locked design direction:
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.

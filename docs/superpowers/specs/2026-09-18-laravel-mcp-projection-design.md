@@ -1,6 +1,6 @@
 # T-703 — Laravel MCP Projection Design
 
-**Status:** APPROVED DESIGN / IMPLEMENTED / EXTERNAL REVIEW COMPLETE / DECISION PROMOTION PENDING  
+**Status:** APPROVED DESIGN / IMPLEMENTED / EXTERNAL REVIEW COMPLETE / D-063 + D-064 ACCEPTED / MERGE PENDING  
 **Task:** T-703  
 **Milestone:** M7 — Conformance / Ecosystem Bridges  
 **Branch:** `feat/t-703-laravel-mcp-projection`  
@@ -399,7 +399,7 @@ T-703 uses the maintained official `laravel/mcp` implementation. SurfaceRelay do
 
 Only explicitly MCP-exposed portable/headless Action Definitions may be projected. Tool identity is exact Action `id + version`; MCP arguments remain untrusted Action input; trusted actor/tenant authority comes only from existing server-runtime resolvers; confirmation receipt and idempotency key are namespaced non-authoritative metadata candidates; all invocation converges on the existing ActionBus and normalized ActionResult path.
 
-Both decisions remain PROPOSED until implementation, verification, and review evidence justify promotion.
+D-063 and D-064 are ACCEPTED after implementation, full verification, external review, review-fix revalidation, and incremental reviewer closure. This promotion is bounded to the reviewed T-703 implementation and does not promote D-026 or authorize merge/closure by itself.
 
 ## 17. Explicit non-goals
 
