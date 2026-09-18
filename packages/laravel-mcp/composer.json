@@ -1,0 +1,51 @@
+{
+  "name": "surfacerelay/laravel-mcp",
+  "description": "Optional Laravel MCP projection bridge for SurfaceRelay.",
+  "type": "library",
+  "license": "Apache-2.0",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../laravel",
+      "options": {
+        "versions": {
+          "surfacerelay/laravel": "dev-main"
+        }
+      }
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "surfacerelay/laravel": "dev-main",
+    "laravel/mcp": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0",
+    "orchestra/testbench": "^10.8|^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "SurfaceRelay\\LaravelMcp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SurfaceRelay\\LaravelMcp\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "SurfaceRelay\\LaravelMcp\\SurfaceRelayMcpServiceProvider"
+      ]
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
