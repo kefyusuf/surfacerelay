@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 6 COMPLETE
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 7 COMPLETE
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **STARTED — TASK 6 COMPLETE**.
+Implementation: **STARTED — TASK 7 COMPLETE**.
 
 Task 1 evidence:
 
@@ -430,7 +430,27 @@ Laravel MCP bridge suite:       39 tests / 307 assertions
 Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
 Existing validation baseline:   7/7 prior jobs remain SUCCESS
 Production bridge/core changes: NONE
-Task 7 confirmation/idempotency: NOT STARTED
+Task 7 confirmation/idempotency: COMPLETE
+
+Task 7 evidence:
+
+```text
+Task:                           confirmation + idempotency authority evidence
+RED contract head:              1778bf9fa4d16c852ddcc03ec30aa51c34ba7561
+RED validate:                   #860 / 35398293750 — expected FAILURE
+RED proof:                      8 missing authority-runtime helper errors
+GREEN evidence head:            8a3b099175ee85182d54be57c323ecd04b97cc3a
+GREEN validate:                 #861 / 35398392055 — 11/11 SUCCESS
+Laravel MCP bridge suite:       47 tests / 337 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Production bridge/core changes: NONE
+Task 8 docs/review handoff:      NOT STARTED
+```
+
+Confirmation evidence uses the real production `ConfirmationService`, `ConfirmationStage`, `ConfirmationScopeHasher`, and `ActionExecutionStage`. A consequential call without a receipt returns `confirmation_required`; caller `confirmed=true` does not bypass; an unapproved token candidate grants no authority; a server-approved exact-scope receipt allows one execution; and the consumed receipt cannot be reused.
+
+Idempotency evidence uses the real production `IdempotencyStage`, `IdempotencyService`, `IdempotencyKeyValidator`, `IdempotencyKeyHasher`, `IdempotencyIntentHasher`, `IdempotencyReplayCodec`, and `ActionExecutionStage`. A required key missing from namespaced MCP metadata is rejected; a business-input `idempotencyKey` does not satisfy policy; a namespaced key permits one fresh execution; an exact retry replays without a second executor call; and the same key with different input is rejected as `idempotency_conflict`.
 ```
 
 Task 6 uses the real production `ActionBus`, `ActionResultNormalizer`, `TrustedContextComposer`, `OutputPolicyStage`, and `StructuredActionPipelineAuditor`. Only unrelated pipeline stages use deterministic test pass-through handlers.
@@ -462,15 +482,15 @@ Implementation rulings:
 - canonical `ActionDefinition` ID validation already excludes characters outside the MCP tool-name character set, so Task 3 does not fabricate an invalid ActionDefinition to test impossible invalid characters. The projector still retains the full MCP name-pattern guard as defense in depth.
 ```
 
-Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Task 4 routes invocation through the existing trusted ActionBus pipeline, Task 5 provides dynamic server/provider wiring, and Task 6 proves trust/authorization/output-policy/audit convergence without changing production semantics.
+Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Task 4 routes invocation through the existing trusted ActionBus pipeline, Task 5 provides dynamic server/provider wiring, Task 6 proves trust/authorization/output-policy/audit convergence, and Task 7 proves confirmation/idempotency authority remains server-owned without changing production semantics.
 ```
 
 Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 7 — confirmation and idempotency authority evidence. No later task begins automatically.
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 8 — documentation, full verification, and external-review handoff. No later task begins automatically.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 6 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 7 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.

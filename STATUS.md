@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-703-laravel-mcp-projection`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-702 — Adapter author guide`
-- **Current task:** `T-703 — Laravel MCP projection` — **IMPLEMENTATION STARTED / TASK 6 COMPLETE**
+- **Current task:** `T-703 — Laravel MCP projection` — **IMPLEMENTATION STARTED / TASK 7 COMPLETE**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -44,7 +44,7 @@
 - **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
 - **T-703 decisions:** `D-063`, `D-064` — **PROPOSED**
 - **T-703 implementation plan:** `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**
-- **T-703 implementation:** **STARTED — TASK 6 COMPLETE**
+- **T-703 implementation:** **STARTED — TASK 7 COMPLETE**
 - **T-703 Task 1 head:** `407a8a9c7c8a2d1d14db9252e600cf4284cb3175`
 - **T-703 Task 1 CI:** `#839` / `35324030173` — **11/11 jobs SUCCESS**
 - **T-703 Task 1 bridge matrix:** **4/4 SUCCESS**, each with **1 architecture test / 157 assertions**
@@ -69,7 +69,11 @@
 - **T-703 Task 6 GREEN head:** `e3320c56fb7ec2ad1e5e687bfbfbed13d6be222a`
 - **T-703 Task 6 CI:** `#858` / `35390396145` — **11/11 jobs SUCCESS**
 - **T-703 Task 6 bridge suite:** **39 tests / 307 assertions**, 4/4 bridge matrix SUCCESS
-- **Next gate:** T-703 Task 7 — confirmation and idempotency authority evidence only. T-704 remains outside the active task.
+- **T-703 Task 7 RED head:** `1778bf9fa4d16c852ddcc03ec30aa51c34ba7561` — `#860` expected FAILURE
+- **T-703 Task 7 GREEN head:** `8a3b099175ee85182d54be57c323ecd04b97cc3a`
+- **T-703 Task 7 CI:** `#861` / `35398392055` — **11/11 jobs SUCCESS**
+- **T-703 Task 7 bridge suite:** **47 tests / 337 assertions**, 4/4 bridge matrix SUCCESS
+- **Next gate:** T-703 Task 8 — documentation, full verification, and external-review handoff only. T-704 remains outside the active task.
 
 ## M6 historical evidence — preserved
 
@@ -363,7 +367,7 @@ T-702 does not create or claim an adapter SDK, universal adapter interface, scaf
 
 ## T-703 scope/design gate
 
-T-703 design and implementation plan are approved. Implementation has started and Task 6 is complete; no later task has started.
+T-703 design and implementation plan are approved. Implementation has started and Task 7 is complete; no later task has started.
 
 ```text
 Branch:                   feat/t-703-laravel-mcp-projection
@@ -371,7 +375,7 @@ Design:                   docs/superpowers/specs/2026-09-18-laravel-mcp-projecti
 D-063:                    PROPOSED
 D-064:                    PROPOSED
 Implementation plan:      docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md — APPROVED
-Implementation:           STARTED — TASK 6 COMPLETE
+Implementation:           STARTED — TASK 7 COMPLETE
 Production changes:       NONE
 Dependency changes:       NONE
 Canonical spec changes:   NONE
@@ -396,4 +400,4 @@ Locked design direction:
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 6 COMPLETE** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 7 COMPLETE** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
