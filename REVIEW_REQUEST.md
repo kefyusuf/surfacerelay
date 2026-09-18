@@ -1,105 +1,27 @@
-# T-702 Final Closure Record — Adapter Author Guide
+# T-703 Decision Promotion Record — Laravel MCP Projection
 
-## Final review status
+## State
 
-- **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Task:** `T-702 — Adapter author guide`
-- **State:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **Review-only PR:** #15 — **CLOSED WITHOUT MERGE**
-- **Review base:** `7d96160286a7a8a618635fa54f1bf40a3bcc2baa`
-- **Reviewed integration/tracking head:** `618f4698f775ea5057caed0e3c7e4bcbf47f83b7`
-- **Review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
-- **CodeRabbit:** **1 actionable Minor / 1 confirmed addressed / 0 unresolved**
-- **Review-fix validate:** #830 / `35299933662` — **7/7 SUCCESS**
-- **Post-review main validate:** #832 / `35300067389` — **7/7 SUCCESS**
-- **D-059 / D-060 / D-061:** **ACCEPTED** and unchanged
-- **D-026:** **PROPOSED** and unchanged
-- **D-062:** **ACCEPTED**
-- **Decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
-- **Decision-promotion validate:** #834 / `35302680228` — **7/7 SUCCESS**
-- **T-703 / T-704:** **NOT STARTED**
+- **PR:** #16 — OPEN / UNMERGED
+- **Branch:** `feat/t-703-laravel-mcp-projection`
+- **T-703:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **D-063:** **ACCEPTED**
+- **D-064:** **ACCEPTED**
+- **D-026:** **PROPOSED** — unchanged
+- **T-704:** **NOT STARTED**
 
-T-702 is externally reviewed, D-062 is accepted, and the decision-promotion head passed exact-head validation. This record closes T-702 without starting any subsequent task.
+This gate promotes only the two reviewed T-703 decisions. It does not merge the PR, close T-703, or start T-704.
 
-## Review scope
+## Promotion basis
 
-The review-only PR isolated the exact T-702 range from the pre-implementation main revision through the merged documentation/tracking state. CodeRabbit reviewed the design, implementation plan, four adapter documents, repository navigation, decision record, and task/status/review tracking.
+D-063 matches the reviewed implementation: maintained `laravel/mcp` is isolated in optional `packages/laravel-mcp`; base `packages/laravel` remains MCP-independent; SurfaceRelay does not implement MCP protocol, transport, OAuth, session, or generic compatibility mechanics.
 
-Primary author-facing documents remain:
+D-064 matches the reviewed implementation: only explicitly exposed exact Action identities with `portable` or `headless` scope project as tools; MCP arguments remain untrusted; trusted actor/tenant state comes from existing server resolvers; confirmation/idempotency metadata remains non-authoritative until existing server verification; invocation converges on `ActionBus` and normalized `ActionResult`.
 
-- `docs/adapters/README.md`
-- `docs/adapters/author-guide.md`
-- `docs/adapters/security.md`
-- `docs/adapters/conformance.md`
+External review closed **3/3 actionable findings / 0 unresolved**, followed by an incremental CodeRabbit **SUCCESS** with **0 new actionable findings**. Review-fix push/PR CI and review-closure push/PR CI were all green.
 
-The approved scope contracts remain:
+## Boundary
 
-- `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
-- `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
+D-063/D-064 acceptance is revision- and scope-bounded to the reviewed T-703 Laravel MCP bridge. It does not promote D-026, expand T-701 conformance, modify canonical schemas, authorize automatic MCP exposure, or approve T-704.
 
-## External review finding
-
-CodeRabbit reported one actionable Minor finding in the implementation plan preflight gate.
-
-Before review fix:
-
-```bash
-git status --short
-```
-
-That command displayed dirty working-tree state but did not enforce the plan's documented `working tree: clean` invariant.
-
-Reviewed fix:
-
-```bash
-test -z "$(git status --short)"
-```
-
-The fix is bounded to plan execution safety. It does not change adapter architecture, runtime behavior, canonical contracts, conformance semantics, profile/capability vocabulary, or trust authority.
-
-CodeRabbit subsequently confirmed the finding as addressed and the single review thread was resolved.
-
-## Verification evidence
-
-Review-fix exact head:
-
-```text
-Head:                         d5c67a5ee403cdd6cc5805ac072dc05f6139d309
-Validate:                     #830 / 35299933662 — 7/7 SUCCESS
-Contract / scripts/validate:  PASS
-PHP matrix:                   4/4 PASS
-PHP lint:                     PASS
-Browser typecheck:            PASS
-Browser Vitest:               20 files / 328/328 PASS
-Python conformance tests:     47/47 PASS
-Harness build:                PASS
-Canonical runtime matrix:     7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
-```
-
-The reviewed fix was then fast-forwarded to `main`.
-
-Post-review main evidence:
-
-```text
-Main head:                    d5c67a5ee403cdd6cc5805ac072dc05f6139d309
-Validate:                     #832 / 35300067389 — 7/7 SUCCESS
-Contract:                     PASS
-PHP matrix:                   4/4 PASS
-PHP lint:                     PASS
-Browser + conformance:        PASS
-```
-
-## Review conclusion
-
-External review found no shadow-spec drift, authority widening, caller-input-to-trusted-context path, discovery/invocation conflation, exact-target/no-retarget regression, fail-open ambiguity, conformance-runner authority change, profile/capability expansion, D-026/D-062 promotion, or T-703/T-704 implementation.
-
-The one actionable plan-safety finding was fixed, exact-head verified, reviewer-confirmed, and main-revalidated.
-
-## Boundary after review
-
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
-
-`D-062` is **ACCEPTED** only as the reviewed guide-authority boundary. It does not authorize new adapter semantics.
-
-**T-702 is closed.** T-703 and T-704 remain not started and require a separate explicit scope/design gate.
+The next gate is merge + post-merge main revalidation planning only.

@@ -314,9 +314,244 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-- T-703 — Laravel MCP projection using a maintained MCP implementation — TODO.
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
+
+Design:
+
+```text
+docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
+```
+
+Approved scope/design boundary:
+
+- integration uses maintained official `laravel/mcp`; SurfaceRelay does not implement MCP protocol/transports;
+- MCP integration is isolated in optional `packages/laravel-mcp`; `packages/laravel` remains MCP-independent;
+- v1 projects MCP Tools only;
+- exposure is an explicit exact-`id + version` MCP allow-list; `ActionRegistry::all()` is not exposure authority;
+- only `portable` and `headless` actions are eligible; `page_scoped` and `browser_local` fail closed;
+- MCP arguments remain untrusted Action input;
+- actor/tenant authority remains existing trusted Laravel runtime state;
+- confirmation receipt and idempotency key may enter only as namespaced non-authoritative metadata candidates and remain subject to existing server verification;
+- invocation converges on the existing ActionBus / ActionResultNormalizer path;
+- T-701 conformance scope is not broadened;
+- MCP Resources, Prompts, Apps/client support and T-704 are out of scope.
+
+Decision state:
+
+- D-063 — ACCEPTED;
+- D-064 — ACCEPTED;
+- D-026 remains PROPOSED independently.
+
+Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
+Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED — MERGE PENDING**.
+
+Task 1 evidence:
+
+```text
+Task:                           optional Laravel MCP bridge scaffold + architecture/CI guard
+Implementation head:            407a8a9c7c8a2d1d14db9252e600cf4284cb3175
+Validate:                        #839 / 35324030173 — 11/11 SUCCESS
+Laravel MCP compatibility:       4/4 matrix jobs SUCCESS
+Bridge architecture test:        1 test / 157 assertions on every bridge matrix job
+Composer validate --strict:      PASS on all 4 bridge jobs
+Existing validation baseline:    7/7 prior jobs remain SUCCESS
+Production MCP behavior:         NOT STARTED
+Task 2 exposure registry:        COMPLETE
+
+Task 2 evidence:
+
+```text
+Task:                           explicit exact-identity MCP exposure registry
+RED contract head:              d7881d9f4eed15edc45ca1a1c4260a7134c78864
+RED validate:                   #841 / 35327036473 — expected FAILURE
+RED proof:                      8 exposure tests ERROR — McpActionExposureRegistry class not found
+GREEN implementation head:      d73811fb3f8a6c24ea47eb04ef3c3acf771dd3e5
+GREEN validate:                 #842 / 35327114009 — 11/11 SUCCESS
+Laravel MCP bridge suite:       9 tests / 171 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 3 projection/tool work:     COMPLETE
+
+Task 3 evidence:
+
+```text
+Task:                           exact MCP tool identity + discovery projection
+RED contract head:              624392b0ba03d652100a4c7dbf7a41952afc7ed1
+RED validate:                   #845 / 35328979749 — expected FAILURE
+RED proof:                      9 new projection/tool tests ERROR — projector/tool classes not found
+GREEN implementation head:      5892bb4361a1f829c5b2ebae9185b1d11ae4781a
+GREEN validate:                 #846 / 35329092370 — 11/11 SUCCESS
+Laravel MCP bridge suite:       18 tests / 190 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 4 invocation work:          COMPLETE
+
+Task 4 evidence:
+
+```text
+Task:                           bounded MCP metadata parsing + ActionBus gateway
+Initial RED contract head:      59a496aeb80e061bfd84b5c00a6d35cdd044f7ce
+RED test-import fix head:       b664afbf2009b303eb77d7c3effad5dee6b18ecd
+RED validate:                   #849 / 35361993178 — expected FAILURE
+RED proof:                      15 errors — McpInvocationMetadata / McpActionGateway classes not found
+GREEN implementation head:      92034ab0752619b5da7216d3b3cb23452b50409a
+GREEN validate:                 #850 / 35362116668 — 11/11 SUCCESS
+Laravel MCP bridge suite:       28 tests / 236 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 5 server/provider wiring:   COMPLETE
+
+Task 5 evidence:
+
+```text
+Task:                           dynamic Laravel MCP server + service-provider wiring
+Initial RED contract head:      4056ecb110100d0048fee6112afa091ade23a782
+RED support-load fix head:      d9d3aa927ff9730940faf6cc156bb545d7cd5b46
+RED validate:                   #853 / 35379467242 — expected FAILURE
+RED proof:                      4 missing SurfaceRelayMcpServer errors + 1 exposure-registry singleton failure
+GREEN implementation head:      d859d822d49f497713411b780ab434ebffc27d0b
+GREEN validate:                 #854 / 35379570033 — 11/11 SUCCESS
+Laravel MCP bridge suite:       33 tests / 254 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Task 6 trust/output/audit work:  COMPLETE
+
+Task 6 evidence:
+
+```text
+Task:                           trust + authorization + output-policy + audit convergence evidence
+Initial RED contract head:      8e5dacee06c95f384563253a57513767638a1836
+RED enum-case fix head:         62990a8d034c906b7bfa69292809ccfb8b526adf
+RED validate:                   #857 / 35390303007 — expected FAILURE
+RED proof:                      6 missing Task 6 evidence-helper errors
+GREEN evidence head:            e3320c56fb7ec2ad1e5e687bfbfbed13d6be222a
+GREEN validate:                 #858 / 35390396145 — 11/11 SUCCESS
+Laravel MCP bridge suite:       39 tests / 307 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Production bridge/core changes: NONE
+Task 7 confirmation/idempotency: COMPLETE
+
+Task 7 evidence:
+
+```text
+Task:                           confirmation + idempotency authority evidence
+RED contract head:              1778bf9fa4d16c852ddcc03ec30aa51c34ba7561
+RED validate:                   #860 / 35398293750 — expected FAILURE
+RED proof:                      8 missing authority-runtime helper errors
+GREEN evidence head:            8a3b099175ee85182d54be57c323ecd04b97cc3a
+GREEN validate:                 #861 / 35398392055 — 11/11 SUCCESS
+Laravel MCP bridge suite:       47 tests / 337 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Production bridge/core changes: NONE
+Task 8 docs/review handoff:      COMPLETE / EXTERNALLY REVIEWED
+```
+
+Confirmation evidence uses the real production `ConfirmationService`, `ConfirmationStage`, `ConfirmationScopeHasher`, and `ActionExecutionStage`. A consequential call without a receipt returns `confirmation_required`; caller `confirmed=true` does not bypass; an unapproved token candidate grants no authority; a server-approved exact-scope receipt allows one execution; and the consumed receipt cannot be reused.
+
+Idempotency evidence uses the real production `IdempotencyStage`, `IdempotencyService`, `IdempotencyKeyValidator`, `IdempotencyKeyHasher`, `IdempotencyIntentHasher`, `IdempotencyReplayCodec`, and `ActionExecutionStage`. A required key missing from namespaced MCP metadata is rejected; a business-input `idempotencyKey` does not satisfy policy; a namespaced key permits one fresh execution; an exact retry replays without a second executor call; and the same key with different input is rejected as `idempotency_conflict`.
+```
+
+Task 6 uses the real production `ActionBus`, `ActionResultNormalizer`, `TrustedContextComposer`, `OutputPolicyStage`, and `StructuredActionPipelineAuditor`. Only unrelated pipeline stages use deterministic test pass-through handlers.
+
+Evidence proves caller actor/tenant/current-record/current-selection input cannot become trusted runtime authority; invocation authorization denial stops before execution; sensitive output fails closed without a redactor; an explicit trusted redactor releases only its safe transformed value; and structured audit emits minimized MCP evidence without raw input, confirmation receipt, idempotency key, trusted actor/tenant values, or sensitive raw output.
+```
+
+Task 5 adds `SurfaceRelayMcpServer`, which materializes only the existing explicit MCP exposure registry through `McpToolProjector`. Registered-but-unexposed Actions remain absent; projected tools are deterministic; MCP `tools/call` reaches the existing gateway/ActionBus path; rejected and confirmation-required results remain structured ActionResult envelopes.
+
+`SurfaceRelayMcpServiceProvider` now registers only one bridge-local `McpActionExposureRegistry` singleton backed by the host-provided `ActionRegistry`. It does not register routes, transports, authentication/OAuth policy, Actions, or implicit exposures.
+```
+
+Task 4 extracts only `io.surfacerelay/confirmationReceipt` and `io.surfacerelay/idempotencyKey` from MCP metadata; unknown metadata is ignored and never copied into trusted context or generic invocation metadata. Confirmation candidates are bounded to 4096 characters; idempotency candidates must be non-empty strings up to 240 characters.
+
+`McpActionGateway` generates a server-side correlation ID, resolves trusted actor/tenant values only through `TrustedContextComposer`, sets `surface=mcp`, carries idempotency/confirmation candidates into their existing invocation fields, sets `bindingId=null`, dispatches the existing `ActionBus`, and normalizes through `ActionResultNormalizer`.
+
+Security evidence proves caller `actor`, `tenant_id`, `current_record`, `current_selection`, and `confirmed=true` remain ordinary input and cannot manufacture trusted authority.
+
+Task 4 ruling:
+
+- because Task 3 deliberately deferred gateway creation, Task 4 extends `McpToolProjector` to receive one `McpActionGateway` and inject it into every projected `SurfaceRelayActionTool`. This keeps invocation dependency explicit and avoids container/service-locator fallback.
+```
+
+Task 3 projects exact tool names as `<action-id>.v<version>`, rejects projected names outside the MCP 128-character grammar, copies the canonical Action input schema directly, maps only `effect=read -> readOnlyHint=true`, emits no MCP output schema, and rejects duplicate/non-exposure projector input.
+
+Implementation rulings:
+
+- `McpActionGateway` remains owned by Task 4; Task 3 does not introduce a fake or empty invocation gateway merely to satisfy a future constructor shape. `SurfaceRelayActionTool` is discovery-only until Task 4 adds invocation.
+- canonical `ActionDefinition` ID validation already excludes characters outside the MCP tool-name character set, so Task 3 does not fabricate an invalid ActionDefinition to test impossible invalid characters. The projector still retains the full MCP name-pattern guard as defense in depth.
+```
+
+Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Task 4 routes invocation through the existing trusted ActionBus pipeline, Task 5 provides dynamic server/provider wiring, Task 6 proves trust/authorization/output-policy/audit convergence, and Task 7 proves confirmation/idempotency authority remains server-owned without changing production semantics.
+```
+
+Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
+
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**.
+
+Task 8 documentation + full-verification evidence:
+
+```text
+Documentation / review-prep head:   ca03e02abfb53c1b260e05f02014bb11c2787d58
+Validate:                            #863 / 35400607926 — 11/11 SUCCESS
+Laravel MCP compatibility:           4/4 matrix jobs SUCCESS
+Laravel MCP bridge suite:            47 tests / 337 assertions
+Base Laravel compatibility:          4/4 matrix jobs SUCCESS
+Base Laravel suite:                  595 tests / 3164 assertions
+PHP lint:                            PASS
+Contract / scripts/validate.py:      PASS
+Browser typecheck:                   PASS
+Browser Vitest:                      20 files / 328/328 PASS
+Python conformance:                  47/47 PASS on CPython 3.12.14
+Harness build:                       PASS
+Canonical runtime matrix:            7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Forbidden diff audit:                EMPTY
+```
+
+Task 8 created `packages/laravel-mcp/README.md`, linked the optional bridge conservatively from the root README, and corrected the stale `SurfaceRelayActionTool` class documentation without changing behavior. The bridge remains explicitly subordinate to the maintained `laravel/mcp` implementation; the host owns route/authentication/OAuth/network policy; MCP arguments remain untrusted business input; namespaced confirmation/idempotency metadata remains non-authoritative until existing server verification.
+
+Self-review passed for scope alignment, invariant/decision consistency, dependency direction, unnecessary-complexity avoidance, brownfield safety, and verification evidence. The `main...ca03e02` audit contains no changes under `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
+
+External review closure evidence:
+
+```text
+Pull request:                       #16 — feat(mcp): add optional Laravel MCP projection
+Initial review handoff head:        fb71d595053c827b740eb3cd05e8e410a76672ce
+Initial handoff push validate:      #864 / 35400789828 — 11/11 SUCCESS
+Initial handoff PR validate:        #865 / 35400893305 — 11/11 SUCCESS
+CodeRabbit actionable findings:     3 Minor
+Review-fix head:                    2616213489228d5b47daeaafed108fa5c326e457
+Review-fix push validate:           #866 / 35406029527 — 11/11 SUCCESS
+Review-fix PR validate:             #867 / 35406031980 — 11/11 SUCCESS
+CodeRabbit threads:                 3/3 confirmed addressed + resolved / 0 unresolved
+Incremental review range:           fb71d595053c827b740eb3cd05e8e410a76672ce..2616213489228d5b47daeaafed108fa5c326e457
+Incremental review files:           3
+Incremental review result:          SUCCESS / review finished / 0 new actionable findings
+```
+
+The three reviewed fixes were bounded to design-status accuracy, a case-insensitive architecture-test guard for the base-Laravel MCP dependency boundary, and a concise `REVIEW_REQUEST.md`. No production runtime behavior, canonical schema, trusted-authority rule, or T-701 conformance semantics changed.
+
+Decision-promotion result:
+
+```text
+Promotion basis:                    reviewed T-703 implementation at 2616213489228d5b47daeaafed108fa5c326e457
+Review-closure tracking head:       8a96615e705de87b607a09844b5350940b8428ab
+D-063:                              ACCEPTED
+D-064:                              ACCEPTED
+D-026:                              PROPOSED — unchanged
+Promotion scope:                    reviewed Laravel MCP bridge boundary only
+Production/runtime semantic change: NONE
+Canonical spec change:              NONE
+T-701 conformance change:           NONE
+T-704 work:                         NOT STARTED
+```
+
+D-063 is accepted because the reviewed implementation uses maintained `laravel/mcp` only inside the optional bridge and preserves base-Laravel MCP independence. D-064 is accepted because the reviewed implementation exactly enforces explicit exact-identity exposure, portable/headless eligibility, untrusted MCP arguments, server-owned trusted context and confirmation/idempotency authority, and ActionBus/normalized-ActionResult convergence.
+
+The next gate is **merge + post-merge main revalidation planning only**. Do not merge automatically in this decision-promotion gate, do not close T-703 yet, and do not begin T-704.
+
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-703/T-704 remain TODO. No subsequent task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.

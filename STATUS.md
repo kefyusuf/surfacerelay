@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/t-703-laravel-mcp-projection`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-702 — Adapter author guide`
-- **Current task:** none — next task requires a separate explicit gate
+- **Current task:** `T-703 — Laravel MCP projection` — **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -32,7 +32,7 @@
 - **T-701 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
-- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062` — **ACCEPTED**
+- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064` — **ACCEPTED**
 - **Proposed decisions:** `D-026` — **PROPOSED**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
@@ -41,7 +41,58 @@
 - **T-702 post-review main CI:** `#832` / `35300067389` — **7/7 jobs SUCCESS**
 - **T-702 decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
 - **T-702 decision-promotion CI:** `#834` / `35302680228` — **7/7 jobs SUCCESS**
-- **Next gate:** none automatically. T-703/T-704 remain TODO and require a separate explicit scope/design gate.
+- **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
+- **T-703 decisions:** `D-063`, `D-064` — **ACCEPTED**
+- **T-703 implementation plan:** `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**
+- **T-703 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED — MERGE PENDING**
+- **T-703 Task 1 head:** `407a8a9c7c8a2d1d14db9252e600cf4284cb3175`
+- **T-703 Task 1 CI:** `#839` / `35324030173` — **11/11 jobs SUCCESS**
+- **T-703 Task 1 bridge matrix:** **4/4 SUCCESS**, each with **1 architecture test / 157 assertions**
+- **T-703 design-head CI:** `#837` / `35319627802` — **7/7 jobs SUCCESS**
+- **T-703 Task 2 RED head:** `d7881d9f4eed15edc45ca1a1c4260a7134c78864` — `#841` expected FAILURE
+- **T-703 Task 2 GREEN head:** `d73811fb3f8a6c24ea47eb04ef3c3acf771dd3e5`
+- **T-703 Task 2 CI:** `#842` / `35327114009` — **11/11 jobs SUCCESS**
+- **T-703 Task 2 bridge suite:** **9 tests / 171 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 3 RED head:** `624392b0ba03d652100a4c7dbf7a41952afc7ed1` — `#845` expected FAILURE
+- **T-703 Task 3 GREEN head:** `5892bb4361a1f829c5b2ebae9185b1d11ae4781a`
+- **T-703 Task 3 CI:** `#846` / `35329092370` — **11/11 jobs SUCCESS**
+- **T-703 Task 3 bridge suite:** **18 tests / 190 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 4 RED head:** `b664afbf2009b303eb77d7c3effad5dee6b18ecd` — `#849` expected FAILURE
+- **T-703 Task 4 GREEN head:** `92034ab0752619b5da7216d3b3cb23452b50409a`
+- **T-703 Task 4 CI:** `#850` / `35362116668` — **11/11 jobs SUCCESS**
+- **T-703 Task 4 bridge suite:** **28 tests / 236 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 5 RED head:** `d9d3aa927ff9730940faf6cc156bb545d7cd5b46` — `#853` expected FAILURE
+- **T-703 Task 5 GREEN head:** `d859d822d49f497713411b780ab434ebffc27d0b`
+- **T-703 Task 5 CI:** `#854` / `35379570033` — **11/11 jobs SUCCESS**
+- **T-703 Task 5 bridge suite:** **33 tests / 254 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 6 RED head:** `62990a8d034c906b7bfa69292809ccfb8b526adf` — `#857` expected FAILURE
+- **T-703 Task 6 GREEN head:** `e3320c56fb7ec2ad1e5e687bfbfbed13d6be222a`
+- **T-703 Task 6 CI:** `#858` / `35390396145` — **11/11 jobs SUCCESS**
+- **T-703 Task 6 bridge suite:** **39 tests / 307 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 7 RED head:** `1778bf9fa4d16c852ddcc03ec30aa51c34ba7561` — `#860` expected FAILURE
+- **T-703 Task 7 GREEN head:** `8a3b099175ee85182d54be57c323ecd04b97cc3a`
+- **T-703 Task 7 CI:** `#861` / `35398392055` — **11/11 jobs SUCCESS**
+- **T-703 Task 7 bridge suite:** **47 tests / 337 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 8 documentation head:** `ca03e02abfb53c1b260e05f02014bb11c2787d58`
+- **T-703 Task 8 exact-head CI:** `#863` / `35400607926` — **11/11 jobs SUCCESS**
+- **T-703 bridge verification:** **4/4 compatibility jobs; 47 tests / 337 assertions**
+- **T-703 base Laravel regression:** **4/4 compatibility jobs; 595 tests / 3164 assertions**
+- **T-703 browser regression:** **20 files / 328/328 Vitest + typecheck**
+- **T-703 Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **T-703 canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **T-703 forbidden diff audit:** **EMPTY** for base Laravel production, canonical spec, T-701 targets/model/runner
+- **T-703 review PR:** `#16` — **OPEN / UNMERGED**
+- **T-703 initial review handoff head:** `fb71d595053c827b740eb3cd05e8e410a76672ce`
+- **T-703 initial handoff CI:** push `#864` + PR `#865` — **11/11 SUCCESS each**
+- **T-703 CodeRabbit findings:** **3 Minor actionable**
+- **T-703 review-fix head:** `2616213489228d5b47daeaafed108fa5c326e457`
+- **T-703 review-fix CI:** push `#866` + PR `#867` — **11/11 SUCCESS each**
+- **T-703 CodeRabbit closure:** **3/3 confirmed addressed + resolved / 0 unresolved**
+- **T-703 incremental CodeRabbit:** `fb71d595…2616213` — **SUCCESS / review finished / 0 new actionable findings**
+- **T-703 decision promotion:** D-063 + D-064 — **ACCEPTED**
+- **T-703 decision-promotion basis:** review-fix head `2616213489228d5b47daeaafed108fa5c326e457` + review-closure head `8a96615e705de87b607a09844b5350940b8428ab`
+- **D-026:** **PROPOSED** — unchanged
+- **Next gate:** **merge + post-merge main revalidation planning only**. Do not merge automatically, close T-703, or begin T-704.
 
 ## M6 historical evidence — preserved
 
@@ -333,8 +384,40 @@ Additional boundaries remain intact:
 
 T-702 does not create or claim an adapter SDK, universal adapter interface, scaffolding CLI, plugin loader, new RuntimeBinding/BindingDriver abstraction, new Action Definition field, new profile/capability, new canonical scenario, new failure-code enum, compatibility registry, certification program, remote conformance system, MCP implementation, OpenAPI importer, production Livewire/HTMX behavior change, or standalone public-spec extraction.
 
+## T-703 scope/design gate
+
+T-703 design and implementation plan are approved, Tasks 1–8 are implemented, external review is complete, and D-063/D-064 are accepted. Merge and post-merge main revalidation are now the only remaining gates before T-703 closure.
+
+```text
+Branch:                   feat/t-703-laravel-mcp-projection
+Design:                   docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
+D-063:                    ACCEPTED
+D-064:                    ACCEPTED
+Implementation plan:      docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md — APPROVED
+Implementation:           IMPLEMENTED / EXTERNALLY REVIEWED
+Documentation head:       ca03e02abfb53c1b260e05f02014bb11c2787d58
+Task 8 validate:           #863 / 35400607926 — 11/11 SUCCESS
+Production core changes:  NONE
+Canonical spec changes:   NONE
+T-701 conformance change: NONE
+T-704 work:               NOT STARTED
+```
+
+Locked design direction:
+
+- maintained `laravel/mcp` rather than an in-house MCP protocol implementation;
+- optional `packages/laravel-mcp` bridge with one-way dependency on `packages/laravel`;
+- MCP Tools only for v1;
+- explicit MCP exposure by exact Action identity;
+- only portable/headless action scopes;
+- MCP request arguments remain untrusted business input;
+- trusted actor/tenant authority remains existing Laravel runtime state;
+- namespaced confirmation/idempotency metadata remains non-authoritative until existing server-side verification;
+- all business invocation converges on ActionBus and ActionResultNormalizer;
+- no expansion of T-701's closed conformance profile.
+
 ## Current boundary
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED** on `main`. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-703/T-704 remain TODO. No subsequent task begins automatically.
+T-702 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING** on `feat/t-703-laravel-mcp-projection`. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.

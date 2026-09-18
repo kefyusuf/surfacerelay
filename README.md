@@ -57,7 +57,7 @@ The first reference runtime is Laravel. Livewire is the first runtime binding an
 - Livewire and Filament adapters.
 - HTMX portability proof.
 - Adapter conformance fixtures and negative tests.
-- Later: projection through an existing Laravel MCP implementation.
+- Optional projection through the maintained Laravel MCP implementation via [`packages/laravel-mcp`](packages/laravel-mcp/README.md).
 
 ### Explicitly out of scope for the core
 
@@ -84,6 +84,7 @@ Start with:
 4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 5. [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
 6. [`docs/adapters/README.md`](docs/adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
+7. [`packages/laravel-mcp/README.md`](packages/laravel-mcp/README.md) — optional maintained-Laravel-MCP projection bridge and its trust boundary.
 
 Run:
 
@@ -98,6 +99,17 @@ cd packages/laravel
 composer test
 composer validate --strict
 ```
+
+For the optional Laravel MCP bridge:
+
+```bash
+cd packages/laravel-mcp
+composer validate --strict
+composer test
+find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
+```
+
+The bridge delegates MCP protocol/transport behavior to the maintained `laravel/mcp` package. SurfaceRelay does not claim to be an official MCP implementation and does not auto-register MCP routes, authentication, OAuth policy, or Action exposure.
 
 ## Validation
 

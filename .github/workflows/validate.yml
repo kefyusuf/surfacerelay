@@ -84,12 +84,54 @@ jobs:
         working-directory: packages/laravel
         run: composer test
 
+  laravel-mcp-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: '8.3'
+            laravel-version: '^12.41.1'
+            testbench-version: '^10.8'
+          - php-version: '8.3'
+            laravel-version: '^13.0'
+            testbench-version: '^11.0'
+          - php-version: '8.4'
+            laravel-version: '^12.41.1'
+            testbench-version: '^10.8'
+          - php-version: '8.4'
+            laravel-version: '^13.0'
+            testbench-version: '^11.0'
+    name: laravel-mcp-tests (PHP ${{ matrix.php-version }}, Laravel ${{ matrix.laravel-version }}, Testbench ${{ matrix.testbench-version }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          extensions: mbstring
+      - name: Constrain Laravel and Testbench to the matrix version
+        working-directory: packages/laravel-mcp
+        run: >-
+          composer require --dev --no-interaction --no-progress --no-update
+          "laravel/framework:${{ matrix.laravel-version }}"
+          "orchestra/testbench:${{ matrix.testbench-version }}"
+      - name: Install dependencies
+        working-directory: packages/laravel-mcp
+        run: composer update --no-interaction --no-progress --prefer-dist
+      - name: Validate composer.json
+        working-directory: packages/laravel-mcp
+        run: composer validate --strict
+      - name: Run Laravel MCP bridge test suite
+        working-directory: packages/laravel-mcp
+        run: composer test
+
   php-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Lint PHP sources
-        run: find packages/laravel -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
+        run: find packages/laravel packages/laravel-mcp -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
 
   browser:
     runs-on: ubuntu-latest
