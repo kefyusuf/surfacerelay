@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SurfaceRelay\LaravelMcp\Projection;
 
 use SurfaceRelay\LaravelMcp\Exposure\McpActionExposure;
+use SurfaceRelay\LaravelMcp\Invocation\McpActionGateway;
 use SurfaceRelay\LaravelMcp\Server\SurfaceRelayActionTool;
 
 /**
@@ -17,6 +18,7 @@ final readonly class McpToolProjector
 {
     public function __construct(
         private McpToolNameProjector $names,
+        private McpActionGateway $gateway,
     ) {}
 
     /**
@@ -43,6 +45,7 @@ final readonly class McpToolProjector
             $tools[] = new SurfaceRelayActionTool(
                 $exposure->definition,
                 $name,
+                $this->gateway,
             );
         }
 

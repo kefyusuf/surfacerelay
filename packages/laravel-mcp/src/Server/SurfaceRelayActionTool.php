@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\LaravelMcp\Server;
 
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Tool;
 use SurfaceRelay\Laravel\Definition\ActionDefinition;
 use SurfaceRelay\Laravel\Enums\ActionEffect;
+use SurfaceRelay\LaravelMcp\Invocation\McpActionGateway;
+use SurfaceRelay\LaravelMcp\Invocation\McpInvocationMetadata;
 
 /**
  * Discovery-only MCP representation of one explicitly exposed Action.
@@ -20,6 +25,7 @@ final class SurfaceRelayActionTool extends Tool
     public function __construct(
         private readonly ActionDefinition $definition,
         private readonly string $projectedName,
+        private readonly McpActionGateway $gateway,
     ) {}
 
     public function name(): string
@@ -64,5 +70,18 @@ final class SurfaceRelayActionTool extends Tool
             'inputSchema' => $this->definition->inputSchema,
             'annotations' => $annotations === [] ? (object) [] : $annotations,
         ];
+    }
+
+    public function handle(Request $request): ResponseFactory
+    {
+        $metadata = McpInvocationMetadata::from($request->meta());
+
+        $result = $this->gateway->invoke(
+            $this->definition,
+            $request->all(),
+            $metadata,
+        );
+
+        return Response::structured($result->toArray());
     }
 }
