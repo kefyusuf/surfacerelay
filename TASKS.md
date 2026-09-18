@@ -314,7 +314,7 @@ Contract / PHP / browser matrix: PASS
 
 **T-702 is closed.** T-703/T-704 do not begin automatically.
 
-### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 5 COMPLETE
+### T-703 — Laravel MCP projection using a maintained MCP implementation — IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 6 COMPLETE
 
 Design:
 
@@ -343,7 +343,7 @@ Decision state:
 - D-026 remains PROPOSED independently.
 
 Implementation plan: `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**.  
-Implementation: **STARTED — TASK 5 COMPLETE**.
+Implementation: **STARTED — TASK 6 COMPLETE**.
 
 Task 1 evidence:
 
@@ -414,7 +414,28 @@ GREEN validate:                 #854 / 35379570033 — 11/11 SUCCESS
 Laravel MCP bridge suite:       33 tests / 254 assertions
 Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
 Existing validation baseline:   7/7 prior jobs remain SUCCESS
-Task 6 trust/output/audit work:  NOT STARTED
+Task 6 trust/output/audit work:  COMPLETE
+
+Task 6 evidence:
+
+```text
+Task:                           trust + authorization + output-policy + audit convergence evidence
+Initial RED contract head:      8e5dacee06c95f384563253a57513767638a1836
+RED enum-case fix head:         62990a8d034c906b7bfa69292809ccfb8b526adf
+RED validate:                   #857 / 35390303007 — expected FAILURE
+RED proof:                      6 missing Task 6 evidence-helper errors
+GREEN evidence head:            e3320c56fb7ec2ad1e5e687bfbfbed13d6be222a
+GREEN validate:                 #858 / 35390396145 — 11/11 SUCCESS
+Laravel MCP bridge suite:       39 tests / 307 assertions
+Laravel MCP compatibility:      4/4 matrix jobs SUCCESS
+Existing validation baseline:   7/7 prior jobs remain SUCCESS
+Production bridge/core changes: NONE
+Task 7 confirmation/idempotency: NOT STARTED
+```
+
+Task 6 uses the real production `ActionBus`, `ActionResultNormalizer`, `TrustedContextComposer`, `OutputPolicyStage`, and `StructuredActionPipelineAuditor`. Only unrelated pipeline stages use deterministic test pass-through handlers.
+
+Evidence proves caller actor/tenant/current-record/current-selection input cannot become trusted runtime authority; invocation authorization denial stops before execution; sensitive output fails closed without a redactor; an explicit trusted redactor releases only its safe transformed value; and structured audit emits minimized MCP evidence without raw input, confirmation receipt, idempotency key, trusted actor/tenant values, or sensitive raw output.
 ```
 
 Task 5 adds `SurfaceRelayMcpServer`, which materializes only the existing explicit MCP exposure registry through `McpToolProjector`. Registered-but-unexposed Actions remain absent; projected tools are deterministic; MCP `tools/call` reaches the existing gateway/ActionBus path; rejected and confirmation-required results remain structured ActionResult envelopes.
@@ -441,15 +462,15 @@ Implementation rulings:
 - canonical `ActionDefinition` ID validation already excludes characters outside the MCP tool-name character set, so Task 3 does not fabricate an invalid ActionDefinition to test impossible invalid characters. The projector still retains the full MCP name-pattern guard as defense in depth.
 ```
 
-Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Task 4 routes invocation through the existing trusted ActionBus pipeline, and Task 5 now provides dynamic server/provider wiring without taking ownership of host route/transport/auth policy.
+Task 2 implements the explicit allow-list, Task 3 adds discovery projection, Task 4 routes invocation through the existing trusted ActionBus pipeline, Task 5 provides dynamic server/provider wiring, and Task 6 proves trust/authorization/output-policy/audit convergence without changing production semantics.
 ```
 
 Task 1 added only the optional package scaffold, empty provider, package test bootstrap, dependency-boundary guard, CI matrix, and lint coverage. No action exposure, tool projection, MCP invocation gateway, server wiring, or trusted-authority behavior has been implemented yet.
 
-Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 6 — trust, authorization, output-policy, and audit convergence evidence. No later task begins automatically.
+Design-head validation: `#837 / 35319627802` — **7/7 SUCCESS**. Task 1 implementation validation: `#839 / 35324030173` — **11/11 SUCCESS**. The next gate is only Task 7 — confirmation and idempotency authority evidence. No later task begins automatically.
 
 - T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 5 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **IN_PROGRESS / DESIGN APPROVED / PLAN APPROVED / IMPLEMENTATION STARTED / TASK 6 COMPLETE**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
