@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\LaravelMcp\Tests\Unit;
 
+use Laravel\Mcp\Request;
 use PHPUnit\Framework\TestCase;
 use SurfaceRelay\Laravel\Definition\ActionDefinition;
 use SurfaceRelay\Laravel\Enums\ActionEffect;
@@ -17,6 +18,7 @@ use SurfaceRelay\LaravelMcp\Projection\InvalidMcpToolProjection;
 use SurfaceRelay\LaravelMcp\Projection\McpToolNameProjector;
 use SurfaceRelay\LaravelMcp\Projection\McpToolProjector;
 use SurfaceRelay\LaravelMcp\Server\SurfaceRelayActionTool;
+use SurfaceRelay\LaravelMcp\Tests\Support\McpTestRuntime;
 
 final class SurfaceRelayActionToolTest extends TestCase
 {
