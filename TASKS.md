@@ -596,6 +596,18 @@ Proposed decisions:
 - D-067 — bounded OpenAPI 3.1/3.2 local ingestion and reference safety;
 - D-068 — OpenAPI source identity/provenance is separate from exact Action identity.
 
+Design approval evidence:
+
+```text
+Design approval head:          814d610e40ddbccee051885895070f9d08c7a76c
+Validate:                      #876 / 35408438835 — 11/11 SUCCESS
+Changed paths:                 STATUS.md, TASKS.md, docs/DECISION-REGISTER.md, design spec only
+Runtime/package changes:       NONE
+Canonical spec changes:        NONE
+T-701 conformance changes:     NONE
+T-703 MCP changes:             NONE
+```
+
 Implementation plan: **NOT STARTED**.  
 Implementation: **NOT STARTED**.
 

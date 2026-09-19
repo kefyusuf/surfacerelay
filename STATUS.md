@@ -102,6 +102,9 @@
 - **T-703 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **D-026:** **PROPOSED** — unchanged
 - **T-704 design:** `docs/superpowers/specs/2026-09-19-openapi-importer-design.md` — **APPROVED**
+- **T-704 design approval head:** `814d610e40ddbccee051885895070f9d08c7a76c`
+- **T-704 design approval CI:** `#876` / `35408438835` — **11/11 SUCCESS**
+- **T-704 design diff audit:** **DOCUMENTATION/TRACKING ONLY; no packages/spec/conformance/scripts changes**
 - **T-704 proposed decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **PROPOSED**
 - **T-704 implementation plan:** **NOT STARTED**
 - **T-704 implementation:** **NOT STARTED**
@@ -457,5 +460,7 @@ T-703 MCP bridge:       UNCHANGED
 ```
 
 The approved design keeps OpenAPI subordinate to D-012 and separates source/provenance parsing from canonical SurfaceRelay semantics. Review also locked same-document-only refs, no secondary filesystem/network retrieval, exact fixed-operation selection, Path Item ref/sibling fail-closed behavior, schema-dialect compatibility checks, and source-description sanitization/explicit presentation resolution. No package code, parser dependency, generated runtime binding, HTTP execution path, or exposure mechanism exists yet.
+
+Design approval evidence is revision-bounded to `814d610e40ddbccee051885895070f9d08c7a76c` with Validate #876 / `35408438835` at **11/11 SUCCESS**.
 
 The next gate is **implementation-plan preparation only**. Implementation begins only after that plan is separately approved.
