@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer-design`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **SCOPE/DESIGN IN PROGRESS / IMPLEMENTATION NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **DESIGN APPROVED / IMPLEMENTATION PLAN NOT STARTED / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -101,11 +101,11 @@
 - **T-703 post-merge Python conformance:** **47/47 PASS**
 - **T-703 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **D-026:** **PROPOSED** — unchanged
-- **T-704 design:** `docs/superpowers/specs/2026-09-19-openapi-importer-design.md` — **DRAFT / DESIGN REVIEW PENDING**
+- **T-704 design:** `docs/superpowers/specs/2026-09-19-openapi-importer-design.md` — **APPROVED**
 - **T-704 proposed decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **PROPOSED**
 - **T-704 implementation plan:** **NOT STARTED**
 - **T-704 implementation:** **NOT STARTED**
-- **Next gate:** T-704 design review/approval only. Do not create the implementation plan or implementation before explicit design approval.
+- **Next gate:** T-704 implementation-plan preparation only. Do not start implementation before that plan is separately approved.
 
 ## M6 historical evidence — preserved
 
@@ -438,7 +438,7 @@ T-702 and T-703 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D
 
 ## T-704 scope/design gate
 
-T-704 is now open for scope/design review only.
+T-704 scope/design review is complete and the design is approved. Implementation planning has not started.
 
 ```text
 Branch:                 feat/t-704-openapi-importer-design
@@ -447,6 +447,7 @@ D-065:                  PROPOSED
 D-066:                  PROPOSED
 D-067:                  PROPOSED
 D-068:                  PROPOSED
+Design status:          APPROVED
 Implementation plan:    NOT STARTED
 Implementation:         NOT STARTED
 Canonical spec change:  NONE
@@ -455,6 +456,6 @@ T-701 conformance:      UNCHANGED
 T-703 MCP bridge:       UNCHANGED
 ```
 
-The design keeps OpenAPI subordinate to D-012 and separates source/provenance parsing from canonical SurfaceRelay semantics. No package code, parser dependency, generated runtime binding, HTTP execution path, or exposure mechanism exists yet.
+The approved design keeps OpenAPI subordinate to D-012 and separates source/provenance parsing from canonical SurfaceRelay semantics. Review also locked same-document-only refs, no secondary filesystem/network retrieval, exact fixed-operation selection, Path Item ref/sibling fail-closed behavior, schema-dialect compatibility checks, and source-description sanitization/explicit presentation resolution. No package code, parser dependency, generated runtime binding, HTTP execution path, or exposure mechanism exists yet.
 
-The next gate is **design review/approval only**. Implementation planning begins only after the design is explicitly approved.
+The next gate is **implementation-plan preparation only**. Implementation begins only after that plan is separately approved.

@@ -1,6 +1,6 @@
 # T-704 — Optional OpenAPI Importer Design
 
-**Status:** DRAFT / DESIGN REVIEW PENDING / IMPLEMENTATION NOT STARTED  
+**Status:** APPROVED DESIGN / IMPLEMENTATION PLAN NOT STARTED / IMPLEMENTATION NOT STARTED  
 **Task:** T-704  
 **Milestone:** M7 — Conformance / Ecosystem Bridges  
 **Branch:** `feat/t-704-openapi-importer-design`  
@@ -65,9 +65,11 @@ As of 2026-09-19, the latest published OpenAPI Specification is 3.2.1 (2026-09-1
 
 Why:
 
-- 3.1+ Schema Objects are aligned with modern JSON Schema semantics;
+- 3.1+ Schema Objects use an OAS dialect built on JSON Schema Draft 2020-12 semantics, while allowing dialect selection through `jsonSchemaDialect` / `$schema`;
 - supporting 3.0.x would require a separate schema-normalization/transpilation boundary;
 - Swagger/OpenAPI 2.0 is a different compatibility problem and is outside v1.
+
+Supporting the 3.1/3.2 document family does not imply accepting every Schema Object dialect or keyword. Unknown/custom schema dialects remain unresolved unless the later implementation plan proves an exact semantics-preserving boundary.
 
 Unsupported source versions fail closed with diagnostics.
 
@@ -113,7 +115,7 @@ The importer may extract source facts that are directly represented by OpenAPI:
 
 Extraction does not mean those facts become canonical SurfaceRelay fields.
 
-Descriptions may contain Markdown/HTML. They must be treated as untrusted documentation content and sanitized/bounded before they can become Action metadata.
+Descriptions may contain Markdown/HTML. Raw source text may be retained only as bounded provenance/evidence. It must never flow directly into canonical Action metadata or tool-facing metadata. Materialization requires either an explicit presentation override or a deterministic bounded sanitization policy defined and verified by the implementation plan.
 
 ## 7. No silent SurfaceRelay semantic inference
 
@@ -186,14 +188,17 @@ OpenAPI descriptions are untrusted input.
 
 v1 ingestion boundary:
 
-- local JSON or YAML description input;
+- exactly one caller-supplied root OpenAPI document, represented as JSON or YAML content;
 - OpenAPI 3.1.x or 3.2.x only;
-- local fragment `$ref` resolution only;
-- no HTTP/HTTPS/file-URI/network dereferencing;
+- local same-document fragment `$ref` resolution only;
+- no importer-initiated secondary filesystem reads and no HTTP/HTTPS/file-URI/network dereferencing;
 - reference cycles must be detected;
 - document size, nesting depth, operation count, reference expansion, and diagnostic volume must be bounded;
 - parser-specific YAML aliases/custom tags must not bypass resource limits or instantiate arbitrary objects;
+- unknown/custom Schema Object dialects fail closed into unresolved diagnostics unless explicitly supported;
 - malformed/unsupported constructs produce bounded diagnostics.
+
+A future CLI may read the one explicitly supplied root file on behalf of the user, but reference resolution itself must not discover or open additional filesystem paths.
 
 Exact numeric limits and parser/library choices belong in the later implementation plan.
 
@@ -201,10 +206,18 @@ Exact numeric limits and parser/library choices belong in the later implementati
 
 v1 considers operations under the root `paths` surface only.
 
+Supported fixed operation fields are the standard methods defined by the source OAS family:
+
+- OpenAPI 3.1: `get`, `put`, `post`, `delete`, `options`, `head`, `patch`, `trace`;
+- OpenAPI 3.2: the same set plus the fixed `query` operation.
+
+Boundaries:
+
 - callbacks are not independently imported;
 - webhooks are not independently imported;
+- OpenAPI 3.2 `additionalOperations` is explicitly unsupported in v1 and produces a diagnostic rather than an imported action;
 - external path documents are not fetched;
-- OpenAPI 3.2 `additionalOperations` is out of v1 unless the implementation plan proves a bounded deterministic representation;
+- a Path Item using `$ref` together with sibling Path Item fields is rejected in v1 rather than relying on specification-defined/implementation-defined merge ambiguity;
 - unsupported operation shapes are reported, not silently skipped as successful imports.
 
 Path/operation-level parameters must be resolved according to OpenAPI override rules before candidate extraction.
@@ -214,6 +227,8 @@ Path/operation-level parameters must be resolved according to OpenAPI override r
 T-704 is not a universal OpenAPI-to-JSON-Schema transpiler.
 
 The candidate retains request fragments and ambiguity until an exact mapping can be proven.
+
+OpenAPI Schema Objects must not be blindly copied into canonical SurfaceRelay JSON Schema. Materialization is allowed only for a supported dialect/keyword subset whose semantics are preserved exactly; unsupported OAS vocabulary, custom `$schema` / `jsonSchemaDialect`, or serialization-dependent meaning remains unresolved.
 
 v1 should prefer JSON-compatible request shapes. Cases that require explicit resolution or diagnostic rejection include:
 
@@ -238,12 +253,13 @@ HTTP status codes do not redefine SurfaceRelay ActionResult status semantics.
 
 OpenAPI `security` and Security Scheme Objects are evidence about endpoint authentication requirements, not SurfaceRelay authorization/trusted-context configuration.
 
-The importer may report:
+The importer first computes the effective operation security evidence using OpenAPI's top-level/operation override rules, then may report:
 
 ```text
 source declares bearer/OAuth/API-key security
 source allows anonymous alternative
 source requires multiple schemes
+source explicitly removes inherited top-level security
 ```
 
 It must not:
@@ -320,15 +336,20 @@ Implementation planning must include:
 
 - OpenAPI 3.0 / Swagger 2.0 rejected;
 - external URL/file `$ref` rejected;
+- secondary filesystem reference reads rejected;
 - cyclic references bounded;
 - oversized/deep/ref-expansion input bounded;
-- Markdown/HTML description handling;
+- Path Item `$ref` + sibling ambiguity rejected;
+- unknown/custom Schema Object dialect remains unresolved;
+- Markdown/HTML description cannot flow directly to canonical/tool-facing metadata;
 - multiple media types remain unresolved;
 - multiple success schemas remain unresolved;
 - HTTP method cannot silently set effect/risk/idempotency;
 - security scheme cannot create trusted context;
 - operationId cannot be lossy-normalized into Action ID;
-- callbacks/webhooks do not appear as imported actions.
+- callbacks/webhooks do not appear as imported actions;
+- OpenAPI 3.2 `additionalOperations` produces an unsupported diagnostic;
+- OpenAPI 3.2 fixed `query` operation is selected as an ordinary source operation without inferring SurfaceRelay semantics.
 
 ### 18.3 Architecture regression
 
@@ -352,13 +373,13 @@ Transport/API metadata cannot silently define SurfaceRelay policy/authority sema
 
 ### D-067 — Bounded OpenAPI ingestion
 
-v1 accepts local OpenAPI 3.1.x/3.2.x input only, forbids network reference fetching, and fails closed on cycles/resource limits/unsupported constructs.
+v1 accepts one caller-supplied OpenAPI 3.1.x/3.2.x root document, resolves only same-document fragment references, performs no secondary filesystem/network retrieval, and fails closed on cycles, resource limits, unsupported/ambiguous constructs, and unsupported schema dialects.
 
 ### D-068 — Source identity/provenance separation
 
 OpenAPI operation identity and HTTP location remain import provenance. Final exact SurfaceRelay `id + version` is explicitly resolved; no lossy automatic identity conversion is permitted.
 
-All four decisions remain PROPOSED until design approval, implementation, verification, and external review justify later promotion.
+The design is approved, but all four decisions remain PROPOSED until implementation, verification, and external review justify later promotion.
 
 ## 20. Explicit non-goals
 
@@ -380,12 +401,27 @@ T-704 v1 does not:
 
 ## 21. Implementation gate
 
-This document opens the scope/design gate only.
+This design is approved. Approval does not start implementation.
 
 Before implementation:
 
-1. this design must be reviewed and explicitly approved;
-2. D-065 through D-068 remain PROPOSED;
-3. T-704 tracking must continue to say implementation not started;
-4. a separate implementation plan must be written after design approval;
-5. implementation begins only after that plan is separately approved.
+1. D-065 through D-068 remain PROPOSED;
+2. T-704 tracking must continue to say implementation not started;
+3. a separate implementation plan must be written in the next explicit gate;
+4. that plan must define parser/library choice, resource limits, supported schema dialect/keyword subset, candidate/resolution data model, fixture matrix, and package/dependency boundary;
+5. implementation begins only after the implementation plan is separately approved.
+
+## 22. Design review outcome
+
+**APPROVED** after explicit review of scope alignment, accepted-decision consistency, dependency direction, ambiguity handling, security/resource boundaries, and verification strategy.
+
+Review refinements added before approval:
+
+- one caller-supplied root document and no secondary filesystem/network reference retrieval;
+- exact fixed-operation selection, including OpenAPI 3.2 `query`, while rejecting `additionalOperations` in v1;
+- fail-closed handling for Path Item `$ref` sibling ambiguity;
+- explicit Schema Object dialect/keyword compatibility boundary instead of blind schema copying;
+- effective OpenAPI security inheritance remains source evidence only;
+- untrusted Markdown/HTML source descriptions cannot flow directly to Action/tool metadata.
+
+No implementation plan, package code, parser dependency, runtime behavior, canonical schema, conformance semantics, or MCP behavior is introduced by this approval.
