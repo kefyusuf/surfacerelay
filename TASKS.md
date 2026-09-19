@@ -608,10 +608,10 @@ T-701 conformance changes:     NONE
 T-703 MCP changes:             NONE
 ```
 
-Implementation plan: **NOT STARTED**.  
+Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **PREPARED / REVIEW PENDING**.  
 Implementation: **NOT STARTED**.
 
-Design review is complete and approved. The next gate is implementation-plan preparation only; no package/source/test implementation begins automatically.
+Design review is complete and approved. The implementation plan is prepared but not yet approved. The next gate is plan review/approval only; no package/source/test implementation begins automatically.
 
 ## Current boundary
 

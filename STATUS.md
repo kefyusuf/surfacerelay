@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer-design`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **DESIGN APPROVED / IMPLEMENTATION PLAN NOT STARTED / IMPLEMENTATION NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **DESIGN APPROVED / IMPLEMENTATION PLAN PREPARED / PLAN REVIEW PENDING / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -106,9 +106,9 @@
 - **T-704 design approval CI:** `#876` / `35408438835` — **11/11 SUCCESS**
 - **T-704 design diff audit:** **DOCUMENTATION/TRACKING ONLY; no packages/spec/conformance/scripts changes**
 - **T-704 proposed decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **PROPOSED**
-- **T-704 implementation plan:** **NOT STARTED**
+- **T-704 implementation plan:** `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **PREPARED / REVIEW PENDING**
 - **T-704 implementation:** **NOT STARTED**
-- **Next gate:** T-704 implementation-plan preparation only. Do not start implementation before that plan is separately approved.
+- **Next gate:** T-704 implementation-plan review/approval only. Do not start implementation before explicit plan approval.
 
 ## M6 historical evidence — preserved
 
@@ -451,7 +451,7 @@ D-066:                  PROPOSED
 D-067:                  PROPOSED
 D-068:                  PROPOSED
 Design status:          APPROVED
-Implementation plan:    NOT STARTED
+Implementation plan:    PREPARED / REVIEW PENDING
 Implementation:         NOT STARTED
 Canonical spec change:  NONE
 Runtime binding change: NONE
@@ -463,4 +463,4 @@ The approved design keeps OpenAPI subordinate to D-012 and separates source/prov
 
 Design approval evidence is revision-bounded to `814d610e40ddbccee051885895070f9d08c7a76c` with Validate #876 / `35408438835` at **11/11 SUCCESS**.
 
-The next gate is **implementation-plan preparation only**. Implementation begins only after that plan is separately approved.
+The implementation plan is prepared at `docs/superpowers/plans/2026-09-19-openapi-importer.md`. The next gate is **plan review/approval only**. Implementation begins only after that plan is separately approved.
