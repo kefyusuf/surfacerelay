@@ -569,8 +569,38 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-- T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
+### T-704 — Optional OpenAPI importer as a secondary adapter — SCOPE/DESIGN IN PROGRESS / IMPLEMENTATION NOT STARTED
+
+Design draft:
+
+```text
+docs/superpowers/specs/2026-09-19-openapi-importer-design.md
+```
+
+Scope/design boundary under review:
+
+- D-012 remains authoritative: OpenAPI is secondary/import-only and does not define SurfaceRelay architecture;
+- importer output begins as an import candidate + diagnostics, not an executable Action Definition;
+- no RuntimeBinding, HTTP executor, authorization, trusted-context source, MCP/WebMCP exposure, or ActionBus path is created by import;
+- OpenAPI transport metadata must not silently determine SurfaceRelay risk/authority semantics;
+- final Action `id + version` is explicitly resolved; `operationId`/method/path remain provenance only;
+- v1 ingestion is bounded to OpenAPI 3.1.x and 3.2.x local documents with no network/external reference fetching;
+- local references must be cycle-safe/resource-bounded and unsupported or ambiguous source constructs fail closed into diagnostics;
+- callbacks/webhooks do not become independent imported actions in v1;
+- canonical spec, T-701 conformance, T-703 MCP projection, and runtime binding behavior remain unchanged.
+
+Proposed decisions:
+
+- D-065 — candidate-only secondary importer boundary;
+- D-066 — no silent SurfaceRelay semantic inference from HTTP/OpenAPI metadata;
+- D-067 — bounded OpenAPI 3.1/3.2 local ingestion and reference safety;
+- D-068 — OpenAPI source identity/provenance is separate from exact Action identity.
+
+Implementation plan: **NOT STARTED**.  
+Implementation: **NOT STARTED**.
+
+This gate is design-only. The next step, after explicit design approval, is a separate implementation-plan gate; no package/source/test implementation begins automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is in **SCOPE/DESIGN REVIEW**; implementation has not started. No later task begins automatically.

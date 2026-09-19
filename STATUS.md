@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/t-704-openapi-importer-design`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** **NONE** — T-704 remains **NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **SCOPE/DESIGN IN PROGRESS / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -33,7 +33,7 @@
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064` — **ACCEPTED**
-- **Proposed decisions:** `D-026` — **PROPOSED**
+- **Proposed decisions:** `D-026`, `D-065`, `D-066`, `D-067`, `D-068` — **PROPOSED**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
@@ -101,7 +101,11 @@
 - **T-703 post-merge Python conformance:** **47/47 PASS**
 - **T-703 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **D-026:** **PROPOSED** — unchanged
-- **Next gate:** none automatically. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
+- **T-704 design:** `docs/superpowers/specs/2026-09-19-openapi-importer-design.md` — **DRAFT / DESIGN REVIEW PENDING**
+- **T-704 proposed decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **PROPOSED**
+- **T-704 implementation plan:** **NOT STARTED**
+- **T-704 implementation:** **NOT STARTED**
+- **Next gate:** T-704 design review/approval only. Do not create the implementation plan or implementation before explicit design approval.
 
 ## M6 historical evidence — preserved
 
@@ -430,4 +434,27 @@ Locked design direction:
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 and T-703 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-704 remains TODO. No later task begins automatically.
+T-702 and T-703 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is design-only at this gate; no implementation has started.
+
+## T-704 scope/design gate
+
+T-704 is now open for scope/design review only.
+
+```text
+Branch:                 feat/t-704-openapi-importer-design
+Design:                 docs/superpowers/specs/2026-09-19-openapi-importer-design.md
+D-065:                  PROPOSED
+D-066:                  PROPOSED
+D-067:                  PROPOSED
+D-068:                  PROPOSED
+Implementation plan:    NOT STARTED
+Implementation:         NOT STARTED
+Canonical spec change:  NONE
+Runtime binding change: NONE
+T-701 conformance:      UNCHANGED
+T-703 MCP bridge:       UNCHANGED
+```
+
+The design keeps OpenAPI subordinate to D-012 and separates source/provenance parsing from canonical SurfaceRelay semantics. No package code, parser dependency, generated runtime binding, HTTP execution path, or exposure mechanism exists yet.
+
+The next gate is **design review/approval only**. Implementation planning begins only after the design is explicitly approved.
