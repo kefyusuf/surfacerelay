@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — DESIGN APPROVED / IMPLEMENTATION PLAN NOT STARTED / IMPLEMENTATION NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — DESIGN APPROVED / IMPLEMENTATION PLAN PREPARED / PLAN REVIEW PENDING / IMPLEMENTATION NOT STARTED
 
 Approved design:
 
