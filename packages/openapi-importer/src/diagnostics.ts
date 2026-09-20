@@ -15,7 +15,13 @@ export type ImportDiagnosticCode =
   | 'path_item_ref_sibling_ambiguous'
   | 'additional_operation_unsupported'
   | 'operation_limit_exceeded'
-  | 'source_text_too_large';
+  | 'source_text_too_large'
+  | 'unsupported_schema_dialect'
+  | 'schema_keyword_unsupported'
+  | 'schema_ref_sibling_unsupported'
+  | 'schema_limit_exceeded'
+  | 'ambiguous_input_mapping'
+  | 'ambiguous_success_output';
 
 export interface ImportDiagnostic {
   code: ImportDiagnosticCode;

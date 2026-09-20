@@ -25,6 +25,7 @@ import {
 } from '../refs/local-ref-resolver.js';
 import type { OpenApiFamily } from '../source/openapi-version.js';
 import { extractEffectiveParameters } from './effective-parameters.js';
+import { applySchemaSuggestions } from '../schema/schema-suggestion.js';
 import { extractEffectiveSecurity } from './effective-security.js';
 
 const METHODS_31 = [
@@ -505,15 +506,18 @@ export function selectRootPathOperations(
       }
 
       candidates.push(
-        buildCandidate(
+        applySchemaSuggestions(
           document,
-          pathItem,
-          rawOperation,
-          family,
-          openapiVersion,
-          pathTemplate,
-          method,
-          refBudget,
+          buildCandidate(
+            document,
+            pathItem,
+            rawOperation,
+            family,
+            openapiVersion,
+            pathTemplate,
+            method,
+            refBudget,
+          ),
         ),
       );
     }
