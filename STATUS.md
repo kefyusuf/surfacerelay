@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 5 COMPLETE / TASK 6 NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 6 COMPLETE / TASK 7 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,23 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IN PROGRESS — TASK 5 COMPLETE / TASK 6 NOT STARTED**
+- **T-704 implementation:** **IN PROGRESS — TASK 6 COMPLETE / TASK 7 NOT STARTED**
+- **T-704 Task 6 RED head:** `5d132bb1ac019e39e2270eacc5acd0bb253db4c9`
+- **T-704 Task 6 RED CI:** `#905` / `35534734087` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 6 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–5 tests **122 PASS**; Task 6 report/candidate-builder contract **10/10 expected FAIL**
+- **T-704 Task 6 GREEN head:** `cd6b4e68e544f9c310f93af72b9db42623aad180`
+- **T-704 Task 6 GREEN CI:** `#906` / `35534812616` — **12/12 SUCCESS**
+- **T-704 Task 6 final implementation head:** `e9f1c761a378fe7978fab6c13627a2c9bc7ed8fd`
+- **T-704 Task 6 final implementation CI:** `#907` / `35534896771` — **12/12 SUCCESS**
+- **T-704 Task 6 importer suite:** **6 files / 132 tests PASS + typecheck + npm ci**
+- **T-704 Task 6 report pipeline:** **parse → version-family → root operation selection → safe schema suggestions → deterministic report**
+- **T-704 Task 6 candidate ordering:** **pathTemplate → httpMethod → operationPointer**
+- **T-704 Task 6 diagnostic ordering:** **sourcePointer → code → insertion sequence; duplicate diagnostics preserved**
+- **T-704 Task 6 diagnostic budget:** **500 final entries maximum; overflow becomes 499 ordinary + one terminal diagnostic_limit_reached**
+- **T-704 Task 6 diagnostic ownership:** **candidate diagnostics retained on candidates and aggregated into report with operation provenance**
+- **T-704 Task 6 public API:** **importOpenApi() + OpenApiImportReport exported from package entrypoint**
+- **T-704 Task 6 capability audit:** **no filesystem/network/runtime-binding/execution/exposure capability**
+- **T-704 Task 6 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
 - **T-704 Task 5 RED head:** `dae76466437c5e6cf720bcb3b1cedb3f5fbaa32f`
 - **T-704 Task 5 RED CI:** `#900` / `35533887718` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
 - **T-704 Task 5 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–4 tests **67 PASS**; Task 5 schema/suggestion contract **52/52 expected FAIL**
@@ -181,7 +197,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 Task 6 deterministic import report/candidate-builder only. Do not advance beyond Task 6 automatically.
+- **Next gate:** T-704 Task 7 explicit SurfaceRelay materialization only. Do not advance beyond Task 7 automatically.
 
 ## M6 historical evidence — preserved
 

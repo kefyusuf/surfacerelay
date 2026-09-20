@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 5 COMPLETE / TASK 6 NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 6 COMPLETE / TASK 7 NOT STARTED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IN PROGRESS — TASK 5 COMPLETE / TASK 6 NOT STARTED**.
+Implementation: **IN PROGRESS — TASK 6 COMPLETE / TASK 7 NOT STARTED**.
 
 Plan approval evidence:
 
@@ -795,8 +795,43 @@ Task 5 added only conservative schema copying and reusable input/output suggesti
 
 Task 5 self-review passed for semantics-preserving whitelist handling, annotation non-leakage, custom-dialect and unsupported-keyword fail-closed behavior, local-ref cycle/sibling safety, 5,000-node resource accounting, ambiguity-safe input/output selection, prior-blocking evidence handling, no-I/O capability, plan file/scope alignment, dependency direction, brownfield safety, and exact verification evidence.
 
-The next gate is **Task 6 — deterministic import report + candidate-builder integration only**. Do not begin Task 7 automatically.
+Task 6 implementation evidence:
+
+```text
+Task:                           deterministic import report + candidate-builder integration
+RED head:                       5d132bb1ac019e39e2270eacc5acd0bb253db4c9
+RED validate:                   #905 / 35534734087 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 122 tests PASS; Task 6 tests 10/10 expected FAIL
+GREEN head:                     cd6b4e68e544f9c310f93af72b9db42623aad180
+GREEN validate:                 #906 / 35534812616 — 12/12 SUCCESS
+Final implementation head:      e9f1c761a378fe7978fab6c13627a2c9bc7ed8fd
+Final implementation validate:  #907 / 35534896771 — 12/12 SUCCESS
+Importer final GREEN:           6 test files / 132 tests PASS + typecheck + npm ci
+Pipeline:                       parse -> version family -> operation selection -> schema suggestions -> report
+Candidate order:                pathTemplate -> httpMethod -> operationPointer
+Report diagnostics order:       sourcePointer -> code -> insertion sequence
+Duplicate diagnostics:          preserved
+Report diagnostic cap:          500 final entries
+Overflow behavior:              499 ordinary + diagnostic_limit_reached terminal entry
+Candidate diagnostics:          retained locally and aggregated into report with operation provenance
+OpenAPI version on report:      preserved when source version string exists
+Unsupported version:            stops before operation selection
+Task 5 enrichment integration:  performed only by candidate-builder
+Public package API:             importOpenApi + OpenApiImportReport
+Filesystem/network capability:  NONE
+RuntimeBinding/ActionBus:       NONE
+SurfaceRelay policy inference:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 6 integrated the previously isolated parser, version classifier, operation evidence, and safe schema-suggestion primitives into one deterministic import-report pipeline. It does not materialize canonical Action Definitions, synthesize Action identity/version, create RuntimeBindings, execute HTTP, authorize callers, infer trusted context/effect/risk/idempotency, or expose MCP/WebMCP tools.
+
+Task 6 self-review passed for deterministic candidate/report ordering, diagnostic ownership and duplicate preservation, 500-entry final-report cap, early stop on parse/version failure, no hidden execution/exposure path, importer-local diagnostics, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+The next gate is **Task 7 — explicit SurfaceRelay resolution + canonical Action Definition materialization only**. Do not begin Task 8 automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 5 COMPLETE / TASK 6 NOT STARTED**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 6 COMPLETE / TASK 7 NOT STARTED**. No later task begins automatically.
