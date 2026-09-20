@@ -21,12 +21,14 @@ export type ImportDiagnosticCode =
   | 'schema_ref_sibling_unsupported'
   | 'schema_limit_exceeded'
   | 'ambiguous_input_mapping'
-  | 'ambiguous_success_output';
+  | 'ambiguous_success_output'
+  | 'diagnostic_limit_reached';
 
 export interface ImportDiagnostic {
   code: ImportDiagnosticCode;
   message: string;
   blocking: boolean;
+  sourcePointer?: string;
 }
 
 export function blockingDiagnostic(

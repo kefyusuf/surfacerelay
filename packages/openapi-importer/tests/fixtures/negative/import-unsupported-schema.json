@@ -1,0 +1,28 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Bad schema",
+    "version": "1"
+  },
+  "paths": {
+    "/x": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "none"
+          }
+        }
+      }
+    }
+  }
+}

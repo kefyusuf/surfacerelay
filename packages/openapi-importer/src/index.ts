@@ -11,3 +11,6 @@ export type {
   SourceFormat,
 } from './source/parse-source.js';
 export { parseOpenApiSource } from './source/parse-source.js';
+
+export type { OpenApiImportReport } from './import/candidate-builder.js';
+export { importOpenApi } from './import/candidate-builder.js';
