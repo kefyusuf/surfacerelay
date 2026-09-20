@@ -107,6 +107,9 @@
 - **T-704 design diff audit:** **DOCUMENTATION/TRACKING ONLY; no packages/spec/conformance/scripts changes**
 - **T-704 proposed decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **PROPOSED**
 - **T-704 implementation plan:** `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**
+- **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
+- **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
+- **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
 - **T-704 implementation:** **NOT STARTED**
 - **Next gate:** T-704 implementation execution preflight + Task 1 only. Do not advance beyond Task 1 automatically.
 

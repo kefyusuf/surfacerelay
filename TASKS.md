@@ -611,6 +611,20 @@ T-703 MCP changes:             NONE
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
 Implementation: **NOT STARTED**.
 
+Plan approval evidence:
+
+```text
+Plan approval head:            9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d
+Validate:                      #880 / 35495182605 — 11/11 SUCCESS
+Changed paths:                 plan/design/STATUS/TASKS only
+Implementation package:       NOT CREATED
+CI definition change:          NONE
+Canonical spec change:         NONE
+Runtime/conformance change:    NONE
+D-065..D-068:                  PROPOSED
+D-026:                         PROPOSED
+```
+
 Design and implementation plan are approved. The next gate is implementation execution preflight/Task 1 only; no package/source/test implementation begins automatically from this approval.
 
 ## Current boundary
