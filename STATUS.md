@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 2 COMPLETE / TASK 3 NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 3 COMPLETE / TASK 4 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,19 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IN PROGRESS — TASK 2 COMPLETE / TASK 3 NOT STARTED**
+- **T-704 implementation:** **IN PROGRESS — TASK 3 COMPLETE / TASK 4 NOT STARTED**
+- **T-704 Task 3 initial RED head:** `c7a817dd330d523f915996ac81a77c47bdef06ee` — `#891` typecheck RED because ref-budget constants were intentionally not yet present
+- **T-704 Task 3 corrected RED head:** `bdc3329b35189ede1a12c66a7a116f7625ea4bfe`
+- **T-704 Task 3 corrected RED CI:** `#892` / `35497077001` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 3 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–2 tests **15 PASS**; Task 3 version/ref contract **32/32 expected FAIL**
+- **T-704 Task 3 GREEN head:** `4deab64fd7aa8ddc4b71660836e0d3bf06132ad1`
+- **T-704 Task 3 GREEN CI:** `#893` / `35497163796` — **12/12 SUCCESS**
+- **T-704 Task 3 importer suite:** **3 files / 47 tests PASS + typecheck + npm ci**
+- **T-704 Task 3 version boundary:** **OpenAPI 3.1.x / 3.2.x semantic patch families only**
+- **T-704 Task 3 ref boundary:** **same-document JSON Pointer only; external refs and named anchors fail closed**
+- **T-704 Task 3 ref budgets:** **32 hops / cycle detection / 4,096 unique targets**
+- **T-704 Task 3 capability audit:** **lookup-only; no dereference copy, filesystem or network capability**
+- **T-704 Task 3 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
 - **T-704 Task 2 RED head:** `e72e03052a289d99931a3fa52b85c5c1d8f6b97c`
 - **T-704 Task 2 RED CI:** `#886` / `35496515711` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
 - **T-704 Task 2 RED proof:** importer `npm ci` + typecheck SUCCESS; source parser contract **12/12 failed as expected** while Task 1 architecture tests stayed green
@@ -130,7 +142,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 Task 3 OpenAPI version-family + same-document JSON Pointer resolver only. Do not advance beyond Task 3 automatically.
+- **Next gate:** T-704 Task 4 root-path operation/provenance/effective parameter/security evidence only. Do not advance beyond Task 4 automatically.
 
 ## M6 historical evidence — preserved
 

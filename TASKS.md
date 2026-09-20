@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 2 COMPLETE / TASK 3 NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 3 COMPLETE / TASK 4 NOT STARTED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IN PROGRESS — TASK 2 COMPLETE / TASK 3 NOT STARTED**.
+Implementation: **IN PROGRESS — TASK 3 COMPLETE / TASK 4 NOT STARTED**.
 
 Plan approval evidence:
 
@@ -678,8 +678,40 @@ Task 2 added only bounded source parsing and importer-local diagnostics/types. I
 
 Task 2 self-review passed for untrusted-input handling, alias/tag attack-surface containment, duplicate-key ambiguity, prototype safety, resource budgets, deterministic fail-closed diagnostics, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
 
-The next gate is **Task 3 — OpenAPI version family + same-document JSON Pointer references only**. Do not begin Task 4 automatically.
+Task 3 implementation evidence:
+
+```text
+Task:                           OpenAPI version family + same-document JSON Pointer references
+Initial RED head:               c7a817dd330d523f915996ac81a77c47bdef06ee
+Initial RED validate:           #891 — typecheck FAIL (ref-budget constants absent)
+Corrected RED head:             bdc3329b35189ede1a12c66a7a116f7625ea4bfe
+Corrected RED validate:         #892 / 35497077001 — expected FAILURE
+Corrected RED proof:            existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 15 tests PASS; Task 3 tests 32/32 expected FAIL
+GREEN head:                     4deab64fd7aa8ddc4b71660836e0d3bf06132ad1
+GREEN validate:                 #893 / 35497163796 — 12/12 SUCCESS
+Importer GREEN:                 3 test files / 47 tests PASS + typecheck + npm ci
+Accepted OpenAPI families:      3.1.x and 3.2.x semantic patch triplets
+Fragment decoding:              percent-decode exactly once, then strict JSON Pointer ~1/~0
+External/file/network refs:     fail closed
+Named anchors:                  fail closed
+Missing/invalid pointer:        fail closed
+Array pointer syntax:           exact index syntax; leading-zero indexes rejected
+Reference hop budget:           32
+Cycle detection:                active traversal branch
+Unique-target budget:           4,096 shared across forked sibling traversals
+Resolver copy behavior:         NONE — returns exact referenced value
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 3 added only source-version classification, same-document JSON Pointer parsing/lookup, importer-local ref diagnostics, and traversal budgets. It does not recursively dereference schemas, select OpenAPI operations, fetch any resource, create candidates, infer SurfaceRelay semantics, materialize Action Definitions, or add runtime/exposure behavior.
+
+Task 3 self-review passed for D-067 alignment, no-I/O capability, strict one-pass URI-fragment/JSON-Pointer decoding, fail-closed external/anchor behavior, exact lookup/no-copy semantics, cycle/hop/unique-target bounding, dependency direction, brownfield safety, and exact verification evidence.
+
+The next gate is **Task 4 — root path operation selection + exact provenance + effective parameter/security evidence only**. Do not begin Task 5 automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 2 COMPLETE / TASK 3 NOT STARTED**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 3 COMPLETE / TASK 4 NOT STARTED**. No later task begins automatically.
