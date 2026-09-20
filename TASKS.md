@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — DESIGN APPROVED / IMPLEMENTATION PLAN APPROVED / IMPLEMENTATION NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 1 COMPLETE / TASK 2 NOT STARTED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **NOT STARTED**.
+Implementation: **IN PROGRESS — TASK 1 COMPLETE / TASK 2 NOT STARTED**.
 
 Plan approval evidence:
 
@@ -625,7 +625,28 @@ D-065..D-068:                  PROPOSED
 D-026:                         PROPOSED
 ```
 
-Design and implementation plan are approved. The next gate is implementation execution preflight/Task 1 only; no package/source/test implementation begins automatically from this approval.
+Task 1 implementation evidence:
+
+```text
+Branch:                         feat/t-704-openapi-importer
+RED head:                       d09d6cd3034a1a897cfebba185a054b1cf8c4a8b
+RED validate:                   #883 / 35496056306 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; Vitest 1 failed / 2 passed
+RED reason:                     minimal production entry point src/index.ts absent
+GREEN head:                     185e9c2e0455831b4e896fb0176b39555742010a
+GREEN validate:                 #884 / 35496138107 — 12/12 SUCCESS
+Importer GREEN:                 1 test file / 3 tests PASS + typecheck + npm ci
+Production dependency:          yaml ^2.9.1 only
+Resolved lock examples:         yaml 2.9.1; TypeScript 5.9.3; Vitest 3.2.7
+Forbidden implementation diff:  EMPTY
+```
+
+Task 1 created only the optional framework-neutral package scaffold, lockfile, TypeScript config, minimal entry point, architecture guard, and one CI job. It created no parser, reference resolver, candidate model, materializer, HTTP execution path, RuntimeBinding, trusted authority source, or exposure behavior.
+
+Task 1 self-review passed for scope alignment, D-012/D-065 consistency, dependency direction/capability isolation, unnecessary-complexity avoidance, brownfield safety, and exact verification evidence.
+
+The next gate is **Task 2 — bounded JSON/YAML source parsing only**. Do not begin Task 3 automatically.
 
 ## Current boundary
 

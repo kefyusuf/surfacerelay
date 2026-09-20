@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/t-704-openapi-importer-design`
+- **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **DESIGN APPROVED / IMPLEMENTATION PLAN APPROVED / IMPLEMENTATION NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 1 COMPLETE / TASK 2 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,8 +110,16 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **NOT STARTED**
-- **Next gate:** T-704 implementation execution preflight + Task 1 only. Do not advance beyond Task 1 automatically.
+- **T-704 implementation:** **IN PROGRESS — TASK 1 COMPLETE / TASK 2 NOT STARTED**
+- **T-704 Task 1 RED head:** `d09d6cd3034a1a897cfebba185a054b1cf8c4a8b`
+- **T-704 Task 1 RED CI:** `#883` / `35496056306` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 1 RED proof:** importer `npm ci` + typecheck SUCCESS; Vitest **1 failed / 2 passed** because `src/index.ts` was intentionally absent
+- **T-704 Task 1 GREEN head:** `185e9c2e0455831b4e896fb0176b39555742010a`
+- **T-704 Task 1 GREEN CI:** `#884` / `35496138107` — **12/12 SUCCESS**
+- **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
+- **T-704 Task 1 production dependency:** **yaml only**
+- **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
+- **Next gate:** T-704 Task 2 bounded source parser only. Do not advance beyond Task 2 automatically.
 
 ## M6 historical evidence — preserved
 
