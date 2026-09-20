@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 7 COMPLETE / TASK 8 NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IN PROGRESS — TASK 7 COMPLETE / TASK 8 NOT STARTED**.
+Implementation: **IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING**.
 
 Plan approval evidence:
 
@@ -867,8 +867,34 @@ Task 7 added only explicit resolution types, canonical Action Definition materia
 
 Task 7 self-review passed for D-065/D-066/D-068 alignment, exact Action identity/version handling, explicit semantic completion, trusted-context non-inference, schema deep-copy/resource safety, canonical-schema alignment, provenance separation, duplicate identity rejection, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
 
-The next gate is **Task 8 — documentation + full verification + external-review handoff only**. Do not promote D-065..D-068, merge, close T-704, or start later work automatically.
+Task 8 handoff preparation evidence:
+
+```text
+Implementation code head:       58d18dc201be5e50ea7e20d1747d906a3ec5a412
+Implementation validate:        #911 / 35537472977 — 12/12 SUCCESS
+Pre-handoff tracking head:      106cba54fe85909362cab3c1ec5f3d1db1036011
+Pre-handoff validate:           #912 / 35537581965 — 12/12 SUCCESS
+OpenAPI importer:               7 files / 171 tests PASS + typecheck + npm ci
+Browser runtime:                20 files / 328 tests PASS + typecheck
+Python conformance tests:       47/47 PASS
+Runtime conformance matrix:     7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Laravel matrix:                 4/4 SUCCESS; 595 tests / 3164 assertions
+Laravel MCP matrix:             4/4 SUCCESS; 47 tests / 337 assertions
+Contract validation:            PASS
+PHP lint:                       PASS
+Forbidden path audit:           PASS against main merge-base 7e26d61a...
+Production dependency:          yaml ^2.9.1 only
+Generic OpenAPI dereferencer:   NONE
+Filesystem/network retrieval:   NONE
+Internal SurfaceRelay deps:     NONE
+D-065..D-068:                   PROPOSED
+D-026:                          PROPOSED
+```
+
+Task 8 documentation/review handoff is prepared. The exact handoff commit must complete the full 12-job matrix before state advances to **IMPLEMENTED / EXTERNAL REVIEW PENDING**.
+
+Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 7 COMPLETE / TASK 8 NOT STARTED**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING**. No later task begins automatically.
