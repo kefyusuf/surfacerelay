@@ -1,6 +1,7 @@
 import {
   isAlias,
   isMap,
+  isNode,
   isScalar,
   isSeq,
   parseDocument,
@@ -204,8 +205,16 @@ function convertYamlNode(rootNode: Node | null): JsonValue {
         }
         seenKeys.add(keyNode.value);
 
+        const valueNode = pair.value;
+        if (valueNode !== null && !isNode(valueNode)) {
+          throw new YamlConversionError(
+            'invalid_yaml',
+            'YAML mapping value is not a supported parsed node.',
+          );
+        }
+
         pending.push({
-          node: pair.value as Node | null,
+          node: valueNode,
           depth: work.depth + 1,
           parent: target,
           key: keyNode.value,
