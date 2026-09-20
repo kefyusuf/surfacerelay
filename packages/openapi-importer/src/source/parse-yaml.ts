@@ -149,8 +149,16 @@ function convertYamlNode(rootNode: Node | null): JsonValue {
       });
 
       for (let index = node.items.length - 1; index >= 0; index -= 1) {
+        const itemNode = node.items[index] ?? null;
+        if (itemNode !== null && !isNode(itemNode)) {
+          throw new YamlConversionError(
+            'invalid_yaml',
+            'YAML sequence item is not a supported parsed node.',
+          );
+        }
+
         pending.push({
-          node: node.items[index] ?? null,
+          node: itemNode,
           depth: work.depth + 1,
           parent: target,
           key: index,
