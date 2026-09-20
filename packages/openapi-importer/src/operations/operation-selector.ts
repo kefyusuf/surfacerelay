@@ -178,35 +178,71 @@ function resolvePathItem(
   return { value: current, diagnostics: [] };
 }
 
+interface MediaTypeExtractionResult {
+  evidence: MediaTypeEvidence[];
+  diagnostics: ImportDiagnostic[];
+}
+
 function extractMediaTypes(
   rawContent: JsonValue | undefined,
   basePointer: string,
-): MediaTypeEvidence[] {
+): MediaTypeExtractionResult {
+  if (rawContent === undefined) {
+    return { evidence: [], diagnostics: [] };
+  }
+
   if (!isJsonObject(rawContent)) {
-    return [];
+    return {
+      evidence: [],
+      diagnostics: [
+        blockingDiagnostic(
+          'invalid_openapi_document',
+          `Content at ${basePointer}/content must be an object when present.`,
+        ),
+      ],
+    };
   }
 
   const evidence: MediaTypeEvidence[] = [];
+  const diagnostics: ImportDiagnostic[] = [];
 
   for (const mediaType of Object.keys(rawContent).sort()) {
+    const mediaPointer =
+      `${basePointer}/content/${encodePointerToken(mediaType)}`;
     const mediaObject = rawContent[mediaType];
+
     if (!isJsonObject(mediaObject)) {
+      diagnostics.push(
+        blockingDiagnostic(
+          'invalid_openapi_document',
+          `Media Type Object at ${mediaPointer} must be an object.`,
+        ),
+      );
       continue;
     }
 
     const item: MediaTypeEvidence = {
       mediaType,
-      sourcePointer: `${basePointer}/content/${encodePointerToken(mediaType)}`,
+      sourcePointer: mediaPointer,
     };
 
-    if (isJsonObject(mediaObject.schema)) {
-      item.schema = mediaObject.schema;
+    if (mediaObject.schema !== undefined) {
+      if (!isJsonObject(mediaObject.schema)) {
+        diagnostics.push(
+          blockingDiagnostic(
+            'invalid_openapi_document',
+            `Schema at ${mediaPointer}/schema must be an object when present.`,
+          ),
+        );
+      } else {
+        item.schema = mediaObject.schema;
+      }
     }
 
     evidence.push(item);
   }
 
-  return evidence;
+  return { evidence, diagnostics };
 }
 
 function extractRequestBodies(
@@ -231,13 +267,21 @@ function extractRequestBodies(
   }
 
   const pointer = `${operationPointer}/requestBody`;
+  const contentEvidence = extractMediaTypes(
+    resolved.value.content,
+    pointer,
+  );
+
   return {
     evidence: [{
       required: resolved.value.required === true,
-      content: extractMediaTypes(resolved.value.content, pointer),
+      content: contentEvidence.evidence,
       sourcePointer: pointer,
     }],
-    diagnostics: resolved.diagnostics,
+    diagnostics: [
+      ...resolved.diagnostics,
+      ...contentEvidence.diagnostics,
+    ],
   };
 }
 
@@ -278,9 +322,15 @@ function extractResponses(
       continue;
     }
 
+    const contentEvidence = extractMediaTypes(
+      response.value.content,
+      responsePointer,
+    );
+    diagnostics.push(...contentEvidence.diagnostics);
+
     evidence.push({
       statusCode,
-      content: extractMediaTypes(response.value.content, responsePointer),
+      content: contentEvidence.evidence,
       sourcePointer: responsePointer,
     });
   }
