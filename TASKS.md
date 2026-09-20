@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 6 COMPLETE / TASK 7 NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 7 COMPLETE / TASK 8 NOT STARTED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IN PROGRESS — TASK 6 COMPLETE / TASK 7 NOT STARTED**.
+Implementation: **IN PROGRESS — TASK 7 COMPLETE / TASK 8 NOT STARTED**.
 
 Plan approval evidence:
 
@@ -830,8 +830,45 @@ Task 6 integrated the previously isolated parser, version classifier, operation 
 
 Task 6 self-review passed for deterministic candidate/report ordering, diagnostic ownership and duplicate preservation, 500-entry final-report cap, early stop on parse/version failure, no hidden execution/exposure path, importer-local diagnostics, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
 
-The next gate is **Task 7 — explicit SurfaceRelay resolution + canonical Action Definition materialization only**. Do not begin Task 8 automatically.
+Task 7 implementation evidence:
+
+```text
+Task:                           explicit SurfaceRelay resolution + canonical Action Definition materialization
+Initial RED head:               e215133ab38d3d5644f1664a41c0bb3ce0d9fb72
+Initial RED validate:           #909 — typecheck FAIL in diagnostic/AJV test-contract typing
+Corrected RED head:             479312aed8f4e0ac93f9fb53046bfd64ab7394d2
+Corrected RED validate:         #910 / 35537328082 — expected FAILURE
+Corrected RED proof:            existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 132 tests PASS; Task 7 tests 39/39 expected FAIL
+GREEN head:                     58d18dc201be5e50ea7e20d1747d906a3ec5a412
+GREEN validate:                 #911 / 35537472977 — 12/12 SUCCESS
+Importer GREEN:                 7 test files / 171 tests PASS + typecheck + npm ci
+Required explicit semantics:    id/version/title/description/scope/effect/risk/idempotency/output policy/context/input+output schema choice
+Action id:                      exact canonical lowercase dot grammar; max 160 bytes; no normalization
+Action version:                 positive integer only
+Title/description:              1..120 / 1..2000 Unicode code points; no trimming/fallback
+Context requirements:           canonical enum only; unique; deterministic canonical order
+OpenAPI semantic fallback:      NONE
+Candidate suggestion use:       requires present non-blocked suggestion
+Explicit schema copy:           safe deep copy; arbitrary caller-authored JSON Schema keywords allowed
+Schema safety budgets:          64 depth / 5,000 nodes
+Candidate schema copy:          deep copied; no shared mutable references
+Canonical verification:         AJV Draft 2020-12 against repo canonical Action Definition schema
+Provenance in ActionDefinition: NONE
+Returned provenance:            exact OpenApiSourceProvenance only, separately copied
+RuntimeBinding/executor:         NONE
+Duplicate batch id+version:     fail closed with duplicate_action_identity
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 7 added only explicit resolution types, canonical Action Definition materialization, batch identity collision checking, public materializer exports, and test-only canonical AJV validation. It does not infer semantics from OpenAPI, create RuntimeBindings, execute HTTP, authorize callers, register Action definitions automatically, or expose MCP/WebMCP tools.
+
+Task 7 self-review passed for D-065/D-066/D-068 alignment, exact Action identity/version handling, explicit semantic completion, trusted-context non-inference, schema deep-copy/resource safety, canonical-schema alignment, provenance separation, duplicate identity rejection, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+The next gate is **Task 8 — documentation + full verification + external-review handoff only**. Do not promote D-065..D-068, merge, close T-704, or start later work automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 6 COMPLETE / TASK 7 NOT STARTED**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 7 COMPLETE / TASK 8 NOT STARTED**. No later task begins automatically.

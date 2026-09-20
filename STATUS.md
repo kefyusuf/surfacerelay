@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 6 COMPLETE / TASK 7 NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 7 COMPLETE / TASK 8 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,24 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IN PROGRESS — TASK 6 COMPLETE / TASK 7 NOT STARTED**
+- **T-704 implementation:** **IN PROGRESS — TASK 7 COMPLETE / TASK 8 NOT STARTED**
+- **T-704 Task 7 initial RED head:** `e215133ab38d3d5644f1664a41c0bb3ce0d9fb72` — `#909` typecheck RED in diagnostic/AJV test-contract typing
+- **T-704 Task 7 corrected RED head:** `479312aed8f4e0ac93f9fb53046bfd64ab7394d2`
+- **T-704 Task 7 corrected RED CI:** `#910` / `35537328082` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 7 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–6 tests **132 PASS**; Task 7 materialization contract **39/39 expected FAIL**
+- **T-704 Task 7 GREEN head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
+- **T-704 Task 7 GREEN CI:** `#911` / `35537472977` — **12/12 SUCCESS**
+- **T-704 Task 7 importer suite:** **7 files / 171 tests PASS + typecheck + npm ci**
+- **T-704 Task 7 explicit semantics:** **id/version/title/description/scope/effect/risk/idempotency/output policy/context requirements/input+output schema choice all required explicitly**
+- **T-704 Task 7 identity boundary:** **canonical lowercase dot grammar / 160-byte id / positive integer version; no trim/slug/case normalization**
+- **T-704 Task 7 metadata boundary:** **title 1..120 and description 1..2000 Unicode code points; no OpenAPI metadata fallback**
+- **T-704 Task 7 trusted context:** **canonical enum only, unique, deterministic declaration order; never inferred from OpenAPI security**
+- **T-704 Task 7 schema materialization:** **candidate suggestion requires non-blocked presence; explicit/candidate schemas deep-copied under 64-depth / 5,000-node budgets**
+- **T-704 Task 7 canonical verification:** **all positive materializations validated against repo spec/0.1/action-definition.schema.json via AJV Draft 2020-12**
+- **T-704 Task 7 provenance separation:** **exact OpenApiSourceProvenance returned separately; no provenance/extensions/runtime-binding data embedded in ActionDefinition**
+- **T-704 Task 7 batch identity gate:** **duplicate final id+version rejects batch with duplicate_action_identity**
+- **T-704 Task 7 capability audit:** **no filesystem/network/HTTP execution/RuntimeBinding/ActionBus/MCP/WebMCP capability**
+- **T-704 Task 7 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
 - **T-704 Task 6 RED head:** `5d132bb1ac019e39e2270eacc5acd0bb253db4c9`
 - **T-704 Task 6 RED CI:** `#905` / `35534734087` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
 - **T-704 Task 6 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–5 tests **122 PASS**; Task 6 report/candidate-builder contract **10/10 expected FAIL**
@@ -197,7 +214,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 Task 7 explicit SurfaceRelay materialization only. Do not advance beyond Task 7 automatically.
+- **Next gate:** T-704 Task 8 documentation + full verification + external-review handoff only. Do not promote decisions, merge, or close T-704 automatically.
 
 ## M6 historical evidence — preserved
 
