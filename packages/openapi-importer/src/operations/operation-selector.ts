@@ -447,6 +447,7 @@ export function selectRootPathOperations(
   const diagnostics: ImportDiagnostic[] = [];
   const methods = family === '3.2' ? METHODS_32 : METHODS_31;
   const refBudget = new LocalRefTraversalBudget();
+  let operationCount = 0;
 
   outer:
   for (const pathTemplate of Object.keys(rawPaths).sort()) {
@@ -482,7 +483,8 @@ export function selectRootPathOperations(
         continue;
       }
 
-      if (candidates.length >= MAX_OPERATIONS) {
+      operationCount += 1;
+      if (operationCount > MAX_OPERATIONS) {
         diagnostics.push(
           blockingDiagnostic(
             'operation_limit_exceeded',

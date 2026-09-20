@@ -205,6 +205,94 @@ describe('root paths operation selection', () => {
       'operation_limit_exceeded',
     );
   });
+
+  it('counts malformed fixed-operation entries against the operation budget', () => {
+    const paths = object();
+
+    for (let index = 0; index <= MAX_OPERATIONS; index += 1) {
+      paths[`/bad${String(index).padStart(4, '0')}`] = object({
+        get: 'not-an-operation-object',
+      });
+    }
+
+    const result = selectRootPathOperations(
+      document('3.1.1', paths),
+      '3.1',
+    );
+
+    expect(result.candidates).toEqual([]);
+    expect(result.diagnostics.at(-1)?.code).toBe('operation_limit_exceeded');
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === 'invalid_openapi_document',
+      ),
+    ).toHaveLength(MAX_OPERATIONS);
+  });
+});
+
+describe('request/response source evidence', () => {
+  it('preserves bounded media/schema fragments for Task 5 without materializing schemas', () => {
+    const requestSchema = object({
+      type: 'object',
+      properties: object({
+        name: object({ type: 'string' }),
+      }),
+    });
+    const responseSchema = object({
+      type: 'object',
+      properties: object({
+        id: object({ type: 'string' }),
+      }),
+    });
+
+    const candidate = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            post: operation({
+              requestBody: object({
+                required: true,
+                content: object({
+                  'application/json': object({ schema: requestSchema }),
+                }),
+              }),
+              responses: object({
+                '201': object({
+                  description: 'created',
+                  content: object({
+                    'application/json': object({ schema: responseSchema }),
+                  }),
+                }),
+              }),
+            }),
+          }),
+        }),
+      ),
+      '3.2',
+    ).candidates[0];
+
+    expect(candidate?.requestBodies).toHaveLength(1);
+    expect(candidate?.requestBodies[0]).toMatchObject({
+      required: true,
+      sourcePointer: '/paths/~1items/post/requestBody',
+    });
+    expect(candidate?.requestBodies[0]?.content[0]).toMatchObject({
+      mediaType: 'application/json',
+      sourcePointer: '/paths/~1items/post/requestBody/content/application~1json',
+    });
+    expect(candidate?.requestBodies[0]?.content[0]?.schema).toBe(requestSchema);
+
+    expect(candidate?.responses).toHaveLength(1);
+    expect(candidate?.responses[0]).toMatchObject({
+      statusCode: '201',
+      sourcePointer: '/paths/~1items/post/responses/201',
+    });
+    expect(candidate?.responses[0]?.content[0]?.schema).toBe(responseSchema);
+
+    expect(candidate?.suggestedInputSchema).toBeUndefined();
+    expect(candidate?.suggestedOutputSchema).toBeUndefined();
+  });
 });
 
 describe('exact provenance and source documentation evidence', () => {
