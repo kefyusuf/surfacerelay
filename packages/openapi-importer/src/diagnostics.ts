@@ -11,12 +11,16 @@ export type ImportDiagnosticCode =
   | 'anchor_ref_unsupported'
   | 'invalid_json_pointer'
   | 'ref_cycle'
-  | 'ref_limit_exceeded';
+  | 'ref_limit_exceeded'
+  | 'path_item_ref_sibling_ambiguous'
+  | 'additional_operation_unsupported'
+  | 'operation_limit_exceeded'
+  | 'source_text_too_large';
 
 export interface ImportDiagnostic {
   code: ImportDiagnosticCode;
   message: string;
-  blocking: true;
+  blocking: boolean;
 }
 
 export function blockingDiagnostic(
@@ -24,4 +28,11 @@ export function blockingDiagnostic(
   message: string,
 ): ImportDiagnostic {
   return { code, message, blocking: true };
+}
+
+export function warningDiagnostic(
+  code: ImportDiagnosticCode,
+  message: string,
+): ImportDiagnostic {
+  return { code, message, blocking: false };
 }

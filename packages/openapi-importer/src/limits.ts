@@ -3,3 +3,5 @@ export const MAX_DOCUMENT_DEPTH = 64;
 export const MAX_DOCUMENT_NODES = 50_000;
 export const MAX_REF_HOPS = 32;
 export const MAX_UNIQUE_REF_TARGETS = 4_096;
+export const MAX_OPERATIONS = 1_000;
+export const MAX_SOURCE_TEXT_CHARS = 8_192;
