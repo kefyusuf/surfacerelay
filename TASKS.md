@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 4 COMPLETE / TASK 5 NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 5 COMPLETE / TASK 6 NOT STARTED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IN PROGRESS — TASK 4 COMPLETE / TASK 5 NOT STARTED**.
+Implementation: **IN PROGRESS — TASK 5 COMPLETE / TASK 6 NOT STARTED**.
 
 Plan approval evidence:
 
@@ -751,8 +751,52 @@ Task 4 added only bounded operation selection, exact source provenance, request/
 
 Task 4 self-review passed for D-066/D-068 alignment, exact source identity, no semantic inference, parameter override correctness, security evidence without authority, Path Item ambiguity fail-closed behavior, operation/text resource bounds, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
 
-The next gate is **Task 5 — conservative schema-subset analysis + safe input/output suggestions only**. Do not begin Task 6 automatically.
+Task 5 implementation evidence:
+
+```text
+Task:                           conservative schema subset + safe input/output suggestions
+RED head:                       dae76466437c5e6cf720bcb3b1cedb3f5fbaa32f
+RED validate:                   #900 / 35533887718 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 67 tests PASS; Task 5 tests 52/52 expected FAIL
+Initial GREEN head:             683adf0a0fbc3047bd5c69b821888bfdf916acf4
+Initial GREEN validate:         #901 / 35534003405 — corrective FAILURE
+Initial GREEN detail:           Task 5 52/52 PASS; one Task 4 test exposed plan-scope overreach from selector auto-enrichment
+Scope-correction head:          bba9857219afadc17a9dcc72c2cbacc5420d27a4
+Scope-correction validate:      #902 / 35534039877 — SUCCESS
+Importer at scope correction:   5 test files / 119 tests PASS
+Final GREEN head:               bca7488a080e32cdc07bed5ea9dfbebc71f97fd1
+Final GREEN validate:           #903 / 35534181870 — 12/12 SUCCESS
+Importer final GREEN:           5 test files / 122 tests PASS + typecheck + npm ci
+Document jsonSchemaDialect:     fail closed when explicitly present
+Schema-local $schema:           fail closed
+Supported schema model:         whitelist-only, semantics-preserving copy
+Unsupported/custom keywords:    schema_keyword_unsupported
+Schema annotations:             not copied; unsupported rather than silently dropped
+Schema $ref+sibling:            fail closed
+Acyclic local schema $ref:      inlined without retaining source $ref
+Cyclic local schema $ref:       fail closed
+Schema fragment budget:         5,000 nodes including supported scalar/array keyword values
+Invalid approved-keyword shapes:fail closed; no coercion
+Input suggestion:               no params + no body => exact empty object schema
+JSON-body suggestion:           exactly one application/json schema only
+Ambiguous transport input:      unresolved + ambiguous_input_mapping
+Output suggestion:              one explicit 2xx only
+No-content success:             suggestedOutputSchema = null
+Ambiguous/wildcard output:      unresolved + ambiguous_success_output
+Prior blocking diagnostics:     prevent automatic schema suggestions
+Operation selector integration: NONE in Task 5; deferred to Task 6 candidate-builder
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 5 added only conservative schema copying and reusable input/output suggestion primitives plus schema fixtures/diagnostics/limits. It does not automatically enrich selected operations, build import reports, infer SurfaceRelay policy semantics, materialize Action Definitions, create RuntimeBindings, execute HTTP, authorize callers, or expose tools.
+
+Task 5 self-review passed for semantics-preserving whitelist handling, annotation non-leakage, custom-dialect and unsupported-keyword fail-closed behavior, local-ref cycle/sibling safety, 5,000-node resource accounting, ambiguity-safe input/output selection, prior-blocking evidence handling, no-I/O capability, plan file/scope alignment, dependency direction, brownfield safety, and exact verification evidence.
+
+The next gate is **Task 6 — deterministic import report + candidate-builder integration only**. Do not begin Task 7 automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 4 COMPLETE / TASK 5 NOT STARTED**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 5 COMPLETE / TASK 6 NOT STARTED**. No later task begins automatically.

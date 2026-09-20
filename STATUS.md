@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 4 COMPLETE / TASK 5 NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 5 COMPLETE / TASK 6 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,28 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IN PROGRESS — TASK 4 COMPLETE / TASK 5 NOT STARTED**
+- **T-704 implementation:** **IN PROGRESS — TASK 5 COMPLETE / TASK 6 NOT STARTED**
+- **T-704 Task 5 RED head:** `dae76466437c5e6cf720bcb3b1cedb3f5fbaa32f`
+- **T-704 Task 5 RED CI:** `#900` / `35533887718` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 5 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–4 tests **67 PASS**; Task 5 schema/suggestion contract **52/52 expected FAIL**
+- **T-704 Task 5 initial GREEN head:** `683adf0a0fbc3047bd5c69b821888bfdf916acf4`
+- **T-704 Task 5 initial GREEN CI:** `#901` / `35534003405` — **expected corrective FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 5 initial GREEN proof:** Task 5 suite **52/52 PASS**; one prior Task 4 test failed because selector enrichment exceeded the approved Task 5 file/scope boundary
+- **T-704 Task 5 scope-correction head:** `bba9857219afadc17a9dcc72c2cbacc5420d27a4`
+- **T-704 Task 5 scope-correction CI:** `#902` / `35534039877` — **SUCCESS; importer 5 files / 119 tests PASS**
+- **T-704 Task 5 final GREEN head:** `bca7488a080e32cdc07bed5ea9dfbebc71f97fd1`
+- **T-704 Task 5 final GREEN CI:** `#903` / `35534181870` — **12/12 SUCCESS**
+- **T-704 Task 5 importer suite:** **5 files / 122 tests PASS + typecheck + npm ci**
+- **T-704 Task 5 schema dialect boundary:** **default OAS dialect only; explicit jsonSchemaDialect and schema-local $schema fail closed**
+- **T-704 Task 5 schema subset:** **whitelist-only semantics; unsupported/annotation/custom keywords fail closed instead of being dropped**
+- **T-704 Task 5 schema ref boundary:** **same-document acyclic $ref inline only; $ref+sibling fails closed**
+- **T-704 Task 5 schema budget:** **5,000 fragment nodes including supported scalar/array keyword values**
+- **T-704 Task 5 input suggestion boundary:** **zero parameters + no body => empty object; otherwise exactly one supported application/json body schema**
+- **T-704 Task 5 output suggestion boundary:** **exactly one explicit 2xx; no content => null; otherwise exactly one supported application/json schema**
+- **T-704 Task 5 prior-blocking gate:** **blocking source diagnostics prevent automatic input/output suggestions**
+- **T-704 Task 5 selector boundary:** **operation-selector remains unchanged from Task 4; enrichment is deferred to Task 6 candidate-builder**
+- **T-704 Task 5 capability audit:** **no filesystem/network capability; yaml remains the only production dependency**
+- **T-704 Task 5 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
 - **T-704 Task 4 RED head:** `f1b58b9feeed38509f2620d59affbbd22acace1a`
 - **T-704 Task 4 RED CI:** `#895` / `35503293113` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
 - **T-704 Task 4 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–3 tests **47 PASS**; Task 4 operation/provenance contract **18/18 expected FAIL**
@@ -160,7 +181,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 Task 5 conservative schema-subset analysis + safe input/output suggestions only. Do not advance beyond Task 5 automatically.
+- **Next gate:** T-704 Task 6 deterministic import report/candidate-builder only. Do not advance beyond Task 6 automatically.
 
 ## M6 historical evidence — preserved
 
