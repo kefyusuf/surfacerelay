@@ -22,7 +22,10 @@ export type ImportDiagnosticCode =
   | 'schema_limit_exceeded'
   | 'ambiguous_input_mapping'
   | 'ambiguous_success_output'
-  | 'diagnostic_limit_reached';
+  | 'diagnostic_limit_reached'
+  | 'missing_surface_semantics'
+  | 'invalid_action_identity'
+  | 'duplicate_action_identity';
 
 export interface ImportDiagnostic {
   code: ImportDiagnosticCode;

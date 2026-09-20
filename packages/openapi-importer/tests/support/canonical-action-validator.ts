@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 
-import Ajv2020 from 'ajv/dist/2020.js';
+import { Ajv2020, type ErrorObject } from 'ajv/dist/2020.js';
 
 const schema = JSON.parse(
   readFileSync(
@@ -25,7 +25,7 @@ export function validateCanonicalActionDefinition(
   return {
     valid: valid === true,
     errors: (validate.errors ?? []).map(
-      (error) => `${error.instancePath || '/'} ${error.message ?? 'invalid'}`,
+      (error: ErrorObject) => `${error.instancePath || '/'} ${error.message ?? 'invalid'}`,
     ),
   };
 }
