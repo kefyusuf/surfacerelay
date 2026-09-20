@@ -161,3 +161,22 @@ jobs:
         run: npm run conformance:build
       - name: Run canonical runtime conformance
         run: python scripts/run_conformance.py
+
+  openapi-importer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/openapi-importer/package-lock.json
+      - name: Install OpenAPI importer dependencies
+        working-directory: packages/openapi-importer
+        run: npm ci
+      - name: Typecheck OpenAPI importer
+        working-directory: packages/openapi-importer
+        run: npm run typecheck
+      - name: Run OpenAPI importer tests
+        working-directory: packages/openapi-importer
+        run: npm test
