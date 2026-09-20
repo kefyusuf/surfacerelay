@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 1 COMPLETE / TASK 2 NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 2 COMPLETE / TASK 3 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,18 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IN PROGRESS — TASK 1 COMPLETE / TASK 2 NOT STARTED**
+- **T-704 implementation:** **IN PROGRESS — TASK 2 COMPLETE / TASK 3 NOT STARTED**
+- **T-704 Task 2 RED head:** `e72e03052a289d99931a3fa52b85c5c1d8f6b97c`
+- **T-704 Task 2 RED CI:** `#886` / `35496515711` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 2 RED proof:** importer `npm ci` + typecheck SUCCESS; source parser contract **12/12 failed as expected** while Task 1 architecture tests stayed green
+- **T-704 Task 2 initial GREEN head:** `9fcbf94a1a1ee5af29d4d36c289e0c8b634f3f30` — `#887` typecheck failure in YAML generic narrowing
+- **T-704 Task 2 narrowing fix head:** `3db875b3cb5eca245f7b70bd178e163d276c6658` — `#888` remaining sequence generic narrowing failure
+- **T-704 Task 2 GREEN head:** `19f2628511b65617a6c21ef2e0235e2af56530ed`
+- **T-704 Task 2 GREEN CI:** `#889` / `35496725520` — **12/12 SUCCESS**
+- **T-704 Task 2 importer suite:** **2 files / 15 tests PASS + typecheck + npm ci**
+- **T-704 Task 2 parser boundary:** **2 MiB source / depth 64 / 50,000 nodes; duplicate JSON keys and unsafe YAML alias/tag/multi-doc forms fail closed**
+- **T-704 Task 2 capability audit:** **content-only API; no filesystem/network capability; yaml remains the only production dependency**
+- **T-704 Task 2 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
 - **T-704 Task 1 RED head:** `d09d6cd3034a1a897cfebba185a054b1cf8c4a8b`
 - **T-704 Task 1 RED CI:** `#883` / `35496056306` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
 - **T-704 Task 1 RED proof:** importer `npm ci` + typecheck SUCCESS; Vitest **1 failed / 2 passed** because `src/index.ts` was intentionally absent
@@ -119,7 +130,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 Task 2 bounded source parser only. Do not advance beyond Task 2 automatically.
+- **Next gate:** T-704 Task 3 OpenAPI version-family + same-document JSON Pointer resolver only. Do not advance beyond Task 3 automatically.
 
 ## M6 historical evidence — preserved
 
