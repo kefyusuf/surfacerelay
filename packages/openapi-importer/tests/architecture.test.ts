@@ -69,6 +69,15 @@ describe('OpenAPI importer architecture boundary', () => {
     expect(forbiddenDependency).toBeUndefined();
   });
 
+  it('avoids whole-remainder allocation for every JSON numeric token', () => {
+    const parser = readFileSync(
+      join(srcRoot, 'source', 'parse-json.ts'),
+      'utf8',
+    );
+
+    expect(parser).not.toMatch(/source\.slice\(this\.offset\)/);
+  });
+
   it('requires the minimal production entry point', () => {
     expect(existsSync(join(srcRoot, 'index.ts'))).toBe(true);
   });
