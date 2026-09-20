@@ -26,6 +26,9 @@ class JsonScanDepthError extends Error {
 class JsonDuplicateKeyScanner {
   private offset = 0;
 
+  private readonly numberPattern =
+    /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
+
   constructor(private readonly source: string) {}
 
   scan(): void {
@@ -188,14 +191,14 @@ class JsonDuplicateKeyScanner {
   }
 
   private scanNumber(): void {
-    const rest = this.source.slice(this.offset);
-    const match = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(rest);
+    this.numberPattern.lastIndex = this.offset;
+    const match = this.numberPattern.exec(this.source);
 
     if (match === null || match[0].length === 0) {
       throw new SyntaxError('Invalid JSON value.');
     }
 
-    this.offset += match[0].length;
+    this.offset = this.numberPattern.lastIndex;
   }
 
   private consumeLiteral(literal: string): void {
