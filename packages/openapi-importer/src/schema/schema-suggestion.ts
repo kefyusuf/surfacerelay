@@ -167,6 +167,14 @@ export function applySchemaSuggestions(
   document: JsonObject,
   candidate: OpenApiImportCandidate,
 ): OpenApiImportCandidate {
+  if (candidate.diagnostics.some((diagnostic) => diagnostic.blocking)) {
+    return {
+      ...candidate,
+      unresolvedFields: [...candidate.unresolvedFields],
+      diagnostics: [...candidate.diagnostics],
+    };
+  }
+
   const input = suggestInput(document, candidate);
   const output = suggestOutput(document, candidate);
   const result: OpenApiImportCandidate = {

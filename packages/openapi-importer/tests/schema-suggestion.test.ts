@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'vitest';
 
 import type { OpenApiImportCandidate } from '../src/candidate.js';
@@ -54,7 +56,28 @@ function candidate(
   };
 }
 
+function fixture(path: string): JsonObject {
+  return JSON.parse(
+    readFileSync(new URL(path, import.meta.url), 'utf8'),
+  ) as JsonObject;
+}
+
 describe('conservative schema subset', () => {
+  it('loads positive/negative schema fixtures as executable contract evidence', () => {
+    expect(
+      copySupportedSchema(
+        document(),
+        fixture('./fixtures/positive/schema-supported.json'),
+      ).schema,
+    ).not.toBeNull();
+
+    expect(
+      copySupportedSchema(
+        document(),
+        fixture('./fixtures/negative/schema-unsupported-format.json'),
+      ).diagnostics.map((diagnostic) => diagnostic.code),
+    ).toContain('schema_keyword_unsupported');
+  });
   it('accepts the approved whitelist and copies semantics without mutation', () => {
     const source = object({
       type: 'object',
@@ -271,6 +294,23 @@ describe('conservative schema subset', () => {
     );
   });
 
+  it('counts required/type scalar arrays against the schema fragment budget', () => {
+    const required = Array.from(
+      { length: MAX_SCHEMA_NODES_PER_FRAGMENT },
+      (_, index) => `p${index}`,
+    );
+
+    const result = copySupportedSchema(
+      document(),
+      object({ type: 'object', required }),
+    );
+
+    expect(result.schema).toBeNull();
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'schema_limit_exceeded',
+    );
+  });
+
   it('rejects invalid shapes for approved keywords rather than coercing them', () => {
     const invalid = [
       object({ type: 'wat' }),
@@ -280,6 +320,7 @@ describe('conservative schema subset', () => {
       object({ properties: [] }),
       object({ items: 'not-a-schema' }),
       object({ uniqueItems: 'yes' }),
+      object({ pattern: '[' }),
     ];
 
     for (const schema of invalid) {
@@ -293,6 +334,29 @@ describe('conservative schema subset', () => {
 });
 
 describe('safe input suggestions', () => {
+  it('does not create suggestions when prior structural evidence is blocking', () => {
+    const result = applySchemaSuggestions(
+      document(),
+      candidate({
+        diagnostics: [{
+          code: 'invalid_openapi_document',
+          message: 'Malformed source evidence.',
+          blocking: true,
+        }],
+        responses: [{
+          statusCode: '204',
+          content: [],
+          sourcePointer: '/responses/204',
+        }],
+      }),
+    );
+
+    expect(result.suggestedInputSchema).toBeUndefined();
+    expect(result.suggestedOutputSchema).toBeUndefined();
+    expect(result.unresolvedFields).toContain('inputSchema');
+    expect(result.unresolvedFields).toContain('outputSchema');
+    expect(result.diagnostics).toHaveLength(1);
+  });
   it('suggests the exact empty object schema when there are no parameters or request body', () => {
     const result = applySchemaSuggestions(document(), candidate());
 

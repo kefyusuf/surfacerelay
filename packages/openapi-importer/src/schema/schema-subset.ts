@@ -158,6 +158,22 @@ function isFiniteNumber(value: JsonValue | undefined): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
+function consumeKeywordValue(
+  state: SchemaCopyState,
+  count = 1,
+): ImportDiagnostic | null {
+  let diagnostic: ImportDiagnostic | null = null;
+
+  for (let index = 0; index < count; index += 1) {
+    diagnostic = consumeNode(state);
+    if (diagnostic !== null) {
+      return diagnostic;
+    }
+  }
+
+  return null;
+}
+
 function copySchemaObject(
   document: JsonObject,
   schema: JsonObject,
@@ -202,6 +218,11 @@ function copySchemaObject(
       return unsupported('Schema $ref must be a string.');
     }
 
+    const refValueLimit = consumeKeywordValue(state);
+    if (refValueLimit !== null) {
+      return { schema: null, diagnostics: [refValueLimit] };
+    }
+
     const resolved = resolveLocalPointer(document, reference, budget);
     if (resolved.value === null || resolved.diagnostics.length > 0) {
       return { schema: null, diagnostics: resolved.diagnostics };
@@ -225,6 +246,10 @@ function copySchemaObject(
           if (!ALLOWED_TYPES.has(value)) {
             return unsupported(`Unsupported schema type "${value}".`);
           }
+          const valueLimit = consumeKeywordValue(state);
+          if (valueLimit !== null) {
+            return { schema: null, diagnostics: [valueLimit] };
+          }
           target.type = value;
           break;
         }
@@ -235,6 +260,10 @@ function copySchemaObject(
           value.every((item) => typeof item === 'string' && ALLOWED_TYPES.has(item)) &&
           new Set(value).size === value.length
         ) {
+          const valueLimit = consumeKeywordValue(state, value.length + 1);
+          if (valueLimit !== null) {
+            return { schema: null, diagnostics: [valueLimit] };
+          }
           target.type = [...value] as JsonValue[];
           break;
         }
@@ -245,6 +274,11 @@ function copySchemaObject(
       case 'properties': {
         if (!isJsonObject(value)) {
           return unsupported('Schema properties must be an object.');
+        }
+
+        const containerLimit = consumeKeywordValue(state);
+        if (containerLimit !== null) {
+          return { schema: null, diagnostics: [containerLimit] };
         }
 
         const properties = Object.create(null) as JsonObject;
@@ -280,6 +314,11 @@ function copySchemaObject(
           return unsupported('Schema required must be an array of unique strings.');
         }
 
+        const valueLimit = consumeKeywordValue(state, value.length + 1);
+        if (valueLimit !== null) {
+          return { schema: null, diagnostics: [valueLimit] };
+        }
+
         target.required = [...value] as JsonValue[];
         break;
       }
@@ -299,6 +338,10 @@ function copySchemaObject(
 
       case 'additionalProperties': {
         if (typeof value === 'boolean') {
+          const valueLimit = consumeKeywordValue(state);
+          if (valueLimit !== null) {
+            return { schema: null, diagnostics: [valueLimit] };
+          }
           target.additionalProperties = value;
           break;
         }
@@ -364,6 +407,10 @@ function copySchemaObject(
         if (!isFiniteNumber(value)) {
           return unsupported(`Schema ${key} must be a finite number.`);
         }
+        const valueLimit = consumeKeywordValue(state);
+        if (valueLimit !== null) {
+          return { schema: null, diagnostics: [valueLimit] };
+        }
         target[key] = value;
         break;
       }
@@ -371,6 +418,10 @@ function copySchemaObject(
       case 'multipleOf': {
         if (!isFiniteNumber(value) || value <= 0) {
           return unsupported('Schema multipleOf must be a positive finite number.');
+        }
+        const valueLimit = consumeKeywordValue(state);
+        if (valueLimit !== null) {
+          return { schema: null, diagnostics: [valueLimit] };
         }
         target.multipleOf = value;
         break;
@@ -385,6 +436,10 @@ function copySchemaObject(
         if (!isNonNegativeInteger(value)) {
           return unsupported(`Schema ${key} must be a non-negative integer.`);
         }
+        const valueLimit = consumeKeywordValue(state);
+        if (valueLimit !== null) {
+          return { schema: null, diagnostics: [valueLimit] };
+        }
         target[key] = value;
         break;
       }
@@ -393,6 +448,17 @@ function copySchemaObject(
         if (typeof value !== 'string') {
           return unsupported('Schema pattern must be a string.');
         }
+
+        try {
+          new RegExp(value, 'u');
+        } catch {
+          return unsupported('Schema pattern must be a valid ECMAScript regular expression.');
+        }
+
+        const valueLimit = consumeKeywordValue(state);
+        if (valueLimit !== null) {
+          return { schema: null, diagnostics: [valueLimit] };
+        }
         target.pattern = value;
         break;
       }
@@ -400,6 +466,10 @@ function copySchemaObject(
       case 'uniqueItems': {
         if (typeof value !== 'boolean') {
           return unsupported('Schema uniqueItems must be a boolean.');
+        }
+        const valueLimit = consumeKeywordValue(state);
+        if (valueLimit !== null) {
+          return { schema: null, diagnostics: [valueLimit] };
         }
         target.uniqueItems = value;
         break;
