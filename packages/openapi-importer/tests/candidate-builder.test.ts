@@ -191,6 +191,48 @@ describe('deterministic OpenAPI import report', () => {
     );
   });
 
+  it.each([
+    ['non-object content', 'invalid-content'],
+    ['non-object media type object', 'invalid-media'],
+  ] as const)(
+    'fails closed when a success response has malformed %s',
+    (_label, shape) => {
+      const response =
+        shape === 'invalid-content'
+          ? { description: 'ok', content: 'not-an-object' }
+          : {
+              description: 'ok',
+              content: { 'application/json': 'not-a-media-type-object' },
+            };
+
+      const result = importOpenApi({
+        format: 'json',
+        content: JSON.stringify({
+          openapi: '3.1.1',
+          info: { title: 'Fixture', version: '1' },
+          paths: {
+            '/items': {
+              get: {
+                responses: { '200': response },
+              },
+            },
+          },
+        }),
+      });
+
+      const candidate = result.candidates[0];
+      expect(candidate).toBeDefined();
+      expect(candidate).not.toHaveProperty('suggestedOutputSchema');
+      expect(candidate?.unresolvedFields).toContain('outputSchema');
+      expect(candidate?.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+        'invalid_openapi_document',
+      );
+      expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+        'invalid_openapi_document',
+      );
+    },
+  );
+
   it('sorts candidates independently from OpenAPI source insertion order', () => {
     const contentA = JSON.stringify({
       openapi: '3.2.1',
