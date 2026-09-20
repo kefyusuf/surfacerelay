@@ -1,6 +1,6 @@
 # T-704 — Optional OpenAPI Importer Design
 
-**Status:** APPROVED DESIGN / IMPLEMENTATION PLAN NOT STARTED / IMPLEMENTATION NOT STARTED  
+**Status:** APPROVED DESIGN / IMPLEMENTATION PLAN APPROVED / IMPLEMENTATION NOT STARTED  
 **Task:** T-704  
 **Milestone:** M7 — Conformance / Ecosystem Bridges  
 **Branch:** `feat/t-704-openapi-importer-design`  
@@ -407,9 +407,9 @@ Before implementation:
 
 1. D-065 through D-068 remain PROPOSED;
 2. T-704 tracking must continue to say implementation not started;
-3. a separate implementation plan must be written in the next explicit gate;
-4. that plan must define parser/library choice, resource limits, supported schema dialect/keyword subset, candidate/resolution data model, fixture matrix, and package/dependency boundary;
-5. implementation begins only after the implementation plan is separately approved.
+3. the approved implementation plan is `docs/superpowers/plans/2026-09-19-openapi-importer.md`;
+4. implementation begins only in a separate execution gate on a new implementation branch;
+5. D-065 through D-068 remain PROPOSED through implementation and external review.
 
 ## 22. Design review outcome
 

@@ -1,5 +1,7 @@
 # T-704 — Optional OpenAPI Importer Implementation Plan
 
+**Status:** APPROVED / IMPLEMENTATION NOT STARTED  
+
 > **For agentic workers:** execute this plan task-by-task only after a separate explicit plan-approval gate. Use RED → GREEN for behavior-bearing tasks and perform the project self-review after every implementation decision.
 
 **Goal:** Add a bounded, framework-neutral OpenAPI 3.1/3.2 importer that turns one caller-supplied OpenAPI document into deterministic import candidates and diagnostics, then materializes a canonical SurfaceRelay Action Definition only after explicit resolution of all SurfaceRelay semantics.
@@ -90,7 +92,7 @@ MAX_SCHEMA_NODES_PER_FRAGMENT    = 5_000
 MAX_SOURCE_TEXT_CHARS            = 8_192
 ```
 
-If the diagnostic limit is reached, emit one terminal `diagnostic_limit_reached` diagnostic and stop adding diagnostics.
+`MAX_DIAGNOSTICS=500` is the maximum **final report length**, including truncation evidence. Collect at most 499 ordinary diagnostics; when another diagnostic would exceed that budget, append exactly one terminal `diagnostic_limit_reached` as the 500th entry, set `truncatedDiagnostics=true`, and stop collecting diagnostics.
 
 No task may silently raise a limit. A limit change requires explicit review because it changes the ingestion-security budget.
 
@@ -114,11 +116,20 @@ https://...
 relative-file.yaml
 ```
 
-Percent-decoding and JSON Pointer `~0` / `~1` handling must be strict and deterministic. Invalid pointer syntax fails closed.
+URI-fragment and JSON Pointer decoding order is fixed:
+
+1. require `#` or `#/` form;
+2. percent-decode the fragment payload exactly once, rejecting malformed percent encoding;
+3. parse JSON Pointer tokens;
+4. decode `~1` then `~0`, rejecting every other `~` escape.
+
+Invalid pointer syntax fails closed. Percent-decoding is never repeated.
 
 ### Schema suggestion subset
 
-T-704 is not a complete OpenAPI Schema Object implementation.
+T-704 is not a complete OpenAPI validator or a complete OpenAPI Schema Object implementation.
+
+The importer validates the root/version and the bounded structures it consumes. It must not claim that an input document is globally OpenAPI-conformant merely because candidate extraction succeeds. Unconsumed unrelated OpenAPI fields may remain unvalidated by T-704.
 
 A source schema is eligible for an importer-generated suggestion only when:
 
@@ -245,7 +256,7 @@ The materializer returns:
 ```text
 {
   actionDefinition: <canonical JSON object>,
-  sourceProvenance: <importer report data>
+  sourceProvenance: <exact OpenApiSourceProvenance only>
 }
 ```
 
@@ -276,6 +287,7 @@ additional_operation_unsupported
 operation_limit_exceeded
 unsupported_schema_dialect
 schema_keyword_unsupported
+schema_ref_sibling_unsupported
 schema_limit_exceeded
 ambiguous_input_mapping
 ambiguous_success_output
@@ -427,6 +439,7 @@ Use:
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "ajv": "^8.17.1",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
@@ -442,8 +455,9 @@ Prove:
 
 - package.json has exactly one production dependency: `yaml`;
 - no dependency/import on Laravel, Laravel MCP, browser runtime, MCP, WebMCP, generic OpenAPI parsers;
-- production `src/**/*.ts` has no `node:fs`, `node:http`, `node:https`, `undici`, or direct `fetch(`;
-- forbidden implementation paths remain unchanged relative to the implementation branch base.
+- every production static/dynamic module specifier is either a relative internal module, `yaml`, or `node:buffer`;
+- production `src/**/*.ts` has no filesystem, process-spawn, socket/DNS/TLS/HTTP client import and no direct/global `fetch` use;
+- architecture tests do **not** inspect Git history; repository-diff scope audit is a separate verification step because unit tests must remain valid under shallow CI checkout.
 
 - [ ] **Step 3: Run RED**
 
@@ -557,6 +571,7 @@ Required:
 - multi-document YAML rejected;
 - depth >64 rejected;
 - node count >50,000 rejected;
+- duplicate JSON object keys are rejected;
 - JS result contains only JSON-compatible values and safe/null-prototype maps.
 
 - [ ] **Step 2: Implement safe YAML AST conversion**
@@ -580,9 +595,17 @@ Do not enable merge keys.
 
 - [ ] **Step 3: Implement JSON parser + common bounded-tree validator**
 
-Check UTF-8 JS string byte size via `Buffer.byteLength(content, 'utf8')` before JSON.parse.
+Check UTF-8 JS string byte size via `Buffer.byteLength(content, 'utf8')` from `node:buffer` before JSON parsing.
 
-After parse, use the same iterative bounded-tree validator as YAML output.
+JSON handling must be strict and deterministic:
+
+- reject duplicate object member names before accepting the parsed document;
+- use native `JSON.parse` for JSON syntax/value semantics;
+- normalize the parsed result through the same iterative safe-tree copier used by YAML;
+- produce only JSON-compatible primitives/arrays and null-prototype maps;
+- apply the same depth/node/string safety checks during normalization.
+
+Do not merely validate a normal-prototype `JSON.parse` result and return it unchanged.
 
 - [ ] **Step 4: Run GREEN**
 
@@ -769,9 +792,18 @@ none / inherited / operation_override
 scheme names
 declared scopes
 anonymous alternative present
+inherited security explicitly removed
 ```
 
-Never resolve credentials or convert schemes into trusted context requirements.
+Tests must distinguish:
+
+- absent operation `security` → inherit root evidence;
+- `security: []` → explicitly remove inherited top-level security;
+- `security: [{}]` → anonymous access is an allowed alternative;
+- multiple non-empty Security Requirement Objects → alternatives;
+- multiple schemes inside one Security Requirement Object → combined requirement evidence.
+
+Never resolve credentials or convert schemes, scopes, or role-like values into trusted context requirements or authorization policy.
 
 - [ ] **Step 5: Run GREEN**
 
@@ -823,10 +855,14 @@ Never mutate the source tree.
 
 When `$ref` is encountered:
 
-- resolve same-document pointer;
+- require `$ref` to be the only schema keyword at that schema node in v1;
+- if sibling schema keywords exist, emit `schema_ref_sibling_unsupported` and leave the suggestion unresolved;
+- resolve the same-document pointer;
 - recursively copy within hop/node budgets;
 - do not retain component-path refs in final suggestion;
 - fail on cycles.
+
+This restriction is intentional: JSON Schema `$ref` siblings are conjunctive semantics and cannot be preserved by a naive object merge/override.
 
 - [ ] **Step 3: Write RED input suggestion tests**
 
@@ -931,11 +967,13 @@ Never sort in a way that loses duplicate diagnostics.
 
 - [ ] **Step 3: Enforce diagnostic cap**
 
-At 500 diagnostics:
+At the 500-entry final-report budget:
 
+- collect no more than 499 ordinary diagnostics;
+- when one more diagnostic would overflow the budget, append exactly one `diagnostic_limit_reached` as entry 500;
 - stop collecting additional diagnostics;
-- append exactly one `diagnostic_limit_reached`;
-- set `truncatedDiagnostics=true`.
+- set `truncatedDiagnostics=true`;
+- assert `report.diagnostics.length <= MAX_DIAGNOSTICS` in tests.
 
 - [ ] **Step 4: Run GREEN**
 
@@ -1028,20 +1066,23 @@ No trim/slug/case normalization.
 Rules:
 
 - `candidate_suggestion` requires a non-blocked suggestion;
-- explicit schemas are copied as caller-authored canonical data;
+- explicit schemas are caller-authored canonical data but must still pass the importer JSON-value safety copier and the same depth/schema-node budgets used for candidate schema materialization;
+- explicit schemas must be deep-copied and never retained by reference to caller-owned mutable objects;
 - no OpenAPI provenance enters ActionDefinition;
 - no RuntimeBinding or executor is produced;
-- output object contains only canonical Action Definition fields plus separate provenance wrapper.
+- output object contains only canonical Action Definition fields plus a separate exact `OpenApiSourceProvenance` value; do not attach the whole candidate/report as provenance.
 
 - [ ] **Step 4: Validate output against canonical schema in tests**
 
 Test-only AJV helper loads:
 
 ```text
-../../../spec/0.1/action-definition.schema.json
+../../../../spec/0.1/action-definition.schema.json
 ```
 
 Use AJV Draft 2020-12 mode.
+
+Resolve that path from `tests/support/canonical-action-validator.ts` via `import.meta.url`, not process cwd. From that file, repository root is four levels up.
 
 Every positive materialization test must pass the canonical schema.
 
@@ -1242,16 +1283,18 @@ Before requesting external review, every item must pass:
 - [ ] D-067 same-document/no-I/O/resource-bounded ingestion is enforced.
 - [ ] D-068 preserves source identity as provenance only.
 - [ ] Production dependency is only `yaml`.
-- [ ] No filesystem/network capability exists in importer production source.
+- [ ] Production module imports are allowlisted to relative modules, `yaml`, and `node:buffer`; no filesystem/process/socket/network capability exists in importer production source.
 - [ ] YAML aliases/custom tags/merge semantics cannot expand attacker-controlled graphs.
-- [ ] All resource budgets have negative tests.
+- [ ] All resource budgets have negative tests, and final diagnostics never exceed 500 entries including the terminal truncation diagnostic.
 - [ ] OpenAPI 3.2 `query` is supported as fixed operation.
 - [ ] `additionalOperations` is fail-closed in v1.
 - [ ] Path Item `$ref` sibling ambiguity is rejected.
 - [ ] Custom schema dialects/unsupported keywords cannot be silently copied.
+- [ ] Schema `$ref` with sibling schema keywords fails closed rather than using lossy merge semantics.
 - [ ] Raw OpenAPI prose cannot become canonical/tool metadata automatically.
 - [ ] Candidate suggestions are optional and non-authoritative.
 - [ ] Materialization requires every SurfaceRelay semantic field explicitly.
+- [ ] Explicit caller-authored schemas are bounded, safe-copied, and cannot bypass schema/depth/node limits.
 - [ ] Final Action identity is exact and never normalized from operationId/path/method.
 - [ ] Final output passes the canonical Action Definition schema.
 - [ ] Provenance is outside ActionDefinition.
@@ -1291,7 +1334,7 @@ After this plan is committed:
 
 ```text
 T-704 design: APPROVED
-T-704 implementation plan: PREPARED / REVIEW PENDING
+T-704 implementation plan: APPROVED
 T-704 implementation: NOT STARTED
 D-065: PROPOSED
 D-066: PROPOSED
@@ -1300,4 +1343,25 @@ D-068: PROPOSED
 D-026: PROPOSED
 ```
 
-A separate explicit user approval is required before creating `packages/openapi-importer/**`, changing CI, or starting RED tests.
+This plan is approved. Implementation still starts only on the separate execution gate and new `feat/t-704-openapi-importer` branch; approval does not create `packages/openapi-importer/**`, change CI, or start RED tests in this commit.
+
+
+## Plan review outcome
+
+**APPROVED** after explicit review of task dependencies, dependency capability, parser safety, resource-budget accounting, reference semantics, Schema Object subset behavior, materialization boundaries, canonical-schema verification, CI behavior, and scope-stop conditions.
+
+Review fixes applied before approval:
+
+- added Node typings and an explicit production module-import allow-list;
+- moved Git diff auditing out of Vitest/shallow-checkout-sensitive architecture tests;
+- required duplicate-key rejection and safe null-prototype normalization for JSON input;
+- made the 500-diagnostic limit inclusive of the terminal truncation diagnostic;
+- fixed URI-fragment/JSON Pointer decoding order;
+- made Schema `$ref` siblings fail closed in v1;
+- distinguished OpenAPI security inheritance removal (`[]`) from anonymous alternative (`[{}]`);
+- bounded/deep-copied explicit caller-authored schemas during materialization;
+- narrowed materializer provenance to exact source provenance only;
+- corrected the canonical Action Definition schema path from the test helper;
+- stated explicitly that T-704 is not a full OpenAPI validator.
+
+D-065 through D-068 remain PROPOSED. D-026 remains independently PROPOSED. No implementation begins from this approval commit.

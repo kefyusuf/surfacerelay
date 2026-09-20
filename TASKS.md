@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — DESIGN APPROVED / IMPLEMENTATION PLAN PREPARED / PLAN REVIEW PENDING / IMPLEMENTATION NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — DESIGN APPROVED / IMPLEMENTATION PLAN APPROVED / IMPLEMENTATION NOT STARTED
 
 Approved design:
 
@@ -608,10 +608,10 @@ T-701 conformance changes:     NONE
 T-703 MCP changes:             NONE
 ```
 
-Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **PREPARED / REVIEW PENDING**.  
+Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
 Implementation: **NOT STARTED**.
 
-Design review is complete and approved. The implementation plan is prepared but not yet approved. The next gate is plan review/approval only; no package/source/test implementation begins automatically.
+Design and implementation plan are approved. The next gate is implementation execution preflight/Task 1 only; no package/source/test implementation begins automatically from this approval.
 
 ## Current boundary
 
