@@ -107,7 +107,7 @@ function finalizeDiagnostics(
     return left.sequence - right.sequence;
   });
 
-  if (sequenced.length <= MAX_DIAGNOSTICS) {
+  if (sequenced.length < MAX_DIAGNOSTICS) {
     return {
       diagnostics: sequenced.map((entry) => entry.diagnostic),
       truncatedDiagnostics: false,
