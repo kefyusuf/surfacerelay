@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 3 COMPLETE / TASK 4 NOT STARTED
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTATION IN PROGRESS / TASK 4 COMPLETE / TASK 5 NOT STARTED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IN PROGRESS — TASK 3 COMPLETE / TASK 4 NOT STARTED**.
+Implementation: **IN PROGRESS — TASK 4 COMPLETE / TASK 5 NOT STARTED**.
 
 Plan approval evidence:
 
@@ -710,8 +710,49 @@ Task 3 added only source-version classification, same-document JSON Pointer pars
 
 Task 3 self-review passed for D-067 alignment, no-I/O capability, strict one-pass URI-fragment/JSON-Pointer decoding, fail-closed external/anchor behavior, exact lookup/no-copy semantics, cycle/hop/unique-target bounding, dependency direction, brownfield safety, and exact verification evidence.
 
-The next gate is **Task 4 — root path operation selection + exact provenance + effective parameter/security evidence only**. Do not begin Task 5 automatically.
+Task 4 implementation evidence:
+
+```text
+Task:                           root paths operation selection + provenance + parameter/security evidence
+RED head:                       f1b58b9feeed38509f2620d59affbbd22acace1a
+RED validate:                   #895 / 35503293113 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 47 tests PASS; Task 4 tests 18/18 expected FAIL
+Initial implementation head:    97bbffd8e3c7a61f12bfd142dec1f5992c74dc65
+Initial implementation validate:#896 / 35503411754 — typecheck FAIL
+Type-guard fix head:            1c34d3b7bb5d921cde523e1caa23b68a4bf00c18
+Type-guard fix validate:        #897 / 35503457399 — 12/12 SUCCESS
+Importer at #897:               4 test files / 65 tests PASS
+Final GREEN head:               cd5205d2b8918e30a77290c2d64616471aa89fb6
+Final GREEN validate:           #898 / 35503516563 — 12/12 SUCCESS
+Importer final GREEN:           4 test files / 67 tests PASS + typecheck + npm ci
+OAS 3.1 fixed operations:       get/put/post/delete/options/head/patch/trace
+OAS 3.2 fixed addition:         query
+Callbacks/webhooks:             not promoted to root candidates
+additionalOperations:           unsupported diagnostic
+Path Item ref+sibling:          fail closed
+Path Item ref-only:             same-document resolution supported
+Operation budget:               1,000 encountered fixed-operation entries
+Operation identity/provenance:  exact; no operationId/path/method normalization
+Source prose budget:            8,192 Unicode characters; omit, never truncate
+Effective parameter identity:   exact (name,in); operation overrides path level
+Input flattening:               NONE
+Security inheritance:           source evidence only
+security []:                    explicit inherited-security removal evidence
+security [{}]:                  anonymous-alternative evidence
+Security OR/AND structure:      preserved as evidence; no authority granted
+Request/response evidence:      preserved for Task 5; no schema materialization yet
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 4 added only bounded operation selection, exact source provenance, request/response structural evidence, effective parameter evidence, and effective security evidence. It does not infer SurfaceRelay effect/risk/idempotency/context requirements, flatten HTTP parameters into Action input, materialize schemas, create RuntimeBindings, execute HTTP, authorize callers, or expose tools.
+
+Task 4 self-review passed for D-066/D-068 alignment, exact source identity, no semantic inference, parameter override correctness, security evidence without authority, Path Item ambiguity fail-closed behavior, operation/text resource bounds, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+The next gate is **Task 5 — conservative schema-subset analysis + safe input/output suggestions only**. Do not begin Task 6 automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 3 COMPLETE / TASK 4 NOT STARTED**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IN PROGRESS / TASK 4 COMPLETE / TASK 5 NOT STARTED**. No later task begins automatically.

@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 3 COMPLETE / TASK 4 NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTATION IN PROGRESS / TASK 4 COMPLETE / TASK 5 NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,25 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IN PROGRESS — TASK 3 COMPLETE / TASK 4 NOT STARTED**
+- **T-704 implementation:** **IN PROGRESS — TASK 4 COMPLETE / TASK 5 NOT STARTED**
+- **T-704 Task 4 RED head:** `f1b58b9feeed38509f2620d59affbbd22acace1a`
+- **T-704 Task 4 RED CI:** `#895` / `35503293113` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 4 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–3 tests **47 PASS**; Task 4 operation/provenance contract **18/18 expected FAIL**
+- **T-704 Task 4 initial implementation head:** `97bbffd8e3c7a61f12bfd142dec1f5992c74dc65`
+- **T-704 Task 4 initial implementation CI:** `#896` / `35503411754` — **typecheck FAIL** in strict JsonValue narrowing
+- **T-704 Task 4 type-guard fix head:** `1c34d3b7bb5d921cde523e1caa23b68a4bf00c18`
+- **T-704 Task 4 type-guard fix CI:** `#897` / `35503457399` — **12/12 SUCCESS; importer 4 files / 65 tests PASS**
+- **T-704 Task 4 final GREEN head:** `cd5205d2b8918e30a77290c2d64616471aa89fb6`
+- **T-704 Task 4 final GREEN CI:** `#898` / `35503516563` — **12/12 SUCCESS**
+- **T-704 Task 4 importer suite:** **4 files / 67 tests PASS + typecheck + npm ci**
+- **T-704 Task 4 operation boundary:** **OAS 3.1 fixed methods; OAS 3.2 adds query; callbacks/webhooks not promoted; additionalOperations unsupported**
+- **T-704 Task 4 operation budget:** **1,000 encountered fixed-operation entries, including malformed entries**
+- **T-704 Task 4 provenance:** **exact operationId / method / path / JSON Pointer; no normalization**
+- **T-704 Task 4 source prose boundary:** **8,192 Unicode characters; oversized summary/description omitted with non-blocking diagnostic**
+- **T-704 Task 4 parameter evidence:** **path+operation merge by exact (name,in); operation overrides; no Action-input flattening**
+- **T-704 Task 4 security evidence:** **inheritance/override/anonymous/removal/OR+AND structure only; no trusted authority**
+- **T-704 Task 4 capability audit:** **same-document lookup only; no filesystem/network capability**
+- **T-704 Task 4 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
 - **T-704 Task 3 initial RED head:** `c7a817dd330d523f915996ac81a77c47bdef06ee` — `#891` typecheck RED because ref-budget constants were intentionally not yet present
 - **T-704 Task 3 corrected RED head:** `bdc3329b35189ede1a12c66a7a116f7625ea4bfe`
 - **T-704 Task 3 corrected RED CI:** `#892` / `35497077001` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
@@ -142,7 +160,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 Task 4 root-path operation/provenance/effective parameter/security evidence only. Do not advance beyond Task 4 automatically.
+- **Next gate:** T-704 Task 5 conservative schema-subset analysis + safe input/output suggestions only. Do not advance beyond Task 5 automatically.
 
 ## M6 historical evidence — preserved
 
