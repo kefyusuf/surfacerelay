@@ -271,6 +271,47 @@ describe('deterministic OpenAPI import report', () => {
     ]);
   });
 
+  it('reserves the 500th final diagnostic slot for truncation evidence', () => {
+    const build = (count: number) => {
+      const paths: Record<string, unknown> = {};
+      for (let index = 0; index < count; index += 1) {
+        paths[`/exact-${String(index).padStart(4, '0')}`] = {
+          get: 'invalid',
+        };
+      }
+
+      return importOpenApi({
+        format: 'json',
+        content: JSON.stringify({
+          openapi: '3.1.1',
+          info: { title: 'Fixture', version: '1' },
+          paths,
+        }),
+      });
+    };
+
+    const belowLimit = build(MAX_DIAGNOSTICS - 1);
+    expect(belowLimit.truncatedDiagnostics).toBe(false);
+    expect(belowLimit.diagnostics).toHaveLength(MAX_DIAGNOSTICS - 1);
+    expect(
+      belowLimit.diagnostics.some(
+        (diagnostic) => diagnostic.code === 'diagnostic_limit_reached',
+      ),
+    ).toBe(false);
+
+    const boundary = build(MAX_DIAGNOSTICS);
+    expect(boundary.truncatedDiagnostics).toBe(true);
+    expect(boundary.diagnostics).toHaveLength(MAX_DIAGNOSTICS);
+    expect(boundary.diagnostics.at(-1)?.code).toBe(
+      'diagnostic_limit_reached',
+    );
+    expect(
+      boundary.diagnostics.filter(
+        (diagnostic) => diagnostic.code === 'invalid_openapi_document',
+      ),
+    ).toHaveLength(MAX_DIAGNOSTICS - 1);
+  });
+
   it('caps final report diagnostics at 500 including exactly one terminal truncation diagnostic', () => {
     const paths: Record<string, unknown> = {};
     for (let index = 0; index < 520; index += 1) {
