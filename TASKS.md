@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING**.
+Implementation: **IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING**.
 
 Plan approval evidence:
 
@@ -891,10 +891,26 @@ D-065..D-068:                   PROPOSED
 D-026:                          PROPOSED
 ```
 
-Task 8 documentation/review handoff is prepared. The exact handoff commit must complete the full 12-job matrix before state advances to **IMPLEMENTED / EXTERNAL REVIEW PENDING**.
+Task 8 documentation/review handoff evidence:
+
+```text
+Documentation handoff head:     201b030b91c8642387514510ea120cd9282122f2
+Documentation handoff validate: #913 / 35538173232 — 12/12 SUCCESS
+Changed paths:                  package README / root README / REVIEW_REQUEST / STATUS / TASKS only
+Implementation/spec changes:    NONE
+Conformance/runtime changes:    NONE
+CI definition changes:          NONE
+Review state:                    EXTERNAL REVIEW PENDING
+D-065..D-068:                    PROPOSED
+D-026:                           PROPOSED
+Merge:                           NOT PERFORMED
+T-704 closure:                   NOT PERFORMED
+```
+
+Task 8 is complete. The next gate is **external review only**. Do not promote D-065..D-068, merge, close T-704, or begin later work before review closure.
 
 Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING**. No later task begins automatically.

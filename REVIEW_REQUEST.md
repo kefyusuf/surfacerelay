@@ -4,7 +4,7 @@
 
 - **Task:** T-704 — optional OpenAPI importer as a secondary adapter
 - **Branch:** `feat/t-704-openapi-importer`
-- **State:** **IMPLEMENTED / REVIEW HANDOFF PREPARED / EXACT-HEAD CI PENDING**
+- **State:** **IMPLEMENTED / EXTERNAL REVIEW PENDING**
 - **Implementation code head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
 - **Implementation CI:** Validate `#911` / `35537472977` — **12/12 SUCCESS**
 - **Pre-handoff tracking head:** `106cba54fe85909362cab3c1ec5f3d1db1036011`
@@ -14,9 +14,11 @@
 - **D-067:** **PROPOSED**
 - **D-068:** **PROPOSED**
 - **D-026:** **PROPOSED** — unchanged
+- **Documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
+- **Documentation/review-handoff CI:** Validate `#913` / `35538173232` — **12/12 SUCCESS**
 - **Merge/decision promotion/closure:** **NOT PERFORMED**
 
-The exact documentation/review-handoff head and its CI will be recorded in a follow-up evidence-only commit after this handoff commit completes the full 12-job matrix.
+The review target is the current feature branch. The implementation/documentation handoff revision above is exact-head green; the subsequent evidence-only tracking commit changes no implementation behavior.
 
 ## What changed
 
@@ -138,12 +140,19 @@ MAX_SOURCE_TEXT_CHARS            8,192
 
 Please check that limits apply before/through expansion rather than after unbounded work.
 
-## Verification evidence before handoff commit
+## Verification evidence
 
-Exact pre-handoff head `106cba54fe85909362cab3c1ec5f3d1db1036011`:
+Implementation/tracking verification before documentation:
+`106cba54fe85909362cab3c1ec5f3d1db1036011`
+
+Documentation/review-handoff verification:
+`201b030b91c8642387514510ea120cd9282122f2`
+
+Both revisions completed the full 12-job matrix successfully.
 
 ```text
 Validate #912 / 35537581965:     12/12 SUCCESS
+Validate #913 / 35538173232:     12/12 SUCCESS
 
 OpenAPI importer:
   7 Vitest files / 171 tests PASS

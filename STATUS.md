@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / TASK 8 HANDOFF PREPARED / EXACT-HEAD CI PENDING**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,7 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IMPLEMENTED / REVIEW HANDOFF PREPARED / EXACT-HEAD CI PENDING**
+- **T-704 implementation:** **IMPLEMENTED / EXTERNAL REVIEW PENDING**
 - **T-704 implementation code head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
 - **T-704 implementation CI:** `#911` / `35537472977` — **12/12 SUCCESS**
 - **T-704 pre-handoff tracking head:** `106cba54fe85909362cab3c1ec5f3d1db1036011`
@@ -118,6 +118,10 @@
 - **T-704 full verification:** **importer 171 tests; browser 328; Python conformance 47; runtime matrix 7 PASS / 1 N/A; Laravel 4/4; Laravel MCP 4/4; contract + PHP lint PASS**
 - **T-704 forbidden-path audit:** **PASS** against merge-base `7e26d61a4739efb1111ab148cdad38e5c145e141`
 - **T-704 dependency audit:** **yaml-only production dependency; no generic OpenAPI dereferencer; no filesystem/network retrieval; no internal SurfaceRelay package dependency**
+- **T-704 Task 8 documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
+- **T-704 Task 8 documentation/review-handoff CI:** `#913` / `35538173232` — **12/12 SUCCESS**
+- **T-704 Task 8 handoff diff:** **README + package README + REVIEW_REQUEST + STATUS + TASKS only; no implementation/spec/conformance/CI changes**
+- **T-704 review state:** **EXTERNAL REVIEW PENDING; decisions remain PROPOSED; not merged**
 - **T-704 Task 7 initial RED head:** `e215133ab38d3d5644f1664a41c0bb3ce0d9fb72` — `#909` typecheck RED in diagnostic/AJV test-contract typing
 - **T-704 Task 7 corrected RED head:** `479312aed8f4e0ac93f9fb53046bfd64ab7394d2`
 - **T-704 Task 7 corrected RED CI:** `#910` / `35537328082` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
@@ -221,7 +225,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** complete T-704 Task 8 exact-head CI, then external review only. Do not promote decisions, merge, or close T-704 automatically.
+- **Next gate:** T-704 external review only. Do not promote D-065..D-068, merge, or close T-704 before review closure.
 
 ## M6 historical evidence — preserved
 
