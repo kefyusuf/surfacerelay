@@ -295,6 +295,100 @@ describe('request/response source evidence', () => {
   });
 });
 
+  it('resolves chained same-document request/response references before extracting evidence', () => {
+    const requestSchema = object({
+      type: 'object',
+      properties: object({ name: object({ type: 'string' }) }),
+    });
+    const responseSchema = object({
+      type: 'object',
+      properties: object({ id: object({ type: 'string' }) }),
+    });
+
+    const result = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            post: operation({
+              requestBody: object({
+                $ref: '#/components/requestBodies/A',
+              }),
+              responses: object({
+                '201': object({
+                  $ref: '#/components/responses/A',
+                }),
+              }),
+            }),
+          }),
+        }),
+        {
+          components: object({
+            requestBodies: object({
+              A: object({ $ref: '#/components/requestBodies/B' }),
+              B: object({
+                required: true,
+                content: object({
+                  'application/json': object({ schema: requestSchema }),
+                }),
+              }),
+            }),
+            responses: object({
+              A: object({ $ref: '#/components/responses/B' }),
+              B: object({
+                description: 'created',
+                content: object({
+                  'application/json': object({ schema: responseSchema }),
+                }),
+              }),
+            }),
+          }),
+        },
+      ),
+      '3.2',
+    );
+
+    const candidate = result.candidates[0];
+    expect(candidate?.diagnostics).toEqual([]);
+    expect(candidate?.requestBodies[0]?.required).toBe(true);
+    expect(candidate?.requestBodies[0]?.content[0]?.schema).toBe(requestSchema);
+    expect(candidate?.responses[0]?.content[0]?.schema).toBe(responseSchema);
+  });
+
+  it('fails closed on a chained response reference cycle instead of treating it as no-content', () => {
+    const result = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            get: operation({
+              responses: object({
+                '200': object({
+                  $ref: '#/components/responses/A',
+                }),
+              }),
+            }),
+          }),
+        }),
+        {
+          components: object({
+            responses: object({
+              A: object({ $ref: '#/components/responses/B' }),
+              B: object({ $ref: '#/components/responses/A' }),
+            }),
+          }),
+        },
+      ),
+      '3.2',
+    );
+
+    const candidate = result.candidates[0];
+    expect(candidate?.responses).toEqual([]);
+    expect(candidate?.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'ref_cycle',
+    );
+  });
+
 describe('exact provenance and source documentation evidence', () => {
   it('preserves operationId exactly and escapes the JSON Pointer path token', () => {
     const result = selectRootPathOperations(
