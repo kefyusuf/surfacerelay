@@ -66,41 +66,44 @@ function resolveReferencedObject(
     };
   }
 
-  const reference = value.$ref;
-  if (reference === undefined) {
-    return { value, diagnostics: [] };
+  let current = value;
+  const localBudget = budget.fork();
+
+  while (hasOwn(current, '$ref')) {
+    const reference = current.$ref;
+    if (typeof reference !== 'string') {
+      return {
+        value: null,
+        diagnostics: [
+          blockingDiagnostic(
+            'invalid_openapi_document',
+            `${context} $ref must be a string.`,
+          ),
+        ],
+      };
+    }
+
+    const resolved = resolveLocalPointer(root, reference, localBudget);
+    if (resolved.value === null || resolved.diagnostics.length > 0) {
+      return { value: null, diagnostics: resolved.diagnostics };
+    }
+
+    if (!isJsonObject(resolved.value)) {
+      return {
+        value: null,
+        diagnostics: [
+          blockingDiagnostic(
+            'invalid_openapi_document',
+            `${context} reference target must be an object.`,
+          ),
+        ],
+      };
+    }
+
+    current = resolved.value;
   }
 
-  if (typeof reference !== 'string') {
-    return {
-      value: null,
-      diagnostics: [
-        blockingDiagnostic(
-          'invalid_openapi_document',
-          `${context} $ref must be a string.`,
-        ),
-      ],
-    };
-  }
-
-  const resolved = resolveLocalPointer(root, reference, budget.fork());
-  if (resolved.value === null || resolved.diagnostics.length > 0) {
-    return { value: null, diagnostics: resolved.diagnostics };
-  }
-
-  if (!isJsonObject(resolved.value)) {
-    return {
-      value: null,
-      diagnostics: [
-        blockingDiagnostic(
-          'invalid_openapi_document',
-          `${context} reference target must be an object.`,
-        ),
-      ],
-    };
-  }
-
-  return { value: resolved.value, diagnostics: [] };
+  return { value: current, diagnostics: [] };
 }
 
 function resolvePathItem(
