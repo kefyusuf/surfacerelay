@@ -1,52 +1,59 @@
-# T-704 External Review Closure — Optional OpenAPI Importer
+# M7 Closure / State Reconciliation — Review Handoff
 
-## Review result
+## Scope
 
-- **PR:** #17 — **OPEN / NOT MERGED**
-- **State:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
-- **Round-one reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7`
-- **Review-fix code head:** `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`
-- **Review-fix CI:** push **#932** + PR **#933** — **12/12 SUCCESS each**
-- **Importer after fixes:** **7 files / 184 tests PASS + typecheck + npm ci**
-- **External re-review head:** `b83632c790b893f993630c452c47a41444832918`
-- **Re-review CI:** push **#934** + PR **#935** — **12/12 SUCCESS each**
-- **CodeRabbit incremental re-review:** **SUCCESS / Review completed**
-- **New actionable findings:** **0**
-- **Unresolved review threads:** **0**
-- **D-065 / D-066 / D-067 / D-068:** **ACCEPTED**
-- **D-026:** **PROPOSED**
-- **Merge / T-704 closure:** **NOT PERFORMED**
+- **Branch:** `docs/m7-closure-reconciliation`
+- **Base:** `main@b2de658f9feaee18ac60cb0c2786b45c3d95e342`
+- **State:** **M7 CLOSURE VERIFYING**
+- **Change type:** current-facing documentation/state reconciliation only
 
-## Closed review findings
+This gate adds no capability. It reconciles the repository after T-704 was reviewed, decision-promoted, merged, and revalidated on `main`.
 
-Round one produced four actionable inline findings plus one handoff nitpick. All are addressed:
+## M7 outcome check
 
-1. chained same-document Parameter refs resolve under one bounded traversal;
-2. successfully resolved JSON `null` targets reach type validation instead of being silently treated as unresolved;
-3. a blocking input/output ambiguity keeps both automatic schema suggestions unresolved;
-4. stale pre-implementation tracking passages are explicitly historical;
-5. this review handoff is concise.
+Roadmap outcome: executable adapter conformance suite plus optional MCP/OpenAPI bridges built on maintained ecosystem implementations.
 
-CodeRabbit confirmed the four inline findings as addressed and resolved their threads. Incremental re-review on the corrected head completed without new inline findings.
+- T-701 executable conformance runner — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
+- T-702 adapter author guide — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
+- T-703 optional Laravel MCP projection — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
+- T-704 optional bounded OpenAPI importer — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
 
-Detailed implementation and verification evidence remains in `STATUS.md`, `TASKS.md`, the approved design, and the approved implementation plan.
+The implementation-side M7 outcome is satisfied. This branch only reconciles current documentation before final milestone closure.
 
-## Decision promotion
+## Baseline verification
 
-D-065 through D-068 are **ACCEPTED** after implementation, full verification, review-fix revalidation, and incremental reviewer closure.
+```text
+main head:      b2de658f9feaee18ac60cb0c2786b45c3d95e342
+Validate:       #943 / 35666645607
+Result:         12/12 jobs SUCCESS
+```
 
-Acceptance basis:
+## Decision boundary
 
-- review-fix code head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`;
-- re-review/docs head `b83632c790b893f993630c452c47a41444832918`;
-- review-closure head `32385c1ace536178ce7dbc90907d4b670f915384`;
-- green push/PR validation through #936/#937;
-- 0 new inline findings and 0 unresolved review threads.
+D-059 through D-068 are **ACCEPTED** except D-026, which remains independently **PROPOSED**. This gate must not promote D-026 or create a closed global binding-error enum.
 
-D-026 remains **PROPOSED**.
+## Expected changed paths
+
+- `STATUS.md`
+- `TASKS.md`
+- `REVIEW_REQUEST.md`
+- `docs/ROADMAP.md`
+- `docs/adapters/README.md`
+- `docs/adapters/author-guide.md`
+- `packages/laravel-mcp/README.md`
+- `packages/openapi-importer/README.md`
+
+Historical design/implementation-plan snapshots remain unchanged.
+
+## Review focus
+
+1. Current-facing docs no longer describe T-703/T-704 as future/unmerged work.
+2. Historical snapshots remain explicitly historical.
+3. T-701 through T-704 evidence is not overstated.
+4. No production behavior, canonical spec, conformance semantics, dependencies, publication, or release compatibility changes.
+5. D-026 remains PROPOSED.
+6. No T-705 or later milestone implementation appears.
 
 ## Next gate
 
-The next explicit gate is **merge + post-merge main revalidation planning only**.
-
-Decision acceptance does **not** itself authorize merge to `main`, T-704 closure, D-026 promotion, or later work.
+Only after this reconciliation head passes repository validation may M7 be recorded as **DONE / CLOSED**. Closure does not authorize a later milestone, package publication, tagging, release automation, or implementation work.

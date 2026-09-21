@@ -141,7 +141,7 @@ Post-merge browser:              19 files / 319/319 + typecheck
 
 **T-604 is closed. M6 is closed.**
 
-## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS
+## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS / CLOSURE_VERIFYING
 
 ### T-701 — Executable conformance runner — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -989,6 +989,28 @@ Final state:                     DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 T-704 is closed. No later task begins automatically; any further work requires a separate explicit scope/design gate.
 
+### M7 closure / state reconciliation — IN_PROGRESS
+
+Closure scope is documentation-only:
+
+- reconcile current-facing state after T-704 closure;
+- verify the M7 roadmap outcome against T-701 through T-704;
+- keep explicitly historical design/plan snapshots intact;
+- update live adapter/package docs that still describe T-703/T-704 as future work;
+- preserve D-026 as PROPOSED;
+- make no production, canonical-spec, conformance-semantic, dependency, publication, or release-contract change;
+- do not create T-705 or begin a later milestone.
+
+```text
+main head:                       b2de658f9feaee18ac60cb0c2786b45c3d95e342
+main Validate:                   #943 / 35666645607 — 12/12 SUCCESS
+T-701..T-704:                    DONE / REVIEWED / MERGED / MAIN REVALIDATED
+D-059..D-068 except D-026:       ACCEPTED
+D-026:                           PROPOSED
+production/spec semantic change: NONE
+next milestone implementation:   NOT STARTED
+```
+
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**. No decision promotion, merge, closure, or later work begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **IN_PROGRESS / CLOSURE_VERIFYING** only for current-facing documentation reconciliation. No T-705 exists and no later milestone implementation has started.

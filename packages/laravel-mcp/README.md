@@ -148,7 +148,7 @@ T-703 v1 does not implement or claim ownership of:
 - new trusted-context fields or caller-authoritative trust;
 - a second authorization, confirmation, idempotency, output, or audit pipeline;
 - new T-701 conformance profiles, targets, or scenarios;
-- OpenAPI import (reserved for T-704).
+- OpenAPI import; the separate T-704 importer lives under `packages/openapi-importer` and is not owned by this bridge.
 
 ## Verification
 
