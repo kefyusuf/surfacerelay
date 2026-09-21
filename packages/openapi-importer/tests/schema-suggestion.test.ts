@@ -460,6 +460,60 @@ describe('safe input suggestions', () => {
   });
 });
 
+describe('cross-dimension blocking consistency', () => {
+  it('suppresses output suggestion when input mapping is blocking', () => {
+    const result = applySchemaSuggestions(
+      document(),
+      candidate({
+        parameters: [{
+          name: 'q',
+          in: 'query',
+          required: false,
+          sourcePointer: '/paths/~1items/get/parameters/0',
+        }],
+        responses: [{
+          statusCode: '200',
+          content: [{
+            mediaType: 'application/json',
+            schema: object({ type: 'object' }),
+            sourcePointer: '/responses/200/content/application~1json',
+          }],
+          sourcePointer: '/responses/200',
+        }],
+      }),
+    );
+
+    expect(result.suggestedInputSchema).toBeUndefined();
+    expect(result.suggestedOutputSchema).toBeUndefined();
+    expect(result.unresolvedFields).toContain('inputSchema');
+    expect(result.unresolvedFields).toContain('outputSchema');
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'ambiguous_input_mapping',
+    );
+  });
+
+  it('suppresses input suggestion when output selection is blocking', () => {
+    const result = applySchemaSuggestions(
+      document(),
+      candidate({
+        requestBodies: [],
+        responses: [
+          { statusCode: '200', content: [], sourcePointer: '/responses/200' },
+          { statusCode: '201', content: [], sourcePointer: '/responses/201' },
+        ],
+      }),
+    );
+
+    expect(result.suggestedInputSchema).toBeUndefined();
+    expect(result.suggestedOutputSchema).toBeUndefined();
+    expect(result.unresolvedFields).toContain('inputSchema');
+    expect(result.unresolvedFields).toContain('outputSchema');
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'ambiguous_success_output',
+    );
+  });
+});
+
 describe('safe output suggestions', () => {
   it('suggests null for one explicit successful response with no content', () => {
     const result = applySchemaSuggestions(

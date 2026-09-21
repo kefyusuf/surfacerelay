@@ -389,6 +389,44 @@ describe('request/response source evidence', () => {
     );
   });
 
+  it('fails closed when request/response references resolve to JSON null', () => {
+    const result = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            post: operation({
+              requestBody: object({
+                $ref: '#/components/requestBodies/Broken',
+              }),
+              responses: object({
+                '200': object({
+                  $ref: '#/components/responses/Broken',
+                }),
+              }),
+            }),
+          }),
+        }),
+        {
+          components: object({
+            requestBodies: object({ Broken: null }),
+            responses: object({ Broken: null }),
+          }),
+        },
+      ),
+      '3.2',
+    );
+
+    const candidate = result.candidates[0];
+    expect(candidate?.requestBodies).toEqual([]);
+    expect(candidate?.responses).toEqual([]);
+    expect(
+      candidate?.diagnostics.filter(
+        (diagnostic) => diagnostic.code === 'invalid_openapi_document',
+      ),
+    ).toHaveLength(2);
+  });
+
 describe('exact provenance and source documentation evidence', () => {
   it('preserves operationId exactly and escapes the JSON Pointer path token', () => {
     const result = selectRootPathOperations(
@@ -572,6 +610,77 @@ describe('effective parameters', () => {
       in: 'query',
       required: true,
     });
+  });
+
+  it('resolves chained same-document Parameter references to the terminal Parameter Object', () => {
+    const result = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            get: operation({
+              parameters: [
+                object({ $ref: '#/components/parameters/A' }),
+              ],
+            }),
+          }),
+        }),
+        {
+          components: object({
+            parameters: object({
+              A: object({ $ref: '#/components/parameters/B' }),
+              B: object({
+                name: 'lang',
+                in: 'query',
+                required: true,
+                schema: object({ type: 'string' }),
+              }),
+            }),
+          }),
+        },
+      ),
+      '3.2',
+    );
+
+    const candidate = result.candidates[0];
+    expect(candidate?.diagnostics).toEqual([]);
+    expect(candidate?.parameters).toHaveLength(1);
+    expect(candidate?.parameters[0]).toMatchObject({
+      name: 'lang',
+      in: 'query',
+      required: true,
+    });
+  });
+
+  it('fails closed when a Parameter reference resolves to JSON null', () => {
+    const result = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            get: operation({
+              parameters: [
+                object({ $ref: '#/components/parameters/Broken' }),
+              ],
+            }),
+          }),
+        }),
+        {
+          components: object({
+            parameters: object({
+              Broken: null,
+            }),
+          }),
+        },
+      ),
+      '3.2',
+    );
+
+    const candidate = result.candidates[0];
+    expect(candidate?.parameters).toEqual([]);
+    expect(candidate?.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'invalid_openapi_document',
+    );
   });
 
   it('does not flatten parameters into suggested Action input', () => {
