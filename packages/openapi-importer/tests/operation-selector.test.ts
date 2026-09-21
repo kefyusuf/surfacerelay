@@ -154,6 +154,30 @@ describe('root paths operation selection', () => {
     ]);
   });
 
+  it('fails closed when a Path Item reference resolves to JSON null', () => {
+    const result = selectRootPathOperations(
+      document(
+        '3.2.1',
+        object({
+          '/items': object({
+            $ref: '#/components/pathItems/Broken',
+          }),
+        }),
+        {
+          components: object({
+            pathItems: object({ Broken: null }),
+          }),
+        },
+      ),
+      '3.2',
+    );
+
+    expect(result.candidates).toEqual([]);
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'invalid_openapi_document',
+    );
+  });
+
   it('resolves a same-document $ref-only Path Item', () => {
     const referenced = object({
       get: operation({ operationId: 'component-operation' }),

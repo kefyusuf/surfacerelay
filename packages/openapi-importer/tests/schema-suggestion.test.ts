@@ -256,6 +256,22 @@ describe('conservative schema subset', () => {
     expect(JSON.stringify(result.schema)).not.toContain('$ref');
   });
 
+  it('fails closed when a schema reference resolves to JSON null', () => {
+    const result = copySupportedSchema(
+      document({
+        components: object({
+          schemas: object({ Broken: null }),
+        }),
+      }),
+      object({ $ref: '#/components/schemas/Broken' }),
+    );
+
+    expect(result.schema).toBeNull();
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      'schema_keyword_unsupported',
+    );
+  });
+
   it('rejects cyclic schema references', () => {
     const doc = document({
       components: object({
