@@ -4,7 +4,7 @@
 
 - **Branch:** `docs/m7-closure-reconciliation`
 - **Base:** `main@b2de658f9feaee18ac60cb0c2786b45c3d95e342`
-- **State:** **M7 CLOSURE VERIFYING**
+- **State:** **M7 DONE / CLOSED — REVIEW / MERGE PENDING**
 - **Change type:** current-facing documentation/state reconciliation only
 
 This gate adds no capability. It reconciles the repository after T-704 was reviewed, decision-promoted, merged, and revalidated on `main`.
@@ -18,7 +18,7 @@ Roadmap outcome: executable adapter conformance suite plus optional MCP/OpenAPI 
 - T-703 optional Laravel MCP projection — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
 - T-704 optional bounded OpenAPI importer — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
 
-The implementation-side M7 outcome is satisfied. This branch only reconciles current documentation before final milestone closure.
+The implementation-side M7 outcome is satisfied, and the reconciliation branch has passed repository validation. This handoff requests review of the final docs-only milestone closure state.
 
 ## Baseline verification
 
@@ -26,6 +26,10 @@ The implementation-side M7 outcome is satisfied. This branch only reconciles cur
 main head:      b2de658f9feaee18ac60cb0c2786b45c3d95e342
 Validate:       #943 / 35666645607
 Result:         12/12 jobs SUCCESS
+
+reconciliation head:     8575364732f2a8c574fcf0eb30af7eb5bd028a9c
+reconciliation Validate: #945 / 35668629999
+reconciliation result:   12/12 jobs SUCCESS
 ```
 
 ## Decision boundary
@@ -56,4 +60,4 @@ Historical design/implementation-plan snapshots remain unchanged.
 
 ## Next gate
 
-Only after this reconciliation head passes repository validation may M7 be recorded as **DONE / CLOSED**. Closure does not authorize a later milestone, package publication, tagging, release automation, or implementation work.
+M7 is now recorded as **DONE / CLOSED** on this verified branch. The next explicit gate is external review and then, separately, merge to `main`. Closure does not authorize a later milestone, package publication, tagging, release automation, or implementation work.

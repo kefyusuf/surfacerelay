@@ -141,7 +141,7 @@ Post-merge browser:              19 files / 319/319 + typecheck
 
 **T-604 is closed. M6 is closed.**
 
-## M7 — Conformance / Ecosystem Bridges — IN_PROGRESS / CLOSURE_VERIFYING
+## M7 — Conformance / Ecosystem Bridges — DONE / CLOSED — MERGE_PENDING
 
 ### T-701 — Executable conformance runner — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -989,7 +989,7 @@ Final state:                     DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 T-704 is closed. No later task begins automatically; any further work requires a separate explicit scope/design gate.
 
-### M7 closure / state reconciliation — IN_PROGRESS
+### M7 closure / state reconciliation — DONE / VERIFIED
 
 Closure scope is documentation-only:
 
@@ -1004,6 +1004,8 @@ Closure scope is documentation-only:
 ```text
 main head:                       b2de658f9feaee18ac60cb0c2786b45c3d95e342
 main Validate:                   #943 / 35666645607 — 12/12 SUCCESS
+reconciliation head:             8575364732f2a8c574fcf0eb30af7eb5bd028a9c
+reconciliation Validate:         #945 / 35668629999 — 12/12 SUCCESS
 T-701..T-704:                    DONE / REVIEWED / MERGED / MAIN REVALIDATED
 D-059..D-068 except D-026:       ACCEPTED
 D-026:                           PROPOSED
@@ -1013,4 +1015,4 @@ next milestone implementation:   NOT STARTED
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **IN_PROGRESS / CLOSURE_VERIFYING** only for current-facing documentation reconciliation. No T-705 exists and no later milestone implementation has started.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED** on the verified closure branch; merge to `main` remains separate. No T-705 exists and no later milestone implementation has started.

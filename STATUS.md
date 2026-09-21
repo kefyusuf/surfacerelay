@@ -5,9 +5,9 @@
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `docs/m7-closure-reconciliation`
-- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS — CLOSURE VERIFYING**
+- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED — MERGE PENDING**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `M7 closure / state reconciliation` — **DOCUMENTATION ONLY / VERIFYING**
+- **Current work:** `M7 closure / state reconciliation` — **VERIFIED / REVIEW HANDOFF**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -37,6 +37,8 @@
 - **M7 closure baseline:** `main@b2de658f9feaee18ac60cb0c2786b45c3d95e342`
 - **M7 closure baseline CI:** Validate `#943` / `35666645607` — **12/12 jobs SUCCESS**
 - **M7 closure scope:** current-facing documentation/state reconciliation only; no production/spec/conformance semantic change; no D-026 promotion; no T-705/M8 implementation
+- **M7 reconciliation verified head:** `8575364732f2a8c574fcf0eb30af7eb5bd028a9c`
+- **M7 reconciliation CI:** Validate `#945` / `35668629999` — **12/12 jobs SUCCESS**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
@@ -623,7 +625,7 @@ D-059..D-068 except D-026:       ACCEPTED
 D-026:                           PROPOSED
 Production/spec semantic change: NONE
 Later milestone implementation:  NOT STARTED
-State:                           CLOSURE VERIFYING
+State:                           DONE / CLOSED — REVIEW HANDOFF
 ```
 
-The M7 roadmap outcome is satisfied by T-701 through T-704. This gate only reconciles current-facing documentation before final M7 closure. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
+The M7 roadmap outcome is satisfied by T-701 through T-704, and the reconciliation head passed the full 12-job validation matrix. M7 is therefore closed on this verified branch. Merge to `main` remains a separate explicit gate. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
