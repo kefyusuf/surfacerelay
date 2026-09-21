@@ -273,7 +273,7 @@ Decision D-026:                 PROPOSED
 Production changes:             NONE
 Canonical spec changes:         NONE
 Conformance semantic changes:   NONE
-T-703/T-704 work:               NOT STARTED
+T-703/T-704 work at T-702 closure: NOT STARTED (historical snapshot)
 ```
 
 Implemented boundary:
@@ -285,7 +285,7 @@ Implemented boundary:
 - `docs/adapters/conformance.md` carries D-059 through D-061 forward without widening them: truthful profile/capability claims, runner-owned selection/applicability/verdicts, bounded raw harness observations, repo-local process semantics, revision-bounded evidence, and bounded compatibility wording;
 - D-026 remains PROPOSED and no new global error enum is introduced;
 - D-062 is ACCEPTED only as the reviewed guide-authority boundary; it does not create or authorize new adapter semantics;
-- T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started;
+- Historical T-702 boundary: T-703 Laravel MCP projection and T-704 OpenAPI import remained outside T-702 and had not started at that point;
 - `main..feat/t-702-adapter-author-guide` contains no semantic changes under `packages/browser-runtime/src/**`, `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
 
 External review closure:
@@ -312,7 +312,7 @@ Decision-promotion validate:     #834 / 35302680228 — 7/7 SUCCESS
 Contract / PHP / browser matrix: PASS
 ```
 
-**T-702 is closed.** T-703/T-704 do not begin automatically.
+**Historical T-702 closure note:** T-702 was closed; T-703/T-704 did not begin automatically from that gate.
 
 ### T-703 — Laravel MCP projection using a maintained MCP implementation — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -543,7 +543,7 @@ Promotion scope:                    reviewed Laravel MCP bridge boundary only
 Production/runtime semantic change: NONE
 Canonical spec change:              NONE
 T-701 conformance change:           NONE
-T-704 work:                         NOT STARTED
+T-704 work at T-703 closure:        NOT STARTED (historical snapshot)
 ```
 
 D-063 is accepted because the reviewed implementation uses maintained `laravel/mcp` only inside the optional bridge and preserves base-Laravel MCP independence. D-064 is accepted because the reviewed implementation exactly enforces explicit exact-identity exposure, portable/headless eligibility, untrusted MCP arguments, server-owned trusted context and confirmation/idempotency authority, and ActionBus/normalized-ActionResult convergence.
@@ -567,9 +567,9 @@ Canonical runtime matrix:            7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 Contract / lint:                     PASS
 ```
 
-T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
+Historical T-703 closure snapshot: T-703 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; D-063 and D-064 were ACCEPTED and D-026 remained PROPOSED. T-704 was **NOT STARTED** at that point and required its separate scope/design gate. The current T-704 state is recorded below.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING
 
 Approved design:
 
@@ -907,10 +907,32 @@ Merge:                           NOT PERFORMED
 T-704 closure:                   NOT PERFORMED
 ```
 
-Task 8 is complete. The next gate is **external review only**. Do not promote D-065..D-068, merge, close T-704, or begin later work before review closure.
+External review round-one evidence:
+
+```text
+Pull request:                     #17 — OPEN / NOT MERGED
+Reviewed head:                    f004463185876b3a40d8fd71a4519e81b1f7c3f7
+CodeRabbit findings:              4 actionable + 1 nitpick
+Review-fix RED head:              ed591be06b8455a1e0e1e1f5047af0db576b1d7a
+Review-fix RED push/PR:           #930 / #931 — expected FAILURE
+RED importer evidence:            177 prior PASS / 7 new regression tests FAIL
+Review-fix code head:             e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2
+Review-fix push/PR:               #932 / #933 — 12/12 SUCCESS each
+Importer after fixes:             7 files / 184 tests PASS + typecheck + npm ci
+Fixed:                            chained Parameter refs
+Fixed:                            JSON-null ref target fail-closed across Path Item / request-response / parameter / schema callers
+Fixed:                            cross-dimension blocking ambiguity suppresses both schema suggestions
+Docs fix:                         stale pre-implementation snapshots marked historical; concise review handoff restored
+D-065..D-068:                     PROPOSED
+D-026:                            PROPOSED
+Merge:                            NOT PERFORMED
+T-704 closure:                    NOT PERFORMED
+```
+
+External review fixes are applied. The next gate remains **external re-review/closure only**. Do not promote D-065..D-068, merge, close T-704, or begin later work before review closure.
 
 Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 design and implementation plan are **APPROVED**; implementation is **IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING**. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is **IMPLEMENTED / EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING**. No decision promotion, merge, closure, or later work begins automatically.

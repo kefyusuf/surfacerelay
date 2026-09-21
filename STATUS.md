@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -121,7 +121,15 @@
 - **T-704 Task 8 documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
 - **T-704 Task 8 documentation/review-handoff CI:** `#913` / `35538173232` — **12/12 SUCCESS**
 - **T-704 Task 8 handoff diff:** **README + package README + REVIEW_REQUEST + STATUS + TASKS only; no implementation/spec/conformance/CI changes**
-- **T-704 review state:** **EXTERNAL REVIEW PENDING; decisions remain PROPOSED; not merged**
+- **T-704 review state:** **EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING; decisions remain PROPOSED; not merged**
+- **T-704 review PR:** `#17` — **OPEN / NOT MERGED**
+- **T-704 CodeRabbit reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7` — **4 actionable + 1 nitpick**
+- **T-704 review-fix RED head:** `ed591be06b8455a1e0e1e1f5047af0db576b1d7a`
+- **T-704 review-fix RED CI:** push `#930` + PR `#931` — **expected FAILURE; 7 new regression tests RED / 177 prior tests PASS**
+- **T-704 review-fix code head:** `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`
+- **T-704 review-fix CI:** push `#932` + PR `#933` — **12/12 SUCCESS each**
+- **T-704 review-fix importer suite:** **7 files / 184 tests PASS + typecheck + npm ci**
+- **T-704 review fixes:** **chained Parameter refs; JSON-null ref target fail-closed across all ref callers; cross-dimension schema-suggestion blocking consistency; tracking/handoff clarity**
 - **T-704 Task 7 initial RED head:** `e215133ab38d3d5644f1664a41c0bb3ce0d9fb72` — `#909` typecheck RED in diagnostic/AJV test-contract typing
 - **T-704 Task 7 corrected RED head:** `479312aed8f4e0ac93f9fb53046bfd64ab7394d2`
 - **T-704 Task 7 corrected RED CI:** `#910` / `35537328082` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
@@ -452,7 +460,7 @@ The implementation preserves the approved design boundary:
 - Livewire and HTMX are documented as materially different reference techniques for shared portable invariants, not a universal target shape;
 - D-026 remains PROPOSED; no global error enum is created;
 - D-062 remains PROPOSED; implementation does not promote it;
-- T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started.
+- Historical T-702 boundary: T-703 Laravel MCP projection and T-704 OpenAPI import remained outside T-702 and had not started at that point.
 
 ### T-702 implementation verification
 
@@ -534,7 +542,7 @@ Post-merge main validate:  #872 / 35407443826 — 11/11 SUCCESS
 Production core changes:  NONE
 Canonical spec changes:   NONE
 T-701 conformance change: NONE
-T-704 work:               NOT STARTED
+T-704 work at T-703 closure: NOT STARTED (historical snapshot)
 ```
 
 Locked design direction:
@@ -550,15 +558,15 @@ Locked design direction:
 - all business invocation converges on ActionBus and ActionResultNormalizer;
 - no expansion of T-701's closed conformance profile.
 
-## Current boundary
+## Historical boundary before T-704 implementation
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 and T-703 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is design-only at this gate; no implementation has started.
+Historical snapshot after T-703 closure: T-702 and T-703 were **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; `D-059` through `D-064` were **ACCEPTED** and `D-026`, `D-065` through `D-068` were **PROPOSED**. At that point T-704 was design-only and implementation had not started. The authoritative current T-704 state is recorded at the top of this file.
 
-## T-704 scope/design gate
+## Historical T-704 scope/design gate
 
-T-704 scope/design review and implementation-plan review are complete. Design and plan are approved; implementation has not started.
+At this historical gate, T-704 scope/design review and implementation-plan review were complete, design and plan were approved, and implementation had not started.
 
 ```text
 Branch:                 feat/t-704-openapi-importer-design
@@ -569,7 +577,7 @@ D-067:                  PROPOSED
 D-068:                  PROPOSED
 Design status:          APPROVED
 Implementation plan:    APPROVED
-Implementation:         NOT STARTED
+Implementation at this gate: NOT STARTED (historical snapshot)
 Canonical spec change:  NONE
 Runtime binding change: NONE
 T-701 conformance:      UNCHANGED
@@ -580,4 +588,4 @@ The approved design keeps OpenAPI subordinate to D-012 and separates source/prov
 
 Design approval evidence is revision-bounded to `814d610e40ddbccee051885895070f9d08c7a76c` with Validate #876 / `35408438835` at **11/11 SUCCESS**.
 
-The implementation plan is approved at `docs/superpowers/plans/2026-09-19-openapi-importer.md`. The next gate is **implementation execution preflight + Task 1 only** on a new `feat/t-704-openapi-importer` branch. No later implementation task begins automatically.
+Historical next gate at that point was **implementation execution preflight + Task 1 only** on `feat/t-704-openapi-importer`. The authoritative current gate is external re-review on PR #17; no implementation preflight should be restarted.
