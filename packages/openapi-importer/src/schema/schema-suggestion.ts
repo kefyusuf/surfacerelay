@@ -187,6 +187,25 @@ export function applySchemaSuggestions(
     ],
   };
 
+  const suggestionBlocked = [
+    ...input.diagnostics,
+    ...output.diagnostics,
+  ].some((diagnostic) => diagnostic.blocking);
+
+  if (suggestionBlocked) {
+    delete result.suggestedInputSchema;
+    delete result.suggestedOutputSchema;
+
+    if (!result.unresolvedFields.includes('inputSchema')) {
+      result.unresolvedFields.push('inputSchema');
+    }
+    if (!result.unresolvedFields.includes('outputSchema')) {
+      result.unresolvedFields.push('outputSchema');
+    }
+
+    return result;
+  }
+
   if (input.resolved && input.schema !== undefined) {
     result.suggestedInputSchema = input.schema;
     result.unresolvedFields = withoutField(

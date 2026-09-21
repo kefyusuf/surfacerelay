@@ -224,7 +224,7 @@ function copySchemaObject(
     }
 
     const resolved = resolveLocalPointer(document, reference, budget);
-    if (resolved.value === null || resolved.diagnostics.length > 0) {
+    if (resolved.pointer === null) {
       return { schema: null, diagnostics: resolved.diagnostics };
     }
 

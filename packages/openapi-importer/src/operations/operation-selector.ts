@@ -84,7 +84,7 @@ function resolveReferencedObject(
     }
 
     const resolved = resolveLocalPointer(root, reference, localBudget);
-    if (resolved.value === null || resolved.diagnostics.length > 0) {
+    if (resolved.pointer === null) {
       return { value: null, diagnostics: resolved.diagnostics };
     }
 
@@ -156,7 +156,7 @@ function resolvePathItem(
     }
 
     const resolved = resolveLocalPointer(root, current.$ref, localBudget);
-    if (resolved.value === null || resolved.diagnostics.length > 0) {
+    if (resolved.pointer === null) {
       return { value: null, diagnostics: resolved.diagnostics };
     }
 

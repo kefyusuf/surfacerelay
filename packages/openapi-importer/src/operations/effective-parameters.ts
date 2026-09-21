@@ -46,44 +46,47 @@ function resolveParameterObject(
     };
   }
 
-  const reference = value.$ref;
-  if (reference === undefined) {
-    return { parameter: value, diagnostics: [] };
+  let current = value;
+  const localBudget = budget.fork();
+
+  while (Object.prototype.hasOwnProperty.call(current, '$ref')) {
+    const reference = current.$ref;
+    if (typeof reference !== 'string') {
+      return {
+        parameter: null,
+        diagnostics: [
+          blockingDiagnostic(
+            'invalid_openapi_document',
+            'Parameter $ref must be a string.',
+          ),
+        ],
+      };
+    }
+
+    const resolved = resolveLocalPointer(root, reference, localBudget);
+    if (resolved.pointer === null) {
+      return {
+        parameter: null,
+        diagnostics: resolved.diagnostics,
+      };
+    }
+
+    if (!isJsonObject(resolved.value)) {
+      return {
+        parameter: null,
+        diagnostics: [
+          blockingDiagnostic(
+            'invalid_openapi_document',
+            'Referenced Parameter target must be an object.',
+          ),
+        ],
+      };
+    }
+
+    current = resolved.value;
   }
 
-  if (typeof reference !== 'string') {
-    return {
-      parameter: null,
-      diagnostics: [
-        blockingDiagnostic(
-          'invalid_openapi_document',
-          'Parameter $ref must be a string.',
-        ),
-      ],
-    };
-  }
-
-  const resolved = resolveLocalPointer(root, reference, budget.fork());
-  if (resolved.value === null || resolved.diagnostics.length > 0) {
-    return {
-      parameter: null,
-      diagnostics: resolved.diagnostics,
-    };
-  }
-
-  if (!isJsonObject(resolved.value)) {
-    return {
-      parameter: null,
-      diagnostics: [
-        blockingDiagnostic(
-          'invalid_openapi_document',
-          'Referenced Parameter target must be an object.',
-        ),
-      ],
-    };
-  }
-
-  return { parameter: resolved.value, diagnostics: [] };
+  return { parameter: current, diagnostics: [] };
 }
 
 function parseParameterLevel(
