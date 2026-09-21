@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 Historical T-703 closure snapshot: T-703 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; D-063 and D-064 were ACCEPTED and D-026 remained PROPOSED. T-704 was **NOT STARTED** at that point and required its separate scope/design gate. The current T-704 state is recorded below.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
+### T-704 — Optional OpenAPI importer as a secondary adapter — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**.
+Implementation: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
 
 Plan approval evidence:
 
@@ -973,6 +973,21 @@ T-704 closure:                    NOT PERFORMED
 D-065 through D-068 are accepted only for the externally reviewed T-704 implementation boundary. D-026 remains independently PROPOSED.
 
 The next gate is **merge + post-merge main revalidation planning only**. Do not merge, close T-704, or begin later work automatically.
+
+Final closure evidence:
+
+```text
+Review PR:                       #17 — MERGED
+Decision state:                  D-065 / D-066 / D-067 / D-068 ACCEPTED
+D-026:                           PROPOSED
+Merged reviewed head:            7207be2044f24b63b87485afe82e9f1c6bfc36dd
+Merge commit:                    7890907c408c1e529c955c8d37520ac8d83ffe1f
+Post-merge main validate:        #942 / 35665487192 — 12/12 SUCCESS
+Post-merge main head:            7890907c408c1e529c955c8d37520ac8d83ffe1f
+Final state:                     DONE / REVIEWED / MERGED / MAIN REVALIDATED
+```
+
+T-704 is closed. No later task begins automatically; any further work requires a separate explicit scope/design gate.
 
 ## Current boundary
 

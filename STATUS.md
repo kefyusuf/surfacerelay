@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,8 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **T-704 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-704 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED**
 - **T-704 implementation code head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
 - **T-704 implementation CI:** `#911` / `35537472977` — **12/12 SUCCESS**
 - **T-704 pre-handoff tracking head:** `106cba54fe85909362cab3c1ec5f3d1db1036011`
@@ -121,7 +122,7 @@
 - **T-704 Task 8 documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
 - **T-704 Task 8 documentation/review-handoff CI:** `#913` / `35538173232` — **12/12 SUCCESS**
 - **T-704 Task 8 handoff diff:** **README + package README + REVIEW_REQUEST + STATUS + TASKS only; no implementation/spec/conformance/CI changes**
-- **T-704 review state:** **EXTERNALLY REVIEWED / REVIEW CLOSED / DECISIONS ACCEPTED / MERGE PENDING; not merged**
+- **T-704 review state:** **EXTERNALLY REVIEWED / REVIEW CLOSED / DECISIONS ACCEPTED / MERGED / MAIN REVALIDATED**
 - **T-704 external review target:** `b83632c790b893f993630c452c47a41444832918`
 - **T-704 external review target CI:** push `#934` + PR `#935` — **12/12 SUCCESS each**
 - **T-704 CodeRabbit round-one closure:** **4/4 actionable inline findings confirmed addressed + resolved; 1 REVIEW_REQUEST nitpick addressed**
@@ -134,8 +135,12 @@
 - **T-704 decision-promotion diff:** **DECISION/TRACKING DOCS ONLY; no package/spec/conformance/scripts/CI changes**
 - **T-704 decision-promotion basis:** review-fix head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2` + re-review head `b83632c790b893f993630c452c47a41444832918` + review-closure head `32385c1ace536178ce7dbc90907d4b670f915384`; push/PR CI green through #936/#937
 - **D-026:** **PROPOSED** — unchanged
-- **T-704 next gate:** **merge + post-merge main revalidation planning only; do not merge or close T-704 automatically**
-- **T-704 review PR:** `#17` — **OPEN / NOT MERGED**
+- **T-704 merge commit:** `7890907c408c1e529c955c8d37520ac8d83ffe1f`
+- **T-704 post-merge main CI:** `#942` / `35665487192` — **12/12 SUCCESS**
+- **T-704 post-merge main head:** `7890907c408c1e529c955c8d37520ac8d83ffe1f`
+- **T-704 closure:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-704 next gate:** **none automatically; any later work requires a separate explicit scope/design gate**
+- **T-704 review PR:** `#17` — **MERGED**
 - **T-704 CodeRabbit reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7` — **4 actionable + 1 nitpick**
 - **T-704 review-fix RED head:** `ed591be06b8455a1e0e1e1f5047af0db576b1d7a`
 - **T-704 review-fix RED CI:** push `#930` + PR `#931` — **expected FAILURE; 7 new regression tests RED / 177 prior tests PASS**
@@ -246,7 +251,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 decision-promotion gate only. D-065..D-068 remain PROPOSED until that explicit gate; do not merge or close T-704 automatically.
+- **Next gate:** none automatically. T-704 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; any later work requires a separate explicit scope/design gate.
 
 ## M6 historical evidence — preserved
 
