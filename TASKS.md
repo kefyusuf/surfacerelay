@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 Historical T-703 closure snapshot: T-703 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; D-063 and D-064 were ACCEPTED and D-026 remained PROPOSED. T-704 was **NOT STARTED** at that point and required its separate scope/design gate. The current T-704 state is recorded below.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING
 
 Approved design:
 
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED / TASK 8 COMPLETE / EXTERNAL REVIEW PENDING**.
+Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**.
 
 Plan approval evidence:
 
@@ -929,10 +929,32 @@ Merge:                            NOT PERFORMED
 T-704 closure:                    NOT PERFORMED
 ```
 
-External review fixes are applied. The next gate remains **external re-review/closure only**. Do not promote D-065..D-068, merge, close T-704, or begin later work before review closure.
+External review closure evidence:
+
+```text
+Review PR:                        #17 — OPEN / NOT MERGED
+Round-one reviewed head:          f004463185876b3a40d8fd71a4519e81b1f7c3f7
+Round-one findings:               4 actionable + 1 nitpick
+Actionable closure:               4/4 CodeRabbit-confirmed addressed + resolved
+Review-fix RED:                   ed591be06b8455a1e0e1e1f5047af0db576b1d7a
+Review-fix code head:             e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2
+Review-fix code CI:               push #932 + PR #933 — 12/12 SUCCESS each
+Review-fix importer:              7 files / 184 tests PASS + typecheck + npm ci
+Re-review/docs head:              b83632c790b893f993630c452c47a41444832918
+Re-review/docs CI:                push #934 + PR #935 — 12/12 SUCCESS each
+CodeRabbit incremental re-review: SUCCESS / Review completed
+New inline findings:              0
+Unresolved review threads:        0
+D-065..D-068:                     PROPOSED
+D-026:                            PROPOSED
+Merge:                            NOT PERFORMED
+T-704 closure:                    NOT PERFORMED
+```
+
+T-704 external review is **CLOSED** with no remaining actionable findings. The next gate is **decision promotion only**. Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
 
 Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is **IMPLEMENTED / EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING**. No decision promotion, merge, closure, or later work begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**. No decision promotion, merge, closure, or later work begins automatically.

@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -110,7 +110,7 @@
 - **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
 - **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
 - **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
-- **T-704 implementation:** **IMPLEMENTED / EXTERNAL REVIEW PENDING**
+- **T-704 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**
 - **T-704 implementation code head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
 - **T-704 implementation CI:** `#911` / `35537472977` — **12/12 SUCCESS**
 - **T-704 pre-handoff tracking head:** `106cba54fe85909362cab3c1ec5f3d1db1036011`
@@ -121,7 +121,14 @@
 - **T-704 Task 8 documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
 - **T-704 Task 8 documentation/review-handoff CI:** `#913` / `35538173232` — **12/12 SUCCESS**
 - **T-704 Task 8 handoff diff:** **README + package README + REVIEW_REQUEST + STATUS + TASKS only; no implementation/spec/conformance/CI changes**
-- **T-704 review state:** **EXTERNAL REVIEW FIXES APPLIED / RE-REVIEW PENDING; decisions remain PROPOSED; not merged**
+- **T-704 review state:** **EXTERNALLY REVIEWED / REVIEW CLOSED; DECISION PROMOTION PENDING; decisions remain PROPOSED; not merged**
+- **T-704 external review target:** `b83632c790b893f993630c452c47a41444832918`
+- **T-704 external review target CI:** push `#934` + PR `#935` — **12/12 SUCCESS each**
+- **T-704 CodeRabbit round-one closure:** **4/4 actionable inline findings confirmed addressed + resolved; 1 REVIEW_REQUEST nitpick addressed**
+- **T-704 CodeRabbit incremental re-review:** **SUCCESS / Review completed** on `b83632c790b893f993630c452c47a41444832918`
+- **T-704 incremental re-review result:** **0 new inline review comments / 0 unresolved review threads**
+- **T-704 review closure:** **COMPLETE — no new actionable findings**
+- **T-704 next gate:** **decision promotion only; no merge/closure automatically**
 - **T-704 review PR:** `#17` — **OPEN / NOT MERGED**
 - **T-704 CodeRabbit reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7` — **4 actionable + 1 nitpick**
 - **T-704 review-fix RED head:** `ed591be06b8455a1e0e1e1f5047af0db576b1d7a`
@@ -233,7 +240,7 @@
 - **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
 - **T-704 Task 1 production dependency:** **yaml only**
 - **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
-- **Next gate:** T-704 external review only. Do not promote D-065..D-068, merge, or close T-704 before review closure.
+- **Next gate:** T-704 decision-promotion gate only. D-065..D-068 remain PROPOSED until that explicit gate; do not merge or close T-704 automatically.
 
 ## M6 historical evidence — preserved
 
