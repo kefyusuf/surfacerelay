@@ -951,9 +951,28 @@ Merge:                            NOT PERFORMED
 T-704 closure:                    NOT PERFORMED
 ```
 
-T-704 external review is **CLOSED** with no remaining actionable findings. The next gate is **decision promotion only**. Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
+T-704 external review is **CLOSED** with no remaining actionable findings.
 
-Do not promote D-065..D-068, merge, close T-704, or begin later work automatically.
+Decision promotion evidence:
+
+```text
+D-065:                            ACCEPTED
+D-066:                            ACCEPTED
+D-067:                            ACCEPTED
+D-068:                            ACCEPTED
+Decision-promotion head:         f014c7253a91d78e3b03b7761d1fc5d4ce83ba5a
+Decision-promotion push CI:      #938 / 35625605195 — 12/12 SUCCESS
+Decision-promotion PR CI:        #939 / 35625610665 — 12/12 SUCCESS
+Decision-promotion diff:         decision/tracking docs only
+D-026:                            PROPOSED
+Review PR:                        #17 — OPEN / NOT MERGED
+Merge:                            NOT PERFORMED
+T-704 closure:                    NOT PERFORMED
+```
+
+D-065 through D-068 are accepted only for the externally reviewed T-704 implementation boundary. D-026 remains independently PROPOSED.
+
+The next gate is **merge + post-merge main revalidation planning only**. Do not merge, close T-704, or begin later work automatically.
 
 ## Current boundary
 

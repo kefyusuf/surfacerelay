@@ -129,6 +129,9 @@
 - **T-704 incremental re-review result:** **0 new inline review comments / 0 unresolved review threads**
 - **T-704 review closure:** **COMPLETE — no new actionable findings**
 - **T-704 decision promotion:** `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
+- **T-704 decision-promotion head:** `f014c7253a91d78e3b03b7761d1fc5d4ce83ba5a`
+- **T-704 decision-promotion CI:** push `#938` / `35625605195` + PR `#939` / `35625610665` — **12/12 SUCCESS each**
+- **T-704 decision-promotion diff:** **DECISION/TRACKING DOCS ONLY; no package/spec/conformance/scripts/CI changes**
 - **T-704 decision-promotion basis:** review-fix head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2` + re-review head `b83632c790b893f993630c452c47a41444832918` + review-closure head `32385c1ace536178ce7dbc90907d4b670f915384`; push/PR CI green through #936/#937
 - **D-026:** **PROPOSED** — unchanged
 - **T-704 next gate:** **merge + post-merge main revalidation planning only; do not merge or close T-704 automatically**
