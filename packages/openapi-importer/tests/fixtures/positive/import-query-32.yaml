@@ -1,0 +1,20 @@
+openapi: 3.2.1
+info:
+  title: Search
+  version: "1"
+paths:
+  /search:
+    query:
+      operationId: Search_EXACT
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                required: [result]
+                additionalProperties: false

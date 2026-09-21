@@ -1,0 +1,32 @@
+{
+  "openapi": "3.2.1",
+  "info": {
+    "title": "Bad",
+    "version": "1"
+  },
+  "paths": {
+    "/x": {
+      "$ref": "#/components/pathItems/X",
+      "get": {
+        "responses": {
+          "200": {
+            "description": "ok"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "pathItems": {
+      "X": {
+        "get": {
+          "responses": {
+            "200": {
+              "description": "ok"
+            }
+          }
+        }
+      }
+    }
+  }
+}

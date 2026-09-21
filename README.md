@@ -85,6 +85,7 @@ Start with:
 5. [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
 6. [`docs/adapters/README.md`](docs/adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
 7. [`packages/laravel-mcp/README.md`](packages/laravel-mcp/README.md) — optional maintained-Laravel-MCP projection bridge and its trust boundary.
+8. [`packages/openapi-importer/README.md`](packages/openapi-importer/README.md) — optional bounded OpenAPI 3.1/3.2 secondary importer; produces reviewable candidates and requires explicit SurfaceRelay resolution before Action Definition materialization.
 
 Run:
 

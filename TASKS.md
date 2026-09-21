@@ -273,7 +273,7 @@ Decision D-026:                 PROPOSED
 Production changes:             NONE
 Canonical spec changes:         NONE
 Conformance semantic changes:   NONE
-T-703/T-704 work:               NOT STARTED
+T-703/T-704 work at T-702 closure: NOT STARTED (historical snapshot)
 ```
 
 Implemented boundary:
@@ -285,7 +285,7 @@ Implemented boundary:
 - `docs/adapters/conformance.md` carries D-059 through D-061 forward without widening them: truthful profile/capability claims, runner-owned selection/applicability/verdicts, bounded raw harness observations, repo-local process semantics, revision-bounded evidence, and bounded compatibility wording;
 - D-026 remains PROPOSED and no new global error enum is introduced;
 - D-062 is ACCEPTED only as the reviewed guide-authority boundary; it does not create or authorize new adapter semantics;
-- T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started;
+- Historical T-702 boundary: T-703 Laravel MCP projection and T-704 OpenAPI import remained outside T-702 and had not started at that point;
 - `main..feat/t-702-adapter-author-guide` contains no semantic changes under `packages/browser-runtime/src/**`, `packages/laravel/src/**`, `spec/0.1/**`, `conformance/targets/**`, `scripts/conformance_model.py`, or `scripts/run_conformance.py`.
 
 External review closure:
@@ -312,7 +312,7 @@ Decision-promotion validate:     #834 / 35302680228 — 7/7 SUCCESS
 Contract / PHP / browser matrix: PASS
 ```
 
-**T-702 is closed.** T-703/T-704 do not begin automatically.
+**Historical T-702 closure note:** T-702 was closed; T-703/T-704 did not begin automatically from that gate.
 
 ### T-703 — Laravel MCP projection using a maintained MCP implementation — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -543,7 +543,7 @@ Promotion scope:                    reviewed Laravel MCP bridge boundary only
 Production/runtime semantic change: NONE
 Canonical spec change:              NONE
 T-701 conformance change:           NONE
-T-704 work:                         NOT STARTED
+T-704 work at T-703 closure:        NOT STARTED (historical snapshot)
 ```
 
 D-063 is accepted because the reviewed implementation uses maintained `laravel/mcp` only inside the optional bridge and preserves base-Laravel MCP independence. D-064 is accepted because the reviewed implementation exactly enforces explicit exact-identity exposure, portable/headless eligibility, untrusted MCP arguments, server-owned trusted context and confirmation/idempotency authority, and ActionBus/normalized-ActionResult convergence.
@@ -567,10 +567,413 @@ Canonical runtime matrix:            7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERRO
 Contract / lint:                     PASS
 ```
 
-T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. D-063 and D-064 remain ACCEPTED; D-026 remains independently PROPOSED. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
+Historical T-703 closure snapshot: T-703 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; D-063 and D-064 were ACCEPTED and D-026 remained PROPOSED. T-704 was **NOT STARTED** at that point and required its separate scope/design gate. The current T-704 state is recorded below.
 
-- T-704 — Optional OpenAPI importer as a secondary adapter — TODO.
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
+
+Approved design:
+
+```text
+docs/superpowers/specs/2026-09-19-openapi-importer-design.md
+```
+
+Approved scope/design boundary:
+
+- D-012 remains authoritative: OpenAPI is secondary/import-only and does not define SurfaceRelay architecture;
+- importer output begins as an import candidate + diagnostics, not an executable Action Definition;
+- no RuntimeBinding, HTTP executor, authorization, trusted-context source, MCP/WebMCP exposure, or ActionBus path is created by import;
+- OpenAPI transport metadata must not silently determine SurfaceRelay risk/authority semantics;
+- final Action `id + version` is explicitly resolved; `operationId`/method/path remain provenance only;
+- v1 ingestion is bounded to one caller-supplied OpenAPI 3.1.x/3.2.x root document, same-document fragment refs only, and no secondary filesystem/network retrieval;
+- local references must be cycle-safe/resource-bounded; Path Item ref/sibling ambiguity, unsupported schema dialects, additionalOperations, and other unsupported source constructs fail closed into diagnostics;
+- callbacks/webhooks do not become independent imported actions in v1;
+- canonical spec, T-701 conformance, T-703 MCP projection, and runtime binding behavior remain unchanged.
+
+Accepted decisions:
+
+- D-065 — candidate-only secondary importer boundary;
+- D-066 — no silent SurfaceRelay semantic inference from HTTP/OpenAPI metadata;
+- D-067 — bounded OpenAPI 3.1/3.2 local ingestion and reference safety;
+- D-068 — OpenAPI source identity/provenance is separate from exact Action identity.
+
+Design approval evidence:
+
+```text
+Design approval head:          814d610e40ddbccee051885895070f9d08c7a76c
+Validate:                      #876 / 35408438835 — 11/11 SUCCESS
+Changed paths:                 STATUS.md, TASKS.md, docs/DECISION-REGISTER.md, design spec only
+Runtime/package changes:       NONE
+Canonical spec changes:        NONE
+T-701 conformance changes:     NONE
+T-703 MCP changes:             NONE
+```
+
+Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
+Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**.
+
+Plan approval evidence:
+
+```text
+Plan approval head:            9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d
+Validate:                      #880 / 35495182605 — 11/11 SUCCESS
+Changed paths:                 plan/design/STATUS/TASKS only
+Implementation package:       NOT CREATED
+CI definition change:          NONE
+Canonical spec change:         NONE
+Runtime/conformance change:    NONE
+D-065..D-068:                  PROPOSED
+D-026:                         PROPOSED
+```
+
+Task 1 implementation evidence:
+
+```text
+Branch:                         feat/t-704-openapi-importer
+RED head:                       d09d6cd3034a1a897cfebba185a054b1cf8c4a8b
+RED validate:                   #883 / 35496056306 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; Vitest 1 failed / 2 passed
+RED reason:                     minimal production entry point src/index.ts absent
+GREEN head:                     185e9c2e0455831b4e896fb0176b39555742010a
+GREEN validate:                 #884 / 35496138107 — 12/12 SUCCESS
+Importer GREEN:                 1 test file / 3 tests PASS + typecheck + npm ci
+Production dependency:          yaml ^2.9.1 only
+Resolved lock examples:         yaml 2.9.1; TypeScript 5.9.3; Vitest 3.2.7
+Forbidden implementation diff:  EMPTY
+```
+
+Task 1 created only the optional framework-neutral package scaffold, lockfile, TypeScript config, minimal entry point, architecture guard, and one CI job. It created no parser, reference resolver, candidate model, materializer, HTTP execution path, RuntimeBinding, trusted authority source, or exposure behavior.
+
+Task 1 self-review passed for scope alignment, D-012/D-065 consistency, dependency direction/capability isolation, unnecessary-complexity avoidance, brownfield safety, and exact verification evidence.
+
+Task 2 implementation evidence:
+
+```text
+Task:                           bounded JSON/YAML source parsing
+RED head:                       e72e03052a289d99931a3fa52b85c5c1d8f6b97c
+RED validate:                   #886 / 35496515711 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; Task 2 parser tests 12/12 expected FAIL
+Task 1 architecture regression: PASS
+Initial GREEN head:             9fcbf94a1a1ee5af29d4d36c289e0c8b634f3f30
+Initial GREEN validate:         #887 — typecheck FAIL (YAML generic narrowing)
+First narrowing fix:            3db875b3cb5eca245f7b70bd178e163d276c6658
+Fix validate:                   #888 — typecheck FAIL (sequence generic narrowing)
+Final GREEN head:               19f2628511b65617a6c21ef2e0235e2af56530ed
+Final GREEN validate:           #889 / 35496725520 — 12/12 SUCCESS
+Importer GREEN:                 2 test files / 15 tests PASS + typecheck + npm ci
+Source byte budget:             2 MiB
+Document depth budget:          64
+Document node budget:           50,000
+JSON duplicate-key policy:      fail closed, including escaped-equivalent keys
+YAML aliases/tags/duplicates:   fail closed
+YAML multi-document input:      fail closed
+Safe object representation:     null-prototype maps for JSON and YAML
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 2 added only bounded source parsing and importer-local diagnostics/types. It does not parse OpenAPI version semantics, resolve `$ref`, select operations, infer SurfaceRelay semantics, create candidates/materialization, or add runtime/exposure behavior.
+
+Task 2 self-review passed for untrusted-input handling, alias/tag attack-surface containment, duplicate-key ambiguity, prototype safety, resource budgets, deterministic fail-closed diagnostics, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+Task 3 implementation evidence:
+
+```text
+Task:                           OpenAPI version family + same-document JSON Pointer references
+Initial RED head:               c7a817dd330d523f915996ac81a77c47bdef06ee
+Initial RED validate:           #891 — typecheck FAIL (ref-budget constants absent)
+Corrected RED head:             bdc3329b35189ede1a12c66a7a116f7625ea4bfe
+Corrected RED validate:         #892 / 35497077001 — expected FAILURE
+Corrected RED proof:            existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 15 tests PASS; Task 3 tests 32/32 expected FAIL
+GREEN head:                     4deab64fd7aa8ddc4b71660836e0d3bf06132ad1
+GREEN validate:                 #893 / 35497163796 — 12/12 SUCCESS
+Importer GREEN:                 3 test files / 47 tests PASS + typecheck + npm ci
+Accepted OpenAPI families:      3.1.x and 3.2.x semantic patch triplets
+Fragment decoding:              percent-decode exactly once, then strict JSON Pointer ~1/~0
+External/file/network refs:     fail closed
+Named anchors:                  fail closed
+Missing/invalid pointer:        fail closed
+Array pointer syntax:           exact index syntax; leading-zero indexes rejected
+Reference hop budget:           32
+Cycle detection:                active traversal branch
+Unique-target budget:           4,096 shared across forked sibling traversals
+Resolver copy behavior:         NONE — returns exact referenced value
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 3 added only source-version classification, same-document JSON Pointer parsing/lookup, importer-local ref diagnostics, and traversal budgets. It does not recursively dereference schemas, select OpenAPI operations, fetch any resource, create candidates, infer SurfaceRelay semantics, materialize Action Definitions, or add runtime/exposure behavior.
+
+Task 3 self-review passed for D-067 alignment, no-I/O capability, strict one-pass URI-fragment/JSON-Pointer decoding, fail-closed external/anchor behavior, exact lookup/no-copy semantics, cycle/hop/unique-target bounding, dependency direction, brownfield safety, and exact verification evidence.
+
+Task 4 implementation evidence:
+
+```text
+Task:                           root paths operation selection + provenance + parameter/security evidence
+RED head:                       f1b58b9feeed38509f2620d59affbbd22acace1a
+RED validate:                   #895 / 35503293113 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 47 tests PASS; Task 4 tests 18/18 expected FAIL
+Initial implementation head:    97bbffd8e3c7a61f12bfd142dec1f5992c74dc65
+Initial implementation validate:#896 / 35503411754 — typecheck FAIL
+Type-guard fix head:            1c34d3b7bb5d921cde523e1caa23b68a4bf00c18
+Type-guard fix validate:        #897 / 35503457399 — 12/12 SUCCESS
+Importer at #897:               4 test files / 65 tests PASS
+Final GREEN head:               cd5205d2b8918e30a77290c2d64616471aa89fb6
+Final GREEN validate:           #898 / 35503516563 — 12/12 SUCCESS
+Importer final GREEN:           4 test files / 67 tests PASS + typecheck + npm ci
+OAS 3.1 fixed operations:       get/put/post/delete/options/head/patch/trace
+OAS 3.2 fixed addition:         query
+Callbacks/webhooks:             not promoted to root candidates
+additionalOperations:           unsupported diagnostic
+Path Item ref+sibling:          fail closed
+Path Item ref-only:             same-document resolution supported
+Operation budget:               1,000 encountered fixed-operation entries
+Operation identity/provenance:  exact; no operationId/path/method normalization
+Source prose budget:            8,192 Unicode characters; omit, never truncate
+Effective parameter identity:   exact (name,in); operation overrides path level
+Input flattening:               NONE
+Security inheritance:           source evidence only
+security []:                    explicit inherited-security removal evidence
+security [{}]:                  anonymous-alternative evidence
+Security OR/AND structure:      preserved as evidence; no authority granted
+Request/response evidence:      preserved for Task 5; no schema materialization yet
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 4 added only bounded operation selection, exact source provenance, request/response structural evidence, effective parameter evidence, and effective security evidence. It does not infer SurfaceRelay effect/risk/idempotency/context requirements, flatten HTTP parameters into Action input, materialize schemas, create RuntimeBindings, execute HTTP, authorize callers, or expose tools.
+
+Task 4 self-review passed for D-066/D-068 alignment, exact source identity, no semantic inference, parameter override correctness, security evidence without authority, Path Item ambiguity fail-closed behavior, operation/text resource bounds, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+Task 5 implementation evidence:
+
+```text
+Task:                           conservative schema subset + safe input/output suggestions
+RED head:                       dae76466437c5e6cf720bcb3b1cedb3f5fbaa32f
+RED validate:                   #900 / 35533887718 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 67 tests PASS; Task 5 tests 52/52 expected FAIL
+Initial GREEN head:             683adf0a0fbc3047bd5c69b821888bfdf916acf4
+Initial GREEN validate:         #901 / 35534003405 — corrective FAILURE
+Initial GREEN detail:           Task 5 52/52 PASS; one Task 4 test exposed plan-scope overreach from selector auto-enrichment
+Scope-correction head:          bba9857219afadc17a9dcc72c2cbacc5420d27a4
+Scope-correction validate:      #902 / 35534039877 — SUCCESS
+Importer at scope correction:   5 test files / 119 tests PASS
+Final GREEN head:               bca7488a080e32cdc07bed5ea9dfbebc71f97fd1
+Final GREEN validate:           #903 / 35534181870 — 12/12 SUCCESS
+Importer final GREEN:           5 test files / 122 tests PASS + typecheck + npm ci
+Document jsonSchemaDialect:     fail closed when explicitly present
+Schema-local $schema:           fail closed
+Supported schema model:         whitelist-only, semantics-preserving copy
+Unsupported/custom keywords:    schema_keyword_unsupported
+Schema annotations:             not copied; unsupported rather than silently dropped
+Schema $ref+sibling:            fail closed
+Acyclic local schema $ref:      inlined without retaining source $ref
+Cyclic local schema $ref:       fail closed
+Schema fragment budget:         5,000 nodes including supported scalar/array keyword values
+Invalid approved-keyword shapes:fail closed; no coercion
+Input suggestion:               no params + no body => exact empty object schema
+JSON-body suggestion:           exactly one application/json schema only
+Ambiguous transport input:      unresolved + ambiguous_input_mapping
+Output suggestion:              one explicit 2xx only
+No-content success:             suggestedOutputSchema = null
+Ambiguous/wildcard output:      unresolved + ambiguous_success_output
+Prior blocking diagnostics:     prevent automatic schema suggestions
+Operation selector integration: NONE in Task 5; deferred to Task 6 candidate-builder
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 5 added only conservative schema copying and reusable input/output suggestion primitives plus schema fixtures/diagnostics/limits. It does not automatically enrich selected operations, build import reports, infer SurfaceRelay policy semantics, materialize Action Definitions, create RuntimeBindings, execute HTTP, authorize callers, or expose tools.
+
+Task 5 self-review passed for semantics-preserving whitelist handling, annotation non-leakage, custom-dialect and unsupported-keyword fail-closed behavior, local-ref cycle/sibling safety, 5,000-node resource accounting, ambiguity-safe input/output selection, prior-blocking evidence handling, no-I/O capability, plan file/scope alignment, dependency direction, brownfield safety, and exact verification evidence.
+
+Task 6 implementation evidence:
+
+```text
+Task:                           deterministic import report + candidate-builder integration
+RED head:                       5d132bb1ac019e39e2270eacc5acd0bb253db4c9
+RED validate:                   #905 / 35534734087 — expected FAILURE
+RED proof:                      existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 122 tests PASS; Task 6 tests 10/10 expected FAIL
+GREEN head:                     cd6b4e68e544f9c310f93af72b9db42623aad180
+GREEN validate:                 #906 / 35534812616 — 12/12 SUCCESS
+Final implementation head:      e9f1c761a378fe7978fab6c13627a2c9bc7ed8fd
+Final implementation validate:  #907 / 35534896771 — 12/12 SUCCESS
+Importer final GREEN:           6 test files / 132 tests PASS + typecheck + npm ci
+Pipeline:                       parse -> version family -> operation selection -> schema suggestions -> report
+Candidate order:                pathTemplate -> httpMethod -> operationPointer
+Report diagnostics order:       sourcePointer -> code -> insertion sequence
+Duplicate diagnostics:          preserved
+Report diagnostic cap:          500 final entries
+Overflow behavior:              499 ordinary + diagnostic_limit_reached terminal entry
+Candidate diagnostics:          retained locally and aggregated into report with operation provenance
+OpenAPI version on report:      preserved when source version string exists
+Unsupported version:            stops before operation selection
+Task 5 enrichment integration:  performed only by candidate-builder
+Public package API:             importOpenApi + OpenApiImportReport
+Filesystem/network capability:  NONE
+RuntimeBinding/ActionBus:       NONE
+SurfaceRelay policy inference:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 6 integrated the previously isolated parser, version classifier, operation evidence, and safe schema-suggestion primitives into one deterministic import-report pipeline. It does not materialize canonical Action Definitions, synthesize Action identity/version, create RuntimeBindings, execute HTTP, authorize callers, infer trusted context/effect/risk/idempotency, or expose MCP/WebMCP tools.
+
+Task 6 self-review passed for deterministic candidate/report ordering, diagnostic ownership and duplicate preservation, 500-entry final-report cap, early stop on parse/version failure, no hidden execution/exposure path, importer-local diagnostics, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+Task 7 implementation evidence:
+
+```text
+Task:                           explicit SurfaceRelay resolution + canonical Action Definition materialization
+Initial RED head:               e215133ab38d3d5644f1664a41c0bb3ce0d9fb72
+Initial RED validate:           #909 — typecheck FAIL in diagnostic/AJV test-contract typing
+Corrected RED head:             479312aed8f4e0ac93f9fb53046bfd64ab7394d2
+Corrected RED validate:         #910 / 35537328082 — expected FAILURE
+Corrected RED proof:            existing 11 jobs SUCCESS; openapi-importer FAIL
+Importer RED detail:            npm ci PASS; typecheck PASS; prior 132 tests PASS; Task 7 tests 39/39 expected FAIL
+GREEN head:                     58d18dc201be5e50ea7e20d1747d906a3ec5a412
+GREEN validate:                 #911 / 35537472977 — 12/12 SUCCESS
+Importer GREEN:                 7 test files / 171 tests PASS + typecheck + npm ci
+Required explicit semantics:    id/version/title/description/scope/effect/risk/idempotency/output policy/context/input+output schema choice
+Action id:                      exact canonical lowercase dot grammar; max 160 bytes; no normalization
+Action version:                 positive integer only
+Title/description:              1..120 / 1..2000 Unicode code points; no trimming/fallback
+Context requirements:           canonical enum only; unique; deterministic canonical order
+OpenAPI semantic fallback:      NONE
+Candidate suggestion use:       requires present non-blocked suggestion
+Explicit schema copy:           safe deep copy; arbitrary caller-authored JSON Schema keywords allowed
+Schema safety budgets:          64 depth / 5,000 nodes
+Candidate schema copy:          deep copied; no shared mutable references
+Canonical verification:         AJV Draft 2020-12 against repo canonical Action Definition schema
+Provenance in ActionDefinition: NONE
+Returned provenance:            exact OpenApiSourceProvenance only, separately copied
+RuntimeBinding/executor:         NONE
+Duplicate batch id+version:     fail closed with duplicate_action_identity
+Filesystem/network capability:  NONE
+Production dependency:          yaml ^2.9.1 only
+Forbidden implementation diff:  EMPTY
+```
+
+Task 7 added only explicit resolution types, canonical Action Definition materialization, batch identity collision checking, public materializer exports, and test-only canonical AJV validation. It does not infer semantics from OpenAPI, create RuntimeBindings, execute HTTP, authorize callers, register Action definitions automatically, or expose MCP/WebMCP tools.
+
+Task 7 self-review passed for D-065/D-066/D-068 alignment, exact Action identity/version handling, explicit semantic completion, trusted-context non-inference, schema deep-copy/resource safety, canonical-schema alignment, provenance separation, duplicate identity rejection, no-I/O capability, dependency direction, brownfield safety, and exact verification evidence.
+
+Task 8 handoff preparation evidence:
+
+```text
+Implementation code head:       58d18dc201be5e50ea7e20d1747d906a3ec5a412
+Implementation validate:        #911 / 35537472977 — 12/12 SUCCESS
+Pre-handoff tracking head:      106cba54fe85909362cab3c1ec5f3d1db1036011
+Pre-handoff validate:           #912 / 35537581965 — 12/12 SUCCESS
+OpenAPI importer:               7 files / 171 tests PASS + typecheck + npm ci
+Browser runtime:                20 files / 328 tests PASS + typecheck
+Python conformance tests:       47/47 PASS
+Runtime conformance matrix:     7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Laravel matrix:                 4/4 SUCCESS; 595 tests / 3164 assertions
+Laravel MCP matrix:             4/4 SUCCESS; 47 tests / 337 assertions
+Contract validation:            PASS
+PHP lint:                       PASS
+Forbidden path audit:           PASS against main merge-base 7e26d61a...
+Production dependency:          yaml ^2.9.1 only
+Generic OpenAPI dereferencer:   NONE
+Filesystem/network retrieval:   NONE
+Internal SurfaceRelay deps:     NONE
+D-065..D-068:                   PROPOSED
+D-026:                          PROPOSED
+```
+
+Task 8 documentation/review handoff evidence:
+
+```text
+Documentation handoff head:     201b030b91c8642387514510ea120cd9282122f2
+Documentation handoff validate: #913 / 35538173232 — 12/12 SUCCESS
+Changed paths:                  package README / root README / REVIEW_REQUEST / STATUS / TASKS only
+Implementation/spec changes:    NONE
+Conformance/runtime changes:    NONE
+CI definition changes:          NONE
+Review state:                    EXTERNAL REVIEW PENDING
+D-065..D-068:                    PROPOSED
+D-026:                           PROPOSED
+Merge:                           NOT PERFORMED
+T-704 closure:                   NOT PERFORMED
+```
+
+External review round-one evidence:
+
+```text
+Pull request:                     #17 — OPEN / NOT MERGED
+Reviewed head:                    f004463185876b3a40d8fd71a4519e81b1f7c3f7
+CodeRabbit findings:              4 actionable + 1 nitpick
+Review-fix RED head:              ed591be06b8455a1e0e1e1f5047af0db576b1d7a
+Review-fix RED push/PR:           #930 / #931 — expected FAILURE
+RED importer evidence:            177 prior PASS / 7 new regression tests FAIL
+Review-fix code head:             e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2
+Review-fix push/PR:               #932 / #933 — 12/12 SUCCESS each
+Importer after fixes:             7 files / 184 tests PASS + typecheck + npm ci
+Fixed:                            chained Parameter refs
+Fixed:                            JSON-null ref target fail-closed across Path Item / request-response / parameter / schema callers
+Fixed:                            cross-dimension blocking ambiguity suppresses both schema suggestions
+Docs fix:                         stale pre-implementation snapshots marked historical; concise review handoff restored
+D-065..D-068:                     PROPOSED
+D-026:                            PROPOSED
+Merge:                            NOT PERFORMED
+T-704 closure:                    NOT PERFORMED
+```
+
+External review closure evidence:
+
+```text
+Review PR:                        #17 — OPEN / NOT MERGED
+Round-one reviewed head:          f004463185876b3a40d8fd71a4519e81b1f7c3f7
+Round-one findings:               4 actionable + 1 nitpick
+Actionable closure:               4/4 CodeRabbit-confirmed addressed + resolved
+Review-fix RED:                   ed591be06b8455a1e0e1e1f5047af0db576b1d7a
+Review-fix code head:             e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2
+Review-fix code CI:               push #932 + PR #933 — 12/12 SUCCESS each
+Review-fix importer:              7 files / 184 tests PASS + typecheck + npm ci
+Re-review/docs head:              b83632c790b893f993630c452c47a41444832918
+Re-review/docs CI:                push #934 + PR #935 — 12/12 SUCCESS each
+CodeRabbit incremental re-review: SUCCESS / Review completed
+New inline findings:              0
+Unresolved review threads:        0
+D-065..D-068:                     PROPOSED
+D-026:                            PROPOSED
+Merge:                            NOT PERFORMED
+T-704 closure:                    NOT PERFORMED
+```
+
+T-704 external review is **CLOSED** with no remaining actionable findings.
+
+Decision promotion evidence:
+
+```text
+D-065:                            ACCEPTED
+D-066:                            ACCEPTED
+D-067:                            ACCEPTED
+D-068:                            ACCEPTED
+Decision-promotion head:         f014c7253a91d78e3b03b7761d1fc5d4ce83ba5a
+Decision-promotion push CI:      #938 / 35625605195 — 12/12 SUCCESS
+Decision-promotion PR CI:        #939 / 35625610665 — 12/12 SUCCESS
+Decision-promotion diff:         decision/tracking docs only
+D-026:                            PROPOSED
+Review PR:                        #17 — OPEN / NOT MERGED
+Merge:                            NOT PERFORMED
+T-704 closure:                    NOT PERFORMED
+```
+
+D-065 through D-068 are accepted only for the externally reviewed T-704 implementation boundary. D-026 remains independently PROPOSED.
+
+The next gate is **merge + post-merge main revalidation planning only**. Do not merge, close T-704, or begin later work automatically.
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, and `D-062` are **ACCEPTED**; `D-026`, `D-063`, and `D-064` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 remains TODO. No later task begins automatically.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 and T-702 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-703 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026`, `D-065`, `D-066`, `D-067`, and `D-068` are **PROPOSED**. M7 remains **IN PROGRESS**. T-704 is **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**. No decision promotion, merge, closure, or later work begins automatically.

@@ -1,40 +1,52 @@
-# T-703 Final Closure Record — Laravel MCP Projection
+# T-704 External Review Closure — Optional OpenAPI Importer
 
-## Final state
+## Review result
 
-- **Task:** T-703 — Laravel MCP projection
-- **State:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- **PR:** #16 — **MERGED**
-- **Final feature head:** `9c6fe28296801158ca86810fc04ed48a3099707c`
-- **Merge commit:** `99551c4f796c25c560821930c8b4ffc2443aadef`
-- **D-063:** **ACCEPTED**
-- **D-064:** **ACCEPTED**
-- **D-026:** **PROPOSED** — unchanged
-- **T-704:** **NOT STARTED**
+- **PR:** #17 — **OPEN / NOT MERGED**
+- **State:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **Round-one reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7`
+- **Review-fix code head:** `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`
+- **Review-fix CI:** push **#932** + PR **#933** — **12/12 SUCCESS each**
+- **Importer after fixes:** **7 files / 184 tests PASS + typecheck + npm ci**
+- **External re-review head:** `b83632c790b893f993630c452c47a41444832918`
+- **Re-review CI:** push **#934** + PR **#935** — **12/12 SUCCESS each**
+- **CodeRabbit incremental re-review:** **SUCCESS / Review completed**
+- **New actionable findings:** **0**
+- **Unresolved review threads:** **0**
+- **D-065 / D-066 / D-067 / D-068:** **ACCEPTED**
+- **D-026:** **PROPOSED**
+- **Merge / T-704 closure:** **NOT PERFORMED**
 
-## Closure evidence
+## Closed review findings
 
-```text
-Decision-promotion push:     #870 / 35407058010 — 11/11 SUCCESS
-Decision-promotion PR:       #871 / 35407059787 — 11/11 SUCCESS
-Post-merge main:             #872 / 35407443826 — 11/11 SUCCESS
-Laravel MCP matrix:          4/4 SUCCESS
-Laravel MCP bridge suite:    47 tests / 337 assertions
-Base Laravel matrix:         4/4 SUCCESS
-Base Laravel suite:          595 tests / 3164 assertions
-Browser:                     20 files / 328/328 PASS + typecheck
-Python conformance:          47/47 PASS
-Canonical runtime matrix:    7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
-Contract validation:         PASS
-PHP lint:                    PASS
-```
+Round one produced four actionable inline findings plus one handoff nitpick. All are addressed:
 
-External review previously closed **3/3 actionable findings / 0 unresolved**, and the incremental review completed with **0 new actionable findings**.
+1. chained same-document Parameter refs resolve under one bounded traversal;
+2. successfully resolved JSON `null` targets reach type validation instead of being silently treated as unresolved;
+3. a blocking input/output ambiguity keeps both automatic schema suggestions unresolved;
+4. stale pre-implementation tracking passages are explicitly historical;
+5. this review handoff is concise.
 
-## Preserved boundaries
+CodeRabbit confirmed the four inline findings as addressed and resolved their threads. Incremental re-review on the corrected head completed without new inline findings.
 
-Closure does not alter the reviewed T-703 semantics: the MCP bridge remains optional and one-way; exposure remains explicit and exact-versioned; only portable/headless Actions are eligible; MCP arguments remain untrusted; trusted actor/tenant and confirmation/idempotency authority remain server-owned; invocation converges on the existing ActionBus and normalized ActionResult path; host auth/OAuth/routes remain host-owned; T-701 conformance remains unchanged.
+Detailed implementation and verification evidence remains in `STATUS.md`, `TASKS.md`, the approved design, and the approved implementation plan.
 
-## Next boundary
+## Decision promotion
 
-No later task starts automatically. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
+D-065 through D-068 are **ACCEPTED** after implementation, full verification, review-fix revalidation, and incremental reviewer closure.
+
+Acceptance basis:
+
+- review-fix code head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`;
+- re-review/docs head `b83632c790b893f993630c452c47a41444832918`;
+- review-closure head `32385c1ace536178ce7dbc90907d4b670f915384`;
+- green push/PR validation through #936/#937;
+- 0 new inline findings and 0 unresolved review threads.
+
+D-026 remains **PROPOSED**.
+
+## Next gate
+
+The next explicit gate is **merge + post-merge main revalidation planning only**.
+
+Decision acceptance does **not** itself authorize merge to `main`, T-704 closure, D-026 promotion, or later work.

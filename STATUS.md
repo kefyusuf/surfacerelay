@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/t-704-openapi-importer`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **IN PROGRESS**
 - **Last completed/reviewed task:** `T-703 — Laravel MCP projection`
-- **Current task:** **NONE** — T-704 remains **NOT STARTED**
+- **Current task:** `T-704 — Optional OpenAPI importer` — **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -32,7 +32,7 @@
 - **T-701 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
-- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064` — **ACCEPTED**
+- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064`, `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
 - **Proposed decisions:** `D-026` — **PROPOSED**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
@@ -101,7 +101,152 @@
 - **T-703 post-merge Python conformance:** **47/47 PASS**
 - **T-703 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **D-026:** **PROPOSED** — unchanged
-- **Next gate:** none automatically. T-704 remains **NOT STARTED** and requires a separate explicit scope/design gate.
+- **T-704 design:** `docs/superpowers/specs/2026-09-19-openapi-importer-design.md` — **APPROVED**
+- **T-704 design approval head:** `814d610e40ddbccee051885895070f9d08c7a76c`
+- **T-704 design approval CI:** `#876` / `35408438835` — **11/11 SUCCESS**
+- **T-704 design diff audit:** **DOCUMENTATION/TRACKING ONLY; no packages/spec/conformance/scripts changes**
+- **T-704 decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
+- **T-704 implementation plan:** `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**
+- **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
+- **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
+- **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
+- **T-704 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**
+- **T-704 implementation code head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
+- **T-704 implementation CI:** `#911` / `35537472977` — **12/12 SUCCESS**
+- **T-704 pre-handoff tracking head:** `106cba54fe85909362cab3c1ec5f3d1db1036011`
+- **T-704 pre-handoff tracking CI:** `#912` / `35537581965` — **12/12 SUCCESS**
+- **T-704 full verification:** **importer 171 tests; browser 328; Python conformance 47; runtime matrix 7 PASS / 1 N/A; Laravel 4/4; Laravel MCP 4/4; contract + PHP lint PASS**
+- **T-704 forbidden-path audit:** **PASS** against merge-base `7e26d61a4739efb1111ab148cdad38e5c145e141`
+- **T-704 dependency audit:** **yaml-only production dependency; no generic OpenAPI dereferencer; no filesystem/network retrieval; no internal SurfaceRelay package dependency**
+- **T-704 Task 8 documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
+- **T-704 Task 8 documentation/review-handoff CI:** `#913` / `35538173232` — **12/12 SUCCESS**
+- **T-704 Task 8 handoff diff:** **README + package README + REVIEW_REQUEST + STATUS + TASKS only; no implementation/spec/conformance/CI changes**
+- **T-704 review state:** **EXTERNALLY REVIEWED / REVIEW CLOSED / DECISIONS ACCEPTED / MERGE PENDING; not merged**
+- **T-704 external review target:** `b83632c790b893f993630c452c47a41444832918`
+- **T-704 external review target CI:** push `#934` + PR `#935` — **12/12 SUCCESS each**
+- **T-704 CodeRabbit round-one closure:** **4/4 actionable inline findings confirmed addressed + resolved; 1 REVIEW_REQUEST nitpick addressed**
+- **T-704 CodeRabbit incremental re-review:** **SUCCESS / Review completed** on `b83632c790b893f993630c452c47a41444832918`
+- **T-704 incremental re-review result:** **0 new inline review comments / 0 unresolved review threads**
+- **T-704 review closure:** **COMPLETE — no new actionable findings**
+- **T-704 decision promotion:** `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
+- **T-704 decision-promotion head:** `f014c7253a91d78e3b03b7761d1fc5d4ce83ba5a`
+- **T-704 decision-promotion CI:** push `#938` / `35625605195` + PR `#939` / `35625610665` — **12/12 SUCCESS each**
+- **T-704 decision-promotion diff:** **DECISION/TRACKING DOCS ONLY; no package/spec/conformance/scripts/CI changes**
+- **T-704 decision-promotion basis:** review-fix head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2` + re-review head `b83632c790b893f993630c452c47a41444832918` + review-closure head `32385c1ace536178ce7dbc90907d4b670f915384`; push/PR CI green through #936/#937
+- **D-026:** **PROPOSED** — unchanged
+- **T-704 next gate:** **merge + post-merge main revalidation planning only; do not merge or close T-704 automatically**
+- **T-704 review PR:** `#17` — **OPEN / NOT MERGED**
+- **T-704 CodeRabbit reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7` — **4 actionable + 1 nitpick**
+- **T-704 review-fix RED head:** `ed591be06b8455a1e0e1e1f5047af0db576b1d7a`
+- **T-704 review-fix RED CI:** push `#930` + PR `#931` — **expected FAILURE; 7 new regression tests RED / 177 prior tests PASS**
+- **T-704 review-fix code head:** `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`
+- **T-704 review-fix CI:** push `#932` + PR `#933` — **12/12 SUCCESS each**
+- **T-704 review-fix importer suite:** **7 files / 184 tests PASS + typecheck + npm ci**
+- **T-704 review fixes:** **chained Parameter refs; JSON-null ref target fail-closed across all ref callers; cross-dimension schema-suggestion blocking consistency; tracking/handoff clarity**
+- **T-704 Task 7 initial RED head:** `e215133ab38d3d5644f1664a41c0bb3ce0d9fb72` — `#909` typecheck RED in diagnostic/AJV test-contract typing
+- **T-704 Task 7 corrected RED head:** `479312aed8f4e0ac93f9fb53046bfd64ab7394d2`
+- **T-704 Task 7 corrected RED CI:** `#910` / `35537328082` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 7 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–6 tests **132 PASS**; Task 7 materialization contract **39/39 expected FAIL**
+- **T-704 Task 7 GREEN head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
+- **T-704 Task 7 GREEN CI:** `#911` / `35537472977` — **12/12 SUCCESS**
+- **T-704 Task 7 importer suite:** **7 files / 171 tests PASS + typecheck + npm ci**
+- **T-704 Task 7 explicit semantics:** **id/version/title/description/scope/effect/risk/idempotency/output policy/context requirements/input+output schema choice all required explicitly**
+- **T-704 Task 7 identity boundary:** **canonical lowercase dot grammar / 160-byte id / positive integer version; no trim/slug/case normalization**
+- **T-704 Task 7 metadata boundary:** **title 1..120 and description 1..2000 Unicode code points; no OpenAPI metadata fallback**
+- **T-704 Task 7 trusted context:** **canonical enum only, unique, deterministic declaration order; never inferred from OpenAPI security**
+- **T-704 Task 7 schema materialization:** **candidate suggestion requires non-blocked presence; explicit/candidate schemas deep-copied under 64-depth / 5,000-node budgets**
+- **T-704 Task 7 canonical verification:** **all positive materializations validated against repo spec/0.1/action-definition.schema.json via AJV Draft 2020-12**
+- **T-704 Task 7 provenance separation:** **exact OpenApiSourceProvenance returned separately; no provenance/extensions/runtime-binding data embedded in ActionDefinition**
+- **T-704 Task 7 batch identity gate:** **duplicate final id+version rejects batch with duplicate_action_identity**
+- **T-704 Task 7 capability audit:** **no filesystem/network/HTTP execution/RuntimeBinding/ActionBus/MCP/WebMCP capability**
+- **T-704 Task 7 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 6 RED head:** `5d132bb1ac019e39e2270eacc5acd0bb253db4c9`
+- **T-704 Task 6 RED CI:** `#905` / `35534734087` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 6 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–5 tests **122 PASS**; Task 6 report/candidate-builder contract **10/10 expected FAIL**
+- **T-704 Task 6 GREEN head:** `cd6b4e68e544f9c310f93af72b9db42623aad180`
+- **T-704 Task 6 GREEN CI:** `#906` / `35534812616` — **12/12 SUCCESS**
+- **T-704 Task 6 final implementation head:** `e9f1c761a378fe7978fab6c13627a2c9bc7ed8fd`
+- **T-704 Task 6 final implementation CI:** `#907` / `35534896771` — **12/12 SUCCESS**
+- **T-704 Task 6 importer suite:** **6 files / 132 tests PASS + typecheck + npm ci**
+- **T-704 Task 6 report pipeline:** **parse → version-family → root operation selection → safe schema suggestions → deterministic report**
+- **T-704 Task 6 candidate ordering:** **pathTemplate → httpMethod → operationPointer**
+- **T-704 Task 6 diagnostic ordering:** **sourcePointer → code → insertion sequence; duplicate diagnostics preserved**
+- **T-704 Task 6 diagnostic budget:** **500 final entries maximum; overflow becomes 499 ordinary + one terminal diagnostic_limit_reached**
+- **T-704 Task 6 diagnostic ownership:** **candidate diagnostics retained on candidates and aggregated into report with operation provenance**
+- **T-704 Task 6 public API:** **importOpenApi() + OpenApiImportReport exported from package entrypoint**
+- **T-704 Task 6 capability audit:** **no filesystem/network/runtime-binding/execution/exposure capability**
+- **T-704 Task 6 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 5 RED head:** `dae76466437c5e6cf720bcb3b1cedb3f5fbaa32f`
+- **T-704 Task 5 RED CI:** `#900` / `35533887718` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 5 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–4 tests **67 PASS**; Task 5 schema/suggestion contract **52/52 expected FAIL**
+- **T-704 Task 5 initial GREEN head:** `683adf0a0fbc3047bd5c69b821888bfdf916acf4`
+- **T-704 Task 5 initial GREEN CI:** `#901` / `35534003405` — **expected corrective FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 5 initial GREEN proof:** Task 5 suite **52/52 PASS**; one prior Task 4 test failed because selector enrichment exceeded the approved Task 5 file/scope boundary
+- **T-704 Task 5 scope-correction head:** `bba9857219afadc17a9dcc72c2cbacc5420d27a4`
+- **T-704 Task 5 scope-correction CI:** `#902` / `35534039877` — **SUCCESS; importer 5 files / 119 tests PASS**
+- **T-704 Task 5 final GREEN head:** `bca7488a080e32cdc07bed5ea9dfbebc71f97fd1`
+- **T-704 Task 5 final GREEN CI:** `#903` / `35534181870` — **12/12 SUCCESS**
+- **T-704 Task 5 importer suite:** **5 files / 122 tests PASS + typecheck + npm ci**
+- **T-704 Task 5 schema dialect boundary:** **default OAS dialect only; explicit jsonSchemaDialect and schema-local $schema fail closed**
+- **T-704 Task 5 schema subset:** **whitelist-only semantics; unsupported/annotation/custom keywords fail closed instead of being dropped**
+- **T-704 Task 5 schema ref boundary:** **same-document acyclic $ref inline only; $ref+sibling fails closed**
+- **T-704 Task 5 schema budget:** **5,000 fragment nodes including supported scalar/array keyword values**
+- **T-704 Task 5 input suggestion boundary:** **zero parameters + no body => empty object; otherwise exactly one supported application/json body schema**
+- **T-704 Task 5 output suggestion boundary:** **exactly one explicit 2xx; no content => null; otherwise exactly one supported application/json schema**
+- **T-704 Task 5 prior-blocking gate:** **blocking source diagnostics prevent automatic input/output suggestions**
+- **T-704 Task 5 selector boundary:** **operation-selector remains unchanged from Task 4; enrichment is deferred to Task 6 candidate-builder**
+- **T-704 Task 5 capability audit:** **no filesystem/network capability; yaml remains the only production dependency**
+- **T-704 Task 5 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 4 RED head:** `f1b58b9feeed38509f2620d59affbbd22acace1a`
+- **T-704 Task 4 RED CI:** `#895` / `35503293113` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 4 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–3 tests **47 PASS**; Task 4 operation/provenance contract **18/18 expected FAIL**
+- **T-704 Task 4 initial implementation head:** `97bbffd8e3c7a61f12bfd142dec1f5992c74dc65`
+- **T-704 Task 4 initial implementation CI:** `#896` / `35503411754` — **typecheck FAIL** in strict JsonValue narrowing
+- **T-704 Task 4 type-guard fix head:** `1c34d3b7bb5d921cde523e1caa23b68a4bf00c18`
+- **T-704 Task 4 type-guard fix CI:** `#897` / `35503457399` — **12/12 SUCCESS; importer 4 files / 65 tests PASS**
+- **T-704 Task 4 final GREEN head:** `cd5205d2b8918e30a77290c2d64616471aa89fb6`
+- **T-704 Task 4 final GREEN CI:** `#898` / `35503516563` — **12/12 SUCCESS**
+- **T-704 Task 4 importer suite:** **4 files / 67 tests PASS + typecheck + npm ci**
+- **T-704 Task 4 operation boundary:** **OAS 3.1 fixed methods; OAS 3.2 adds query; callbacks/webhooks not promoted; additionalOperations unsupported**
+- **T-704 Task 4 operation budget:** **1,000 encountered fixed-operation entries, including malformed entries**
+- **T-704 Task 4 provenance:** **exact operationId / method / path / JSON Pointer; no normalization**
+- **T-704 Task 4 source prose boundary:** **8,192 Unicode characters; oversized summary/description omitted with non-blocking diagnostic**
+- **T-704 Task 4 parameter evidence:** **path+operation merge by exact (name,in); operation overrides; no Action-input flattening**
+- **T-704 Task 4 security evidence:** **inheritance/override/anonymous/removal/OR+AND structure only; no trusted authority**
+- **T-704 Task 4 capability audit:** **same-document lookup only; no filesystem/network capability**
+- **T-704 Task 4 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 3 initial RED head:** `c7a817dd330d523f915996ac81a77c47bdef06ee` — `#891` typecheck RED because ref-budget constants were intentionally not yet present
+- **T-704 Task 3 corrected RED head:** `bdc3329b35189ede1a12c66a7a116f7625ea4bfe`
+- **T-704 Task 3 corrected RED CI:** `#892` / `35497077001` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 3 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–2 tests **15 PASS**; Task 3 version/ref contract **32/32 expected FAIL**
+- **T-704 Task 3 GREEN head:** `4deab64fd7aa8ddc4b71660836e0d3bf06132ad1`
+- **T-704 Task 3 GREEN CI:** `#893` / `35497163796` — **12/12 SUCCESS**
+- **T-704 Task 3 importer suite:** **3 files / 47 tests PASS + typecheck + npm ci**
+- **T-704 Task 3 version boundary:** **OpenAPI 3.1.x / 3.2.x semantic patch families only**
+- **T-704 Task 3 ref boundary:** **same-document JSON Pointer only; external refs and named anchors fail closed**
+- **T-704 Task 3 ref budgets:** **32 hops / cycle detection / 4,096 unique targets**
+- **T-704 Task 3 capability audit:** **lookup-only; no dereference copy, filesystem or network capability**
+- **T-704 Task 3 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 2 RED head:** `e72e03052a289d99931a3fa52b85c5c1d8f6b97c`
+- **T-704 Task 2 RED CI:** `#886` / `35496515711` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 2 RED proof:** importer `npm ci` + typecheck SUCCESS; source parser contract **12/12 failed as expected** while Task 1 architecture tests stayed green
+- **T-704 Task 2 initial GREEN head:** `9fcbf94a1a1ee5af29d4d36c289e0c8b634f3f30` — `#887` typecheck failure in YAML generic narrowing
+- **T-704 Task 2 narrowing fix head:** `3db875b3cb5eca245f7b70bd178e163d276c6658` — `#888` remaining sequence generic narrowing failure
+- **T-704 Task 2 GREEN head:** `19f2628511b65617a6c21ef2e0235e2af56530ed`
+- **T-704 Task 2 GREEN CI:** `#889` / `35496725520` — **12/12 SUCCESS**
+- **T-704 Task 2 importer suite:** **2 files / 15 tests PASS + typecheck + npm ci**
+- **T-704 Task 2 parser boundary:** **2 MiB source / depth 64 / 50,000 nodes; duplicate JSON keys and unsafe YAML alias/tag/multi-doc forms fail closed**
+- **T-704 Task 2 capability audit:** **content-only API; no filesystem/network capability; yaml remains the only production dependency**
+- **T-704 Task 2 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 1 RED head:** `d09d6cd3034a1a897cfebba185a054b1cf8c4a8b`
+- **T-704 Task 1 RED CI:** `#883` / `35496056306` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 1 RED proof:** importer `npm ci` + typecheck SUCCESS; Vitest **1 failed / 2 passed** because `src/index.ts` was intentionally absent
+- **T-704 Task 1 GREEN head:** `185e9c2e0455831b4e896fb0176b39555742010a`
+- **T-704 Task 1 GREEN CI:** `#884` / `35496138107` — **12/12 SUCCESS**
+- **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
+- **T-704 Task 1 production dependency:** **yaml only**
+- **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
+- **Next gate:** T-704 decision-promotion gate only. D-065..D-068 remain PROPOSED until that explicit gate; do not merge or close T-704 automatically.
 
 ## M6 historical evidence — preserved
 
@@ -328,7 +473,7 @@ The implementation preserves the approved design boundary:
 - Livewire and HTMX are documented as materially different reference techniques for shared portable invariants, not a universal target shape;
 - D-026 remains PROPOSED; no global error enum is created;
 - D-062 remains PROPOSED; implementation does not promote it;
-- T-703 Laravel MCP projection and T-704 OpenAPI import remain outside T-702 and are not started.
+- Historical T-702 boundary: T-703 Laravel MCP projection and T-704 OpenAPI import remained outside T-702 and had not started at that point.
 
 ### T-702 implementation verification
 
@@ -410,7 +555,7 @@ Post-merge main validate:  #872 / 35407443826 — 11/11 SUCCESS
 Production core changes:  NONE
 Canonical spec changes:   NONE
 T-701 conformance change: NONE
-T-704 work:               NOT STARTED
+T-704 work at T-703 closure: NOT STARTED (historical snapshot)
 ```
 
 Locked design direction:
@@ -426,8 +571,34 @@ Locked design direction:
 - all business invocation converges on ActionBus and ActionResultNormalizer;
 - no expansion of T-701's closed conformance profile.
 
-## Current boundary
+## Historical boundary before T-704 implementation
 
 **M6 is closed. T-604 is closed. T-701 is closed.**
 
-T-702 and T-703 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, and `D-064` are **ACCEPTED**; `D-026` remains **PROPOSED**. M7 remains **IN PROGRESS** because T-704 remains TODO. No later task begins automatically.
+Historical snapshot after T-703 closure: T-702 and T-703 were **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; `D-059` through `D-064` were **ACCEPTED** and `D-026`, `D-065` through `D-068` were **PROPOSED**. At that point T-704 was design-only and implementation had not started. The authoritative current T-704 state is recorded at the top of this file.
+
+## Historical T-704 scope/design gate
+
+At this historical gate, T-704 scope/design review and implementation-plan review were complete, design and plan were approved, and implementation had not started.
+
+```text
+Branch:                 feat/t-704-openapi-importer-design
+Design:                 docs/superpowers/specs/2026-09-19-openapi-importer-design.md
+D-065:                  PROPOSED
+D-066:                  PROPOSED
+D-067:                  PROPOSED
+D-068:                  PROPOSED
+Design status:          APPROVED
+Implementation plan:    APPROVED
+Implementation at this gate: NOT STARTED (historical snapshot)
+Canonical spec change:  NONE
+Runtime binding change: NONE
+T-701 conformance:      UNCHANGED
+T-703 MCP bridge:       UNCHANGED
+```
+
+The approved design keeps OpenAPI subordinate to D-012 and separates source/provenance parsing from canonical SurfaceRelay semantics. Review also locked same-document-only refs, no secondary filesystem/network retrieval, exact fixed-operation selection, Path Item ref/sibling fail-closed behavior, schema-dialect compatibility checks, and source-description sanitization/explicit presentation resolution. No package code, parser dependency, generated runtime binding, HTTP execution path, or exposure mechanism exists yet.
+
+Design approval evidence is revision-bounded to `814d610e40ddbccee051885895070f9d08c7a76c` with Validate #876 / `35408438835` at **11/11 SUCCESS**.
+
+Historical next gate at that point was **implementation execution preflight + Task 1 only** on `feat/t-704-openapi-importer`. The authoritative current gate is external re-review on PR #17; no implementation preflight should be restarted.
