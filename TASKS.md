@@ -569,7 +569,7 @@ Contract / lint:                     PASS
 
 Historical T-703 closure snapshot: T-703 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; D-063 and D-064 were ACCEPTED and D-026 remained PROPOSED. T-704 was **NOT STARTED** at that point and required its separate scope/design gate. The current T-704 state is recorded below.
 
-### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING
+### T-704 — Optional OpenAPI importer as a secondary adapter — IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING
 
 Approved design:
 
@@ -589,7 +589,7 @@ Approved scope/design boundary:
 - callbacks/webhooks do not become independent imported actions in v1;
 - canonical spec, T-701 conformance, T-703 MCP projection, and runtime binding behavior remain unchanged.
 
-Proposed decisions:
+Accepted decisions:
 
 - D-065 — candidate-only secondary importer boundary;
 - D-066 — no silent SurfaceRelay semantic inference from HTTP/OpenAPI metadata;
@@ -609,7 +609,7 @@ T-703 MCP changes:             NONE
 ```
 
 Implementation plan: `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**.  
-Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISION PROMOTION PENDING**.
+Implementation: **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED / MERGE PENDING**.
 
 Plan approval evidence:
 

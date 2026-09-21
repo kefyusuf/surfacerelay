@@ -1,6 +1,6 @@
 # T-704 — Optional OpenAPI Importer Design
 
-**Status:** APPROVED DESIGN / IMPLEMENTATION PLAN APPROVED / IMPLEMENTATION NOT STARTED  
+**Status:** APPROVED DESIGN / IMPLEMENTED / EXTERNAL REVIEW COMPLETE / D-065..D-068 ACCEPTED / MERGE PENDING  
 **Task:** T-704  
 **Milestone:** M7 — Conformance / Ecosystem Bridges  
 **Branch:** `feat/t-704-openapi-importer-design`  
@@ -379,7 +379,7 @@ v1 accepts one caller-supplied OpenAPI 3.1.x/3.2.x root document, resolves only 
 
 OpenAPI operation identity and HTTP location remain import provenance. Final exact SurfaceRelay `id + version` is explicitly resolved; no lossy automatic identity conversion is permitted.
 
-The design is approved, but all four decisions remain PROPOSED until implementation, verification, and external review justify later promotion.
+D-065 through D-068 are ACCEPTED after implementation, full verification, external review, review-fix revalidation, and incremental reviewer closure. This acceptance is bounded to the reviewed T-704 importer behavior and does not promote D-026 or authorize merge/T-704 closure by itself.
 
 ## 20. Explicit non-goals
 
@@ -399,17 +399,15 @@ T-704 v1 does not:
 - modify T-703 MCP projection;
 - create an automatic expose-all path.
 
-## 21. Implementation gate
+## 21. Historical implementation gate
 
-This design is approved. Approval does not start implementation.
+At design approval, implementation had not started. The following constraints governed the later implementation gate:
 
-Before implementation:
-
-1. D-065 through D-068 remain PROPOSED;
-2. T-704 tracking must continue to say implementation not started;
-3. the approved implementation plan is `docs/superpowers/plans/2026-09-19-openapi-importer.md`;
-4. implementation begins only in a separate execution gate on a new implementation branch;
-5. D-065 through D-068 remain PROPOSED through implementation and external review.
+1. D-065 through D-068 remained PROPOSED through implementation and external review;
+2. T-704 tracking remained explicit about implementation state before execution;
+3. the approved implementation plan was `docs/superpowers/plans/2026-09-19-openapi-importer.md`;
+4. implementation began only in a separate execution gate on `feat/t-704-openapi-importer`;
+5. decision promotion required its own explicit post-review gate.
 
 ## 22. Design review outcome
 
@@ -425,3 +423,22 @@ Review refinements added before approval:
 - untrusted Markdown/HTML source descriptions cannot flow directly to Action/tool metadata.
 
 No implementation plan, package code, parser dependency, runtime behavior, canonical schema, conformance semantics, or MCP behavior is introduced by this approval.
+
+
+## 23. Decision promotion outcome
+
+D-065, D-066, D-067, and D-068 are **ACCEPTED**.
+
+Promotion basis:
+
+- implementation and full verification completed;
+- external review PR #17 remained open/unmerged while review ran;
+- round-one actionable findings were fixed and revalidated;
+- review-fix head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2` passed push #932 and PR #933 at 12/12;
+- re-review/docs head `b83632c790b893f993630c452c47a41444832918` passed push #934 and PR #935 at 12/12;
+- incremental CodeRabbit re-review completed with 0 new inline findings and 0 unresolved review threads;
+- review-closure head `32385c1ace536178ce7dbc90907d4b670f915384` passed push #936 and PR #937 at 12/12.
+
+Acceptance is revision- and scope-bounded to the reviewed T-704 optional OpenAPI importer. It does not promote D-026, authorize merge, close T-704, broaden the canonical SurfaceRelay specification, or create any HTTP execution/exposure authority.
+
+The next gate is merge + post-merge main revalidation planning only.
