@@ -219,16 +219,16 @@ The repository CI also runs the existing contract, browser/conformance, Laravel,
 
 ## Decision status
 
-T-704 implementation does not promote architectural proposals by itself.
-
-At external-review handoff:
+Current reviewed repository state:
 
 ```text
-D-065 PROPOSED
-D-066 PROPOSED
-D-067 PROPOSED
-D-068 PROPOSED
+D-065 ACCEPTED
+D-066 ACCEPTED
+D-067 ACCEPTED
+D-068 ACCEPTED
 D-026 PROPOSED
 ```
 
-Promotion, merge, and T-704 closure require separate explicit gates after external review.
+D-065 through D-068 are accepted only for the reviewed T-704 importer boundary described above. D-026 remains independently proposed and is not promoted by importer diagnostics.
+
+T-704 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. The package remains experimental and `private: true`; milestone closure does not create an npm publication or compatibility promise.

@@ -88,7 +88,7 @@ These guides do **not** introduce:
 - a new profile, capability, or canonical conformance scenario;
 - a global error enum;
 - public certification, badges, signing, or compatibility registry infrastructure;
-- Laravel MCP projection (T-703);
-- OpenAPI import mapping (T-704).
+- changes to the separately implemented Laravel MCP projection contract (T-703);
+- changes to the separately implemented OpenAPI importer mapping contract (T-704).
 
-If an integration cannot be described accurately without one of those changes, stop and open a separate task/decision gate.
+T-703 and T-704 now exist as separate reviewed integrations; this guide does not become authority for their package-specific semantics. If an integration cannot be described accurately without one of the changes above, stop and open a separate task/decision gate.

@@ -50,7 +50,7 @@ Must not:
 - make imported metadata implicitly trusted;
 - invent a new Action semantic because the external format happens to contain it.
 
-T-704 is expected to address optional OpenAPI importing later. **T-702 does not define OpenAPI mapping rules and does not implement T-704.**
+T-704 now implements the optional bounded OpenAPI importer under its own reviewed decisions and package documentation. **T-702 does not define or override those OpenAPI mapping rules.**
 
 ### 1.2 Runtime / binding adapter
 
@@ -115,7 +115,7 @@ Must not:
 - infer new risk, trust, authorization, or lifecycle semantics from the protocol;
 - populate unsupported protocol fields through speculative inference.
 
-Current WebMCP projection code is an architectural precedent; see the [browser-runtime source](../../packages/browser-runtime/src/) and accepted decisions D-036 through D-038. T-703 will address Laravel MCP projection separately. **T-702 does not implement T-703.**
+Current WebMCP projection code is an architectural precedent; see the [browser-runtime source](../../packages/browser-runtime/src/) and accepted decisions D-036 through D-038. T-703 is the separately implemented Laravel MCP projection. **T-702 does not implement T-703.**
 
 ## 2. Responsibility matrix
 
@@ -317,7 +317,7 @@ Rules:
 
 An import adapter may be useful even if it supports only a safe subset. Unsupported is preferable to silently changing meaning.
 
-T-704 remains the future OpenAPI-specific task. T-702 does not predefine its mapping decisions.
+T-704 is now the separately implemented OpenAPI-specific integration. T-702 still does not predefine or override its mapping decisions.
 
 ## 11. Trust/security is part of correctness
 
@@ -450,7 +450,7 @@ D-026 remains **PROPOSED**.
 
 ## 17. Stop and open a new gate when
 
-Stop T-702 implementation instead of extending this guide if authoring reveals a need for:
+Open a separate task/decision gate instead of extending this guide if authoring reveals a need for:
 
 - a new canonical Action Definition or RuntimeBinding field;
 - a universal `Adapter` interface or plugin lifecycle;
@@ -459,8 +459,8 @@ Stop T-702 implementation instead of extending this guide if authoring reveals a
 - changed runner selection/applicability/verdict semantics;
 - a new global failure-code enum;
 - changed Livewire/HTMX production behavior;
-- T-703 Laravel MCP implementation;
-- T-704 OpenAPI import mapping;
+- changes to the separately implemented T-703 Laravel MCP projection contract;
+- changes to the separately implemented T-704 OpenAPI import mapping contract;
 - standalone public-spec extraction or certification infrastructure.
 
 Those requirements belong in their own task/decision gate.
@@ -485,5 +485,5 @@ Before requesting review for a new adapter/integration, verify:
 - [ ] Examples are clearly illustrative/non-normative.
 - [ ] Livewire/HTMX examples are treated as reference techniques, not a universal host shape.
 - [ ] D-026 has not been promoted through prose.
-- [ ] T-703/T-704 are not represented as already implemented.
+- [ ] T-703/T-704 are referenced as separate implemented integrations without this guide redefining their package-specific semantics.
 - [ ] No new semantic requirement was smuggled in through documentation.
