@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `docs/post-m7-product-reassessment`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED / MERGED / MAIN REVALIDATED**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** **NONE** — M7 is closed; next product/scope reassessment has not started
+- **Current work:** `Post-M7 product/scope reassessment` — **DONE / RECOMMENDATION READY / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -647,3 +647,34 @@ State:                           DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / 
 ```
 
 The M7 roadmap outcome is satisfied by T-701 through T-704. Reconciliation, review-fix, review-closure, and post-merge `main` validation are green; both external-review findings are closed and there are zero unresolved inline review threads. M7 is final on `main`: **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
+
+## Post-M7 product/scope reassessment
+
+Spec: `docs/superpowers/specs/2026-09-22-post-m7-product-reassessment.md`
+
+This reassessment is documentation-only. It does not open M8 and does not authorize implementation or publication.
+
+```text
+Baseline main:                    a3ee94751cef344e0d1038325297629a0f212c02
+Baseline Validate:                #953 / 35681090013 — 12/12 SUCCESS
+Current implemented milestones:   M0 through M7 complete
+Current GitHub releases:          none
+Browser runtime package:          0.0.0-dev / private:true / no reviewed distribution contract
+OpenAPI importer package:         0.0.0-dev / private:true / no publication promise
+Laravel MCP dependency:           surfacerelay/laravel dev-main via local path repository
+Root user flow:                   development-oriented; no clean external install contract
+Release automation:               none
+CHANGELOG:                        none
+Root vulnerability-reporting doc: none
+Clean downstream consumer proof:  none
+Recommended direction:            M8 — Consumer & Release Readiness
+M8 state:                         PROPOSED ONLY / NOT OPENED / NOT STARTED
+Registry publication:             NOT AUTHORIZED
+Tag/release creation:             NOT AUTHORIZED
+Contract/spec semantic change:    NONE
+T-705 / T-801:                    NOT CREATED
+```
+
+The recommendation is to prove versioned release-candidate artifacts in clean downstream consumers before any registry publication. Publication, tagging, and public compatibility promises remain separate later gates.
+
+If this reassessment is approved, the next explicit gate is **M8 scope/design only**. It must first resolve the intended public package set, package-version relationship, release-candidate artifact shape, clean-consumer verification matrix, and compatibility/support wording. Implementation does not begin automatically.

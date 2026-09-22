@@ -1025,3 +1025,54 @@ next milestone implementation:   NOT STARTED
 ## Current boundary
 
 M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. No T-705 exists and no later milestone implementation has started. Any next work requires a separate product/scope reassessment gate.
+
+## Post-M7 product/scope reassessment — DONE / RECOMMENDATION READY
+
+This is not a numbered implementation task and does not open M8.
+
+Evidence-based finding:
+
+- M0 through M7 already provide substantial capability, trust controls, portability proof, conformance, and ecosystem bridges;
+- the repository still exposes development/source-tree workflows rather than a clean downstream-consumer installation contract;
+- the TypeScript packages remain 0.0.0-dev + private:true and have no reviewed distribution/build/export contract;
+- surfacerelay/laravel-mcp still requires surfacerelay/laravel:dev-main through a local Composer path repository;
+- the root README has development commands but no supported external installation/getting-started path;
+- there is no GitHub release, release workflow, changelog, root vulnerability-reporting policy, or clean consumer-project smoke evidence;
+- roadmap release labels 0.1.0-alpha through 0.4.0-beta were never published, so release numbering must be reassessed independently rather than inferred mechanically from completed milestones.
+
+Recommended next milestone candidate:
+
+```text
+M8 — Consumer & Release Readiness
+Status: PROPOSED ONLY / NOT OPENED / NOT STARTED
+```
+
+Candidate outcome:
+
+> A clean downstream project can install the intended SurfaceRelay release-candidate artifacts without monorepo path/dev-main coupling, follow a minimal documented setup, exercise the supported happy path, and reproduce bounded compatibility evidence.
+
+Safety boundary:
+
+- release readiness is not registry publication;
+- no npm/Packagist publish;
+- no GitHub tag/release;
+- no package version bump;
+- no T-705/T-801;
+- no new adapter/capability;
+- no canonical contract/conformance semantic change;
+- no D-026 promotion;
+- no public compatibility promise before clean-consumer evidence.
+
+The first M8 scope/design gate, if approved separately, must resolve:
+
+1. which packages are intended to be public in the first release candidate;
+2. whether package versions move together or independently;
+3. how PHP package constraints replace dev-main/path coupling without premature registry publication;
+4. the TypeScript build/export/package-content contract;
+5. the clean-consumer fixture/matrix and minimum end-to-end proof;
+6. installation/getting-started, changelog, vulnerability-reporting, compatibility, and release-checklist boundaries;
+7. the later explicit go/no-go gate for registry publication and tags.
+
+## Current boundary
+
+M7 remains **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. The post-M7 reassessment is complete only as a recommendation. `M8 — Consumer & Release Readiness` is **PROPOSED ONLY** and has not been opened. No T-705/T-801 exists, no publication/tag/release action is authorized, and no implementation has started.
