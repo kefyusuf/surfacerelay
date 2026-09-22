@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `docs/m7-closure-reconciliation`
-- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED — MERGE PENDING**
+- **Branch:** `main`
+- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED / MERGED / MAIN REVALIDATED**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `M7 closure / state reconciliation` — **EXTERNALLY REVIEWED / MERGE PENDING**
+- **Current work:** **NONE** — M7 is closed; next product/scope reassessment has not started
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -43,6 +43,11 @@
 - **M7 review-fix head:** `186c67f3840a63f5b8fd6c803ae4be9e7632c586`
 - **M7 review-fix CI:** push `#948` / `35679413486` + PR `#949` / `35679414826` — **12/12 SUCCESS each**
 - **M7 review closure:** inline STATUS finding CodeRabbit-confirmed + resolved; outside-diff T-703 wording finding CodeRabbit-confirmed; unresolved inline threads **0**
+- **M7 review-closure tracking head:** `6ff7ad666e9dcaffaa1f68937c66d2e864e336fb`
+- **M7 review-closure CI:** push `#950` / `35679576665` + PR `#951` / `35679580318` — **12/12 SUCCESS each**
+- **M7 closure PR:** `#18` — **MERGED**
+- **M7 merge commit:** `893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c`
+- **M7 post-merge main CI:** `#952` / `35680926172` — **12/12 SUCCESS**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
@@ -615,13 +620,13 @@ The approved design keeps OpenAPI subordinate to D-012 and separates source/prov
 
 Design approval evidence is revision-bounded to `814d610e40ddbccee051885895070f9d08c7a76c` with Validate #876 / `35408438835` at **11/11 SUCCESS**.
 
-Historical next gate at that point was **implementation execution preflight + Task 1 only** on `feat/t-704-openapi-importer`. That historical gate is closed. The authoritative current work is the docs-only M7 closure/state reconciliation gate; no T-704 implementation preflight should be restarted.
+Historical next gate at that point was **implementation execution preflight + Task 1 only** on `feat/t-704-openapi-importer`. That historical gate is closed. M7 is now closed, merged, and main-revalidated; no T-704 implementation preflight should be restarted.
 
 
 ## M7 closure / state reconciliation
 
 ```text
-Branch:                          docs/m7-closure-reconciliation
+Branch:                          main
 Baseline main:                   b2de658f9feaee18ac60cb0c2786b45c3d95e342
 Baseline Validate:               #943 / 35666645607 — 12/12 SUCCESS
 T-701..T-704:                    DONE / REVIEWED / MERGED / MAIN REVALIDATED
@@ -632,8 +637,13 @@ Later milestone implementation:  NOT STARTED
 Changed paths:                   STATUS.md; TASKS.md; REVIEW_REQUEST.md; docs/ROADMAP.md;
                                  docs/adapters/README.md; docs/adapters/author-guide.md;
                                  packages/laravel-mcp/README.md; packages/openapi-importer/README.md
-Next task:                       separate explicit merge-to-main gate only
-State:                           DONE / CLOSED / EXTERNALLY REVIEWED — MERGE PENDING
+Review-closure head:             6ff7ad666e9dcaffaa1f68937c66d2e864e336fb
+Review-closure push/PR:          #950 / #951 — 12/12 SUCCESS each
+Closure PR:                      #18 — MERGED
+Merge commit:                    893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c
+Post-merge main Validate:        #952 / 35680926172 — 12/12 SUCCESS
+Next gate:                       separate product/scope reassessment only; not started
+State:                           DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED
 ```
 
-The M7 roadmap outcome is satisfied by T-701 through T-704. Reconciliation and review-fix heads passed the full validation matrix, both external-review findings are closed, and there are zero unresolved inline review threads. M7 is therefore closed and externally reviewed on this branch. Merge to `main` remains a separate explicit gate. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
+The M7 roadmap outcome is satisfied by T-701 through T-704. Reconciliation, review-fix, review-closure, and post-merge `main` validation are green; both external-review findings are closed and there are zero unresolved inline review threads. M7 is final on `main`: **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.

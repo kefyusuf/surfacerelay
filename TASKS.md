@@ -141,7 +141,7 @@ Post-merge browser:              19 files / 319/319 + typecheck
 
 **T-604 is closed. M6 is closed.**
 
-## M7 — Conformance / Ecosystem Bridges — DONE / CLOSED — MERGE_PENDING
+## M7 — Conformance / Ecosystem Bridges — DONE / CLOSED / MERGED / MAIN_REVALIDATED
 
 ### T-701 — Executable conformance runner — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
@@ -989,7 +989,7 @@ Final state:                     DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 T-704 is closed. No later task begins automatically; any further work requires a separate explicit scope/design gate.
 
-### M7 closure / state reconciliation — DONE / VERIFIED
+### M7 closure / state reconciliation — DONE / REVIEWED / MERGED / MAIN REVALIDATED
 
 Closure scope is documentation-only:
 
@@ -1006,11 +1006,15 @@ main head:                       b2de658f9feaee18ac60cb0c2786b45c3d95e342
 main Validate:                   #943 / 35666645607 — 12/12 SUCCESS
 reconciliation head:             8575364732f2a8c574fcf0eb30af7eb5bd028a9c
 reconciliation Validate:         #945 / 35668629999 — 12/12 SUCCESS
-review PR:                       #18 — REVIEW CLOSED / NOT MERGED
-review findings:                 2 Minor — both addressed
+review PR:                       #18 — MERGED
+review findings:                 2 Minor — both addressed / CodeRabbit-confirmed
 review-fix head:                 186c67f3840a63f5b8fd6c803ae4be9e7632c586
 review-fix push/PR:              #948 / #949 — 12/12 SUCCESS each
+review-closure head:             6ff7ad666e9dcaffaa1f68937c66d2e864e336fb
+review-closure push/PR:          #950 / #951 — 12/12 SUCCESS each
 review threads:                  0 unresolved
+merge commit:                    893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c
+post-merge main Validate:        #952 / 35680926172 — 12/12 SUCCESS
 T-701..T-704:                    DONE / REVIEWED / MERGED / MAIN REVALIDATED
 D-059..D-068 except D-026:       ACCEPTED
 D-026:                           PROPOSED
@@ -1020,4 +1024,4 @@ next milestone implementation:   NOT STARTED
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED / EXTERNALLY REVIEWED** on the closure branch; PR #18 remains open and merge to `main` is the only next gate. No T-705 exists and no later milestone implementation has started.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. No T-705 exists and no later milestone implementation has started. Any next work requires a separate product/scope reassessment gate.

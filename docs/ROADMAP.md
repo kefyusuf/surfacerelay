@@ -40,7 +40,7 @@ Outcome: the same contract and browser runtime support an explicit HTMX binding 
 
 Outcome: executable adapter conformance suite plus optional MCP/OpenAPI bridges built on maintained ecosystem implementations.
 
-Status: **complete**. T-701 through T-704 are completed, reviewed, merged, main-revalidated, and the M7 closure reconciliation passed the full repository validation matrix. No later milestone is opened by this closure.
+Status: **complete / merged / main-revalidated**. T-701 through T-704 are complete; closure PR #18 was externally reviewed and merged as `893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c`, and post-merge Validate #952 passed 12/12 jobs. No later milestone is opened by this closure.
 
 ## Release gates
 
