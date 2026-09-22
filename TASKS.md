@@ -1022,9 +1022,9 @@ production/spec semantic change: NONE
 next milestone implementation:   NOT STARTED
 ```
 
-## Current boundary
+## Pre-reassessment boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. No T-705 exists and no later milestone implementation has started. Any next work requires a separate product/scope reassessment gate.
+At M7 closure, M6 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; T-701 through T-704 were **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; `D-059` through `D-068` were **ACCEPTED** except `D-026`, which remained **PROPOSED**. M7 was **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`, with no T-705 or later milestone implementation started. The next required action at that point was this product/scope reassessment gate.
 
 ## Post-M7 product/scope reassessment — DONE / RECOMMENDATION READY
 
