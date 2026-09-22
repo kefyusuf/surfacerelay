@@ -50,6 +50,8 @@ Status: **design proposed / implementation not started**. Publication is explici
 
 ## Release gates
 
+The release labels below are historical readiness checkpoints; none was published. They do not select the first public SurfaceRelay version. Under the proposed M8 design, the exact first public SemVer is chosen only by a later Publication Go/No-Go gate after clean-consumer evidence.
+
 ### 0.1.0-alpha
 
 - M0–M3 complete.

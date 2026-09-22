@@ -4,6 +4,7 @@
 
 - Branch: `docs/m8-consumer-release-readiness-design`
 - Base: reassessment head `3ea6904f0131588769464dd16ff68180220ec7bd`
+- Reassessment validation: `#957` / `35682496627` — **12/12 SUCCESS**
 - State: **DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
 - Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 

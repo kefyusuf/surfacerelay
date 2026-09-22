@@ -1073,9 +1073,9 @@ The first M8 scope/design gate, if approved separately, must resolve:
 6. installation/getting-started, changelog, vulnerability-reporting, compatibility, and release-checklist boundaries;
 7. the later explicit go/no-go gate for registry publication and tags.
 
-## Current boundary
+## Pre-M8-design boundary
 
-M7 remains **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. The post-M7 reassessment is complete only as a recommendation. `M8 — Consumer & Release Readiness` is **PROPOSED ONLY** and has not been opened. No T-705/T-801 exists, no publication/tag/release action is authorized, and no implementation has started.
+At reassessment closure, M7 remained **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`; M8 was only a proposed milestone candidate; no T-705/T-801 existed; and no publication/tag/release or implementation action was authorized. The next explicit gate at that point was this M8 scope/design gate.
 
 ## M8 — Consumer & Release Readiness — DESIGN_PROPOSED / IMPLEMENTATION_NOT_STARTED
 

@@ -5,7 +5,7 @@
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `docs/m8-consumer-release-readiness-design`
-- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED / MERGED / MAIN REVALIDATED**
+- **Milestone:** `M8 — Consumer & Release Readiness` — **DESIGN PROPOSED / IMPLEMENTATION NOT STARTED**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
 - **Current work:** `M8 — Consumer & Release Readiness scope/design` — **DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
@@ -33,7 +33,7 @@
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064`, `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
-- **Proposed decisions:** `D-026` — **PROPOSED**
+- **Proposed decisions:** `D-026`, `D-069`, `D-070`, `D-071`, `D-072`, `D-073` — **PROPOSED**
 - **M7 closure baseline:** `main@b2de658f9feaee18ac60cb0c2786b45c3d95e342`
 - **M7 closure baseline CI:** Validate `#943` / `35666645607` — **12/12 jobs SUCCESS**
 - **M7 closure scope:** current-facing documentation/state reconciliation only; no production/spec/conformance semantic change; no D-026 promotion; no T-705/M8 implementation
