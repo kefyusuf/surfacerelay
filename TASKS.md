@@ -1076,3 +1076,50 @@ The first M8 scope/design gate, if approved separately, must resolve:
 ## Current boundary
 
 M7 remains **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. The post-M7 reassessment is complete only as a recommendation. `M8 — Consumer & Release Readiness` is **PROPOSED ONLY** and has not been opened. No T-705/T-801 exists, no publication/tag/release action is authorized, and no implementation has started.
+
+## M8 — Consumer & Release Readiness — DESIGN_PROPOSED / IMPLEMENTATION_NOT_STARTED
+
+Outcome candidate:
+
+> A clean downstream project can install the intended SurfaceRelay release-candidate artifacts without monorepo path/dev-main coupling, follow a minimal documented setup, exercise the supported happy path, and reproduce bounded compatibility evidence.
+
+Design source:
+
+`docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+
+Proposed decisions: D-069 through D-073.
+
+### T-801 — Release-candidate artifact contract — NOT_STARTED
+
+Shared artifact version input, source-revision binding, staging/content manifests, SHA-256 evidence, no-publication guardrails.
+
+### T-802 — Laravel artifact + clean consumer proof — NOT_STARTED
+
+Composer artifact for `surfacerelay/laravel`, supported install matrix, and one clean Laravel ActionBus happy-path smoke with no path/dev-main coupling.
+
+### T-803 — Browser runtime public API + artifact + clean consumer proof — NOT_STARTED
+
+Curated root ESM API, declarations/build/exports, npm tarball, isolated root-import typecheck/bundle/smoke.
+
+### T-804 — Release-facing documentation and compatibility policy — NOT_STARTED
+
+Getting started, CHANGELOG, SECURITY, versioning/compatibility policy, release checklist; no claim that publication already exists.
+
+### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
+
+One revision/version input, both candidate artifacts, full repository regression, clean-consumer evidence, hashes, external review, publication-go/no-go handoff.
+
+Explicitly outside M8 first candidate set:
+
+- `surfacerelay/laravel-mcp` publication;
+- `@surfacerelay/openapi-importer` publication;
+- new adapter/capability work;
+- v0.2 canonical contract changes;
+- D-026 promotion;
+- npm/Packagist publication;
+- tags/GitHub Releases;
+- first public version selection.
+
+## Current boundary
+
+M8 scope/design is **READY FOR APPROVAL** only. D-069 through D-073 remain **PROPOSED**; T-801 through T-805 are defined but **NOT STARTED**. No package metadata/build/source implementation change, publication, tag, or release is authorized. The next gate is M8 design approval only.

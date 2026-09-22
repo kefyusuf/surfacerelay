@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `docs/post-m7-product-reassessment`
+- **Branch:** `docs/m8-consumer-release-readiness-design`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED / MERGED / MAIN REVALIDATED**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `Post-M7 product/scope reassessment` — **DONE / RECOMMENDATION READY / IMPLEMENTATION NOT STARTED**
+- **Current work:** `M8 — Consumer & Release Readiness scope/design` — **DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -678,3 +678,26 @@ T-705 / T-801:                    NOT CREATED
 The recommendation is to prove versioned release-candidate artifacts in clean downstream consumers before any registry publication. Publication, tagging, and public compatibility promises remain separate later gates.
 
 If this reassessment is approved, the next explicit gate is **M8 scope/design only**. It must first resolve the intended public package set, package-version relationship, release-candidate artifact shape, clean-consumer verification matrix, and compatibility/support wording. Implementation does not begin automatically.
+
+## M8 — Consumer & Release Readiness scope/design
+
+Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+
+```text
+Design base:                    3ea6904f0131588769464dd16ff68180220ec7bd
+Reassessment Validate:          #957 / 35682496627 — 12/12 SUCCESS
+First candidate package set:    surfacerelay/laravel + @surfacerelay/browser-runtime
+Deferred package publication:   surfacerelay/laravel-mcp + @surfacerelay/openapi-importer
+Version topology:               coordinated first release train; exact public SemVer deferred
+Artifact proof:                 Composer archive + npm pack tarball; registry-independent
+Consumer proof:                 isolated artifact-only downstream projects
+Browser public API:             curated root ESM entry + declarations; no supported deep imports
+Publication:                    separate later go/no-go gate
+D-069..D-073:                   PROPOSED
+T-801..T-805:                   DEFINED / NOT STARTED
+Implementation:                 NOT STARTED
+Package publish/tag/release:    NOT AUTHORIZED
+D-026:                          PROPOSED / unchanged
+```
+
+The next gate is **M8 design approval only**. Approval does not start T-801 implementation.

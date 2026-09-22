@@ -42,6 +42,12 @@ Outcome: executable adapter conformance suite plus optional MCP/OpenAPI bridges 
 
 Status: **complete / merged / main-revalidated**. T-701 through T-704 are complete; closure PR #18 was externally reviewed and merged as `893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c`, and post-merge Validate #952 passed 12/12 jobs. No later milestone is opened by this closure.
 
+## M8 — Consumer and release readiness
+
+Outcome candidate: clean downstream consumers install reviewed release-candidate artifacts for the first supported package set without monorepo path/dev-main coupling and reproduce bounded compatibility evidence.
+
+Status: **design proposed / implementation not started**. Publication is explicitly outside M8 and requires a separate later go/no-go gate.
+
 ## Release gates
 
 ### 0.1.0-alpha

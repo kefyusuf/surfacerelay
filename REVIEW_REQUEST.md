@@ -1,59 +1,51 @@
-# M7 Final Closure — Main Revalidated
+# M8 Consumer & Release Readiness — Design Approval Handoff
 
-## Final state
+## Scope
 
-- **Branch:** `main`
-- **Milestone:** **M7 — Conformance / Ecosystem Bridges**
-- **State:** **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**
-- **Closure PR:** #18 — **MERGED**
-- **Reviewed branch head:** `6ff7ad666e9dcaffaa1f68937c66d2e864e336fb`
-- **Merge commit:** `893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c`
-- **Post-merge main Validate:** #952 / `35680926172` — **12/12 SUCCESS**
+- Branch: `docs/m8-consumer-release-readiness-design`
+- Base: reassessment head `3ea6904f0131588769464dd16ff68180220ec7bd`
+- State: **DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
+- Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
-## M7 outcome
+## Design decisions
 
-The roadmap outcome is satisfied:
+- first release-candidate package set: `surfacerelay/laravel` + `@surfacerelay/browser-runtime` only;
+- Laravel MCP + OpenAPI importer publication deferred;
+- coordinated first release train, but exact first public SemVer deferred;
+- Composer/npm release-candidate artifacts must be registry-independent and bound to exact revision/hash evidence;
+- clean consumers may not use monorepo path/dev-main/deep-import shortcuts;
+- browser package uses one curated root ESM API with declarations and no supported deep imports;
+- publication/tag/release is a separate later go/no-go gate.
 
-- T-701 executable conformance runner — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
-- T-702 adapter author guide — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
-- T-703 optional Laravel MCP projection — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**;
-- T-704 optional bounded OpenAPI importer — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
+## Proposed decisions
 
-## External review closure
+`D-069` through `D-073` are PROPOSED only.
 
-```text
-Initial reviewed head:      f1a9cac3cfb191d17720b31242fe4c9e7baa726f
-CodeRabbit findings:        2 Minor
-Review-fix head:            186c67f3840a63f5b8fd6c803ae4be9e7632c586
-Review-fix push/PR:         #948 / #949 — 12/12 SUCCESS each
-Review-closure head:        6ff7ad666e9dcaffaa1f68937c66d2e864e336fb
-Review-closure push/PR:     #950 / #951 — 12/12 SUCCESS each
-STATUS finding:             CodeRabbit-confirmed addressed / resolved
-T-703 wording finding:      CodeRabbit-confirmed addressed
-Unresolved inline threads:  0
-```
+## Proposed tasks
 
-Both findings were documentation-consistency issues. No production, canonical-spec, conformance-semantic, dependency, publication, or release-contract behavior changed.
+`T-801` through `T-805` are defined but NOT STARTED.
 
-## Decision boundary
+## Explicit non-goals
 
-- D-059 through D-068 are **ACCEPTED**, except D-026.
-- D-026 remains independently **PROPOSED**.
-- No closed global binding-error enum is introduced.
+- no package implementation/build changes;
+- no version bump;
+- no npm/Packagist publish;
+- no tag/GitHub Release;
+- no Laravel MCP/OpenAPI importer publication work;
+- no new adapter/capability;
+- no canonical spec/conformance semantic change;
+- no D-026 promotion.
 
-## Non-goals preserved
+## Review focus
 
-This closure does not:
-
-- create T-705;
-- start M8 or any later milestone;
-- publish packages;
-- tag or release a version;
-- change package compatibility promises;
-- reopen canonical contracts or conformance semantics.
+1. Is the first package set minimal enough to prove the core product journey?
+2. Does coordinated release-train versioning avoid coupling package versions to Action versions?
+3. Does artifact-only consumer proof actually prevent monorepo shortcuts?
+4. Is root-only browser API safer than exposing current source modules?
+5. Is the consumer verification matrix strong but bounded?
+6. Are security/versioning/release docs sufficient without pretending publication exists?
+7. Is publication clearly separated from M8 readiness?
 
 ## Next gate
 
-There is no active implementation task.
-
-Any further work must begin with a **separate product/scope reassessment gate**. That gate is not started by this closure.
+If approved, the next gate is **T-801 implementation-plan preparation only**. Implementation does not start from this design handoff.
