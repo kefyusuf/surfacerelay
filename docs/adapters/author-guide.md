@@ -115,7 +115,7 @@ Must not:
 - infer new risk, trust, authorization, or lifecycle semantics from the protocol;
 - populate unsupported protocol fields through speculative inference.
 
-Current WebMCP projection code is an architectural precedent; see the [browser-runtime source](../../packages/browser-runtime/src/) and accepted decisions D-036 through D-038. T-703 will address Laravel MCP projection separately. **T-702 does not implement T-703.**
+Current WebMCP projection code is an architectural precedent; see the [browser-runtime source](../../packages/browser-runtime/src/) and accepted decisions D-036 through D-038. T-703 is the separately implemented Laravel MCP projection. **T-702 does not implement T-703.**
 
 ## 2. Responsibility matrix
 

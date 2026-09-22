@@ -625,6 +625,10 @@ D-059..D-068 except D-026:       ACCEPTED
 D-026:                           PROPOSED
 Production/spec semantic change: NONE
 Later milestone implementation:  NOT STARTED
+Changed paths:                   STATUS.md; TASKS.md; REVIEW_REQUEST.md; docs/ROADMAP.md;
+                                 docs/adapters/README.md; docs/adapters/author-guide.md;
+                                 packages/laravel-mcp/README.md; packages/openapi-importer/README.md
+Next task:                       external review closure, then separate explicit merge-to-main gate
 State:                           DONE / CLOSED — REVIEW HANDOFF
 ```
 
