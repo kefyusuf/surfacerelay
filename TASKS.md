@@ -1077,7 +1077,7 @@ The first M8 scope/design gate, if approved separately, must resolve:
 
 At reassessment closure, M7 remained **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`; M8 was only a proposed milestone candidate; no T-705/T-801 existed; and no publication/tag/release or implementation action was authorized. The next explicit gate at that point was this M8 scope/design gate.
 
-## M8 — Consumer & Release Readiness — DESIGN_PROPOSED / IMPLEMENTATION_NOT_STARTED
+## M8 — Consumer & Release Readiness — DESIGN_APPROVED / IMPLEMENTATION_NOT_STARTED
 
 Outcome candidate:
 
@@ -1089,9 +1089,11 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — NOT_STARTED
+### T-801 — Release-candidate artifact contract — PLAN_READY / NOT_STARTED
 
-Shared artifact version input, source-revision binding, staging/content manifests, SHA-256 evidence, no-publication guardrails.
+Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
+
+Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
 ### T-802 — Laravel artifact + clean consumer proof — NOT_STARTED
 
@@ -1122,4 +1124,4 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 scope/design is **READY FOR APPROVAL** only. D-069 through D-073 remain **PROPOSED**; T-801 through T-805 are defined but **NOT STARTED**. No package metadata/build/source implementation change, publication, tag, or release is authorized. The next gate is M8 design approval only.
+M8 design is **APPROVED**. T-801's implementation plan is **READY FOR APPROVAL**, but T-801 implementation has **NOT STARTED**. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No package metadata/build/source implementation change, publication, tag, or release is authorized. The next gate is T-801 plan approval only.

@@ -1,52 +1,54 @@
-# M8 Consumer & Release Readiness — Design Approval Handoff
+# T-801 Release-Candidate Artifact Contract — Plan Approval Handoff
 
 ## Scope
 
-- Branch: `docs/m8-consumer-release-readiness-design`
-- Base: reassessment head `3ea6904f0131588769464dd16ff68180220ec7bd`
-- Reassessment validation: `#957` / `35682496627` — **12/12 SUCCESS**
-- State: **DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
-- Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+- Branch: `docs/t-801-release-candidate-artifact-contract-plan`
+- M8 design approval head: `4f4a52db8a1c9e03e0467d6cbe24bb1f6b646af1`
+- Design Validate: `#960` / `35698730292` — **12/12 SUCCESS**
+- Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
+- State: **PLAN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
 
-## Design decisions
+## T-801 implementation boundary
 
-- first release-candidate package set: `surfacerelay/laravel` + `@surfacerelay/browser-runtime` only;
-- Laravel MCP + OpenAPI importer publication deferred;
-- coordinated first release train, but exact first public SemVer deferred;
-- Composer/npm release-candidate artifacts must be registry-independent and bound to exact revision/hash evidence;
-- clean consumers may not use monorepo path/dev-main/deep-import shortcuts;
-- browser package uses one curated root ESM API with declarations and no supported deep imports;
-- publication/tag/release is a separate later go/no-go gate.
+T-801 may later implement only:
 
-## Proposed decisions
+- prerelease SemVer + exact clean Git revision preflight;
+- `.tmp/release-candidate` staging containment;
+- deterministic regular-file content manifests;
+- SHA-256 content/archive evidence;
+- symlink/path-escape fail-closed behavior;
+- no-publication static guardrails;
+- one dedicated package-neutral CI contract job.
 
-`D-069` through `D-073` are PROPOSED only.
+## Deferred
 
-## Proposed tasks
-
-`T-801` through `T-805` are defined but NOT STARTED.
+- real Laravel Composer artifact: T-802;
+- browser build/root API/npm tarball: T-803;
+- release-facing README/CHANGELOG/SECURITY/versioning docs: T-804;
+- integrated release-readiness handoff: T-805.
 
 ## Explicit non-goals
 
-- no package implementation/build changes;
-- no version bump;
-- no npm/Packagist publish;
+- no package source or package metadata changes in T-801;
+- no canonical spec/conformance changes;
+- no public version selection;
+- no npm/Packagist publication;
 - no tag/GitHub Release;
-- no Laravel MCP/OpenAPI importer publication work;
-- no new adapter/capability;
-- no canonical spec/conformance semantic change;
-- no D-026 promotion.
+- no D-026 promotion;
+- no D-069..D-073 promotion from this plan.
 
 ## Review focus
 
-1. Is the first package set minimal enough to prove the core product journey?
-2. Does coordinated release-train versioning avoid coupling package versions to Action versions?
-3. Does artifact-only consumer proof actually prevent monorepo shortcuts?
-4. Is root-only browser API safer than exposing current source modules?
-5. Is the consumer verification matrix strong but bounded?
-6. Are security/versioning/release docs sufficient without pretending publication exists?
-7. Is publication clearly separated from M8 readiness?
+1. Is T-801 package-neutral enough to avoid swallowing T-802/T-803?
+2. Is prerelease-only SemVer plus exact clean revision sufficient for evidence identity?
+3. Are staging/path/symlink rules fail-closed?
+4. Is content/archive evidence deterministic and free of host/time metadata?
+5. Are publication guardrails strong without scanning prose documentation?
+6. Does the dedicated CI job avoid registry credentials and real package publishing/building?
+7. Is the forbidden package/spec/conformance diff explicit?
 
 ## Next gate
 
-If approved, the next gate is **T-801 implementation-plan preparation only**. Implementation does not start from this design handoff.
+If this plan is approved, the next gate may start **T-801 implementation execution only** on `feat/t-801-release-candidate-artifact-contract`.
+
+T-802 and publication remain unauthorized.

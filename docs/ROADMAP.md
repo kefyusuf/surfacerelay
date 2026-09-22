@@ -46,7 +46,7 @@ Status: **complete / merged / main-revalidated**. T-701 through T-704 are comple
 
 Outcome candidate: clean downstream consumers install reviewed release-candidate artifacts for the first supported package set without monorepo path/dev-main coupling and reproduce bounded compatibility evidence.
 
-Status: **design proposed / implementation not started**. Publication is explicitly outside M8 and requires a separate later go/no-go gate.
+Status: **design approved / implementation not started**. T-801 implementation plan is prepared but not yet approved for execution. Publication is explicitly outside M8 and requires a separate later go/no-go gate.
 
 ## Release gates
 

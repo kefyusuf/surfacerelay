@@ -1,6 +1,6 @@
 # M8 — Consumer & Release Readiness Design
 
-Status: PROPOSED / DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED
+Status: APPROVED / IMPLEMENTATION NOT STARTED
 Date: 2026-09-22
 Branch: docs/m8-consumer-release-readiness-design
 Base: post-M7 reassessment head 3ea6904f0131588769464dd16ff68180220ec7bd
@@ -336,6 +336,4 @@ Consumer claims must come from built archives, exact revisions, recorded hashes,
 
 ## 16. Next gate
 
-The next gate after this document is **M8 design approval only**.
-
-If approved, a later separate gate may prepare the T-801 implementation plan. Implementation must not begin automatically.
+The M8 design was approved on 2026-09-22. The next gate is **T-801 implementation-plan approval only** after the plan is prepared. Implementation must not begin automatically.

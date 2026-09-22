@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `docs/m8-consumer-release-readiness-design`
-- **Milestone:** `M8 — Consumer & Release Readiness` — **DESIGN PROPOSED / IMPLEMENTATION NOT STARTED**
+- **Branch:** `docs/t-801-release-candidate-artifact-contract-plan`
+- **Milestone:** `M8 — Consumer & Release Readiness` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `M8 — Consumer & Release Readiness scope/design` — **DESIGN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
+- **Current work:** `T-801 — Release-candidate artifact contract implementation plan` — **PLAN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -701,3 +701,23 @@ D-026:                          PROPOSED / unchanged
 ```
 
 The next gate is **M8 design approval only**. Approval does not start T-801 implementation.
+
+## T-801 implementation-plan preparation
+
+Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
+
+```text
+M8 design approval head:        4f4a52db8a1c9e03e0467d6cbe24bb1f6b646af1
+M8 design Validate:             #960 / 35698730292 — 12/12 SUCCESS
+T-801 plan state:               READY FOR APPROVAL
+T-801 implementation:          NOT STARTED
+Implementation branch:         NOT CREATED
+Expected implementation scope: scripts/release_candidate.py + guard/tests + one CI job
+Real Laravel artifact:         DEFERRED TO T-802
+Real browser package artifact: DEFERRED TO T-803
+D-069..D-073:                  PROPOSED
+D-026:                         PROPOSED
+Publish/tag/release:           NOT AUTHORIZED
+```
+
+The next gate is **T-801 plan approval only**. Approval may then authorize T-801 implementation execution, but not T-802.
