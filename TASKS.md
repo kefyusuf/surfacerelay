@@ -1006,6 +1006,11 @@ main head:                       b2de658f9feaee18ac60cb0c2786b45c3d95e342
 main Validate:                   #943 / 35666645607 — 12/12 SUCCESS
 reconciliation head:             8575364732f2a8c574fcf0eb30af7eb5bd028a9c
 reconciliation Validate:         #945 / 35668629999 — 12/12 SUCCESS
+review PR:                       #18 — REVIEW CLOSED / NOT MERGED
+review findings:                 2 Minor — both addressed
+review-fix head:                 186c67f3840a63f5b8fd6c803ae4be9e7632c586
+review-fix push/PR:              #948 / #949 — 12/12 SUCCESS each
+review threads:                  0 unresolved
 T-701..T-704:                    DONE / REVIEWED / MERGED / MAIN REVALIDATED
 D-059..D-068 except D-026:       ACCEPTED
 D-026:                           PROPOSED
@@ -1015,4 +1020,4 @@ next milestone implementation:   NOT STARTED
 
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED** on the verified closure branch; merge to `main` remains separate. No T-705 exists and no later milestone implementation has started.
+M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED / EXTERNALLY REVIEWED** on the closure branch; PR #18 remains open and merge to `main` is the only next gate. No T-705 exists and no later milestone implementation has started.

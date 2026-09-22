@@ -7,7 +7,7 @@
 - **Branch:** `docs/m7-closure-reconciliation`
 - **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED — MERGE PENDING**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `M7 closure / state reconciliation` — **VERIFIED / REVIEW HANDOFF**
+- **Current work:** `M7 closure / state reconciliation` — **EXTERNALLY REVIEWED / MERGE PENDING**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -39,6 +39,10 @@
 - **M7 closure scope:** current-facing documentation/state reconciliation only; no production/spec/conformance semantic change; no D-026 promotion; no T-705/M8 implementation
 - **M7 reconciliation verified head:** `8575364732f2a8c574fcf0eb30af7eb5bd028a9c`
 - **M7 reconciliation CI:** Validate `#945` / `35668629999` — **12/12 jobs SUCCESS**
+- **M7 external review:** PR `#18` — **REVIEW CLOSED / 2 Minor findings addressed**
+- **M7 review-fix head:** `186c67f3840a63f5b8fd6c803ae4be9e7632c586`
+- **M7 review-fix CI:** push `#948` / `35679413486` + PR `#949` / `35679414826` — **12/12 SUCCESS each**
+- **M7 review closure:** inline STATUS finding CodeRabbit-confirmed + resolved; outside-diff T-703 wording finding CodeRabbit-confirmed; unresolved inline threads **0**
 - **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
 - **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
 - **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
@@ -628,8 +632,8 @@ Later milestone implementation:  NOT STARTED
 Changed paths:                   STATUS.md; TASKS.md; REVIEW_REQUEST.md; docs/ROADMAP.md;
                                  docs/adapters/README.md; docs/adapters/author-guide.md;
                                  packages/laravel-mcp/README.md; packages/openapi-importer/README.md
-Next task:                       external review closure, then separate explicit merge-to-main gate
-State:                           DONE / CLOSED — REVIEW HANDOFF
+Next task:                       separate explicit merge-to-main gate only
+State:                           DONE / CLOSED / EXTERNALLY REVIEWED — MERGE PENDING
 ```
 
-The M7 roadmap outcome is satisfied by T-701 through T-704, and the reconciliation head passed the full 12-job validation matrix. M7 is therefore closed on this verified branch. Merge to `main` remains a separate explicit gate. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
+The M7 roadmap outcome is satisfied by T-701 through T-704. Reconciliation and review-fix heads passed the full validation matrix, both external-review findings are closed, and there are zero unresolved inline review threads. M7 is therefore closed and externally reviewed on this branch. Merge to `main` remains a separate explicit gate. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
