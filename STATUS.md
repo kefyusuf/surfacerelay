@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `docs/t-801-release-candidate-artifact-contract-plan`
-- **Milestone:** `M8 — Consumer & Release Readiness` — **DESIGN APPROVED / IMPLEMENTATION NOT STARTED**
+- **Branch:** `feat/t-801-release-candidate-artifact-contract`
+- **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract implementation plan` — **PLAN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 2 GREEN**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -721,3 +721,27 @@ Publish/tag/release:           NOT AUTHORIZED
 ```
 
 The next gate is **T-801 plan approval only**. Approval may then authorize T-801 implementation execution, but not T-802.
+
+## T-801 implementation checkpoint — Step 2 GREEN
+
+```text
+Implementation branch:           feat/t-801-release-candidate-artifact-contract
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Plan-base Validate:               #962 / 35723555301 — 12/12 SUCCESS
+Step 1 RED head:                 c7b14467b4e3e6d01f024a132bb19529d374659e
+Step 1 RED contract:             12 expected errors; scripts.release_candidate absent
+Step 1 regression Validate:      #964 / 35781050443 — 12/12 SUCCESS
+Step 2 GREEN head:               9edfde11ffba0d0655600fbbac8dbabf8b3b61e2
+Step 2 contract suite:           12/12 PASS in isolated local reproduction
+Step 2 repository Validate:      #965 / 35813427924 — 12/12 SUCCESS
+New implementation file:        scripts/release_candidate.py
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 2 implements only prerelease SemVer validation, exact Git revision/clean-worktree preflight, release-candidate staging-root construction, staging path containment, and non-empty target rejection. Manifest/evidence generation is not implemented yet.
+
+Next explicit gate: **Step 3 — extend RED tests for deterministic content/evidence behavior only**. Do not implement Step 4 automatically.

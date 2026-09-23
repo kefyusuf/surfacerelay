@@ -1089,7 +1089,7 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — PLAN_READY / NOT_STARTED
+### T-801 — Release-candidate artifact contract — IN_PROGRESS / STEP_2_GREEN
 
 Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 
@@ -1124,4 +1124,4 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design is **APPROVED**. T-801's implementation plan is **READY FOR APPROVAL**, but T-801 implementation has **NOT STARTED**. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No package metadata/build/source implementation change, publication, tag, or release is authorized. The next gate is T-801 plan approval only.
+M8 design and the T-801 plan are **APPROVED**. T-801 is **IN PROGRESS / STEP 2 GREEN** at `9edfde11ffba0d0655600fbbac8dbabf8b3b61e2`; #965 is **12/12 SUCCESS**, and package/spec/conformance forbidden diff remains empty. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No publication, tag, release, or public version is authorized. The next gate is **T-801 Step 3 RED tests only**.
