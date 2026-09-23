@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 import re
+import stat
 import subprocess
 
 
@@ -114,3 +117,158 @@ def ensure_empty_target(target: Path | str) -> Path:
         )
 
     return path
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+
+    return digest.hexdigest()
+
+
+def serialize_evidence_json(payload: object) -> bytes:
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return (encoded + "\n").encode("utf-8")
+
+
+def build_content_manifest(
+    package_root: Path | str,
+    package_name: str,
+    artifact_version: str,
+    source_revision: str,
+) -> dict[str, object]:
+    root = Path(package_root)
+    version = validate_artifact_version(artifact_version)
+    revision = validate_source_revision(source_revision)
+
+    if root.is_symlink() or not root.is_dir():
+        raise ReleaseCandidateContractError(
+            "package content root must be a real directory"
+        )
+
+    files: list[Path] = []
+    pending = [root]
+
+    while pending:
+        directory = pending.pop()
+
+        for entry in directory.iterdir():
+            if entry.is_symlink():
+                raise ReleaseCandidateContractError(
+                    f"symlink is not allowed in package contents: {entry.name}"
+                )
+
+            mode = entry.lstat().st_mode
+            if stat.S_ISDIR(mode):
+                pending.append(entry)
+                continue
+
+            if stat.S_ISREG(mode):
+                files.append(entry)
+                continue
+
+            raise ReleaseCandidateContractError(
+                f"only regular files are allowed in package contents: {entry.name}"
+            )
+
+    if not files:
+        raise ReleaseCandidateContractError(
+            "package content tree must contain at least one regular file"
+        )
+
+    files.sort(key=lambda path: path.relative_to(root).as_posix())
+
+    entries = [
+        {
+            "path": path.relative_to(root).as_posix(),
+            "size": path.stat().st_size,
+            "sha256": _sha256_file(path),
+        }
+        for path in files
+    ]
+
+    return {
+        "schemaVersion": 1,
+        "packageName": package_name,
+        "artifactVersion": version,
+        "sourceRevision": revision,
+        "files": entries,
+    }
+
+
+def _require_regular_file_under(
+    stage_root: Path | str,
+    candidate: Path | str,
+    *,
+    label: str,
+) -> Path:
+    root = Path(stage_root)
+    path = Path(candidate)
+
+    if root.is_symlink() or not root.is_dir():
+        raise ReleaseCandidateContractError(
+            "release-candidate staging root must be a real directory"
+        )
+
+    if path.is_symlink():
+        raise ReleaseCandidateContractError(f"{label} must not be a symlink")
+
+    try:
+        resolved_root = root.resolve(strict=True)
+        resolved_path = path.resolve(strict=True)
+    except OSError as exc:
+        raise ReleaseCandidateContractError(
+            f"{label} must exist under the release-candidate staging root"
+        ) from exc
+
+    if resolved_path == resolved_root or resolved_root not in resolved_path.parents:
+        raise ReleaseCandidateContractError(
+            f"{label} escapes the release-candidate staging root"
+        )
+
+    if not stat.S_ISREG(path.lstat().st_mode):
+        raise ReleaseCandidateContractError(f"{label} must be a regular file")
+
+    return path
+
+
+def build_artifact_evidence(
+    *,
+    stage_root: Path | str,
+    content_manifest_path: Path | str,
+    archive_path: Path | str,
+    package_name: str,
+    artifact_version: str,
+    source_revision: str,
+) -> dict[str, object]:
+    version = validate_artifact_version(artifact_version)
+    revision = validate_source_revision(source_revision)
+    manifest = _require_regular_file_under(
+        stage_root,
+        content_manifest_path,
+        label="content manifest",
+    )
+    archive = _require_regular_file_under(
+        stage_root,
+        archive_path,
+        label="archive",
+    )
+
+    return {
+        "schemaVersion": 1,
+        "packageName": package_name,
+        "artifactVersion": version,
+        "sourceRevision": revision,
+        "contentManifestSha256": _sha256_file(manifest),
+        "archiveFilename": archive.name,
+        "archiveSize": archive.stat().st_size,
+        "archiveSha256": _sha256_file(archive),
+    }
