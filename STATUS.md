@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 2 GREEN**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 4 GREEN**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -745,3 +745,25 @@ Publish/tag/release:             NONE
 Step 2 implements only prerelease SemVer validation, exact Git revision/clean-worktree preflight, release-candidate staging-root construction, staging path containment, and non-empty target rejection. Manifest/evidence generation is not implemented yet.
 
 Next explicit gate: **Step 3 — extend RED tests for deterministic content/evidence behavior only**. Do not implement Step 4 automatically.
+
+## T-801 implementation checkpoint — Step 4 GREEN
+
+```text
+Step 3 RED head:                 60f5a0ce8834d02286b2c6a1fc7a85cef9de7c9c
+Step 3 RED contract:             24 tests total; 12 prior GREEN + 12 new RED methods
+Step 3 RED error instances:      13 (one archive test has two subcases)
+Step 3 regression Validate:      #967 / 35813929556 — 12/12 SUCCESS
+Step 4 GREEN head:               2ffab24aaadb66814cfefd628da3b25c36d745f8
+Step 4 isolated contract checks: 24/24 PASS
+Step 4 repository Validate:      #968 / 35826283418 — 12/12 SUCCESS
+Contract job:                    python scripts/validate.py — SUCCESS
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 4 adds only deterministic package-content manifests, sorted compact newline-terminated JSON evidence serialization, SHA-256 content/archive evidence, regular-file enforcement, symlink rejection, and stage-root containment for evidence inputs. It does not build Composer/npm artifacts.
+
+Next explicit gate: **Step 5 — publication-guard RED tests only**. Do not implement Step 6 automatically.
