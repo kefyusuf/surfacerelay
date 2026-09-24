@@ -33,7 +33,7 @@ _CREDENTIALS = (
     "PACKAGIST_TOKEN",
 )
 
-_TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_./:@+\\-$]+")
+_TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_./:@+$-]+")
 _GIT_PUSH_TAGS_RULE = "publication-command/git-push-tags"
 
 
@@ -82,9 +82,11 @@ def _scan_text(path: str, text: str) -> list[GuardrailViolation]:
                     )
                     break
 
-        token_set = set(tokens)
         for credential in _CREDENTIALS:
-            if credential in token_set:
+            if re.search(
+                rf"(?<![A-Za-z0-9_]){re.escape(credential)}(?![A-Za-z0-9_])",
+                line,
+            ):
                 rule_id = f"publication-credential/{credential}"
                 violations.append(
                     GuardrailViolation(
