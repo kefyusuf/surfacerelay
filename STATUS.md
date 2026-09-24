@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 4 GREEN**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 6 GREEN**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -767,3 +767,28 @@ Publish/tag/release:             NONE
 Step 4 adds only deterministic package-content manifests, sorted compact newline-terminated JSON evidence serialization, SHA-256 content/archive evidence, regular-file enforcement, symlink rejection, and stage-root containment for evidence inputs. It does not build Composer/npm artifacts.
 
 Next explicit gate: **Step 5 — publication-guard RED tests only**. Do not implement Step 6 automatically.
+
+## T-801 implementation checkpoint — Step 6 GREEN
+
+```text
+Step 5 RED head:                 c7d54d6a3983bed47c81f5489897e3de1597b058
+Step 5 regression Validate:      #970 / 35915085927 — 12/12 SUCCESS
+Step 6 initial guard head:       8463b783794a32f0041d830af7511c44c2653741
+Step 6 initial Validate:         #971 / 36065158219 — 12/12 SUCCESS
+Isolated test finding:           invalid token regex caught before Step 6 closure
+Step 6 corrected guard head:     c740ef9e3307afd8d0b33fe96e6320bd7dd8e336
+T-801 isolated suites:           37/37 PASS
+Repository publication guard:   PASS on scanner-defined current surfaces
+Validate contract job:          python scripts/validate.py — SUCCESS
+Step 6 exact-head Validate:      #972 / 36065464314 — 12/12 SUCCESS
+Package/spec/conformance diff:   EMPTY
+Workflow change:                 NONE
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+The existing 12-job workflow does not yet execute the new T-801 release-candidate suites. The isolated Step 6 run caught a regex bug that #971 could not detect; this is concrete evidence for the planned dedicated `release-contract` CI job in Step 7.
+
+Next explicit gate: **Step 7 — add the dedicated `release-contract` CI job only**. Do not begin Step 8 whole-task closure or T-802 automatically.
