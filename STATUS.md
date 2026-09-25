@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 6 GREEN**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 7 GREEN**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -792,3 +792,28 @@ Publish/tag/release:             NONE
 The existing 12-job workflow does not yet execute the new T-801 release-candidate suites. The isolated Step 6 run caught a regex bug that #971 could not detect; this is concrete evidence for the planned dedicated `release-contract` CI job in Step 7.
 
 Next explicit gate: **Step 7 — add the dedicated `release-contract` CI job only**. Do not begin Step 8 whole-task closure or T-802 automatically.
+
+## T-801 implementation checkpoint — Step 7 GREEN
+
+```text
+Step 7 CI head:                  19e78b15bc86334b9a0e95455988c9823030e2da
+Step 7 first Validate:           #974 / 36118303242 — release-contract FAILED
+Step 7 discovered defect:        prerelease SemVer regex used double-escaped dot separators
+Step 7 defect-fix head:          b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+Dedicated release-contract job:  SUCCESS
+Release-contract test step:      SUCCESS / 37 tests
+Publication guard step:          SUCCESS
+Step 7 corrected Validate:       #975 / 36118400942 — 13/13 SUCCESS
+Release-contract credentials:    contents:read only; checkout persist-credentials=false
+Real package artifacts:          NONE
+Registry credentials:            NONE
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 7 converted the previously manual T-801 verification gap into a dedicated CI contract. Its first run immediately exposed a latent Step-2 SemVer regex defect that the previous 12-job workflow could not observe; the defect was minimally corrected and the full 13-job matrix is green.
+
+Next explicit gate: **Step 8 — whole-task verification only**. Do not start Step 9/10 closure, T-802, or publication automatically.

@@ -1,6 +1,6 @@
 # T-801 — Release-Candidate Artifact Contract Implementation Plan
 
-**Status:** APPROVED / IMPLEMENTATION IN PROGRESS — STEP 6 GREEN
+**Status:** APPROVED / IMPLEMENTATION IN PROGRESS — STEP 7 GREEN
 
 > **Execution gate:** This plan must be approved separately before any T-801 implementation begins. Execute only T-801, in the order below, with RED → GREEN evidence and an explicit self-review after every implementation decision.
 
@@ -585,4 +585,4 @@ If any answer is unsatisfactory, revise before continuing.
 
 After this plan is committed and verified, stop.
 
-T-801 implementation is now in progress through **Step 6 GREEN**. The next explicit gate is **Step 7 — add the dedicated `release-contract` CI job only**. It must not authorize Step 8 whole-task closure, T-802, or any publication action automatically.
+T-801 implementation is now in progress through **Step 7 GREEN**. The next explicit gate is **Step 8 — whole-task verification only**. It must not authorize Step 9/10 closure, T-802, or any publication action automatically.
