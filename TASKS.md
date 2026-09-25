@@ -1089,7 +1089,7 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — IN_PROGRESS / STEP_7_GREEN
+### T-801 — Release-candidate artifact contract — IN_PROGRESS / STEP_8_VERIFIED
 
 Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 
@@ -1124,4 +1124,4 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design and the T-801 plan are **APPROVED**. T-801 is **IN PROGRESS / STEP 7 GREEN** at `b605dd240d0cbf54d1b543ad6a8aecff4a2af649`; the dedicated `release-contract` job runs the full **37-test** T-801 suite plus publication guard, and Validate #975 is **13/13 SUCCESS**. The job's first run exposed and then verified the minimal fix for a latent prerelease-SemVer regex defect. Package/spec/conformance forbidden diff remains empty. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No publication, tag, release, or public version is authorized. The next gate is **T-801 Step 8 whole-task verification only**.
+M8 design and the T-801 plan are **APPROVED**. T-801 is **IN PROGRESS / STEP 8 VERIFIED** at `ecc80edc2697d3a27f83c1c543c986dcf95c0024`; Validate #976 attempt 2 is **13/13 SUCCESS**, the dedicated release contract is **37/37 PASS** with publication guard **PASS**, and `python scripts/validate.py` is **SUCCESS**. Step 8 made no code or workflow changes. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No publication, tag, release, or public version is authorized. The next gate is **T-801 Step 9 forbidden-diff audit only**.

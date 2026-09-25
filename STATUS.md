@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 7 GREEN**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 8 VERIFIED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -817,3 +817,29 @@ Publish/tag/release:             NONE
 Step 7 converted the previously manual T-801 verification gap into a dedicated CI contract. Its first run immediately exposed a latent Step-2 SemVer regex defect that the previous 12-job workflow could not observe; the defect was minimally corrected and the full 13-job matrix is green.
 
 Next explicit gate: **Step 8 — whole-task verification only**. Do not start Step 9/10 closure, T-802, or publication automatically.
+
+## T-801 implementation checkpoint — Step 8 VERIFIED
+
+```text
+Verification head:               ecc80edc2697d3a27f83c1c543c986dcf95c0024
+Validate run:                    #976 / 36118598072
+Fresh verification attempt:     attempt 2
+Whole matrix:                    13/13 SUCCESS
+Release-contract tests:         37/37 PASS
+Publication guard:              PASS
+python scripts/validate.py:      SUCCESS
+Browser regression:             SUCCESS
+OpenAPI importer regression:    SUCCESS
+Laravel base matrix:            4/4 SUCCESS
+Laravel MCP matrix:             4/4 SUCCESS
+PHP lint:                       SUCCESS
+Implementation changes in Step 8: NONE
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+T-802..T-805:                  NOT STARTED
+Publish/tag/release:            NONE
+```
+
+Step 8 re-ran the exact-head verification on GitHub Actions. The dedicated release contract reported `Ran 37 tests` / `OK`, the publication guard passed, the existing `contract` job's `python scripts/validate.py` step succeeded, and all 13 workflow jobs completed successfully.
+
+Next explicit gate: **Step 9 — forbidden-diff audit only**. Do not start Step 10 review handoff, T-802, or publication automatically.
