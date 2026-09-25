@@ -14,8 +14,8 @@ class ReleaseCandidateContractError(ValueError):
 
 _PRERELEASE_IDENTIFIER = r"(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)"
 _PRERELEASE_SEMVER = re.compile(
-    rf"^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)"
-    rf"-({_PRERELEASE_IDENTIFIER}(?:\\.{_PRERELEASE_IDENTIFIER})*)$"
+    rf"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    rf"-({_PRERELEASE_IDENTIFIER}(?:\.{_PRERELEASE_IDENTIFIER})*)$"
 )
 _SOURCE_REVISION = re.compile(r"^[0-9a-f]{40}$")
 
