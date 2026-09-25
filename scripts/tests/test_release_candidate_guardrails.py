@@ -93,6 +93,71 @@ class ReleaseGuardrailContractTest(unittest.TestCase):
                     rule_id=rule_id,
                 )
 
+    def test_publish_with_interposed_package_manager_arguments_is_rejected(self):
+        module = guardrail_module()
+        cases = {
+            "pnpm -r publish": "publication-command/pnpm-publish",
+            "npm --workspace pkg publish": "publication-command/npm-publish",
+        }
+
+        for command, rule_id in cases.items():
+            with self.subTest(command=command):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    self.write(
+                        root,
+                        "package.json",
+                        json.dumps({"scripts": {"release": command}}),
+                    )
+
+                    violations = self.scan(module, root)
+
+                self.assert_rule(
+                    violations,
+                    path="package.json",
+                    rule_id=rule_id,
+                )
+
+    def test_publish_matching_respects_command_segments(self):
+        module = guardrail_module()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                "package.json",
+                json.dumps({"scripts": {"check": "npm pack && echo publish"}}),
+            )
+            self.assertEqual([], self.scan(module, root))
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                "package.json",
+                json.dumps({"scripts": {"release": "npm pack; npm publish"}}),
+            )
+            violations = self.scan(module, root)
+            self.assert_rule(
+                violations,
+                path="package.json",
+                rule_id="publication-command/npm-publish",
+            )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                "package.json",
+                json.dumps({"scripts": {"release": "yarn workspace x npm publish"}}),
+            )
+            violations = self.scan(module, root)
+            self.assert_rule(
+                violations,
+                path="package.json",
+                rule_id="publication-command/npm-publish",
+            )
+
     def test_github_release_create_is_rejected_in_workflow(self):
         module = guardrail_module()
         with tempfile.TemporaryDirectory() as directory:

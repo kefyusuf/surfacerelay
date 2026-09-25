@@ -153,6 +153,25 @@ class ReleaseCandidateContentEvidenceContractTest(unittest.TestCase):
             self.REVISION,
         )
 
+    def matching_manifest_bytes(self, **overrides) -> bytes:
+        payload = {
+            "schemaVersion": 1,
+            "packageName": self.PACKAGE_NAME,
+            "artifactVersion": self.VERSION,
+            "sourceRevision": self.REVISION,
+            "files": [],
+        }
+        payload.update(overrides)
+        return (
+            json.dumps(
+                payload,
+                ensure_ascii=False,
+                separators=(",", ":"),
+                sort_keys=True,
+            )
+            + "\n"
+        ).encode("utf-8")
+
     def test_regular_nested_files_generate_lexically_sorted_manifest_entries(self):
         module = release_candidate_module()
         with tempfile.TemporaryDirectory() as directory:
@@ -274,7 +293,7 @@ class ReleaseCandidateContentEvidenceContractTest(unittest.TestCase):
             root = Path(directory)
             stage_root = module.release_candidate_root(root, self.VERSION, self.REVISION)
             stage_root.mkdir(parents=True)
-            manifest_bytes = b'{"schemaVersion":1}\n'
+            manifest_bytes = self.matching_manifest_bytes()
             archive_bytes = b"archive-bytes\x00"
             manifest_path = stage_root / "content-manifest.json"
             archive_path = stage_root / "package.tgz"
@@ -301,7 +320,7 @@ class ReleaseCandidateContentEvidenceContractTest(unittest.TestCase):
             stage_root = module.release_candidate_root(root, self.VERSION, self.REVISION)
             stage_root.mkdir(parents=True)
             manifest_path = stage_root / "content-manifest.json"
-            manifest_path.write_text("{}\n", encoding="utf-8")
+            manifest_path.write_bytes(self.matching_manifest_bytes())
             missing = stage_root / "missing.tgz"
             archive_directory = stage_root / "archive-dir"
             archive_directory.mkdir()
@@ -326,7 +345,7 @@ class ReleaseCandidateContentEvidenceContractTest(unittest.TestCase):
             stage_root.mkdir(parents=True)
             manifest_path = stage_root / "content-manifest.json"
             archive_path = stage_root / "package.tgz"
-            manifest_path.write_text("{}\n", encoding="utf-8")
+            manifest_path.write_bytes(self.matching_manifest_bytes())
             archive_path.write_bytes(b"archive")
 
             evidence = module.build_artifact_evidence(
@@ -342,6 +361,50 @@ class ReleaseCandidateContentEvidenceContractTest(unittest.TestCase):
         self.assertEqual(self.VERSION, evidence["artifactVersion"])
         self.assertEqual(self.REVISION, evidence["sourceRevision"])
         self.assertEqual("package.tgz", evidence["archiveFilename"])
+
+    def test_artifact_evidence_rejects_invalid_manifest_json(self):
+        module = release_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage_root = module.release_candidate_root(root, self.VERSION, self.REVISION)
+            stage_root.mkdir(parents=True)
+            manifest_path = stage_root / "content-manifest.json"
+            archive_path = stage_root / "package.tgz"
+            manifest_path.write_bytes(b"{not-json}\n")
+            archive_path.write_bytes(b"archive")
+
+            with self.assertRaises(module.ReleaseCandidateContractError):
+                module.build_artifact_evidence(
+                    stage_root=stage_root,
+                    content_manifest_path=manifest_path,
+                    archive_path=archive_path,
+                    package_name=self.PACKAGE_NAME,
+                    artifact_version=self.VERSION,
+                    source_revision=self.REVISION,
+                )
+
+    def test_artifact_evidence_rejects_manifest_identity_mismatch(self):
+        module = release_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage_root = module.release_candidate_root(root, self.VERSION, self.REVISION)
+            stage_root.mkdir(parents=True)
+            manifest_path = stage_root / "content-manifest.json"
+            archive_path = stage_root / "package.tgz"
+            manifest_path.write_bytes(
+                self.matching_manifest_bytes(packageName="other/package")
+            )
+            archive_path.write_bytes(b"archive")
+
+            with self.assertRaises(module.ReleaseCandidateContractError):
+                module.build_artifact_evidence(
+                    stage_root=stage_root,
+                    content_manifest_path=manifest_path,
+                    archive_path=archive_path,
+                    package_name=self.PACKAGE_NAME,
+                    artifact_version=self.VERSION,
+                    source_revision=self.REVISION,
+                )
 
     def test_json_serialization_is_sorted_compact_and_newline_terminated(self):
         module = release_candidate_module()
