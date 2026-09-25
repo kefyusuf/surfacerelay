@@ -1089,7 +1089,7 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — IN_PROGRESS / STEP_9_AUDITED
+### T-801 — Release-candidate artifact contract — DONE / REVIEW_HANDOFF
 
 Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 
@@ -1124,4 +1124,4 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design and the T-801 plan are **APPROVED**. T-801 is **IN PROGRESS / STEP 9 AUDITED** against implementation base `da8ea76545afaf434b26a69ba92713db2784c785` and audited head `6cebbabf3150d29577cff0b14c67740f7d18b083`. The complete diff contains only eight allowed T-801 CI/tooling/test/tracking files; `packages/**`, `spec/**`, `conformance/**`, package manifests, and the decision register are untouched. Validate #977 is **13/13 SUCCESS**. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No publication, tag, release, merge, or public version is authorized. The next gate is **T-801 Step 10 tracking / external-review handoff only**.
+M8 design and the T-801 plan are **APPROVED**. T-801 implementation is **DONE / REVIEW HANDOFF**. Last implementation-code head is `b605dd240d0cbf54d1b543ad6a8aecff4a2af649`; Step 9 audited/tracking head `4ea3279538ac4aba646104db37c1a9c21442b579` is green in Validate #978 (**13/13 SUCCESS**). The full implementation-base diff remains limited to the eight approved T-801 CI/tooling/test/tracking files, with `packages/**`, `spec/**`, `conformance/**`, package manifests, and the decision register untouched. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. External review has **NOT STARTED**. No merge, publication, tag, release, or public version is authorized. The next gate is **T-801 external review only**.

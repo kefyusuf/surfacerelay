@@ -1,54 +1,208 @@
-# T-801 Release-Candidate Artifact Contract — Plan Approval Handoff
+# T-801 — Release-Candidate Artifact Contract External Review Handoff
 
-## Scope
+## State
 
-- Branch: `docs/t-801-release-candidate-artifact-contract-plan`
-- M8 design approval head: `4f4a52db8a1c9e03e0467d6cbe24bb1f6b646af1`
-- Design Validate: `#960` / `35698730292` — **12/12 SUCCESS**
+- Task: `T-801 — Release-candidate artifact contract`
+- Branch: `feat/t-801-release-candidate-artifact-contract`
+- State: **IMPLEMENTATION COMPLETE / REVIEW HANDOFF / NOT YET EXTERNALLY REVIEWED**
+- Implementation base: `da8ea76545afaf434b26a69ba92713db2784c785`
+- Last implementation-code head: `b605dd240d0cbf54d1b543ad6a8aecff4a2af649`
+- Step 8 verified head: `6cebbabf3150d29577cff0b14c67740f7d18b083`
+- Step 9 audited/tracking head: `4ea3279538ac4aba646104db37c1a9c21442b579`
+- Step 9 exact-head Validate: `#978` / `36140680524` — **13/13 SUCCESS**
 - Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
-- State: **PLAN READY FOR APPROVAL / IMPLEMENTATION NOT STARTED**
+- Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
-## T-801 implementation boundary
+This handoff does not authorize merge, decision promotion, T-802, tags, releases, registry publication, or a public version.
 
-T-801 may later implement only:
+## What T-801 implements
 
-- prerelease SemVer + exact clean Git revision preflight;
-- `.tmp/release-candidate` staging containment;
-- deterministic regular-file content manifests;
-- SHA-256 content/archive evidence;
-- symlink/path-escape fail-closed behavior;
-- no-publication static guardrails;
-- one dedicated package-neutral CI contract job.
+T-801 adds a package-neutral release-candidate evidence layer only:
 
-## Deferred
+1. prerelease-only SemVer identity validation;
+2. full lowercase 40-character Git revision validation;
+3. exact-HEAD and clean-worktree preflight;
+4. contained `.tmp/release-candidate/<version>/<revision>/` staging paths;
+5. deterministic regular-file content manifests;
+6. SHA-256 content-manifest/archive evidence;
+7. fail-closed symlink/path-escape behavior;
+8. static publication-command/credential guardrails;
+9. a dedicated `release-contract` CI job.
 
-- real Laravel Composer artifact: T-802;
-- browser build/root API/npm tarball: T-803;
-- release-facing README/CHANGELOG/SECURITY/versioning docs: T-804;
-- integrated release-readiness handoff: T-805.
+It does **not** build a real Laravel Composer artifact or browser npm tarball. Those remain T-802/T-803.
 
-## Explicit non-goals
+## Review diff boundary
 
-- no package source or package metadata changes in T-801;
-- no canonical spec/conformance changes;
-- no public version selection;
-- no npm/Packagist publication;
-- no tag/GitHub Release;
-- no D-026 promotion;
-- no D-069..D-073 promotion from this plan.
+From implementation base `da8ea76545afaf434b26a69ba92713db2784c785`, T-801 changes only:
 
-## Review focus
+```text
+.github/workflows/validate.yml
+scripts/release_candidate.py
+scripts/check_release_guardrails.py
+scripts/tests/test_release_candidate_contract.py
+scripts/tests/test_release_candidate_guardrails.py
+STATUS.md
+TASKS.md
+docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md
+```
 
-1. Is T-801 package-neutral enough to avoid swallowing T-802/T-803?
-2. Is prerelease-only SemVer plus exact clean revision sufficient for evidence identity?
-3. Are staging/path/symlink rules fail-closed?
-4. Is content/archive evidence deterministic and free of host/time metadata?
-5. Are publication guardrails strong without scanning prose documentation?
-6. Does the dedicated CI job avoid registry credentials and real package publishing/building?
-7. Is the forbidden package/spec/conformance diff explicit?
+Forbidden diff is empty for:
 
-## Next gate
+```text
+packages/laravel/**
+packages/browser-runtime/**
+packages/laravel-mcp/**
+packages/openapi-importer/**
+spec/**
+conformance/**
+```
 
-If this plan is approved, the next gate may start **T-801 implementation execution only** on `feat/t-801-release-candidate-artifact-contract`.
+Package manifests and `docs/DECISION-REGISTER.md` are unchanged by implementation.
 
-T-802 and publication remain unauthorized.
+## Verification evidence
+
+### Dedicated release contract
+
+The dedicated `release-contract` job runs:
+
+```bash
+python -m unittest discover -s scripts/tests -p 'test_release_candidate*.py' -v
+python scripts/check_release_guardrails.py
+```
+
+Verified evidence:
+
+```text
+37/37 tests PASS
+publication guard PASS
+```
+
+### Repository validation
+
+The existing `contract` job runs:
+
+```bash
+python scripts/validate.py
+```
+
+and is green.
+
+### Full matrix
+
+Validate #978:
+
+```text
+13/13 SUCCESS
+
+release-contract                     SUCCESS
+contract                             SUCCESS
+browser                              SUCCESS
+openapi-importer                     SUCCESS
+php-lint                             SUCCESS
+Laravel base compatibility matrix    4/4 SUCCESS
+Laravel MCP compatibility matrix     4/4 SUCCESS
+```
+
+## Important implementation history
+
+The new CI coverage found two real latent problems while T-801 was being built:
+
+1. the initial publication-guard tokenizer regex was invalid and was corrected before Step 6 closure;
+2. the first `release-contract` CI run (#974) exposed a double-escaped SemVer-dot bug that the old 12-job matrix could not observe.
+
+The SemVer fix is isolated in:
+
+```text
+b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+fix(release): correct prerelease SemVer matching
+```
+
+Validate #975 was then **13/13 SUCCESS**, followed by green tracking/audit runs.
+
+## Security / correctness invariants to review
+
+Please review especially:
+
+1. **SemVer boundary**
+   - prerelease mandatory;
+   - build metadata rejected;
+   - stable-looking versions rejected;
+   - no public release version is selected by T-801.
+
+2. **Git provenance**
+   - exact full lowercase SHA;
+   - must equal repository HEAD;
+   - dirty tracked or untracked source fails closed;
+   - no `--allow-dirty` escape hatch.
+
+3. **Filesystem containment**
+   - staging remains under `.tmp/release-candidate/<version>/<revision>/`;
+   - absolute/path-escape inputs fail closed;
+   - symlinks are rejected;
+   - arbitrary caller paths are not recursively deleted.
+
+4. **Determinism**
+   - manifest entries use relative POSIX paths and lexical ordering;
+   - size and SHA-256 are exact;
+   - JSON is sorted, compact, UTF-8 and newline terminated;
+   - timestamps, hostnames, usernames, branches and absolute paths are excluded.
+
+5. **Publication guard**
+   - executable release surfaces only;
+   - Markdown/prose is intentionally excluded;
+   - command matching should not create obvious substring false positives;
+   - credential identifiers are detected without echoing credential values;
+   - `npm pack` remains permitted.
+
+6. **CI authority**
+   - `release-contract` has only `contents: read`;
+   - checkout uses `persist-credentials: false`;
+   - no npm/Packagist registry credentials;
+   - no package publishing or real artifact build occurs.
+
+## Deliberately deferred
+
+T-801 does not implement:
+
+- real `surfacerelay/laravel` Composer artifact construction;
+- clean Laravel consumer installation;
+- PHP/Laravel consumer compatibility proof;
+- browser runtime root public API/build/declarations;
+- `npm pack` browser artifact;
+- consumer README / CHANGELOG / SECURITY policy;
+- integrated release bundle;
+- registry publication;
+- Git tag or GitHub Release;
+- first public SemVer selection.
+
+## Decision state
+
+These remain intentionally **PROPOSED**:
+
+```text
+D-026
+D-069
+D-070
+D-071
+D-072
+D-073
+```
+
+T-801 tooling evidence alone is not sufficient to promote the M8 product/release decisions.
+
+## Reviewer questions
+
+1. Can any filesystem input escape staging or exploit a symlink/race in a way the tests miss?
+2. Is the SemVer prerelease validator correct for the bounded M8 contract?
+3. Can manifest/evidence bytes vary due to machine, environment, ordering or path representation?
+4. Can publication guard matching miss a prohibited command or create damaging false positives?
+5. Can guard output expose credential values?
+6. Does the dedicated CI job unintentionally gain publication authority?
+7. Has any package/public/canonical/conformance contract leaked into T-801?
+8. Is any behavior in T-801 actually package-specific and therefore better deferred to T-802/T-803?
+
+## Review closure rule
+
+T-801 may move beyond **REVIEW HANDOFF** only after actionable external findings are addressed or explicitly dispositioned, exact reviewed-head CI is green, and unresolved review threads are zero.
+
+The next gate is **T-801 external review only**. T-802 must not start automatically.

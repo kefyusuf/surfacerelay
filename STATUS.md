@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 9 AUDITED**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **DONE / REVIEW HANDOFF / NOT YET EXTERNALLY REVIEWED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -871,3 +871,26 @@ Publish/tag/release:            NONE
 The Step 9 audit confirms that T-801 stayed inside release-tooling/tests/CI/tracking boundaries. No package implementation, package manifest, canonical spec, conformance asset, or decision-register implementation change exists between the implementation base and audited head.
 
 Next explicit gate: **Step 10 — tracking / external-review handoff only**. Do not begin T-802, decision promotion, merge, tag, release, or publication automatically.
+
+## T-801 implementation checkpoint — Step 10 REVIEW HANDOFF
+
+```text
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Last implementation-code head:   b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+Step 8 verified head:            6cebbabf3150d29577cff0b14c67740f7d18b083
+Step 9 audited/tracking head:     4ea3279538ac4aba646104db37c1a9c21442b579
+Step 9 exact-head Validate:       #978 / 36140680524 — 13/13 SUCCESS
+T-801 release-contract suite:    37/37 PASS
+Publication guard:              PASS
+python scripts/validate.py:      SUCCESS
+Forbidden package/spec diff:    EMPTY
+External review:                NOT STARTED
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+T-802..T-805:                  NOT STARTED
+Merge/tag/release/publication:  NOT AUTHORIZED
+```
+
+T-801 implementation is complete for handoff. It is not yet externally reviewed, merged, or decision-promoted. `REVIEW_REQUEST.md` is now the authoritative T-801 external-review brief.
+
+Next explicit gate: **T-801 external review only**. Do not begin T-802, promote D-069..D-073, merge, tag, release, or publish automatically.
