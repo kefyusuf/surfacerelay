@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 8 VERIFIED**
+- **Current work:** `T-801 — Release-candidate artifact contract` — **IN PROGRESS / STEP 9 AUDITED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -843,3 +843,31 @@ Publish/tag/release:            NONE
 Step 8 re-ran the exact-head verification on GitHub Actions. The dedicated release contract reported `Ran 37 tests` / `OK`, the publication guard passed, the existing `contract` job's `python scripts/validate.py` step succeeded, and all 13 workflow jobs completed successfully.
 
 Next explicit gate: **Step 9 — forbidden-diff audit only**. Do not start Step 10 review handoff, T-802, or publication automatically.
+
+## T-801 implementation checkpoint — Step 9 AUDITED
+
+```text
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Audited head:                    6cebbabf3150d29577cff0b14c67740f7d18b083
+Changed files total:             8
+Allowed implementation files:   scripts/release_candidate.py
+                                scripts/check_release_guardrails.py
+Allowed test files:             scripts/tests/test_release_candidate_contract.py
+                                scripts/tests/test_release_candidate_guardrails.py
+Allowed CI file:                .github/workflows/validate.yml
+Allowed tracking/docs:          STATUS.md / TASKS.md / T-801 plan
+packages/** forbidden diff:     EMPTY
+spec/** forbidden diff:         EMPTY
+conformance/** forbidden diff:  EMPTY
+Package manifest diff:          EMPTY
+Decision-register diff:         EMPTY
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+Exact audited-head Validate:    #977 / 36125095486 — 13/13 SUCCESS
+T-802..T-805:                  NOT STARTED
+Publish/tag/release:            NONE
+```
+
+The Step 9 audit confirms that T-801 stayed inside release-tooling/tests/CI/tracking boundaries. No package implementation, package manifest, canonical spec, conformance asset, or decision-register implementation change exists between the implementation base and audited head.
+
+Next explicit gate: **Step 10 — tracking / external-review handoff only**. Do not begin T-802, decision promotion, merge, tag, release, or publication automatically.

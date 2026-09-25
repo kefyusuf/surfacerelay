@@ -1089,7 +1089,7 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — IN_PROGRESS / STEP_8_VERIFIED
+### T-801 — Release-candidate artifact contract — IN_PROGRESS / STEP_9_AUDITED
 
 Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 
@@ -1124,4 +1124,4 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design and the T-801 plan are **APPROVED**. T-801 is **IN PROGRESS / STEP 8 VERIFIED** at `ecc80edc2697d3a27f83c1c543c986dcf95c0024`; Validate #976 attempt 2 is **13/13 SUCCESS**, the dedicated release contract is **37/37 PASS** with publication guard **PASS**, and `python scripts/validate.py` is **SUCCESS**. Step 8 made no code or workflow changes. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No publication, tag, release, or public version is authorized. The next gate is **T-801 Step 9 forbidden-diff audit only**.
+M8 design and the T-801 plan are **APPROVED**. T-801 is **IN PROGRESS / STEP 9 AUDITED** against implementation base `da8ea76545afaf434b26a69ba92713db2784c785` and audited head `6cebbabf3150d29577cff0b14c67740f7d18b083`. The complete diff contains only eight allowed T-801 CI/tooling/test/tracking files; `packages/**`, `spec/**`, `conformance/**`, package manifests, and the decision register are untouched. Validate #977 is **13/13 SUCCESS**. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No publication, tag, release, merge, or public version is authorized. The next gate is **T-801 Step 10 tracking / external-review handoff only**.
