@@ -38,6 +38,9 @@ _CREDENTIALS = (
 
 _TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_./:@+$-]+")
 _COMMAND_SEGMENT_SEPARATOR = re.compile(r"&&|\|\||[;|]")
+_FOLDED_WORKFLOW_RUN = re.compile(
+    r"^(?P<indent>\s*)(?:-\s*)?run:\s*>[+-]?\s*(?:#.*)?$"
+)
 _GIT_PUSH_TAGS_RULE = "publication-command/git-push-tags"
 
 
@@ -145,6 +148,78 @@ def _scan_text(path: str, text: str) -> list[GuardrailViolation]:
     return violations
 
 
+def _leading_spaces(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def _fold_yaml_block_lines(lines: list[str]) -> str:
+    non_empty = [line for line in lines if line.strip()]
+    if not non_empty:
+        return ""
+
+    content_indent = min(_leading_spaces(line) for line in non_empty)
+    normalized = [
+        line[content_indent:].rstrip()
+        if line.strip()
+        else ""
+        for line in lines
+    ]
+
+    paragraphs: list[str] = []
+    current: list[str] = []
+
+    for line in normalized:
+        if line:
+            current.append(line)
+            continue
+
+        if current:
+            paragraphs.append(" ".join(current))
+            current = []
+        paragraphs.append("")
+
+    if current:
+        paragraphs.append(" ".join(current))
+
+    return "\n".join(paragraphs)
+
+
+def _folded_workflow_run_values(text: str) -> list[str]:
+    lines = text.splitlines()
+    values: list[str] = []
+    index = 0
+
+    while index < len(lines):
+        match = _FOLDED_WORKFLOW_RUN.match(lines[index])
+        if match is None:
+            index += 1
+            continue
+
+        base_indent = len(match.group("indent"))
+        body: list[str] = []
+        index += 1
+
+        while index < len(lines):
+            line = lines[index]
+            if line.strip() and _leading_spaces(line) <= base_indent:
+                break
+            body.append(line)
+            index += 1
+
+        values.append(_fold_yaml_block_lines(body))
+
+    return values
+
+
+def _scan_workflow_text(path: str, text: str) -> list[GuardrailViolation]:
+    violations = _scan_text(path, text)
+
+    for command in _folded_workflow_run_values(text):
+        violations.extend(_scan_text(path, command))
+
+    return violations
+
+
 def _scan_package_json(root: Path, path: Path) -> list[GuardrailViolation]:
     relative = path.relative_to(root).as_posix()
 
@@ -220,9 +295,14 @@ def scan_release_guardrails(root: Path | str) -> list[GuardrailViolation]:
     for path in _package_json_surfaces(repository_root):
         violations.extend(_scan_package_json(repository_root, path))
 
+    workflows_root = repository_root / ".github" / "workflows"
+
     for path in _executable_text_surfaces(repository_root):
         relative, text = _read_text(repository_root, path)
-        violations.extend(_scan_text(relative, text))
+        if path.parent == workflows_root:
+            violations.extend(_scan_workflow_text(relative, text))
+        else:
+            violations.extend(_scan_text(relative, text))
 
     return sorted(set(violations))
 
