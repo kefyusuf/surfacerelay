@@ -1125,3 +1125,19 @@ Explicitly outside M8 first candidate set:
 ## Current boundary
 
 M8 design and the T-801 plan are **APPROVED**. T-801 implementation is **DONE / REVIEW HANDOFF**. Last implementation-code head is `b605dd240d0cbf54d1b543ad6a8aecff4a2af649`; Step 9 audited/tracking head `4ea3279538ac4aba646104db37c1a9c21442b579` is green in Validate #978 (**13/13 SUCCESS**). The full implementation-base diff remains limited to the eight approved T-801 CI/tooling/test/tracking files, with `packages/**`, `spec/**`, `conformance/**`, package manifests, and the decision register untouched. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. External review has **NOT STARTED**. No merge, publication, tag, release, or public version is authorized. The next gate is **T-801 external review only**.
+### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
+
+External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
+
+Locked boundary:
+
+- parse workflow YAML before command scanning;
+- replace the handwritten folded-scalar regex/folder rather than broadening it;
+- use a bounded PyYAML 6.x development dependency with string-preserving, duplicate-key-rejecting loading;
+- scan publication commands from parsed step `run` strings only;
+- scan workflow credential identifiers from parsed string keys/values so comments are excluded;
+- fail closed on YAML parse errors, duplicate keys, structurally invalid workflow sections, or non-string `run` values;
+- preserve the existing non-workflow scanners and CI publication-authority restrictions;
+- do not treat this amendment as a general shell parser or a new public SurfaceRelay contract.
+
+Next gate: **focused RED tests for this finding only**. Parser implementation, thread resolution, merge, D-069..D-073 promotion, and T-802 remain out of scope until a later explicit continuation.

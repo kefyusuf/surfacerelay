@@ -894,3 +894,28 @@ Merge/tag/release/publication:  NOT AUTHORIZED
 T-801 implementation is complete for handoff. It is not yet externally reviewed, merged, or decision-promoted. `REVIEW_REQUEST.md` is now the authoritative T-801 external-review brief.
 
 Next explicit gate: **T-801 external review only**. Do not begin T-802, promote D-069..D-073, merge, tag, release, or publish automatically.
+## T-801 external-review checkpoint — workflow YAML parsing boundary DESIGN LOCKED
+
+```text
+PR:                               #19 — OPEN / mergeable
+Pre-amendment head:               caca04423dedc4119a9ac32e0ff93812f0f988eb
+External review state:            ACTIVE
+Open actionable finding:          1 Major
+Finding:                          workflow publication guard does not parse all valid YAML run scalar forms
+Current scanner limitation:       handwritten folded-scalar handling only
+Design resolution:                strict parsed-workflow boundary; no further regex expansion
+Parser direction:                 PyYAML 6.x / BaseLoader-derived strict duplicate-key rejecting loader
+Command authority:               parsed jobs.*.steps[*].run string values only
+Workflow credential scan:         parsed string keys/values; comments excluded
+Malformed/duplicate/non-string:   fail closed as GuardrailScanError
+Implementation/tests:             NOT STARTED by this checkpoint
+Review thread:                    REMAINS UNRESOLVED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-802..T-805:                    NOT STARTED
+Merge/tag/release/publication:   NOT AUTHORIZED
+```
+
+The Major finding is accepted as valid. The prior `run: >` regex/folding fix is not extended further because that would keep a correctness-critical YAML boundary dependent on syntax-shape matching.
+
+Next explicit gate: **T-801 external-review finding RED tests only**. Do not implement GREEN, resolve the review thread, merge, promote decisions, or start T-802 automatically.

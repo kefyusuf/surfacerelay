@@ -586,3 +586,37 @@ If any answer is unsatisfactory, revise before continuing.
 After this plan is committed and verified, stop.
 
 T-801 implementation is **COMPLETE / REVIEW HANDOFF**. The next explicit gate is **T-801 external review only**. It must not authorize T-802, D-069..D-073 promotion, merge, tag, release, or any publication action automatically.
+## External-review amendment — workflow YAML parsing boundary
+
+External review found a valid Major gap after the first folded-scalar fix: the handwritten workflow folding logic covers only a bounded subset of YAML and can miss valid GitHub Actions forms such as multi-line plain scalars and explicit indentation indicators (for example `>2`). This amendment supersedes the Step 7 "stdlib tooling" constraint for the publication guard only.
+
+The fix is intentionally split into a design gate, a RED gate, and a GREEN gate. This section locks the design only; no scanner/test/dependency implementation is authorized by this commit.
+
+### Parsing boundary
+
+- Workflow files under `.github/workflows/*.yml` and `.github/workflows/*.yaml` must be parsed as YAML before publication-command scanning.
+- The handwritten `_FOLDED_WORKFLOW_RUN` / manual folding path must be removed rather than extended with more regex forms.
+- Use a bounded PyYAML 6.x development dependency (`PyYAML>=6.0.3,<7`) with a custom `BaseLoader`-derived loader so scalar values remain strings and GitHub workflow keys are not changed by YAML 1.1 implicit boolean coercion.
+- The loader must reject duplicate mapping keys. YAML parser errors and structurally unusable workflow documents must fail closed as `GuardrailScanError`.
+- Command scanning authority comes only from parsed step `run` string values. A `run` value that is present but not a string fails closed.
+- Credential-identifier scanning for workflow files must operate over parsed string keys/values rather than raw source text so comments are not treated as executable wiring.
+- Non-workflow executable surfaces (package.json scripts, Makefile, `scripts/release_*.py`) retain their current bounded scanners.
+- This is YAML semantic normalization only; T-801 does not become a general shell interpreter. Existing CI authority restrictions remain an independent defense.
+
+### Required RED evidence before implementation
+
+Add focused failing tests for at least:
+
+1. a valid multi-line plain-scalar `run` value that YAML resolves to `npm publish`;
+2. a folded scalar using an explicit indentation indicator such as `>2`;
+3. duplicate workflow mapping keys failing closed;
+4. malformed YAML failing closed;
+5. a non-string parsed `run` value failing closed;
+6. comments containing publication text or credential identifiers not creating workflow violations;
+7. the existing folded `>`, `>-`, and `>+` coverage remaining valid.
+
+Only after those RED tests are captured may implementation modify `requirements-dev.txt`, `scripts/check_release_guardrails.py`, the dedicated `release-contract` CI dependency setup, and the focused guardrail tests.
+
+### Stop boundary
+
+After this design amendment, stop. The next explicit gate is **T-801 external-review finding RED tests only**. Do not implement the parser, resolve the review thread, merge PR #19, promote D-069..D-073, or begin T-802 automatically.

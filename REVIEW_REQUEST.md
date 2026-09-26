@@ -206,3 +206,19 @@ T-801 tooling evidence alone is not sufficient to promote the M8 product/release
 T-801 may move beyond **REVIEW HANDOFF** only after actionable external findings are addressed or explicitly dispositioned, exact reviewed-head CI is green, and unresolved review threads are zero.
 
 The next gate is **T-801 external review only**. T-802 must not start automatically.
+## Active external-review finding — workflow YAML parsing boundary
+
+PR #19 currently has one unresolved Major finding against `scripts/check_release_guardrails.py`: the manual folded-scalar logic does not cover all valid YAML `run` scalar forms, including multi-line plain scalars and explicit indentation indicators.
+
+The finding is accepted as valid. The design amendment is now locked:
+
+- workflow command scanning will consume parsed YAML step `run` string values rather than physical source lines or a growing regex/folding approximation;
+- the planned parser is a bounded PyYAML 6.x dependency using a string-preserving, duplicate-key-rejecting loader;
+- YAML parse failure, duplicate keys, invalid workflow structure, and non-string `run` values fail closed;
+- workflow credential scanning will traverse parsed string keys/values so comments do not create false executable findings;
+- package.json, Makefile, and release-script scanning remain unchanged;
+- this does not broaden T-801 into shell interpretation, package building, publication, decision promotion, or T-802.
+
+No implementation fix has been made by this amendment and the review thread intentionally remains unresolved.
+
+The next review gate is **RED regression tests for this Major only**, followed later by a separately gated GREEN implementation and exact-head revalidation.
