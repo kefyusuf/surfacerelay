@@ -4,10 +4,15 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
-- **Milestone:** `M7 — Conformance / Ecosystem Bridges` — **DONE / CLOSED / MERGED / MAIN REVALIDATED**
-- **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** **NONE** — M7 is closed; next product/scope reassessment has not started
+- **Branch:** `feat/t-801-release-candidate-artifact-contract`
+- **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
+- **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
+- **Current work:** `T-801 — Release-candidate artifact contract` — **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**
+- **T-801 PR:** `#19` — **OPEN / mergeable / REVIEW CLOSED / NOT MERGED**
+- **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
+- **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
+- **T-801 release-contract suite:** **49/49 PASS**; publication guard **PASS**
+- **T-801 external review:** latest Major finding **CodeRabbit-confirmed addressed**; **5 review threads / 0 unresolved**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -33,7 +38,7 @@
 - **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
 - **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
 - **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064`, `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
-- **Proposed decisions:** `D-026` — **PROPOSED**
+- **Proposed decisions:** `D-026`, `D-069`, `D-070`, `D-071`, `D-072`, `D-073` — **PROPOSED**
 - **M7 closure baseline:** `main@b2de658f9feaee18ac60cb0c2786b45c3d95e342`
 - **M7 closure baseline CI:** Validate `#943` / `35666645607` — **12/12 jobs SUCCESS**
 - **M7 closure scope:** current-facing documentation/state reconciliation only; no production/spec/conformance semantic change; no D-026 promotion; no T-705/M8 implementation
@@ -647,3 +652,355 @@ State:                           DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / 
 ```
 
 The M7 roadmap outcome is satisfied by T-701 through T-704. Reconciliation, review-fix, review-closure, and post-merge `main` validation are green; both external-review findings are closed and there are zero unresolved inline review threads. M7 is final on `main`: **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
+
+## Post-M7 product/scope reassessment
+
+Spec: `docs/superpowers/specs/2026-09-22-post-m7-product-reassessment.md`
+
+This reassessment is documentation-only. It does not open M8 and does not authorize implementation or publication.
+
+```text
+Baseline main:                    a3ee94751cef344e0d1038325297629a0f212c02
+Baseline Validate:                #953 / 35681090013 — 12/12 SUCCESS
+Current implemented milestones:   M0 through M7 complete
+Current GitHub releases:          none
+Browser runtime package:          0.0.0-dev / private:true / no reviewed distribution contract
+OpenAPI importer package:         0.0.0-dev / private:true / no publication promise
+Laravel MCP dependency:           surfacerelay/laravel dev-main via local path repository
+Root user flow:                   development-oriented; no clean external install contract
+Release automation:               none
+CHANGELOG:                        none
+Root vulnerability-reporting doc: none
+Clean downstream consumer proof:  none
+Recommended direction:            M8 — Consumer & Release Readiness
+M8 state:                         PROPOSED ONLY / NOT OPENED / NOT STARTED
+Registry publication:             NOT AUTHORIZED
+Tag/release creation:             NOT AUTHORIZED
+Contract/spec semantic change:    NONE
+T-705 / T-801:                    NOT CREATED
+```
+
+The recommendation is to prove versioned release-candidate artifacts in clean downstream consumers before any registry publication. Publication, tagging, and public compatibility promises remain separate later gates.
+
+If this reassessment is approved, the next explicit gate is **M8 scope/design only**. It must first resolve the intended public package set, package-version relationship, release-candidate artifact shape, clean-consumer verification matrix, and compatibility/support wording. Implementation does not begin automatically.
+
+## M8 — Consumer & Release Readiness scope/design
+
+Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+
+```text
+Design base:                    3ea6904f0131588769464dd16ff68180220ec7bd
+Reassessment Validate:          #957 / 35682496627 — 12/12 SUCCESS
+First candidate package set:    surfacerelay/laravel + @surfacerelay/browser-runtime
+Deferred package publication:   surfacerelay/laravel-mcp + @surfacerelay/openapi-importer
+Version topology:               coordinated first release train; exact public SemVer deferred
+Artifact proof:                 Composer archive + npm pack tarball; registry-independent
+Consumer proof:                 isolated artifact-only downstream projects
+Browser public API:             curated root ESM entry + declarations; no supported deep imports
+Publication:                    separate later go/no-go gate
+D-069..D-073:                   PROPOSED
+T-801..T-805:                   DEFINED / NOT STARTED
+Implementation:                 NOT STARTED
+Package publish/tag/release:    NOT AUTHORIZED
+D-026:                          PROPOSED / unchanged
+```
+
+The next gate is **M8 design approval only**. Approval does not start T-801 implementation.
+
+## T-801 implementation-plan preparation
+
+Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
+
+```text
+M8 design approval head:        4f4a52db8a1c9e03e0467d6cbe24bb1f6b646af1
+M8 design Validate:             #960 / 35698730292 — 12/12 SUCCESS
+T-801 plan state:               READY FOR APPROVAL
+T-801 implementation:          NOT STARTED
+Implementation branch:         NOT CREATED
+Expected implementation scope: scripts/release_candidate.py + guard/tests + one CI job
+Real Laravel artifact:         DEFERRED TO T-802
+Real browser package artifact: DEFERRED TO T-803
+D-069..D-073:                  PROPOSED
+D-026:                         PROPOSED
+Publish/tag/release:           NOT AUTHORIZED
+```
+
+The next gate is **T-801 plan approval only**. Approval may then authorize T-801 implementation execution, but not T-802.
+
+## T-801 implementation checkpoint — Step 2 GREEN
+
+```text
+Implementation branch:           feat/t-801-release-candidate-artifact-contract
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Plan-base Validate:               #962 / 35723555301 — 12/12 SUCCESS
+Step 1 RED head:                 c7b14467b4e3e6d01f024a132bb19529d374659e
+Step 1 RED contract:             12 expected errors; scripts.release_candidate absent
+Step 1 regression Validate:      #964 / 35781050443 — 12/12 SUCCESS
+Step 2 GREEN head:               9edfde11ffba0d0655600fbbac8dbabf8b3b61e2
+Step 2 contract suite:           12/12 PASS in isolated local reproduction
+Step 2 repository Validate:      #965 / 35813427924 — 12/12 SUCCESS
+New implementation file:        scripts/release_candidate.py
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 2 implements only prerelease SemVer validation, exact Git revision/clean-worktree preflight, release-candidate staging-root construction, staging path containment, and non-empty target rejection. Manifest/evidence generation is not implemented yet.
+
+Next explicit gate: **Step 3 — extend RED tests for deterministic content/evidence behavior only**. Do not implement Step 4 automatically.
+
+## T-801 implementation checkpoint — Step 4 GREEN
+
+```text
+Step 3 RED head:                 60f5a0ce8834d02286b2c6a1fc7a85cef9de7c9c
+Step 3 RED contract:             24 tests total; 12 prior GREEN + 12 new RED methods
+Step 3 RED error instances:      13 (one archive test has two subcases)
+Step 3 regression Validate:      #967 / 35813929556 — 12/12 SUCCESS
+Step 4 GREEN head:               2ffab24aaadb66814cfefd628da3b25c36d745f8
+Step 4 isolated contract checks: 24/24 PASS
+Step 4 repository Validate:      #968 / 35826283418 — 12/12 SUCCESS
+Contract job:                    python scripts/validate.py — SUCCESS
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 4 adds only deterministic package-content manifests, sorted compact newline-terminated JSON evidence serialization, SHA-256 content/archive evidence, regular-file enforcement, symlink rejection, and stage-root containment for evidence inputs. It does not build Composer/npm artifacts.
+
+Next explicit gate: **Step 5 — publication-guard RED tests only**. Do not implement Step 6 automatically.
+
+## T-801 implementation checkpoint — Step 6 GREEN
+
+```text
+Step 5 RED head:                 c7d54d6a3983bed47c81f5489897e3de1597b058
+Step 5 regression Validate:      #970 / 35915085927 — 12/12 SUCCESS
+Step 6 initial guard head:       8463b783794a32f0041d830af7511c44c2653741
+Step 6 initial Validate:         #971 / 36065158219 — 12/12 SUCCESS
+Isolated test finding:           invalid token regex caught before Step 6 closure
+Step 6 corrected guard head:     c740ef9e3307afd8d0b33fe96e6320bd7dd8e336
+T-801 isolated suites:           37/37 PASS
+Repository publication guard:   PASS on scanner-defined current surfaces
+Validate contract job:          python scripts/validate.py — SUCCESS
+Step 6 exact-head Validate:      #972 / 36065464314 — 12/12 SUCCESS
+Package/spec/conformance diff:   EMPTY
+Workflow change:                 NONE
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+The existing 12-job workflow does not yet execute the new T-801 release-candidate suites. The isolated Step 6 run caught a regex bug that #971 could not detect; this is concrete evidence for the planned dedicated `release-contract` CI job in Step 7.
+
+Next explicit gate: **Step 7 — add the dedicated `release-contract` CI job only**. Do not begin Step 8 whole-task closure or T-802 automatically.
+
+## T-801 implementation checkpoint — Step 7 GREEN
+
+```text
+Step 7 CI head:                  19e78b15bc86334b9a0e95455988c9823030e2da
+Step 7 first Validate:           #974 / 36118303242 — release-contract FAILED
+Step 7 discovered defect:        prerelease SemVer regex used double-escaped dot separators
+Step 7 defect-fix head:          b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+Dedicated release-contract job:  SUCCESS
+Release-contract test step:      SUCCESS / 37 tests
+Publication guard step:          SUCCESS
+Step 7 corrected Validate:       #975 / 36118400942 — 13/13 SUCCESS
+Release-contract credentials:    contents:read only; checkout persist-credentials=false
+Real package artifacts:          NONE
+Registry credentials:            NONE
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 7 converted the previously manual T-801 verification gap into a dedicated CI contract. Its first run immediately exposed a latent Step-2 SemVer regex defect that the previous 12-job workflow could not observe; the defect was minimally corrected and the full 13-job matrix is green.
+
+Next explicit gate: **Step 8 — whole-task verification only**. Do not start Step 9/10 closure, T-802, or publication automatically.
+
+## T-801 implementation checkpoint — Step 8 VERIFIED
+
+```text
+Verification head:               ecc80edc2697d3a27f83c1c543c986dcf95c0024
+Validate run:                    #976 / 36118598072
+Fresh verification attempt:     attempt 2
+Whole matrix:                    13/13 SUCCESS
+Release-contract tests:         37/37 PASS
+Publication guard:              PASS
+python scripts/validate.py:      SUCCESS
+Browser regression:             SUCCESS
+OpenAPI importer regression:    SUCCESS
+Laravel base matrix:            4/4 SUCCESS
+Laravel MCP matrix:             4/4 SUCCESS
+PHP lint:                       SUCCESS
+Implementation changes in Step 8: NONE
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+T-802..T-805:                  NOT STARTED
+Publish/tag/release:            NONE
+```
+
+Step 8 re-ran the exact-head verification on GitHub Actions. The dedicated release contract reported `Ran 37 tests` / `OK`, the publication guard passed, the existing `contract` job's `python scripts/validate.py` step succeeded, and all 13 workflow jobs completed successfully.
+
+Next explicit gate: **Step 9 — forbidden-diff audit only**. Do not start Step 10 review handoff, T-802, or publication automatically.
+
+## T-801 implementation checkpoint — Step 9 AUDITED
+
+```text
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Audited head:                    6cebbabf3150d29577cff0b14c67740f7d18b083
+Changed files total:             8
+Allowed implementation files:   scripts/release_candidate.py
+                                scripts/check_release_guardrails.py
+Allowed test files:             scripts/tests/test_release_candidate_contract.py
+                                scripts/tests/test_release_candidate_guardrails.py
+Allowed CI file:                .github/workflows/validate.yml
+Allowed tracking/docs:          STATUS.md / TASKS.md / T-801 plan
+packages/** forbidden diff:     EMPTY
+spec/** forbidden diff:         EMPTY
+conformance/** forbidden diff:  EMPTY
+Package manifest diff:          EMPTY
+Decision-register diff:         EMPTY
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+Exact audited-head Validate:    #977 / 36125095486 — 13/13 SUCCESS
+T-802..T-805:                  NOT STARTED
+Publish/tag/release:            NONE
+```
+
+The Step 9 audit confirms that T-801 stayed inside release-tooling/tests/CI/tracking boundaries. No package implementation, package manifest, canonical spec, conformance asset, or decision-register implementation change exists between the implementation base and audited head.
+
+Next explicit gate: **Step 10 — tracking / external-review handoff only**. Do not begin T-802, decision promotion, merge, tag, release, or publication automatically.
+
+## T-801 implementation checkpoint — Step 10 REVIEW HANDOFF
+
+```text
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Last implementation-code head:   b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+Step 8 verified head:            6cebbabf3150d29577cff0b14c67740f7d18b083
+Step 9 audited/tracking head:     4ea3279538ac4aba646104db37c1a9c21442b579
+Step 9 exact-head Validate:       #978 / 36140680524 — 13/13 SUCCESS
+T-801 release-contract suite:    37/37 PASS
+Publication guard:              PASS
+python scripts/validate.py:      SUCCESS
+Forbidden package/spec diff:    EMPTY
+External review:                NOT STARTED
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+T-802..T-805:                  NOT STARTED
+Merge/tag/release/publication:  NOT AUTHORIZED
+```
+
+T-801 implementation is complete for handoff. It is not yet externally reviewed, merged, or decision-promoted. `REVIEW_REQUEST.md` is now the authoritative T-801 external-review brief.
+
+Next explicit gate: **T-801 external review only**. Do not begin T-802, promote D-069..D-073, merge, tag, release, or publish automatically.
+## T-801 external-review checkpoint — workflow YAML parsing boundary DESIGN LOCKED
+
+```text
+PR:                               #19 — OPEN / mergeable
+Pre-amendment head:               caca04423dedc4119a9ac32e0ff93812f0f988eb
+External review state:            ACTIVE
+Open actionable finding:          1 Major
+Finding:                          workflow publication guard does not parse all valid YAML run scalar forms
+Current scanner limitation:       handwritten folded-scalar handling only
+Design resolution:                strict parsed-workflow boundary; no further regex expansion
+Parser direction:                 PyYAML 6.x / BaseLoader-derived strict duplicate-key rejecting loader
+Command authority:               parsed jobs.*.steps[*].run string values only
+Workflow credential scan:         parsed string keys/values; comments excluded
+Malformed/duplicate/non-string:   fail closed as GuardrailScanError
+Implementation/tests:             NOT STARTED by this checkpoint
+Review thread:                    REMAINS UNRESOLVED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-802..T-805:                    NOT STARTED
+Merge/tag/release/publication:   NOT AUTHORIZED
+```
+
+The Major finding is accepted as valid. The prior `run: >` regex/folding fix is not extended further because that would keep a correctness-critical YAML boundary dependent on syntax-shape matching.
+
+Next explicit gate: **T-801 external-review finding RED tests only**. Do not implement GREEN, resolve the review thread, merge, promote decisions, or start T-802 automatically.
+## T-801 external-review checkpoint — workflow YAML parsing RED PROVEN
+
+```text
+Design-lock head:                 f503a9cb1afeda7091f700414ccabbebaa6d092c
+Design-lock Validate:             #991 / 36238605824 — 13/13 SUCCESS
+RED test head:                    3702b9786fe3a171571acd3988021ba7083cf232
+RED Validate:                     #992 / 36250401675 — 12 SUCCESS / 1 FAILURE
+Failing job:                      release-contract only
+T-801 suite at RED:               49 tests / 6 expected failures
+Unrelated CI jobs:                12/12 SUCCESS
+Open review finding:              1 Major / thread unresolved
+Production scanner change:        NONE in RED gate
+Dependency/workflow setup change: NONE in RED gate
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-802..T-805:                    NOT STARTED
+Merge/tag/release/publication:   NOT AUTHORIZED
+```
+
+The six RED failures prove exactly the locked parsing gap:
+
+1. multi-line plain-scalar `run` is not reconstructed;
+2. explicit indentation-indicator folded scalar (`>2`) is not reconstructed;
+3. duplicate workflow mapping keys do not fail closed;
+4. malformed workflow YAML does not fail closed;
+5. non-string parsed `run` values do not fail closed;
+6. workflow comments are incorrectly scanned as executable publication/credential text.
+
+Existing folded `>`, `>-`, and `>+` coverage remained green. The other 12 Validate jobs also remained green, so the RED signal is isolated to the intended T-801 publication-guard boundary.
+
+Next explicit gate: **GREEN implementation for this Major finding only**. Do not resolve the review thread until the parser fix, focused suite, publication guard, full Validate matrix, and exact-head review evidence are green.
+## T-801 external-review checkpoint — workflow YAML parsing GREEN VERIFIED
+
+```text
+RED head:                          3702b9786fe3a171571acd3988021ba7083cf232
+RED Validate:                      #992 / 36250401675 — 12 SUCCESS / 1 expected FAILURE
+GREEN implementation head:         c50b9f12cd809107f4d95f553716d9a96df3f038
+GREEN Validate:                    #996 / 36266106312 — 13/13 SUCCESS
+Release-contract suite:            49/49 PASS
+Publication guard:                 PASS
+Contract validation:               SUCCESS
+Workflow parser:                   PyYAML 6.x BaseLoader-derived strict loader
+Duplicate mapping keys:            FAIL CLOSED
+Malformed workflow YAML:           FAIL CLOSED
+Non-string run values:             FAIL CLOSED
+Plain/folded/indent scalar runs:    PARSED BEFORE COMMAND SCAN
+Workflow comments:                 NOT EXECUTABLE SCAN INPUT
+Manual YAML folding regex:         REMOVED
+Changed implementation files:      4 allowed files only
+Open review finding:               1 Major / thread still unresolved
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-802..T-805:                     NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+The accepted Major YAML parsing finding is technically fixed and exact-head verified. The implementation now parses workflow YAML before scanning `run` commands, rejects duplicate mappings and invalid structures fail-closed, scans credential identifiers from parsed string keys/values, and removes the handwritten folded-scalar approximation.
+
+The inline review thread intentionally remains unresolved in this gate. Next explicit gate: **external-review finding disposition / thread resolution only**, followed by any required review re-check. Do not begin T-802, merge, promote decisions, tag, release, or publish automatically.
+
+## T-801 external-review closure — REVIEW CLOSED
+
+```text
+PR:                                #19 — OPEN / mergeable / NOT MERGED
+Final reviewed pre-closure head:   f1257054f6d828d5e25fa68cdc23bf334188192e
+Reviewed-head Validate:            #998 / 36266212552 — 13/13 SUCCESS
+Release-contract suite:            49/49 PASS
+Publication guard:                 PASS
+External reviewer re-check:        CodeRabbit confirmed Major finding addressed
+Review threads:                    5 total / 0 unresolved
+Package/spec/conformance drift:    NONE
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-802..T-805:                     NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+T-801 now satisfies the external-review closure rule: all actionable inline findings are addressed or dispositioned, the final reviewed pre-closure head is green, the latest Major fix was independently re-checked by CodeRabbit, and unresolved review threads are zero.
+
+Next explicit gate: **T-801 merge decision only**. Do not begin T-802, promote D-069..D-073, tag, release, or publish automatically.

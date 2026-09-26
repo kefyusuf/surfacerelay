@@ -1022,6 +1022,163 @@ production/spec semantic change: NONE
 next milestone implementation:   NOT STARTED
 ```
 
+## Pre-reassessment boundary
+
+At M7 closure, M6 was **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; T-701 through T-704 were **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; `D-059` through `D-068` were **ACCEPTED** except `D-026`, which remained **PROPOSED**. M7 was **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`, with no T-705 or later milestone implementation started. The next required action at that point was this product/scope reassessment gate.
+
+## Post-M7 product/scope reassessment — DONE / RECOMMENDATION READY
+
+This is not a numbered implementation task and does not open M8.
+
+Evidence-based finding:
+
+- M0 through M7 already provide substantial capability, trust controls, portability proof, conformance, and ecosystem bridges;
+- the repository still exposes development/source-tree workflows rather than a clean downstream-consumer installation contract;
+- the TypeScript packages remain 0.0.0-dev + private:true and have no reviewed distribution/build/export contract;
+- surfacerelay/laravel-mcp still requires surfacerelay/laravel:dev-main through a local Composer path repository;
+- the root README has development commands but no supported external installation/getting-started path;
+- there is no GitHub release, release workflow, changelog, root vulnerability-reporting policy, or clean consumer-project smoke evidence;
+- roadmap release labels 0.1.0-alpha through 0.4.0-beta were never published, so release numbering must be reassessed independently rather than inferred mechanically from completed milestones.
+
+Recommended next milestone candidate:
+
+```text
+M8 — Consumer & Release Readiness
+Status: PROPOSED ONLY / NOT OPENED / NOT STARTED
+```
+
+Candidate outcome:
+
+> A clean downstream project can install the intended SurfaceRelay release-candidate artifacts without monorepo path/dev-main coupling, follow a minimal documented setup, exercise the supported happy path, and reproduce bounded compatibility evidence.
+
+Safety boundary:
+
+- release readiness is not registry publication;
+- no npm/Packagist publish;
+- no GitHub tag/release;
+- no package version bump;
+- no T-705/T-801;
+- no new adapter/capability;
+- no canonical contract/conformance semantic change;
+- no D-026 promotion;
+- no public compatibility promise before clean-consumer evidence.
+
+The first M8 scope/design gate, if approved separately, must resolve:
+
+1. which packages are intended to be public in the first release candidate;
+2. whether package versions move together or independently;
+3. how PHP package constraints replace dev-main/path coupling without premature registry publication;
+4. the TypeScript build/export/package-content contract;
+5. the clean-consumer fixture/matrix and minimum end-to-end proof;
+6. installation/getting-started, changelog, vulnerability-reporting, compatibility, and release-checklist boundaries;
+7. the later explicit go/no-go gate for registry publication and tags.
+
+## Pre-M8-design boundary
+
+At reassessment closure, M7 remained **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`; M8 was only a proposed milestone candidate; no T-705/T-801 existed; and no publication/tag/release or implementation action was authorized. The next explicit gate at that point was this M8 scope/design gate.
+
+## M8 — Consumer & Release Readiness — DESIGN_APPROVED / IMPLEMENTATION_IN_PROGRESS
+
+Outcome candidate:
+
+> A clean downstream project can install the intended SurfaceRelay release-candidate artifacts without monorepo path/dev-main coupling, follow a minimal documented setup, exercise the supported happy path, and reproduce bounded compatibility evidence.
+
+Design source:
+
+`docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+
+Proposed decisions: D-069 through D-073.
+
+### T-801 — Release-candidate artifact contract — DONE / EXTERNALLY_REVIEWED / REVIEW_CLOSED / NOT_MERGED
+
+Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
+
+Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
+
+### T-802 — Laravel artifact + clean consumer proof — NOT_STARTED
+
+Composer artifact for `surfacerelay/laravel`, supported install matrix, and one clean Laravel ActionBus happy-path smoke with no path/dev-main coupling.
+
+### T-803 — Browser runtime public API + artifact + clean consumer proof — NOT_STARTED
+
+Curated root ESM API, declarations/build/exports, npm tarball, isolated root-import typecheck/bundle/smoke.
+
+### T-804 — Release-facing documentation and compatibility policy — NOT_STARTED
+
+Getting started, CHANGELOG, SECURITY, versioning/compatibility policy, release checklist; no claim that publication already exists.
+
+### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
+
+One revision/version input, both candidate artifacts, full repository regression, clean-consumer evidence, hashes, external review, publication-go/no-go handoff.
+
+Explicitly outside M8 first candidate set:
+
+- `surfacerelay/laravel-mcp` publication;
+- `@surfacerelay/openapi-importer` publication;
+- new adapter/capability work;
+- v0.2 canonical contract changes;
+- D-026 promotion;
+- npm/Packagist publication;
+- tags/GitHub Releases;
+- first public version selection.
+
 ## Current boundary
 
-M6 remains **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-701 through T-704 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. `D-059` through `D-068` are **ACCEPTED** except `D-026`, which remains **PROPOSED**. M7 is **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`. No T-705 exists and no later milestone implementation has started. Any next work requires a separate product/scope reassessment gate.
+M8 design and the T-801 plan are **APPROVED**. T-801 is **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**. Final implementation-code head is `c50b9f12cd809107f4d95f553716d9a96df3f038`; final reviewed pre-closure tracking head `f1257054f6d828d5e25fa68cdc23bf334188192e` is green in Validate #998 (**13/13 SUCCESS**) with **49/49** release-contract tests and publication guard PASS. External review has **CLOSED**: the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed and all 5 inline review threads are resolved. The implementation-base diff remains outside `packages/**`, `spec/**`, and `conformance/**`; package manifests and the decision register remain unchanged. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No merge, publication, tag, release, or public version is authorized. The next gate is **T-801 merge decision only**.
+### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
+
+External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
+
+Locked boundary:
+
+- parse workflow YAML before command scanning;
+- replace the handwritten folded-scalar regex/folder rather than broadening it;
+- use a bounded PyYAML 6.x development dependency with string-preserving, duplicate-key-rejecting loading;
+- scan publication commands from parsed step `run` strings only;
+- scan workflow credential identifiers from parsed string keys/values so comments are excluded;
+- fail closed on YAML parse errors, duplicate keys, structurally invalid workflow sections, or non-string `run` values;
+- preserve the existing non-workflow scanners and CI publication-authority restrictions;
+- do not treat this amendment as a general shell parser or a new public SurfaceRelay contract.
+
+Next gate: **focused RED tests for this finding only**. Parser implementation, thread resolution, merge, D-069..D-073 promotion, and T-802 remain out of scope until a later explicit continuation.
+### T-801 external-review finding — RED_PROVEN / GREEN_NOT_STARTED
+
+RED evidence is complete at `3702b9786fe3a171571acd3988021ba7083cf232`.
+
+Validate #992 (`36250401675`) completed with **12 SUCCESS / 1 FAILURE**. Only `release-contract` failed. The T-801 suite ran 49 tests with six expected failures covering the accepted YAML parsing gap: multi-line plain scalar, `>2`, duplicate keys, malformed YAML, non-string `run`, and comment false positives. Existing `>`, `>-`, and `>+` cases stayed green.
+
+No production scanner, dependency, CI setup, package, spec, conformance, decision, publication, or T-802 implementation changed in the RED gate.
+
+Next gate: **GREEN parser implementation for this Major only**. The review thread remains unresolved until exact-head verification proves the fix.
+### T-801 external-review finding — GREEN_VERIFIED / REVIEW_THREAD_OPEN
+
+GREEN implementation is complete at `c50b9f12cd809107f4d95f553716d9a96df3f038`.
+
+Validate #996 (`36266106312`) completed **13/13 SUCCESS**. The dedicated `release-contract` suite is **49/49 PASS**, the repository publication guard passes, and the normal contract/browser/OpenAPI/PHP/Laravel matrices are all green.
+
+The fix is limited to:
+
+- `.github/workflows/validate.yml` — install the bounded release-contract Python dependencies;
+- `requirements-dev.txt` — add `PyYAML>=6.0.3,<7`;
+- `scripts/check_release_guardrails.py` — strict parsed-workflow scanning, duplicate-key rejection, parsed credential scanning, no handwritten YAML folding;
+- `scripts/tests/test_release_candidate_guardrails.py` — align the non-string `run` fixture with BaseLoader semantics.
+
+The Major review thread remains unresolved intentionally. Next gate: **disposition the verified finding and resolve/re-check that thread only**. T-802 remains NOT STARTED.
+
+### T-801 external-review closure — DONE / REVIEW_CLOSED
+
+```text
+PR:                              #19 — OPEN / mergeable / NOT MERGED
+Final implementation-code head: c50b9f12cd809107f4d95f553716d9a96df3f038
+Final reviewed pre-closure head: f1257054f6d828d5e25fa68cdc23bf334188192e
+Reviewed-head Validate:          #998 / 36266212552 — 13/13 SUCCESS
+Release-contract:                49/49 PASS
+Publication guard:               PASS
+Reviewer re-check:               Major YAML parsing finding confirmed addressed
+Review threads:                  5 total / 0 unresolved
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Merge/tag/release/publication:  NOT AUTHORIZED
+```
+
+Next gate: **T-801 merge decision only**. Completing review does not start T-802 automatically.
