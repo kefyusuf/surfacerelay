@@ -158,6 +158,32 @@ class ReleaseGuardrailContractTest(unittest.TestCase):
                 rule_id="publication-command/npm-publish",
             )
 
+    def test_folded_workflow_run_value_is_rejected(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                (
+                    "name: release\n"
+                    "jobs:\n"
+                    "  release:\n"
+                    "    steps:\n"
+                    "      - run: >\n"
+                    "          npm\n"
+                    "          publish\n"
+                ),
+            )
+
+            violations = self.scan(module, root)
+
+        self.assert_rule(
+            violations,
+            path=".github/workflows/release.yml",
+            rule_id="publication-command/npm-publish",
+        )
+
     def test_github_release_create_is_rejected_in_workflow(self):
         module = guardrail_module()
         with tempfile.TemporaryDirectory() as directory:
