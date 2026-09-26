@@ -184,6 +184,159 @@ class ReleaseGuardrailContractTest(unittest.TestCase):
             rule_id="publication-command/npm-publish",
         )
 
+    def test_multiline_plain_workflow_run_value_is_rejected(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                (
+                    "name: release\n"
+                    "jobs:\n"
+                    "  release:\n"
+                    "    steps:\n"
+                    "      - run: npm\n"
+                    "          publish\n"
+                ),
+            )
+
+            violations = self.scan(module, root)
+
+        self.assert_rule(
+            violations,
+            path=".github/workflows/release.yml",
+            rule_id="publication-command/npm-publish",
+        )
+
+    def test_explicit_indent_folded_workflow_run_value_is_rejected(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                (
+                    "name: release\n"
+                    "jobs:\n"
+                    "  release:\n"
+                    "    steps:\n"
+                    "      - run: >2\n"
+                    "          npm\n"
+                    "          publish\n"
+                ),
+            )
+
+            violations = self.scan(module, root)
+
+        self.assert_rule(
+            violations,
+            path=".github/workflows/release.yml",
+            rule_id="publication-command/npm-publish",
+        )
+
+    def test_folded_workflow_chomping_variants_are_rejected(self):
+        module = guardrail_module()
+
+        for indicator in (">-", ">+"):
+            with self.subTest(indicator=indicator):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    self.write(
+                        root,
+                        ".github/workflows/release.yml",
+                        (
+                            "name: release\n"
+                            "jobs:\n"
+                            "  release:\n"
+                            "    steps:\n"
+                            f"      - run: {indicator}\n"
+                            "          npm\n"
+                            "          publish\n"
+                        ),
+                    )
+
+                    violations = self.scan(module, root)
+
+                self.assert_rule(
+                    violations,
+                    path=".github/workflows/release.yml",
+                    rule_id="publication-command/npm-publish",
+                )
+
+    def test_duplicate_workflow_mapping_keys_fail_closed(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                (
+                    "name: release\n"
+                    "jobs:\n"
+                    "  release:\n"
+                    "    steps:\n"
+                    "      - run: echo first\n"
+                    "        run: echo second\n"
+                ),
+            )
+
+            with self.assertRaises(module.GuardrailScanError):
+                self.scan(module, root)
+
+    def test_malformed_workflow_yaml_fails_closed(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                "name: release\njobs: [\n",
+            )
+
+            with self.assertRaises(module.GuardrailScanError):
+                self.scan(module, root)
+
+    def test_non_string_workflow_run_value_fails_closed(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                (
+                    "name: release\n"
+                    "jobs:\n"
+                    "  release:\n"
+                    "    steps:\n"
+                    "      - run: 123\n"
+                ),
+            )
+
+            with self.assertRaises(module.GuardrailScanError):
+                self.scan(module, root)
+
+    def test_workflow_comments_are_not_executable_release_surfaces(self):
+        module = guardrail_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.write(
+                root,
+                ".github/workflows/release.yml",
+                (
+                    "name: release\n"
+                    "jobs:\n"
+                    "  release:\n"
+                    "    steps:\n"
+                    "      # npm publish must remain prohibited; do not wire NPM_TOKEN here.\n"
+                    "      - run: echo artifact-only\n"
+                ),
+            )
+
+            violations = self.scan(module, root)
+
+        self.assertEqual([], violations)
+
     def test_github_release_create_is_rejected_in_workflow(self):
         module = guardrail_module()
         with tempfile.TemporaryDirectory() as directory:
