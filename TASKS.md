@@ -1077,7 +1077,7 @@ The first M8 scope/design gate, if approved separately, must resolve:
 
 At reassessment closure, M7 remained **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED** on `main`; M8 was only a proposed milestone candidate; no T-705/T-801 existed; and no publication/tag/release or implementation action was authorized. The next explicit gate at that point was this M8 scope/design gate.
 
-## M8 — Consumer & Release Readiness — DESIGN_APPROVED / IMPLEMENTATION_NOT_STARTED
+## M8 — Consumer & Release Readiness — DESIGN_APPROVED / IMPLEMENTATION_IN_PROGRESS
 
 Outcome candidate:
 
@@ -1089,7 +1089,7 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — DONE / REVIEW_HANDOFF
+### T-801 — Release-candidate artifact contract — DONE / EXTERNALLY_REVIEWED / REVIEW_CLOSED / NOT_MERGED
 
 Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 
@@ -1124,7 +1124,7 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design and the T-801 plan are **APPROVED**. T-801 implementation is **DONE / REVIEW HANDOFF**. Last implementation-code head is `b605dd240d0cbf54d1b543ad6a8aecff4a2af649`; Step 9 audited/tracking head `4ea3279538ac4aba646104db37c1a9c21442b579` is green in Validate #978 (**13/13 SUCCESS**). The full implementation-base diff remains limited to the eight approved T-801 CI/tooling/test/tracking files, with `packages/**`, `spec/**`, `conformance/**`, package manifests, and the decision register untouched. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. External review has **NOT STARTED**. No merge, publication, tag, release, or public version is authorized. The next gate is **T-801 external review only**.
+M8 design and the T-801 plan are **APPROVED**. T-801 is **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**. Final implementation-code head is `c50b9f12cd809107f4d95f553716d9a96df3f038`; final reviewed pre-closure tracking head `f1257054f6d828d5e25fa68cdc23bf334188192e` is green in Validate #998 (**13/13 SUCCESS**) with **49/49** release-contract tests and publication guard PASS. External review has **CLOSED**: the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed and all 5 inline review threads are resolved. The implementation-base diff remains outside `packages/**`, `spec/**`, and `conformance/**`; package manifests and the decision register remain unchanged. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No merge, publication, tag, release, or public version is authorized. The next gate is **T-801 merge decision only**.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
@@ -1164,3 +1164,21 @@ The fix is limited to:
 - `scripts/tests/test_release_candidate_guardrails.py` — align the non-string `run` fixture with BaseLoader semantics.
 
 The Major review thread remains unresolved intentionally. Next gate: **disposition the verified finding and resolve/re-check that thread only**. T-802 remains NOT STARTED.
+
+### T-801 external-review closure — DONE / REVIEW_CLOSED
+
+```text
+PR:                              #19 — OPEN / mergeable / NOT MERGED
+Final implementation-code head: c50b9f12cd809107f4d95f553716d9a96df3f038
+Final reviewed pre-closure head: f1257054f6d828d5e25fa68cdc23bf334188192e
+Reviewed-head Validate:          #998 / 36266212552 — 13/13 SUCCESS
+Release-contract:                49/49 PASS
+Publication guard:               PASS
+Reviewer re-check:               Major YAML parsing finding confirmed addressed
+Review threads:                  5 total / 0 unresolved
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Merge/tag/release/publication:  NOT AUTHORIZED
+```
+
+Next gate: **T-801 merge decision only**. Completing review does not start T-802 automatically.

@@ -6,8 +6,13 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `feat/t-801-release-candidate-artifact-contract`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
-- **Last completed/reviewed task:** `T-704 — Optional OpenAPI importer`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **DONE / REVIEW HANDOFF / NOT YET EXTERNALLY REVIEWED**
+- **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
+- **Current work:** `T-801 — Release-candidate artifact contract` — **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**
+- **T-801 PR:** `#19` — **OPEN / mergeable / REVIEW CLOSED / NOT MERGED**
+- **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
+- **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
+- **T-801 release-contract suite:** **49/49 PASS**; publication guard **PASS**
+- **T-801 external review:** latest Major finding **CodeRabbit-confirmed addressed**; **5 review threads / 0 unresolved**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -978,3 +983,24 @@ Merge/tag/release/publication:    NOT AUTHORIZED
 The accepted Major YAML parsing finding is technically fixed and exact-head verified. The implementation now parses workflow YAML before scanning `run` commands, rejects duplicate mappings and invalid structures fail-closed, scans credential identifiers from parsed string keys/values, and removes the handwritten folded-scalar approximation.
 
 The inline review thread intentionally remains unresolved in this gate. Next explicit gate: **external-review finding disposition / thread resolution only**, followed by any required review re-check. Do not begin T-802, merge, promote decisions, tag, release, or publish automatically.
+
+## T-801 external-review closure — REVIEW CLOSED
+
+```text
+PR:                                #19 — OPEN / mergeable / NOT MERGED
+Final reviewed pre-closure head:   f1257054f6d828d5e25fa68cdc23bf334188192e
+Reviewed-head Validate:            #998 / 36266212552 — 13/13 SUCCESS
+Release-contract suite:            49/49 PASS
+Publication guard:                 PASS
+External reviewer re-check:        CodeRabbit confirmed Major finding addressed
+Review threads:                    5 total / 0 unresolved
+Package/spec/conformance drift:    NONE
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-802..T-805:                     NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+T-801 now satisfies the external-review closure rule: all actionable inline findings are addressed or dispositioned, the final reviewed pre-closure head is green, the latest Major fix was independently re-checked by CodeRabbit, and unresolved review threads are zero.
+
+Next explicit gate: **T-801 merge decision only**. Do not begin T-802, promote D-069..D-073, tag, release, or publish automatically.

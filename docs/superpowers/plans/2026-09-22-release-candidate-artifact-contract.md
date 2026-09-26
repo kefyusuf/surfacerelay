@@ -640,3 +640,13 @@ The parser implementation follows the locked amendment: a bounded PyYAML 6.x dep
 The focused non-string `run` regression fixture uses a sequence value rather than numeric `123`, because `BaseLoader` intentionally preserves scalar values as strings. This keeps the test aligned with the selected parser semantics while still proving non-string parsed values fail closed.
 
 Next explicit gate: **external-review finding disposition / thread resolution only**. Do not begin T-802, decision promotion, merge, tag, release, or publication automatically.
+
+### External-review closure — complete
+
+T-801 external review is closed against final reviewed pre-closure head `f1257054f6d828d5e25fa68cdc23bf334188192e`.
+
+Validate #998 (`36266212552`) is **13/13 SUCCESS**; the release-contract suite is **49/49 PASS** and the publication guard passes. The latest Major workflow-YAML parsing finding was independently re-checked by CodeRabbit and confirmed addressed. All five inline review threads are resolved; unresolved count is zero.
+
+The implementation-base diff remains outside `packages/**`, `spec/**`, and `conformance/**`. Package manifests and `docs/DECISION-REGISTER.md` remain unchanged. D-026 and D-069..D-073 remain PROPOSED.
+
+Next explicit gate: **T-801 merge decision only**. Review closure does not authorize merge, T-802, decision promotion, tag, release, registry publication, or public SemVer selection automatically.

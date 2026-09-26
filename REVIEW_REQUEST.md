@@ -1,19 +1,20 @@
-# T-801 — Release-Candidate Artifact Contract External Review Handoff
+# T-801 — Release-Candidate Artifact Contract External Review Closure
 
 ## State
 
 - Task: `T-801 — Release-candidate artifact contract`
 - Branch: `feat/t-801-release-candidate-artifact-contract`
-- State: **IMPLEMENTATION COMPLETE / REVIEW HANDOFF / NOT YET EXTERNALLY REVIEWED**
+- State: **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**
 - Implementation base: `da8ea76545afaf434b26a69ba92713db2784c785`
-- Last implementation-code head: `b605dd240d0cbf54d1b543ad6a8aecff4a2af649`
-- Step 8 verified head: `6cebbabf3150d29577cff0b14c67740f7d18b083`
-- Step 9 audited/tracking head: `4ea3279538ac4aba646104db37c1a9c21442b579`
-- Step 9 exact-head Validate: `#978` / `36140680524` — **13/13 SUCCESS**
+- Final implementation-code head: `c50b9f12cd809107f4d95f553716d9a96df3f038`
+- Final reviewed pre-closure head: `f1257054f6d828d5e25fa68cdc23bf334188192e`
+- Reviewed-head Validate: `#998` / `36266212552` — **13/13 SUCCESS**
+- Release-contract suite: **49/49 PASS**
+- External review: **CLOSED — 5 review threads / 0 unresolved; latest Major CodeRabbit-confirmed addressed**
 - Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 - Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
-This handoff does not authorize merge, decision promotion, T-802, tags, releases, registry publication, or a public version.
+This closure does not authorize merge, decision promotion, T-802, tags, releases, registry publication, or a public version.
 
 ## What T-801 implements
 
@@ -37,13 +38,16 @@ From implementation base `da8ea76545afaf434b26a69ba92713db2784c785`, T-801 chang
 
 ```text
 .github/workflows/validate.yml
-scripts/release_candidate.py
-scripts/check_release_guardrails.py
-scripts/tests/test_release_candidate_contract.py
-scripts/tests/test_release_candidate_guardrails.py
+REVIEW_REQUEST.md
 STATUS.md
 TASKS.md
+docs/ROADMAP.md
 docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md
+requirements-dev.txt
+scripts/check_release_guardrails.py
+scripts/release_candidate.py
+scripts/tests/test_release_candidate_contract.py
+scripts/tests/test_release_candidate_guardrails.py
 ```
 
 Forbidden diff is empty for:
@@ -73,7 +77,7 @@ python scripts/check_release_guardrails.py
 Verified evidence:
 
 ```text
-37/37 tests PASS
+49/49 tests PASS
 publication guard PASS
 ```
 
@@ -89,7 +93,7 @@ and is green.
 
 ### Full matrix
 
-Validate #978:
+Validate #998:
 
 ```text
 13/13 SUCCESS
@@ -203,9 +207,9 @@ T-801 tooling evidence alone is not sufficient to promote the M8 product/release
 
 ## Review closure rule
 
-T-801 may move beyond **REVIEW HANDOFF** only after actionable external findings are addressed or explicitly dispositioned, exact reviewed-head CI is green, and unresolved review threads are zero.
+T-801 has satisfied the review-closure rule: actionable external findings are addressed/dispositioned, the final reviewed pre-closure head is green, and unresolved review threads are zero.
 
-The next gate is **T-801 external review only**. T-802 must not start automatically.
+The next gate is **T-801 merge decision only**. T-802 must not start automatically.
 ## Active external-review finding — workflow YAML parsing boundary
 
 PR #19 currently has one unresolved Major finding against `scripts/check_release_guardrails.py`: the manual folded-scalar logic does not cover all valid YAML `run` scalar forms, including multi-line plain scalars and explicit indentation indicators.
@@ -278,3 +282,20 @@ The implementation removes the manual folded-scalar scanner and instead parses w
 The implementation diff is limited to the four authorized parser/dependency/test/CI files. No package implementation, canonical spec, conformance, decision promotion, publication authority, or T-802 behavior changed.
 
 The inline Major review thread remains open intentionally for the next explicit **finding disposition / resolution gate**.
+
+## External review closure
+
+```text
+Final implementation-code head: c50b9f12cd809107f4d95f553716d9a96df3f038
+Final reviewed pre-closure head: f1257054f6d828d5e25fa68cdc23bf334188192e
+Validate:                       #998 / 36266212552 — 13/13 SUCCESS
+Release-contract:               49/49 PASS
+Publication guard:              PASS
+Review threads:                 5 total / 0 unresolved
+Latest Major finding:           CodeRabbit-confirmed addressed
+PR state:                       OPEN / mergeable / NOT MERGED
+```
+
+External review is closed. No decision promotion, merge, tag, release, registry publication, public SemVer selection, or T-802 implementation is authorized by this closure.
+
+Next explicit gate: **T-801 merge decision only**.
