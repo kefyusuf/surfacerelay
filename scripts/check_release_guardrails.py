@@ -20,11 +20,14 @@ class GuardrailScanError(RuntimeError):
 
 _COMMAND_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("publication-command/yarn-npm-publish", ("yarn", "npm", "publish")),
-    ("publication-command/npm-publish", ("npm", "publish")),
-    ("publication-command/pnpm-publish", ("pnpm", "publish")),
-    ("publication-command/yarn-publish", ("yarn", "publish")),
     ("publication-command/gh-release-create", ("gh", "release", "create")),
     ("publication-command/git-tag", ("git", "tag")),
+)
+
+_PACKAGE_MANAGER_PUBLISH_RULES = (
+    ("npm", "publication-command/npm-publish"),
+    ("pnpm", "publication-command/pnpm-publish"),
+    ("yarn", "publication-command/yarn-publish"),
 )
 
 _CREDENTIALS = (
@@ -34,6 +37,7 @@ _CREDENTIALS = (
 )
 
 _TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_./:@+$-]+")
+_COMMAND_SEGMENT_SEPARATOR = re.compile(r"&&|\|\||[;|]")
 _GIT_PUSH_TAGS_RULE = "publication-command/git-push-tags"
 
 
@@ -49,38 +53,77 @@ def _contains_sequence(tokens: list[str], sequence: tuple[str, ...]) -> bool:
     )
 
 
+def _contains_ordered_tokens(
+    tokens: list[str],
+    first: str,
+    second: str,
+) -> bool:
+    try:
+        first_index = tokens.index(first)
+    except ValueError:
+        return False
+    return second in tokens[first_index + 1:]
+
+
+def _scan_command_segment(
+    path: str,
+    segment: str,
+) -> list[GuardrailViolation]:
+    tokens = _tokens(segment)
+    violations: list[GuardrailViolation] = []
+
+    for rule_id, sequence in _COMMAND_RULES:
+        if _contains_sequence(tokens, sequence):
+            violations.append(
+                GuardrailViolation(
+                    path=path,
+                    rule_id=rule_id,
+                    message=f"prohibited publication command detected ({rule_id})",
+                )
+            )
+
+    for manager, rule_id in _PACKAGE_MANAGER_PUBLISH_RULES:
+        if not _contains_ordered_tokens(tokens, manager, "publish"):
+            continue
+        if manager == "yarn":
+            yarn_index = tokens.index("yarn")
+            publish_index = tokens.index("publish", yarn_index + 1)
+            if "npm" in tokens[yarn_index + 1:publish_index]:
+                continue
+        violations.append(
+            GuardrailViolation(
+                path=path,
+                rule_id=rule_id,
+                message=f"prohibited publication command detected ({rule_id})",
+            )
+        )
+
+    if len(tokens) >= 3:
+        for index in range(len(tokens) - 1):
+            if tokens[index:index + 2] != ["git", "push"]:
+                continue
+            if "--tags" in tokens[index + 2:]:
+                violations.append(
+                    GuardrailViolation(
+                        path=path,
+                        rule_id=_GIT_PUSH_TAGS_RULE,
+                        message=(
+                            "prohibited publication command detected "
+                            f"({_GIT_PUSH_TAGS_RULE})"
+                        ),
+                    )
+                )
+                break
+
+    return violations
+
+
 def _scan_text(path: str, text: str) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
 
     for line in text.splitlines():
-        tokens = _tokens(line)
-
-        for rule_id, sequence in _COMMAND_RULES:
-            if _contains_sequence(tokens, sequence):
-                violations.append(
-                    GuardrailViolation(
-                        path=path,
-                        rule_id=rule_id,
-                        message=f"prohibited publication command detected ({rule_id})",
-                    )
-                )
-
-        if len(tokens) >= 3:
-            for index in range(len(tokens) - 1):
-                if tokens[index:index + 2] != ["git", "push"]:
-                    continue
-                if "--tags" in tokens[index + 2:]:
-                    violations.append(
-                        GuardrailViolation(
-                            path=path,
-                            rule_id=_GIT_PUSH_TAGS_RULE,
-                            message=(
-                                "prohibited publication command detected "
-                                f"({_GIT_PUSH_TAGS_RULE})"
-                            ),
-                        )
-                    )
-                    break
+        for segment in _COMMAND_SEGMENT_SEPARATOR.split(line):
+            violations.extend(_scan_command_segment(path, segment))
 
         for credential in _CREDENTIALS:
             if re.search(

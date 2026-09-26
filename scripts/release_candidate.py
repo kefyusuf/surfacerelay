@@ -262,6 +262,23 @@ def build_artifact_evidence(
         label="archive",
     )
 
+    try:
+        manifest_payload = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ReleaseCandidateContractError(
+            "content manifest must be valid UTF-8 JSON"
+        ) from exc
+
+    if (
+        not isinstance(manifest_payload, dict)
+        or manifest_payload.get("packageName") != package_name
+        or manifest_payload.get("artifactVersion") != version
+        or manifest_payload.get("sourceRevision") != revision
+    ):
+        raise ReleaseCandidateContractError(
+            "content manifest identity does not match artifact evidence"
+        )
+
     return {
         "schemaVersion": 1,
         "packageName": package_name,
