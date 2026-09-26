@@ -1031,3 +1031,25 @@ Tag/release/publication:        NONE
 T-801 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No later M8 task starts automatically.
 
 Next explicit gate: **T-802 implementation-plan preparation only**. Do not begin T-802 implementation, promote D-069..D-073, tag, release, or publish automatically.
+
+## T-802 implementation-plan preparation — READY FOR APPROVAL
+
+```text
+Baseline main:                    138d27f21c92af2c26d62f32dd217724f56efacf
+Baseline Validate:                #1002 / 36273346790 — 13/13 SUCCESS
+Plan:                             docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
+T-802 plan state:                 READY FOR APPROVAL
+T-802 implementation:            NOT STARTED
+Implementation branch:           NOT CREATED
+Planned artifact:                 surfacerelay/laravel Composer ZIP
+Planned consumer matrix:          PHP 8.3/8.4 × Laravel 12/13
+Planned smoke:                    PHP 8.4 + Laravel 13 / production ActionBus
+Source composer version change:   NONE; staged injection only
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NOT AUTHORIZED
+```
+
+Next explicit gate: **T-802 implementation-plan approval only**. Do not create the implementation branch or start RED tests automatically.
+
