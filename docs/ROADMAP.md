@@ -46,7 +46,7 @@ Status: **complete / merged / main-revalidated**. T-701 through T-704 are comple
 
 Outcome candidate: clean downstream consumers install reviewed release-candidate artifacts for the first supported package set without monorepo path/dev-main coupling and reproduce bounded compatibility evidence.
 
-Status: **T-801 implementation complete / external-review fixes pending**. PR #19 completed external review with three actionable Minor findings now in review-fix; T-802 through T-805 have not started. Publication is explicitly outside M8 and requires a separate later go/no-go gate.
+Status: **T-801 complete / reviewed / merged / main-revalidated**. PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`; post-merge Validate #1001 passed 13/13 jobs. T-802 through T-805 have not started. Publication is explicitly outside M8 and requires a separate later go/no-go gate.
 
 ## Release gates
 

@@ -650,3 +650,13 @@ Validate #998 (`36266212552`) is **13/13 SUCCESS**; the release-contract suite i
 The implementation-base diff remains outside `packages/**`, `spec/**`, and `conformance/**`. Package manifests and `docs/DECISION-REGISTER.md` remain unchanged. D-026 and D-069..D-073 remain PROPOSED.
 
 Next explicit gate: **T-801 merge decision only**. Review closure does not authorize merge, T-802, decision promotion, tag, release, registry publication, or public SemVer selection automatically.
+
+### Post-merge main closure — complete
+
+PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`.
+
+Post-merge `main` Validate #1001 (`36273220054`) completed **13/13 SUCCESS**. T-801 is therefore **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
+
+D-026 and D-069..D-073 remain PROPOSED. T-802..T-805 remain NOT STARTED. No tag, release, registry publication, or public SemVer selection occurred.
+
+Next explicit gate: **T-802 implementation-plan preparation only**. Do not begin T-802 implementation automatically.

@@ -4,15 +4,18 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/t-801-release-candidate-artifact-contract`
+- **Branch:** `main`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-801 — Release-candidate artifact contract` — **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**
-- **T-801 PR:** `#19` — **OPEN / mergeable / REVIEW CLOSED / NOT MERGED**
+- **Current work:** **NONE** — `T-801 — Release-candidate artifact contract` is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; T-802 has not started
+- **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
 - **T-801 release-contract suite:** **49/49 PASS**; publication guard **PASS**
 - **T-801 external review:** latest Major finding **CodeRabbit-confirmed addressed**; **5 review threads / 0 unresolved**
+- **T-801 merge commit:** `84f80858308d35ed532eec3928a7fdf3186ffb34`
+- **T-801 post-merge main CI:** Validate `#1001` / `36273220054` — **13/13 SUCCESS**
+- **T-801 final state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
@@ -1004,3 +1007,27 @@ Merge/tag/release/publication:    NOT AUTHORIZED
 T-801 now satisfies the external-review closure rule: all actionable inline findings are addressed or dispositioned, the final reviewed pre-closure head is green, the latest Major fix was independently re-checked by CodeRabbit, and unresolved review threads are zero.
 
 Next explicit gate: **T-801 merge decision only**. Do not begin T-802, promote D-069..D-073, tag, release, or publish automatically.
+
+## T-801 post-merge main closure — FINAL
+
+```text
+PR:                              #19 — MERGED
+Merge commit:                    84f80858308d35ed532eec3928a7fdf3186ffb34
+Post-merge main Validate:        #1001 / 36273220054 — 13/13 SUCCESS
+Release-contract:                SUCCESS
+Contract:                        SUCCESS
+Browser:                         SUCCESS
+OpenAPI importer:                SUCCESS
+PHP lint:                        SUCCESS
+Laravel base matrix:             4/4 SUCCESS
+Laravel MCP matrix:              4/4 SUCCESS
+Review threads:                  5 total / 0 unresolved
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Tag/release/publication:        NONE
+```
+
+T-801 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No later M8 task starts automatically.
+
+Next explicit gate: **T-802 implementation-plan preparation only**. Do not begin T-802 implementation, promote D-069..D-073, tag, release, or publish automatically.

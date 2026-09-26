@@ -1089,7 +1089,7 @@ Design source:
 
 Proposed decisions: D-069 through D-073.
 
-### T-801 — Release-candidate artifact contract — DONE / EXTERNALLY_REVIEWED / REVIEW_CLOSED / NOT_MERGED
+### T-801 — Release-candidate artifact contract — DONE / REVIEWED / MERGED / MAIN_REVALIDATED
 
 Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 
@@ -1124,7 +1124,9 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design and the T-801 plan are **APPROVED**. T-801 is **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**. Final implementation-code head is `c50b9f12cd809107f4d95f553716d9a96df3f038`; final reviewed pre-closure tracking head `f1257054f6d828d5e25fa68cdc23bf334188192e` is green in Validate #998 (**13/13 SUCCESS**) with **49/49** release-contract tests and publication guard PASS. External review has **CLOSED**: the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed and all 5 inline review threads are resolved. The implementation-base diff remains outside `packages/**`, `spec/**`, and `conformance/**`; package manifests and the decision register remain unchanged. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No merge, publication, tag, release, or public version is authorized. The next gate is **T-801 merge decision only**.
+M8 design remains **APPROVED**. T-801 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`, and post-merge `main` Validate #1001 (`36273220054`) completed **13/13 SUCCESS**. External review is closed with all 5 inline threads resolved; the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
+
+The next explicit gate is **T-802 implementation-plan preparation only**. T-802 implementation must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
@@ -1182,3 +1184,18 @@ Merge/tag/release/publication:  NOT AUTHORIZED
 ```
 
 Next gate: **T-801 merge decision only**. Completing review does not start T-802 automatically.
+
+### T-801 post-merge closure — DONE / REVIEWED / MERGED / MAIN_REVALIDATED
+
+```text
+PR:                              #19 — MERGED
+Merge commit:                    84f80858308d35ed532eec3928a7fdf3186ffb34
+Post-merge Validate:             #1001 / 36273220054 — 13/13 SUCCESS
+Release-contract:                SUCCESS
+Review threads:                  5 total / 0 unresolved
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Tag/release/publication:        NONE
+```
+
+Next gate: **T-802 implementation-plan preparation only**.

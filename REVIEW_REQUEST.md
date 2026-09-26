@@ -1,20 +1,22 @@
-# T-801 — Release-Candidate Artifact Contract External Review Closure
+# T-801 — Release-Candidate Artifact Contract Final Closure
 
 ## State
 
 - Task: `T-801 — Release-candidate artifact contract`
-- Branch: `feat/t-801-release-candidate-artifact-contract`
-- State: **DONE / EXTERNALLY REVIEWED / REVIEW CLOSED / NOT MERGED**
+- Branch: `main`
+- State: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - Implementation base: `da8ea76545afaf434b26a69ba92713db2784c785`
 - Final implementation-code head: `c50b9f12cd809107f4d95f553716d9a96df3f038`
 - Final reviewed pre-closure head: `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - Reviewed-head Validate: `#998` / `36266212552` — **13/13 SUCCESS**
 - Release-contract suite: **49/49 PASS**
 - External review: **CLOSED — 5 review threads / 0 unresolved; latest Major CodeRabbit-confirmed addressed**
+- Merge commit: `84f80858308d35ed532eec3928a7fdf3186ffb34`
+- Post-merge main Validate: `#1001` / `36273220054` — **13/13 SUCCESS**
 - Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
 - Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
-This closure does not authorize merge, decision promotion, T-802, tags, releases, registry publication, or a public version.
+The merge is complete. This closure does not authorize decision promotion, T-802 implementation, tags, releases, registry publication, or a public version.
 
 ## What T-801 implements
 
@@ -299,3 +301,15 @@ PR state:                       OPEN / mergeable / NOT MERGED
 External review is closed. No decision promotion, merge, tag, release, registry publication, public SemVer selection, or T-802 implementation is authorized by this closure.
 
 Next explicit gate: **T-801 merge decision only**.
+
+## Post-merge main revalidation
+
+```text
+PR:                              #19 — MERGED
+Merge commit:                    84f80858308d35ed532eec3928a7fdf3186ffb34
+Post-merge main Validate:        #1001 / 36273220054 — 13/13 SUCCESS
+Review threads:                  5 total / 0 unresolved
+Tag/release/publication:        NONE
+```
+
+T-801 is final on `main`. The next explicit gate is **T-802 implementation-plan preparation only**; no T-802 implementation begins automatically.
