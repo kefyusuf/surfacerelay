@@ -1,6 +1,6 @@
 # T-802 — Laravel Release-Candidate Artifact + Clean Consumer Proof
 
-Status: READY FOR APPROVAL / IMPLEMENTATION NOT STARTED
+Status: APPROVED / IMPLEMENTATION NOT STARTED
 Date: 2026-09-27
 Task: T-802
 Baseline: main@138d27f21c92af2c26d62f32dd217724f56efacf
@@ -405,3 +405,23 @@ This plan-preparation gate does not authorize implementation.
 After this plan is committed and exact-head validation is green, stop.
 
 The next explicit gate is **T-802 implementation-plan approval only**. Approval may then authorize creation of the T-802 feature branch, but implementation must not begin from this plan-preparation commit automatically.
+
+## 12. Plan approval checkpoint
+
+Approved against:
+
+```text
+Plan-preparation head:            13fa25393c179257d1de724752f2dec49173653f
+Plan-preparation Validate:        #1003 / 36277458713 — 13/13 SUCCESS
+Approval scope:                   T-802 plan only
+Implementation branch:           NOT CREATED
+Implementation:                  NOT STARTED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NOT AUTHORIZED
+```
+
+The plan is approved as the implementation contract for T-802. Approval does not itself create the feature branch or authorize Step 2 RED work in this commit.
+
+Next explicit gate: **T-802 Step 1 — baseline + feature branch only**. After that gate is separately completed, stop before Step 2 RED artifact-content tests.

@@ -1032,13 +1032,13 @@ T-801 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No la
 
 Next explicit gate: **T-802 implementation-plan preparation only**. Do not begin T-802 implementation, promote D-069..D-073, tag, release, or publish automatically.
 
-## T-802 implementation-plan preparation — READY FOR APPROVAL
+## T-802 implementation plan — APPROVED / IMPLEMENTATION NOT STARTED
 
 ```text
-Baseline main:                    138d27f21c92af2c26d62f32dd217724f56efacf
-Baseline Validate:                #1002 / 36273346790 — 13/13 SUCCESS
 Plan:                             docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
-T-802 plan state:                 READY FOR APPROVAL
+Plan-preparation head:            13fa25393c179257d1de724752f2dec49173653f
+Plan-preparation Validate:        #1003 / 36277458713 — 13/13 SUCCESS
+T-802 plan state:                 APPROVED
 T-802 implementation:            NOT STARTED
 Implementation branch:           NOT CREATED
 Planned artifact:                 surfacerelay/laravel Composer ZIP
@@ -1051,5 +1051,5 @@ T-803..T-805:                    NOT STARTED
 Publish/tag/release:              NOT AUTHORIZED
 ```
 
-Next explicit gate: **T-802 implementation-plan approval only**. Do not create the implementation branch or start RED tests automatically.
+Next explicit gate: **T-802 Step 1 — baseline + feature branch only**. Do not begin RED artifact-content tests automatically.
 
