@@ -6,6 +6,10 @@ from pathlib import Path
 import re
 import sys
 
+import yaml
+from yaml.constructor import ConstructorError
+from yaml.nodes import MappingNode
+
 
 @dataclass(frozen=True, order=True)
 class GuardrailViolation:
@@ -38,9 +42,6 @@ _CREDENTIALS = (
 
 _TOKEN_PATTERN = re.compile(r"[A-Za-z0-9_./:@+$-]+")
 _COMMAND_SEGMENT_SEPARATOR = re.compile(r"&&|\|\||[;|]")
-_FOLDED_WORKFLOW_RUN = re.compile(
-    r"^(?P<indent>\s*)(?:-\s*)?run:\s*>[+-]?\s*(?:#.*)?$"
-)
 _GIT_PUSH_TAGS_RULE = "publication-command/git-push-tags"
 
 
@@ -121,6 +122,29 @@ def _scan_command_segment(
     return violations
 
 
+def _scan_credentials(path: str, text: str) -> list[GuardrailViolation]:
+    violations: list[GuardrailViolation] = []
+
+    for credential in _CREDENTIALS:
+        if re.search(
+            rf"(?<![A-Za-z0-9_]){re.escape(credential)}(?![A-Za-z0-9_])",
+            text,
+        ):
+            rule_id = f"publication-credential/{credential}"
+            violations.append(
+                GuardrailViolation(
+                    path=path,
+                    rule_id=rule_id,
+                    message=(
+                        "publication credential identifier is not allowed "
+                        f"in executable release surfaces ({rule_id})"
+                    ),
+                )
+            )
+
+    return violations
+
+
 def _scan_text(path: str, text: str) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
 
@@ -128,94 +152,151 @@ def _scan_text(path: str, text: str) -> list[GuardrailViolation]:
         for segment in _COMMAND_SEGMENT_SEPARATOR.split(line):
             violations.extend(_scan_command_segment(path, segment))
 
-        for credential in _CREDENTIALS:
-            if re.search(
-                rf"(?<![A-Za-z0-9_]){re.escape(credential)}(?![A-Za-z0-9_])",
-                line,
-            ):
-                rule_id = f"publication-credential/{credential}"
-                violations.append(
-                    GuardrailViolation(
-                        path=path,
-                        rule_id=rule_id,
-                        message=(
-                            "publication credential identifier is not allowed "
-                            f"in executable release surfaces ({rule_id})"
-                        ),
-                    )
-                )
+        violations.extend(_scan_credentials(path, line))
 
     return violations
 
 
-def _leading_spaces(line: str) -> int:
-    return len(line) - len(line.lstrip(" "))
+class _StrictWorkflowLoader(yaml.BaseLoader):
+    pass
 
 
-def _fold_yaml_block_lines(lines: list[str]) -> str:
-    non_empty = [line for line in lines if line.strip()]
-    if not non_empty:
-        return ""
+def _construct_unique_mapping(
+    loader: _StrictWorkflowLoader,
+    node: MappingNode,
+    deep: bool = False,
+) -> dict[object, object]:
+    if not isinstance(node, MappingNode):
+        raise ConstructorError(
+            None,
+            None,
+            "expected a mapping node",
+            node.start_mark,
+        )
 
-    content_indent = min(_leading_spaces(line) for line in non_empty)
-    normalized = [
-        line[content_indent:].rstrip()
-        if line.strip()
-        else ""
-        for line in lines
-    ]
+    mapping: dict[object, object] = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        try:
+            duplicate = key in mapping
+        except TypeError as exc:
+            raise ConstructorError(
+                "while constructing a mapping",
+                node.start_mark,
+                "found unhashable key",
+                key_node.start_mark,
+            ) from exc
 
-    paragraphs: list[str] = []
-    current: list[str] = []
+        if duplicate:
+            raise ConstructorError(
+                "while constructing a mapping",
+                node.start_mark,
+                f"found duplicate key {key!r}",
+                key_node.start_mark,
+            )
 
-    for line in normalized:
-        if line:
-            current.append(line)
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+
+    return mapping
+
+
+_StrictWorkflowLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _construct_unique_mapping,
+)
+
+
+def _load_workflow(path: str, text: str) -> dict[object, object]:
+    try:
+        workflow = yaml.load(text, Loader=_StrictWorkflowLoader)
+    except yaml.YAMLError as exc:
+        raise GuardrailScanError(f"cannot parse {path}") from exc
+
+    if not isinstance(workflow, dict):
+        raise GuardrailScanError(f"{path} workflow must be a mapping")
+
+    return workflow
+
+
+def _workflow_run_values(
+    path: str,
+    workflow: dict[object, object],
+) -> list[str]:
+    jobs = workflow.get("jobs")
+    if not isinstance(jobs, dict):
+        raise GuardrailScanError(f"{path} jobs must be a mapping")
+
+    commands: list[str] = []
+
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            raise GuardrailScanError(f"{path} job definitions must be mappings")
+
+        steps = job.get("steps")
+        if steps is None:
+            continue
+        if not isinstance(steps, list):
+            raise GuardrailScanError(f"{path} job steps must be a sequence")
+
+        for step in steps:
+            if not isinstance(step, dict):
+                raise GuardrailScanError(f"{path} workflow steps must be mappings")
+            if "run" not in step:
+                continue
+
+            command = step["run"]
+            if not isinstance(command, str):
+                raise GuardrailScanError(
+                    f"{path} workflow run values must be strings"
+                )
+            commands.append(command)
+
+    return commands
+
+
+def _workflow_strings(value: object) -> list[str]:
+    strings: list[str] = []
+    pending: list[object] = [value]
+    seen_containers: set[int] = set()
+
+    while pending:
+        current = pending.pop()
+
+        if isinstance(current, str):
+            strings.append(current)
             continue
 
-        if current:
-            paragraphs.append(" ".join(current))
-            current = []
-        paragraphs.append("")
-
-    if current:
-        paragraphs.append(" ".join(current))
-
-    return "\n".join(paragraphs)
-
-
-def _folded_workflow_run_values(text: str) -> list[str]:
-    lines = text.splitlines()
-    values: list[str] = []
-    index = 0
-
-    while index < len(lines):
-        match = _FOLDED_WORKFLOW_RUN.match(lines[index])
-        if match is None:
-            index += 1
+        if isinstance(current, dict):
+            identity = id(current)
+            if identity in seen_containers:
+                continue
+            seen_containers.add(identity)
+            for key, item in current.items():
+                pending.append(key)
+                pending.append(item)
             continue
 
-        base_indent = len(match.group("indent"))
-        body: list[str] = []
-        index += 1
+        if isinstance(current, list):
+            identity = id(current)
+            if identity in seen_containers:
+                continue
+            seen_containers.add(identity)
+            pending.extend(current)
 
-        while index < len(lines):
-            line = lines[index]
-            if line.strip() and _leading_spaces(line) <= base_indent:
-                break
-            body.append(line)
-            index += 1
-
-        values.append(_fold_yaml_block_lines(body))
-
-    return values
+    return strings
 
 
 def _scan_workflow_text(path: str, text: str) -> list[GuardrailViolation]:
-    violations = _scan_text(path, text)
+    workflow = _load_workflow(path, text)
+    violations: list[GuardrailViolation] = []
 
-    for command in _folded_workflow_run_values(text):
-        violations.extend(_scan_text(path, command))
+    for command in _workflow_run_values(path, workflow):
+        for line in command.splitlines():
+            for segment in _COMMAND_SEGMENT_SEPARATOR.split(line):
+                violations.extend(_scan_command_segment(path, segment))
+
+    for value in _workflow_strings(workflow):
+        violations.extend(_scan_credentials(path, value))
 
     return violations
 

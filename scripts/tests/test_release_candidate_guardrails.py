@@ -309,7 +309,7 @@ class ReleaseGuardrailContractTest(unittest.TestCase):
                     "jobs:\n"
                     "  release:\n"
                     "    steps:\n"
-                    "      - run: 123\n"
+                    "      - run: [npm, publish]\n"
                 ),
             )
 
