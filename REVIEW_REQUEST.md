@@ -252,3 +252,29 @@ The failures are limited to the accepted Major finding:
 Existing `>`, `>-`, and `>+` folded-scalar tests remain green. No production/dependency/workflow implementation was changed by the RED commit.
 
 The inline Major review thread intentionally remains unresolved. The next gate is the bounded GREEN parser implementation and exact-head revalidation only.
+## GREEN evidence for workflow YAML parsing finding
+
+The bounded fix is implemented at:
+
+```text
+c50b9f12cd809107f4d95f553716d9a96df3f038
+fix(t-801): parse workflow yaml before release scanning
+```
+
+Exact-head Validate #996 (`36266106312`) is **13/13 SUCCESS**.
+
+```text
+release-contract tests: 49/49 PASS
+publication guard:       PASS
+contract:                SUCCESS
+browser:                 SUCCESS
+openapi-importer:        SUCCESS
+php-lint:                SUCCESS
+Laravel/PHP matrices:    SUCCESS
+```
+
+The implementation removes the manual folded-scalar scanner and instead parses workflow YAML with a bounded PyYAML 6.x `BaseLoader`-derived loader that preserves scalar strings and rejects duplicate mapping keys. Publication commands are scanned only from parsed step `run` strings. Credential identifiers are scanned from parsed string keys/values, so comments are excluded. Malformed YAML, duplicate keys, structurally invalid workflow sections, and non-string `run` values fail closed.
+
+The implementation diff is limited to the four authorized parser/dependency/test/CI files. No package implementation, canonical spec, conformance, decision promotion, publication authority, or T-802 behavior changed.
+
+The inline Major review thread remains open intentionally for the next explicit **finding disposition / resolution gate**.

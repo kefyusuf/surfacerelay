@@ -629,3 +629,14 @@ Validate #992 (`36250401675`) completed **12 SUCCESS / 1 FAILURE**, with only th
 No production scanner, parser dependency, workflow dependency setup, package, spec, conformance, decision, or publication behavior changed in this RED gate.
 
 The next explicit gate is **GREEN implementation for this Major finding only**. It may modify only the already-authorized parser dependency/setup, publication-guard implementation, focused tests as needed for correctness, and tracking evidence. It must not begin T-802 or resolve the external-review thread before exact-head green evidence exists.
+### External-review GREEN checkpoint — verified
+
+GREEN implementation is complete at `c50b9f12cd809107f4d95f553716d9a96df3f038`.
+
+Validate #996 (`36266106312`) completed **13/13 SUCCESS**. The dedicated T-801 suite is **49/49 PASS** and the publication guard passes.
+
+The parser implementation follows the locked amendment: a bounded PyYAML 6.x dependency, `BaseLoader`-derived strict duplicate-key-rejecting loading, parsed workflow `run` command scanning, parsed credential key/value scanning, fail-closed malformed/structurally invalid workflow handling, and removal of handwritten YAML-folding logic.
+
+The focused non-string `run` regression fixture uses a sequence value rather than numeric `123`, because `BaseLoader` intentionally preserves scalar values as strings. This keeps the test aligned with the selected parser semantics while still proving non-string parsed values fail closed.
+
+Next explicit gate: **external-review finding disposition / thread resolution only**. Do not begin T-802, decision promotion, merge, tag, release, or publication automatically.

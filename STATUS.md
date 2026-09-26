@@ -950,3 +950,31 @@ The six RED failures prove exactly the locked parsing gap:
 Existing folded `>`, `>-`, and `>+` coverage remained green. The other 12 Validate jobs also remained green, so the RED signal is isolated to the intended T-801 publication-guard boundary.
 
 Next explicit gate: **GREEN implementation for this Major finding only**. Do not resolve the review thread until the parser fix, focused suite, publication guard, full Validate matrix, and exact-head review evidence are green.
+## T-801 external-review checkpoint — workflow YAML parsing GREEN VERIFIED
+
+```text
+RED head:                          3702b9786fe3a171571acd3988021ba7083cf232
+RED Validate:                      #992 / 36250401675 — 12 SUCCESS / 1 expected FAILURE
+GREEN implementation head:         c50b9f12cd809107f4d95f553716d9a96df3f038
+GREEN Validate:                    #996 / 36266106312 — 13/13 SUCCESS
+Release-contract suite:            49/49 PASS
+Publication guard:                 PASS
+Contract validation:               SUCCESS
+Workflow parser:                   PyYAML 6.x BaseLoader-derived strict loader
+Duplicate mapping keys:            FAIL CLOSED
+Malformed workflow YAML:           FAIL CLOSED
+Non-string run values:             FAIL CLOSED
+Plain/folded/indent scalar runs:    PARSED BEFORE COMMAND SCAN
+Workflow comments:                 NOT EXECUTABLE SCAN INPUT
+Manual YAML folding regex:         REMOVED
+Changed implementation files:      4 allowed files only
+Open review finding:               1 Major / thread still unresolved
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-802..T-805:                     NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+The accepted Major YAML parsing finding is technically fixed and exact-head verified. The implementation now parses workflow YAML before scanning `run` commands, rejects duplicate mappings and invalid structures fail-closed, scans credential identifiers from parsed string keys/values, and removes the handwritten folded-scalar approximation.
+
+The inline review thread intentionally remains unresolved in this gate. Next explicit gate: **external-review finding disposition / thread resolution only**, followed by any required review re-check. Do not begin T-802, merge, promote decisions, tag, release, or publish automatically.

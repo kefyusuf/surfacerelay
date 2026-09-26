@@ -1150,3 +1150,17 @@ Validate #992 (`36250401675`) completed with **12 SUCCESS / 1 FAILURE**. Only `r
 No production scanner, dependency, CI setup, package, spec, conformance, decision, publication, or T-802 implementation changed in the RED gate.
 
 Next gate: **GREEN parser implementation for this Major only**. The review thread remains unresolved until exact-head verification proves the fix.
+### T-801 external-review finding — GREEN_VERIFIED / REVIEW_THREAD_OPEN
+
+GREEN implementation is complete at `c50b9f12cd809107f4d95f553716d9a96df3f038`.
+
+Validate #996 (`36266106312`) completed **13/13 SUCCESS**. The dedicated `release-contract` suite is **49/49 PASS**, the repository publication guard passes, and the normal contract/browser/OpenAPI/PHP/Laravel matrices are all green.
+
+The fix is limited to:
+
+- `.github/workflows/validate.yml` — install the bounded release-contract Python dependencies;
+- `requirements-dev.txt` — add `PyYAML>=6.0.3,<7`;
+- `scripts/check_release_guardrails.py` — strict parsed-workflow scanning, duplicate-key rejection, parsed credential scanning, no handwritten YAML folding;
+- `scripts/tests/test_release_candidate_guardrails.py` — align the non-string `run` fixture with BaseLoader semantics.
+
+The Major review thread remains unresolved intentionally. Next gate: **disposition the verified finding and resolve/re-check that thread only**. T-802 remains NOT STARTED.
