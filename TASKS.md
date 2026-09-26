@@ -1141,3 +1141,12 @@ Locked boundary:
 - do not treat this amendment as a general shell parser or a new public SurfaceRelay contract.
 
 Next gate: **focused RED tests for this finding only**. Parser implementation, thread resolution, merge, D-069..D-073 promotion, and T-802 remain out of scope until a later explicit continuation.
+### T-801 external-review finding — RED_PROVEN / GREEN_NOT_STARTED
+
+RED evidence is complete at `3702b9786fe3a171571acd3988021ba7083cf232`.
+
+Validate #992 (`36250401675`) completed with **12 SUCCESS / 1 FAILURE**. Only `release-contract` failed. The T-801 suite ran 49 tests with six expected failures covering the accepted YAML parsing gap: multi-line plain scalar, `>2`, duplicate keys, malformed YAML, non-string `run`, and comment false positives. Existing `>`, `>-`, and `>+` cases stayed green.
+
+No production scanner, dependency, CI setup, package, spec, conformance, decision, publication, or T-802 implementation changed in the RED gate.
+
+Next gate: **GREEN parser implementation for this Major only**. The review thread remains unresolved until exact-head verification proves the fix.

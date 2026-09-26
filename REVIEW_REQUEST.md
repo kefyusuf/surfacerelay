@@ -222,3 +222,33 @@ The finding is accepted as valid. The design amendment is now locked:
 No implementation fix has been made by this amendment and the review thread intentionally remains unresolved.
 
 The next review gate is **RED regression tests for this Major only**, followed later by a separately gated GREEN implementation and exact-head revalidation.
+## RED evidence for active YAML parsing finding
+
+The parser-boundary regression suite is now committed at:
+
+```text
+3702b9786fe3a171571acd3988021ba7083cf232
+test(t-801): expose workflow yaml parsing gaps
+```
+
+Validate #992 (`36250401675`) produced the intended isolated RED result:
+
+```text
+12 jobs SUCCESS
+release-contract FAILURE
+49 T-801 tests
+6 expected failures
+```
+
+The failures are limited to the accepted Major finding:
+
+- multi-line plain scalar `run` misses `npm publish`;
+- `>2` folded scalar misses `npm publish`;
+- duplicate mapping keys do not fail closed;
+- malformed YAML does not fail closed;
+- non-string `run` does not fail closed;
+- workflow comments can create false publication/credential violations.
+
+Existing `>`, `>-`, and `>+` folded-scalar tests remain green. No production/dependency/workflow implementation was changed by the RED commit.
+
+The inline Major review thread intentionally remains unresolved. The next gate is the bounded GREEN parser implementation and exact-head revalidation only.

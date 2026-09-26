@@ -919,3 +919,34 @@ Merge/tag/release/publication:   NOT AUTHORIZED
 The Major finding is accepted as valid. The prior `run: >` regex/folding fix is not extended further because that would keep a correctness-critical YAML boundary dependent on syntax-shape matching.
 
 Next explicit gate: **T-801 external-review finding RED tests only**. Do not implement GREEN, resolve the review thread, merge, promote decisions, or start T-802 automatically.
+## T-801 external-review checkpoint — workflow YAML parsing RED PROVEN
+
+```text
+Design-lock head:                 f503a9cb1afeda7091f700414ccabbebaa6d092c
+Design-lock Validate:             #991 / 36238605824 — 13/13 SUCCESS
+RED test head:                    3702b9786fe3a171571acd3988021ba7083cf232
+RED Validate:                     #992 / 36250401675 — 12 SUCCESS / 1 FAILURE
+Failing job:                      release-contract only
+T-801 suite at RED:               49 tests / 6 expected failures
+Unrelated CI jobs:                12/12 SUCCESS
+Open review finding:              1 Major / thread unresolved
+Production scanner change:        NONE in RED gate
+Dependency/workflow setup change: NONE in RED gate
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-802..T-805:                    NOT STARTED
+Merge/tag/release/publication:   NOT AUTHORIZED
+```
+
+The six RED failures prove exactly the locked parsing gap:
+
+1. multi-line plain-scalar `run` is not reconstructed;
+2. explicit indentation-indicator folded scalar (`>2`) is not reconstructed;
+3. duplicate workflow mapping keys do not fail closed;
+4. malformed workflow YAML does not fail closed;
+5. non-string parsed `run` values do not fail closed;
+6. workflow comments are incorrectly scanned as executable publication/credential text.
+
+Existing folded `>`, `>-`, and `>+` coverage remained green. The other 12 Validate jobs also remained green, so the RED signal is isolated to the intended T-801 publication-guard boundary.
+
+Next explicit gate: **GREEN implementation for this Major finding only**. Do not resolve the review thread until the parser fix, focused suite, publication guard, full Validate matrix, and exact-head review evidence are green.

@@ -620,3 +620,12 @@ Only after those RED tests are captured may implementation modify `requirements-
 ### Stop boundary
 
 After this design amendment, stop. The next explicit gate is **T-801 external-review finding RED tests only**. Do not implement the parser, resolve the review thread, merge PR #19, promote D-069..D-073, or begin T-802 automatically.
+### External-review RED checkpoint — complete
+
+The required RED evidence is captured at `3702b9786fe3a171571acd3988021ba7083cf232`.
+
+Validate #992 (`36250401675`) completed **12 SUCCESS / 1 FAILURE**, with only the dedicated `release-contract` job failing. The T-801 suite ran 49 tests and produced six expected failures for the accepted workflow-YAML parsing gap. Existing folded `>`, `>-`, and `>+` cases stayed green.
+
+No production scanner, parser dependency, workflow dependency setup, package, spec, conformance, decision, or publication behavior changed in this RED gate.
+
+The next explicit gate is **GREEN implementation for this Major finding only**. It may modify only the already-authorized parser dependency/setup, publication-guard implementation, focused tests as needed for correctness, and tracking evidence. It must not begin T-802 or resolve the external-review thread before exact-head green evidence exists.
