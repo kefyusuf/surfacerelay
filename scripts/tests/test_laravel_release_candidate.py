@@ -242,22 +242,20 @@ class LaravelReleaseCandidateArtifactContractTest(unittest.TestCase):
 
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+            manifest_sha256 = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+            archive_sha256 = hashlib.sha256(archive_path.read_bytes()).hexdigest()
+            archive_name = archive_path.name
+            archive_size = archive_path.stat().st_size
 
         for payload in (manifest, evidence):
             self.assertEqual(PACKAGE_NAME, payload["packageName"])
             self.assertEqual(VERSION, payload["artifactVersion"])
             self.assertEqual(REVISION, payload["sourceRevision"])
 
-        self.assertEqual(
-            hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
-            evidence["contentManifestSha256"],
-        )
-        self.assertEqual(
-            hashlib.sha256(archive_path.read_bytes()).hexdigest(),
-            evidence["archiveSha256"],
-        )
-        self.assertEqual(archive_path.name, evidence["archiveFilename"])
-        self.assertEqual(archive_path.stat().st_size, evidence["archiveSize"])
+        self.assertEqual(manifest_sha256, evidence["contentManifestSha256"])
+        self.assertEqual(archive_sha256, evidence["archiveSha256"])
+        self.assertEqual(archive_name, evidence["archiveFilename"])
+        self.assertEqual(archive_size, evidence["archiveSize"])
 
 
 class LaravelCleanConsumerIsolationContractTest(unittest.TestCase):
