@@ -11,8 +11,12 @@ final class T802CleanConsumerSmokeRedTest extends TestCase
 {
     public function test_clean_consumer_smoke_requires_artifact_installed_runtime(): void
     {
-        $illuminate = InstalledVersions::getPrettyVersion('illuminate/support') ?? '';
-        if (PHP_VERSION_ID < 80400 || preg_match('/^v?13\\./', $illuminate) !== 1) {
+        $isIlluminate13 = InstalledVersions::satisfies(
+            new VersionParser(),
+            'illuminate/support',
+            '^13.0',
+        );
+        if (PHP_VERSION_ID < 80400 || !$isIlluminate13) {
             self::markTestSkipped('T-802 smoke RED is bounded to PHP 8.4 + Illuminate 13.');
         }
 
