@@ -33,6 +33,153 @@ jobs:
       - name: Check release publication guardrails
         run: python scripts/check_release_guardrails.py
 
+  laravel-release-consumer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: '8.3'
+            laravel-version: '^12.0'
+          - php-version: '8.3'
+            laravel-version: '^13.0'
+          - php-version: '8.4'
+            laravel-version: '^12.0'
+          - php-version: '8.4'
+            laravel-version: '^13.0'
+    name: laravel-release-consumer (PHP ${{ matrix.php-version }}, Laravel ${{ matrix.laravel-version }})
+    env:
+      T802_ARTIFACT_VERSION: 0.0.0-alpha1
+      T802_LARAVEL_VERSION: ${{ matrix.laravel-version }}
+      COMPOSER_NO_INTERACTION: 1
+      COMPOSER_NO_AUDIT: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          extensions: mbstring
+      - name: Install release-consumer Python dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run Laravel release-candidate tooling tests
+        run: python -m unittest scripts.tests.test_laravel_release_candidate -v
+      - name: Build exact-revision artifact and clean consumer workspace
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SOURCE_REVISION="$(git rev-parse HEAD)"
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "release-consumer checkout must be clean" >&2
+            exit 1
+          fi
+
+          SOURCE_ROOT="$RUNNER_TEMP/surfacerelay-t802-source"
+          STAGE_ROOT="$RUNNER_TEMP/surfacerelay-t802-stage"
+          CONSUMER_ROOT="$RUNNER_TEMP/surfacerelay-t802-consumer"
+
+          mkdir -p "$SOURCE_ROOT"
+          git archive HEAD | tar -x -C "$SOURCE_ROOT"
+
+          python - "$SOURCE_ROOT" "$STAGE_ROOT" "$CONSUMER_ROOT" "$SOURCE_REVISION" "$T802_ARTIFACT_VERSION" "$T802_LARAVEL_VERSION" <<'PY'
+          from pathlib import Path
+          import sys
+
+          source_root = Path(sys.argv[1])
+          stage_root = Path(sys.argv[2])
+          consumer_root = Path(sys.argv[3])
+          revision = sys.argv[4]
+          version = sys.argv[5]
+          laravel_constraint = sys.argv[6]
+
+          sys.path.insert(0, str(source_root))
+          from scripts import laravel_release_candidate as release
+
+          candidate = release.build_laravel_release_candidate(
+              repo=source_root,
+              stage_root=stage_root,
+              artifact_version=version,
+              source_revision=revision,
+          )
+          release.validate_laravel_artifact_archive(
+              archive_path=candidate["archivePath"],
+              artifact_version=version,
+          )
+          release.create_clean_consumer_workspace(
+              consumer_root=consumer_root,
+              artifact_directory=Path(candidate["archivePath"]).parent,
+              artifact_version=version,
+              laravel_constraint=laravel_constraint,
+              package_source_root=source_root / "packages" / "laravel",
+          )
+          PY
+
+          {
+            echo "T802_SOURCE_REVISION=$SOURCE_REVISION"
+            echo "T802_SOURCE_ROOT=$SOURCE_ROOT"
+            echo "T802_STAGE_ROOT=$STAGE_ROOT"
+            echo "T802_CONSUMER_ROOT=$CONSUMER_ROOT"
+          } >> "$GITHUB_ENV"
+      - name: Install clean consumer from Composer artifact repository
+        run: >-
+          composer update
+          --working-dir="$T802_CONSUMER_ROOT"
+          --no-interaction
+          --no-progress
+          --prefer-dist
+          --no-scripts
+      - name: Verify exact installed candidate and autoload
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - "$T802_CONSUMER_ROOT" "$T802_ARTIFACT_VERSION" "$T802_SOURCE_ROOT" <<'PY'
+          from pathlib import Path
+          import sys
+
+          consumer_root = Path(sys.argv[1])
+          version = sys.argv[2]
+          source_root = Path(sys.argv[3])
+
+          sys.path.insert(0, str(source_root))
+          from scripts import laravel_release_candidate as release
+
+          release.verify_clean_consumer_install(
+              consumer_root=consumer_root,
+              artifact_version=version,
+              package_source_root=source_root / "packages" / "laravel",
+          )
+          PY
+
+          php -r '
+          require getenv("T802_CONSUMER_ROOT") . "/vendor/autoload.php";
+          if (!class_exists(\SurfaceRelay\Laravel\SurfaceRelayServiceProvider::class)) {
+              fwrite(STDERR, "SurfaceRelayServiceProvider did not autoload\n");
+              exit(1);
+          }
+          '
+      - name: Run latest-supported ActionBus clean-consumer smoke
+        if: matrix.php-version == '8.4' && matrix.laravel-version == '^13.0'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cp scripts/fixtures/laravel-clean-consumer/smoke.php "$T802_CONSUMER_ROOT/smoke.php"
+          OUTPUT="$(php "$T802_CONSUMER_ROOT/smoke.php" "$T802_CONSUMER_ROOT")"
+          if [ "$OUTPUT" != "SurfaceRelay Laravel clean-consumer smoke: PASS" ]; then
+            printf '%s\n' "$OUTPUT" >&2
+            exit 1
+          fi
+          printf '%s\n' "$OUTPUT"
+
   php-tests:
     runs-on: ubuntu-latest
     services:
