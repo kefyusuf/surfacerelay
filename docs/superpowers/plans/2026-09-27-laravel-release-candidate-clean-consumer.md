@@ -594,3 +594,28 @@ The first Step-8 attempt correctly exposed an ordering bug in CI evidence collec
 All four matrix legs run the committed T-802 tooling tests, build the Composer ZIP, create an isolated consumer, install through Composer's `artifact` repository, verify the exact installed candidate and autoload, and remain free of path/dev-main/file/workspace source coupling. Only the PHP 8.4 + Laravel 13 leg runs the real ActionBus smoke.
 
 Next explicit gate: **Step 9 — whole-task verification only**. Stop before Step 10 forbidden-diff audit.
+
+## 21. Step 9 checkpoint — whole-task verification complete
+
+```text
+Exact-head revision:              86ccdc67ff268014d8948112ac07ad7bee410f87
+Validate:                         #1034 / 36359223941 — 17/17 SUCCESS
+Focused T-802 suite:              20/20 PASS per consumer leg
+Release-contract discovery:       49/49 PASS
+Publication guard:                PASS
+Canonical validation:             PASS
+Consumer matrix:                  4/4 SUCCESS
+Artifact install/metadata:        PASS in all 4 legs
+ActionBus smoke:                  PASS on PHP 8.4 + Laravel 13
+```
+
+Step 9 satisfies every required focused verification command through exact-head GitHub Actions evidence:
+
+- `python -m unittest scripts.tests.test_laravel_release_candidate -v` — 20/20 PASS in each consumer matrix leg;
+- `python -m unittest discover -s scripts/tests -p 'test_release_candidate*.py' -v` — 49/49 PASS in `release-contract`;
+- `python scripts/check_release_guardrails.py` — PASS in `release-contract`;
+- `python scripts/validate.py` — PASS in `contract`.
+
+All four `laravel-release-consumer` jobs were inspected explicitly. Every leg installs the exact candidate from the Composer artifact repository and verifies installed metadata/autoload; only the latest-supported PHP 8.4 + Laravel 13 leg runs and passes the permanent ActionBus smoke.
+
+Next explicit gate: **Step 10 — forbidden-diff / source-mutation audit only**. Stop before Step 11 tracking/review handoff.

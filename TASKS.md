@@ -1095,7 +1095,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — STEP_8_CI_VERIFIED / STEP_9_NOT_STARTED
+### T-802 — Laravel artifact + clean consumer proof — STEP_9_WHOLE_TASK_VERIFIED / STEP_10_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1115,7 +1115,9 @@ Step 6 RED fixture head: `7c97ec9448646ab32af3e2a42bdc6635077e954a`. The permane
 
 Step 7 GREEN is verified at `e9d205528556d2c8a7413d0bbaa6de172800d08b`. Authoritative Validate #1030 (`36335013953`) is **13/13 SUCCESS**.
 
-Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7410e708663b1625aa90e5` exposed a CI-ordering issue: Python tooling tests created untracked cache files before the checkout-clean assertion. Fix head `0e531439b59e849d046434fd932fbe5374c4f586` moved the clean check before tooling while preserving exact `git archive HEAD` artifact materialization. Authoritative Validate #1033 (`36359056975`) completed **17/17 SUCCESS**: the original 13 jobs stayed green and all four `laravel-release-consumer` legs passed. PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`; the other three smoke steps were skipped by design. No registry credentials, path/dev-main/source-link coupling, publication, package production, spec, or conformance changes were introduced. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
+Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7410e708663b1625aa90e5` exposed a CI-ordering issue: Python tooling tests created untracked cache files before the checkout-clean assertion. Fix head `0e531439b59e849d046434fd932fbe5374c4f586` moved the clean check before tooling while preserving exact `git archive HEAD` artifact materialization. Authoritative Validate #1033 (`36359056975`) completed **17/17 SUCCESS**: the original 13 jobs stayed green and all four `laravel-release-consumer` legs passed. PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`; the other three smoke steps were skipped by design. No registry credentials, path/dev-main/source-link coupling, publication, package production, spec, or conformance changes were introduced.
+
+Step 9 whole-task verification is complete on `86ccdc67ff268014d8948112ac07ad7bee410f87`. Exact-head Validate #1034 (`36359223941`) completed **17/17 SUCCESS**. The focused T-802 tooling suite ran **20/20 PASS** in each of the four consumer jobs; `release-contract` discovery ran **49/49 PASS** with publication guard PASS; canonical `python scripts/validate.py` passed. All four consumer legs locked/installed `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository and verified installed metadata/autoload; PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
 ### T-803 — Browser runtime public API + artifact + clean consumer proof — NOT_STARTED
 
@@ -1217,3 +1219,6 @@ Tag/release/publication:        NONE
 ```
 
 Next gate: **T-802 implementation-plan preparation only**.
+
+
+T-802 Step 9 is **WHOLE-TASK VERIFIED**. Next explicit gate: **T-802 Step 10 — forbidden-diff / source-mutation audit only**. Step 11 review handoff and T-803 must not start automatically.

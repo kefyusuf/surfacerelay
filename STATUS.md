@@ -1322,3 +1322,35 @@ The initial Step-8 matrix attempt placed checkout-clean verification after Pytho
 The authoritative PHP 8.4 + Laravel 13 consumer log shows Composer locking, downloading, and installing `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository, followed by exact installed metadata/autoload verification and `SurfaceRelay Laravel clean-consumer smoke: PASS`. The other three matrix legs perform the same artifact build/install/verify flow with the smoke step explicitly skipped.
 
 Next explicit gate: **T-802 Step 9 — whole-task verification only**. Do not start Step 10 forbidden-diff audit, review handoff, T-803, merge, decision promotion, tag, release, or publication automatically.
+
+## T-802 Step 9 — whole-task verification VERIFIED
+
+```text
+Step 8 tracking head:             86ccdc67ff268014d8948112ac07ad7bee410f87
+Exact-head Validate:              #1034 / 36359223941 — 17/17 SUCCESS
+Focused T-802 suite:              20/20 PASS in each consumer matrix leg
+Release-contract discovery:       49/49 PASS
+Publication guard:                PASS
+python scripts/validate.py:       PASS
+Consumer matrix:                  4/4 SUCCESS
+  PHP 8.3 + Laravel 12:           artifact install + verify PASS
+  PHP 8.3 + Laravel 13:           artifact install + verify PASS
+  PHP 8.4 + Laravel 12:           artifact install + verify PASS
+  PHP 8.4 + Laravel 13:           artifact install + verify + smoke PASS
+Artifact version:                 0.0.0-alpha1 (non-public CI prerelease)
+Composer repository:              artifact
+Installed package:                surfacerelay/laravel 0.0.0-alpha1
+Smoke output:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Registry credentials:             NONE
+Path/dev-main/file/workspace link: NONE
+Step 10 forbidden-diff audit:     NOT STARTED
+Review handoff:                   NOT STARTED
+T-803..T-805:                     NOT STARTED
+Tag/release/publication:          NONE / NOT AUTHORIZED
+```
+
+Step 9 revalidated the complete T-802 implementation path on one exact branch head. The focused Laravel release-candidate tooling suite ran in all four consumer legs, the existing release-contract suite and publication guard remained green, canonical repository validation passed, and all 17 GitHub Actions jobs succeeded.
+
+Each consumer leg locked and installed `surfacerelay/laravel (0.0.0-alpha1)` from the Composer `artifact` repository and passed exact installed-metadata/autoload verification. Only the PHP 8.4 + Laravel 13 leg ran the production ActionBus smoke, which emitted the required PASS line.
+
+Next explicit gate: **T-802 Step 10 — forbidden-diff / source-mutation audit only**. Do not start Step 11 review handoff, T-803, merge, decision promotion, tag, release, or publication automatically.
