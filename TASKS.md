@@ -1095,11 +1095,13 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — PLAN_APPROVED / IMPLEMENTATION_NOT_STARTED
+### T-802 — Laravel artifact + clean consumer proof — STEP_1_COMPLETE / RED_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
 Planned scope: Composer ZIP for `surfacerelay/laravel`, exact staged prerelease version without source-manifest mutation, PHP 8.3/8.4 × Laravel 12/13 artifact-repository install matrix, one PHP 8.4 + Laravel 13 production ActionBus smoke, and explicit no-path/dev-main/source-link evidence.
+
+Step 1 baseline: `main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5`, Validate #1004 (`36279906163`) **13/13 SUCCESS**. Feature branch: `feat/t-802-laravel-artifact-clean-consumer`. No implementation/test/CI/package changes were made in Step 1.
 
 ### T-803 — Browser runtime public API + artifact + clean consumer proof — NOT_STARTED
 
@@ -1128,7 +1130,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`, and post-merge `main` Validate #1001 (`36273220054`) completed **13/13 SUCCESS**. External review is closed with all 5 inline threads resolved; the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-The T-802 implementation plan is **APPROVED**. The next explicit gate is **T-802 Step 1 — baseline + feature branch only**. Step 2 RED artifact-content tests must not start automatically.
+T-802 Step 1 is **COMPLETE**. The next explicit gate is **T-802 Step 2 — RED artifact-content tests only**. Artifact-builder GREEN implementation must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.

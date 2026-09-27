@@ -425,3 +425,17 @@ Publish/tag/release:              NOT AUTHORIZED
 The plan is approved as the implementation contract for T-802. Approval does not itself create the feature branch or authorize Step 2 RED work in this commit.
 
 Next explicit gate: **T-802 Step 1 — baseline + feature branch only**. After that gate is separately completed, stop before Step 2 RED artifact-content tests.
+
+## 13. Step 1 checkpoint — baseline + feature branch complete
+
+```text
+Implementation baseline:          main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Baseline Validate:                #1004 / 36279906163 — 13/13 SUCCESS
+Feature branch:                   feat/t-802-laravel-artifact-clean-consumer
+Production implementation:       NOT STARTED
+RED artifact-content tests:       NOT STARTED
+```
+
+The feature branch was created from the exact green baseline SHA. Step 1 introduced no production, test, CI, package, spec, conformance, artifact or consumer behavior.
+
+Next explicit gate: **Step 2 — RED artifact-content tests only**. Stop before Step 3 GREEN artifact-builder implementation.
