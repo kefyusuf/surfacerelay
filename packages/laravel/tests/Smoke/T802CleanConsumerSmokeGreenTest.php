@@ -55,9 +55,10 @@ final class T802CleanConsumerSmokeGreenTest extends TestCase
             $pythonBuild = <<<'PY'
 from pathlib import Path
 import sys
-from scripts import laravel_release_candidate as m
 
 repo = Path(sys.argv[1])
+sys.path.insert(0, str(repo))
+from scripts import laravel_release_candidate as m
 stage = Path(sys.argv[2])
 version = sys.argv[3]
 revision = sys.argv[4]
@@ -104,12 +105,15 @@ PY;
             $pythonVerify = <<<'PY'
 from pathlib import Path
 import sys
+
+repo = Path(sys.argv[3])
+sys.path.insert(0, str(repo))
 from scripts import laravel_release_candidate as m
 
 m.verify_clean_consumer_install(
     consumer_root=Path(sys.argv[1]),
     artifact_version=sys.argv[2],
-    package_source_root=Path(sys.argv[3]) / "packages" / "laravel",
+    package_source_root=repo / "packages" / "laravel",
 )
 PY;
 
