@@ -260,5 +260,150 @@ class LaravelReleaseCandidateArtifactContractTest(unittest.TestCase):
         self.assertEqual(archive_path.stat().st_size, evidence["archiveSize"])
 
 
+class LaravelCleanConsumerIsolationContractTest(unittest.TestCase):
+    def test_generated_consumer_uses_artifact_repository_only(self):
+        module = laravel_candidate_module()
+        manifest = module.build_clean_consumer_composer_manifest(
+            artifact_directory=Path("/tmp/artifacts"),
+            artifact_version=VERSION,
+            laravel_constraint="^13.0",
+        )
+
+        repositories = manifest["repositories"]
+        self.assertEqual(
+            [{"type": "artifact", "url": "/tmp/artifacts"}],
+            repositories,
+        )
+
+    def test_generated_consumer_requires_exact_candidate_version(self):
+        module = laravel_candidate_module()
+        manifest = module.build_clean_consumer_composer_manifest(
+            artifact_directory=Path("/tmp/artifacts"),
+            artifact_version=VERSION,
+            laravel_constraint="^13.0",
+        )
+
+        self.assertEqual(VERSION, manifest["require"][PACKAGE_NAME])
+
+    def test_generated_consumer_requires_selected_laravel_major(self):
+        module = laravel_candidate_module()
+
+        laravel12 = module.build_clean_consumer_composer_manifest(
+            artifact_directory=Path("/tmp/artifacts"),
+            artifact_version=VERSION,
+            laravel_constraint="^12.0",
+        )
+        laravel13 = module.build_clean_consumer_composer_manifest(
+            artifact_directory=Path("/tmp/artifacts"),
+            artifact_version=VERSION,
+            laravel_constraint="^13.0",
+        )
+
+        self.assertEqual("^12.0", laravel12["require"]["laravel/framework"])
+        self.assertEqual("^13.0", laravel13["require"]["laravel/framework"])
+
+    def test_forbidden_consumer_source_coupling_is_rejected(self):
+        module = laravel_candidate_module()
+        forbidden_manifests = [
+            {
+                "repositories": [
+                    {"type": "path", "url": "../../packages/laravel"}
+                ],
+                "require": {PACKAGE_NAME: VERSION},
+            },
+            {
+                "repositories": [
+                    {"type": "artifact", "url": "file:../../packages/laravel"}
+                ],
+                "require": {PACKAGE_NAME: VERSION},
+            },
+            {
+                "repositories": [
+                    {"type": "artifact", "url": "workspace:packages/laravel"}
+                ],
+                "require": {PACKAGE_NAME: VERSION},
+            },
+            {
+                "repositories": [
+                    {"type": "artifact", "url": "../packages/laravel"}
+                ],
+                "require": {PACKAGE_NAME: VERSION},
+            },
+            {
+                "repositories": [
+                    {"type": "artifact", "url": "/tmp/artifacts"}
+                ],
+                "require": {PACKAGE_NAME: "dev-main"},
+            },
+        ]
+
+        for manifest in forbidden_manifests:
+            with self.subTest(manifest=manifest):
+                with self.assertRaises(module.LaravelReleaseCandidateError):
+                    module.validate_clean_consumer_manifest(manifest)
+
+    def test_consumer_symlink_back_into_package_source_is_rejected(self):
+        module = laravel_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_source = root / "repo" / "packages" / "laravel"
+            package_source.mkdir(parents=True)
+            consumer = root / "consumer"
+            consumer.mkdir()
+            link = consumer / "linked-source"
+            try:
+                link.symlink_to(package_source, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"symlink creation unavailable: {exc}")
+
+            with self.assertRaises(module.LaravelReleaseCandidateError):
+                module.validate_clean_consumer_isolation(
+                    consumer_root=consumer,
+                    package_source_root=package_source,
+                )
+
+    def test_missing_or_wrong_artifact_archive_identity_is_rejected(self):
+        module = laravel_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            missing = root / "missing.zip"
+
+            with self.assertRaises(module.LaravelReleaseCandidateError):
+                module.validate_laravel_artifact_archive(
+                    archive_path=missing,
+                    artifact_version=VERSION,
+                )
+
+            wrong = root / "wrong.zip"
+            with zipfile.ZipFile(wrong, "w") as archive:
+                archive.writestr(
+                    "composer.json",
+                    json.dumps(
+                        {
+                            "name": "other/package",
+                            "version": VERSION,
+                        }
+                    ),
+                )
+
+            with self.assertRaises(module.LaravelReleaseCandidateError):
+                module.validate_laravel_artifact_archive(
+                    archive_path=wrong,
+                    artifact_version=VERSION,
+                )
+
+    def test_consumer_directory_must_not_be_package_source_tree(self):
+        module = laravel_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            package_source = Path(directory) / "packages" / "laravel"
+            package_source.mkdir(parents=True)
+
+            with self.assertRaises(module.LaravelReleaseCandidateError):
+                module.validate_clean_consumer_isolation(
+                    consumer_root=package_source,
+                    package_source_root=package_source,
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
