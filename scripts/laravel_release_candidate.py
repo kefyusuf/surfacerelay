@@ -171,6 +171,241 @@ def _write_deterministic_zip(package_root: Path, archive_path: Path) -> None:
             archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED)
 
 
+
+_ALLOWED_LARAVEL_CONSTRAINTS = frozenset({"^12.0", "^13.0"})
+_FORBIDDEN_CONSUMER_TOKENS = (
+    "packages/laravel",
+    "dev-main",
+    "file:",
+    "workspace:",
+    "../packages",
+)
+
+
+def build_clean_consumer_composer_manifest(
+    *,
+    artifact_directory: Path | str,
+    artifact_version: str,
+    laravel_constraint: str,
+) -> dict[str, object]:
+    version = validate_artifact_version(artifact_version)
+    if laravel_constraint not in _ALLOWED_LARAVEL_CONSTRAINTS:
+        raise LaravelReleaseCandidateError(
+            "clean consumer Laravel constraint must be exactly ^12.0 or ^13.0"
+        )
+
+    artifact_url = Path(artifact_directory).as_posix()
+    if not artifact_url:
+        raise LaravelReleaseCandidateError(
+            "clean consumer artifact directory must be non-empty"
+        )
+
+    manifest: dict[str, object] = {
+        "name": "surfacerelay/laravel-clean-consumer",
+        "type": "project",
+        "repositories": [
+            {
+                "type": "artifact",
+                "url": artifact_url,
+            }
+        ],
+        "require": {
+            "php": "^8.3",
+            "laravel/framework": laravel_constraint,
+            PACKAGE_NAME: version,
+        },
+    }
+    validate_clean_consumer_manifest(manifest)
+    return manifest
+
+
+def validate_clean_consumer_manifest(manifest: object) -> dict[str, object]:
+    if not isinstance(manifest, dict):
+        raise LaravelReleaseCandidateError(
+            "clean consumer composer manifest must be a JSON object"
+        )
+
+    repositories = manifest.get("repositories")
+    if (
+        not isinstance(repositories, list)
+        or len(repositories) != 1
+        or not isinstance(repositories[0], dict)
+    ):
+        raise LaravelReleaseCandidateError(
+            "clean consumer must define exactly one SurfaceRelay artifact repository"
+        )
+
+    repository = repositories[0]
+    if repository.get("type") != "artifact":
+        raise LaravelReleaseCandidateError(
+            "clean consumer SurfaceRelay repository type must be artifact"
+        )
+
+    repository_url = repository.get("url")
+    if not isinstance(repository_url, str) or repository_url == "":
+        raise LaravelReleaseCandidateError(
+            "clean consumer artifact repository URL must be a non-empty string"
+        )
+
+    requirements = manifest.get("require")
+    if not isinstance(requirements, dict):
+        raise LaravelReleaseCandidateError(
+            "clean consumer composer manifest must define require"
+        )
+
+    surface_version = requirements.get(PACKAGE_NAME)
+    if not isinstance(surface_version, str):
+        raise LaravelReleaseCandidateError(
+            "clean consumer must require an exact SurfaceRelay artifact version"
+        )
+    try:
+        validate_artifact_version(surface_version)
+    except ReleaseCandidateContractError as exc:
+        raise LaravelReleaseCandidateError(
+            "clean consumer SurfaceRelay requirement must be an exact prerelease version"
+        ) from exc
+
+    laravel_constraint = requirements.get("laravel/framework")
+    if laravel_constraint not in _ALLOWED_LARAVEL_CONSTRAINTS:
+        raise LaravelReleaseCandidateError(
+            "clean consumer Laravel constraint must be exactly ^12.0 or ^13.0"
+        )
+
+    encoded = json.dumps(
+        manifest,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).lower()
+    if any(token in encoded for token in _FORBIDDEN_CONSUMER_TOKENS):
+        raise LaravelReleaseCandidateError(
+            "clean consumer manifest contains forbidden source/package coupling"
+        )
+
+    return manifest
+
+
+def validate_clean_consumer_isolation(
+    *,
+    consumer_root: Path | str,
+    package_source_root: Path | str,
+) -> Path:
+    consumer = Path(consumer_root)
+    package_source = Path(package_source_root)
+
+    if consumer.is_symlink() or package_source.is_symlink():
+        raise LaravelReleaseCandidateError(
+            "consumer and package source roots must be real directories"
+        )
+
+    try:
+        consumer_resolved = consumer.resolve(strict=True)
+        package_resolved = package_source.resolve(strict=True)
+    except OSError as exc:
+        raise LaravelReleaseCandidateError(
+            "consumer and package source roots must exist"
+        ) from exc
+
+    if not consumer_resolved.is_dir() or not package_resolved.is_dir():
+        raise LaravelReleaseCandidateError(
+            "consumer and package source roots must be directories"
+        )
+
+    if (
+        consumer_resolved == package_resolved
+        or package_resolved in consumer_resolved.parents
+        or consumer_resolved in package_resolved.parents
+    ):
+        raise LaravelReleaseCandidateError(
+            "clean consumer directory must be isolated from the package source tree"
+        )
+
+    for path in consumer.rglob("*"):
+        if not path.is_symlink():
+            continue
+        try:
+            target = path.resolve(strict=True)
+        except OSError as exc:
+            raise LaravelReleaseCandidateError(
+                "clean consumer must not contain broken symlinks"
+            ) from exc
+
+        if target == package_resolved or package_resolved in target.parents:
+            raise LaravelReleaseCandidateError(
+                "clean consumer symlink must not target the package source tree"
+            )
+
+    return consumer_resolved
+
+
+def validate_laravel_artifact_archive(
+    *,
+    archive_path: Path | str,
+    artifact_version: str,
+) -> dict[str, object]:
+    version = validate_artifact_version(artifact_version)
+    archive = Path(archive_path)
+
+    try:
+        _require_regular_file(archive, label="Laravel artifact archive")
+    except LaravelReleaseCandidateError:
+        raise
+    except OSError as exc:
+        raise LaravelReleaseCandidateError(
+            "Laravel artifact archive must exist"
+        ) from exc
+
+    try:
+        with zipfile.ZipFile(archive) as handle:
+            names = handle.namelist()
+            if len(names) != len(set(names)):
+                raise LaravelReleaseCandidateError(
+                    "Laravel artifact archive must not contain duplicate paths"
+                )
+            if "composer.json" not in names:
+                raise LaravelReleaseCandidateError(
+                    "Laravel artifact archive must contain root composer.json"
+                )
+
+            for info in handle.infolist():
+                path = Path(info.filename)
+                if (
+                    info.filename.startswith("/")
+                    or ".." in path.parts
+                    or (info.create_system == 3 and stat.S_ISLNK(info.external_attr >> 16))
+                ):
+                    raise LaravelReleaseCandidateError(
+                        "Laravel artifact archive contains an unsafe entry"
+                    )
+
+            try:
+                composer_payload = json.loads(
+                    handle.read("composer.json").decode("utf-8")
+                )
+            except (KeyError, UnicodeError, json.JSONDecodeError) as exc:
+                raise LaravelReleaseCandidateError(
+                    "Laravel artifact composer.json must be valid UTF-8 JSON"
+                ) from exc
+    except zipfile.BadZipFile as exc:
+        raise LaravelReleaseCandidateError(
+            "Laravel artifact archive must be a valid ZIP"
+        ) from exc
+
+    if not isinstance(composer_payload, dict):
+        raise LaravelReleaseCandidateError(
+            "Laravel artifact composer.json must contain a JSON object"
+        )
+    if composer_payload.get("name") != PACKAGE_NAME:
+        raise LaravelReleaseCandidateError(
+            f"Laravel artifact package name must be {PACKAGE_NAME}"
+        )
+    if composer_payload.get("version") != version:
+        raise LaravelReleaseCandidateError(
+            "Laravel artifact version does not match the requested candidate version"
+        )
+
+    return composer_payload
+
 def build_laravel_release_candidate(
     *,
     repo: Path | str,
