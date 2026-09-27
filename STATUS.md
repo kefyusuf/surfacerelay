@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 2 RED PROVEN / GREEN NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 3 GREEN VERIFIED / STEP 4 RED NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1103,3 +1103,34 @@ The ten RED tests encode only the approved artifact-content contract: exact iden
 The existing `release-contract` discovery pattern intentionally remains unchanged in Step 2 and does not include `test_laravel_release_candidate.py`; therefore focused RED evidence is recorded separately while the existing 13-job repository regression remains green.
 
 Next explicit gate: **T-802 Step 3 — GREEN artifact builder only**. Do not begin consumer isolation, Composer matrix, ActionBus smoke, or Step 8 CI matrix automatically.
+
+## T-802 Step 3 — GREEN artifact builder VERIFIED
+
+```text
+RED tracking head:                d079ff8da404a8ec56617a968096f012c8f5522e
+GREEN implementation head:       331490b4942e257749d1e104f20365b5d4583cc7
+Implementation file:             scripts/laravel_release_candidate.py
+Focused artifact suite:          10/10 PASS
+Focused execution:               isolated scratch execution of committed builder/test contract
+GitHub Validate:                 #1009 / 36315361027 — 13/13 SUCCESS
+python scripts/validate.py:      PASS
+Publication guard:               PASS
+Step 3 diff:                     builder file only
+packages/laravel/** changes:     NONE
+spec/** changes:                 NONE
+conformance/** changes:          NONE
+Consumer/isolation work:         NOT STARTED
+Composer matrix:                 NOT STARTED
+ActionBus consumer smoke:        NOT STARTED
+Dedicated T-802 CI matrix:       NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-803..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+```
+
+The builder now stages only the approved Laravel release allowlist, injects the prerelease version only into the staged Composer manifest, rejects source symlinks/non-regular entries, generates a candidate-only README, produces a deterministic path-safe ZIP, and writes T-801-compatible manifest/evidence hashes. Source package files are not modified.
+
+The low-level Step 3 builder does not yet perform clean-consumer Composer resolution or the final exact-Git clean-source orchestration; those remain later T-802 steps. Existing Actions discovery is also unchanged until the dedicated CI step.
+
+Next explicit gate: **T-802 Step 4 — RED consumer/isolation tests only**. Do not implement consumer generation, Composer installation, ActionBus smoke, or CI matrix automatically.

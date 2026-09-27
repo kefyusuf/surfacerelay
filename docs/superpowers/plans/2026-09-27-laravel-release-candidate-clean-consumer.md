@@ -458,3 +458,23 @@ The RED suite covers exactly the ten Step 2 artifact-content requirements. All t
 The current `release-contract` workflow discovery remains intentionally unchanged in Step 2; the focused T-802 RED command is separate until later CI wiring. No GREEN implementation is present in this checkpoint.
 
 Next explicit gate: **Step 3 — GREEN artifact builder only**. Stop before Step 4 consumer/isolation RED work.
+
+## 15. Step 3 checkpoint — GREEN artifact builder verified
+
+```text
+GREEN implementation head:       331490b4942e257749d1e104f20365b5d4583cc7
+Implementation file:             scripts/laravel_release_candidate.py
+Focused artifact suite:          10/10 PASS
+Repository Validate:             #1009 / 36315361027 — 13/13 SUCCESS
+Publication guard:               PASS
+Step 3 implementation diff:      builder file only
+Package production diff:         NONE
+Consumer/isolation implementation:NONE
+Dedicated CI matrix:             NONE
+```
+
+The builder satisfies the ten Step 2 artifact-content contracts: staged-only version injection, explicit package allowlist, source mutation avoidance, symlink fail-closed behavior, candidate-only README, safe deterministic ZIP construction, and T-801 manifest/evidence reuse.
+
+Focused T-802 tests are still outside the existing Actions discovery pattern; the 10/10 result is from isolated scratch execution of the committed builder/test contract. GitHub Actions independently proves the unchanged repository regression, `python scripts/validate.py`, and publication guard at the implementation head.
+
+Next explicit gate: **Step 4 — RED consumer/isolation tests only**. Stop before Step 5 GREEN consumer generator/verifier.
