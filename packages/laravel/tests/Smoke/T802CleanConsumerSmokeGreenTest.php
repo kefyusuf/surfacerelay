@@ -43,7 +43,7 @@ final class T802CleanConsumerSmokeGreenTest extends TestCase
         self::assertTrue(mkdir($workRoot, 0777, true));
 
         try {
-            $revision = $this->run([
+            $revision = $this->runCommand([
                 'git',
                 '-C',
                 $repoRoot,
@@ -80,7 +80,7 @@ m.create_clean_consumer_workspace(
 )
 PY;
 
-            $this->run([
+            $this->runCommand([
                 'python',
                 '-c',
                 $pythonBuild,
@@ -91,7 +91,7 @@ PY;
                 $consumerRoot,
             ]);
 
-            $this->run([
+            $this->runCommand([
                 'composer',
                 'update',
                 '--working-dir=' . $consumerRoot,
@@ -113,7 +113,7 @@ m.verify_clean_consumer_install(
 )
 PY;
 
-            $this->run([
+            $this->runCommand([
                 'python',
                 '-c',
                 $pythonVerify,
@@ -122,7 +122,7 @@ PY;
                 $repoRoot,
             ]);
 
-            $output = $this->run([
+            $output = $this->runCommand([
                 PHP_BINARY,
                 $smoke,
                 $consumerRoot,
@@ -138,7 +138,7 @@ PY;
     }
 
     /** @param list<string> $command */
-    private function run(array $command): string
+    private function runCommand(array $command): string
     {
         $escaped = array_map(
             static fn (string $part): string => escapeshellarg($part),
