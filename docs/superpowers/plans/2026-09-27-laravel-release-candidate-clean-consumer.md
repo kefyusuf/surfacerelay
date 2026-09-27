@@ -570,3 +570,27 @@ Probe attempts also established a Composer-specific compatibility constraint: T-
 The temporary PHPUnit GREEN bridge is removed after this checkpoint. Validate #1030 is the authoritative Step-7 evidence.
 
 Next explicit gate: **Step 8 — dedicated 4-way CI matrix only**. Stop before T-802 completion/review-handoff tracking.
+
+## 20. Step 8 checkpoint — dedicated 4-way CI matrix verified
+
+```text
+Initial CI head:                  9fb95c0e3a16b8e56a7410e708663b1625aa90e5
+Initial Validate:                 #1032 / 36358993358 — wiring failure before artifact build
+Final CI head:                    0e531439b59e849d046434fd932fbe5374c4f586
+Authoritative Validate:           #1033 / 36359056975 — 17/17 SUCCESS
+Existing jobs:                    13/13 SUCCESS
+Release-consumer matrix:          4/4 SUCCESS
+Artifact prerelease:              0.0.0-alpha1
+Exact source:                     clean git archive HEAD
+Composer artifact install:        PASS in all 4 legs
+Installed metadata/autoload:      PASS in all 4 legs
+ActionBus smoke:                  PASS only on PHP 8.4 + Laravel 13
+Smoke output:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Credentials/publication:          NONE
+```
+
+The first Step-8 attempt correctly exposed an ordering bug in CI evidence collection: the clean-check ran after Python tests had produced untracked cache files. The final workflow verifies checkout cleanliness before tooling, then independently builds from exact `git archive HEAD`, so test-generated workspace noise cannot become artifact input.
+
+All four matrix legs run the committed T-802 tooling tests, build the Composer ZIP, create an isolated consumer, install through Composer's `artifact` repository, verify the exact installed candidate and autoload, and remain free of path/dev-main/file/workspace source coupling. Only the PHP 8.4 + Laravel 13 leg runs the real ActionBus smoke.
+
+Next explicit gate: **Step 9 — whole-task verification only**. Stop before Step 10 forbidden-diff audit.

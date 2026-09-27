@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 7 GREEN VERIFIED / STEP 8 NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 8 CI MATRIX VERIFIED / STEP 9 NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1282,3 +1282,43 @@ During GREEN probing, generic prerelease identities accepted by the package-neut
 The temporary GREEN PHPUnit bridge is removed in this tracking checkpoint. Probe runs #1025–#1029 were bridge/tooling corrections and are not release-readiness evidence; Validate #1030 is the authoritative GREEN run.
 
 Next explicit gate: **T-802 Step 8 — dedicated 4-way CI matrix only**. Do not begin T-803, decision promotion, review handoff, merge, tag, release, or publication automatically.
+
+## T-802 Step 8 — dedicated 4-way CI matrix VERIFIED
+
+```text
+Step 7 tracking head:             6a6731ad29cf767a7a301e49e6e1afe718168fb6
+Initial Step 8 CI head:           9fb95c0e3a16b8e56a7410e708663b1625aa90e5
+Initial Step 8 Validate:          #1032 / 36358993358 — consumer wiring failure
+Step 8 fix head:                  0e531439b59e849d046434fd932fbe5374c4f586
+Authoritative Validate:           #1033 / 36359056975 — 17/17 SUCCESS
+Existing repository jobs:        13/13 SUCCESS
+Consumer matrix jobs:             4/4 SUCCESS
+  PHP 8.3 + Laravel 12:          SUCCESS
+  PHP 8.3 + Laravel 13:          SUCCESS
+  PHP 8.4 + Laravel 12:          SUCCESS
+  PHP 8.4 + Laravel 13:          SUCCESS + ActionBus smoke
+T-802 tooling tests in matrix:    SUCCESS
+Artifact version:                 0.0.0-alpha1 (non-public CI prerelease)
+Artifact source:                  exact clean git archive HEAD snapshot
+Composer repository:              artifact
+Installed metadata/autoload:      VERIFIED in all 4 legs
+Smoke output (8.4 + 13 only):     SurfaceRelay Laravel clean-consumer smoke: PASS
+checkout persist-credentials:     false
+job permissions:                  contents: read
+Registry credentials:             NONE
+Path/dev-main/file/workspace link: NONE
+Package publication:              NONE
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Tag/release/publication:          NONE / NOT AUTHORIZED
+```
+
+The initial Step-8 matrix attempt placed checkout-clean verification after Python tooling tests, so generated `__pycache__` files made the later cleanliness check fail. The fix moved clean-check evidence before tooling execution while continuing to materialize the artifact source from exact `git archive HEAD`; no package/runtime behavior changed.
+
+The authoritative PHP 8.4 + Laravel 13 consumer log shows Composer locking, downloading, and installing `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository, followed by exact installed metadata/autoload verification and `SurfaceRelay Laravel clean-consumer smoke: PASS`. The other three matrix legs perform the same artifact build/install/verify flow with the smoke step explicitly skipped.
+
+Next explicit gate: **T-802 Step 9 — whole-task verification only**. Do not start Step 10 forbidden-diff audit, review handoff, T-803, merge, decision promotion, tag, release, or publication automatically.
