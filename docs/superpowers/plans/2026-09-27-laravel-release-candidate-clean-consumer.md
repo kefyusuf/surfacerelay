@@ -439,3 +439,22 @@ RED artifact-content tests:       NOT STARTED
 The feature branch was created from the exact green baseline SHA. Step 1 introduced no production, test, CI, package, spec, conformance, artifact or consumer behavior.
 
 Next explicit gate: **Step 2 — RED artifact-content tests only**. Stop before Step 3 GREEN artifact-builder implementation.
+
+## 14. Step 2 checkpoint — artifact-content RED proven
+
+```text
+RED test head:                    eb727e294420f2b44efa663ed4c806ca9d6e953a
+Focused test:                     scripts/tests/test_laravel_release_candidate.py
+Focused command:                  python -m unittest scripts.tests.test_laravel_release_candidate -v
+Focused result:                   10 tests / 10 ERROR
+Expected missing implementation:  scripts.laravel_release_candidate
+Repository Validate:              #1007 / 36299355134 — 13/13 SUCCESS
+Production builder:               NOT STARTED
+CI discovery/matrix change:       NONE
+```
+
+The RED suite covers exactly the ten Step 2 artifact-content requirements. All ten currently fail at the missing T-802 builder-module boundary, while the pre-existing repository regression remains green.
+
+The current `release-contract` workflow discovery remains intentionally unchanged in Step 2; the focused T-802 RED command is separate until later CI wiring. No GREEN implementation is present in this checkpoint.
+
+Next explicit gate: **Step 3 — GREEN artifact builder only**. Stop before Step 4 consumer/isolation RED work.

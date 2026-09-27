@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 1 BASELINE LOCKED / RED NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 2 RED PROVEN / GREEN NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1075,3 +1075,31 @@ Publish/tag/release:              NONE / NOT AUTHORIZED
 T-802 now has an exact green implementation baseline and dedicated feature branch. No production, test, CI, artifact, consumer, package, spec, or conformance implementation changed in Step 1.
 
 Next explicit gate: **T-802 Step 2 — RED artifact-content tests only**. Do not implement the artifact builder or start consumer/matrix/smoke work automatically.
+
+## T-802 Step 2 — artifact-content RED PROVEN
+
+```text
+Step 1 tracking head:             3c1381f1f0d79e6b2585bec471cb3b4e0be0da0c
+RED test head:                    eb727e294420f2b44efa663ed4c806ca9d6e953a
+RED test file:                    scripts/tests/test_laravel_release_candidate.py
+Focused command:                  python -m unittest scripts.tests.test_laravel_release_candidate -v
+Focused RED result:               10 tests / 10 ERROR
+RED cause:                        scripts.laravel_release_candidate module does not exist
+Regression Validate:              #1007 / 36299355134 — 13/13 SUCCESS
+Production artifact builder:      NOT STARTED
+Consumer/isolation implementation:NOT STARTED
+CI discovery/matrix change:       NONE
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+The ten RED tests encode only the approved artifact-content contract: exact identity, staged version injection without source mutation, release allowlist/exclusions, symlink rejection, candidate-only README, ZIP safety/order/determinism, and reuse of T-801 manifest/evidence identity and hashes.
+
+The existing `release-contract` discovery pattern intentionally remains unchanged in Step 2 and does not include `test_laravel_release_candidate.py`; therefore focused RED evidence is recorded separately while the existing 13-job repository regression remains green.
+
+Next explicit gate: **T-802 Step 3 — GREEN artifact builder only**. Do not begin consumer isolation, Composer matrix, ActionBus smoke, or Step 8 CI matrix automatically.
