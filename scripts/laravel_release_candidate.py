@@ -406,6 +406,140 @@ def validate_laravel_artifact_archive(
 
     return composer_payload
 
+
+def create_clean_consumer_workspace(
+    *,
+    consumer_root: Path | str,
+    artifact_directory: Path | str,
+    artifact_version: str,
+    laravel_constraint: str,
+    package_source_root: Path | str,
+) -> Path:
+    consumer = Path(consumer_root)
+    artifact_dir = Path(artifact_directory)
+
+    if artifact_dir.is_symlink() or not artifact_dir.is_dir():
+        raise LaravelReleaseCandidateError(
+            "clean consumer artifact directory must be a real directory"
+        )
+
+    try:
+        ensure_empty_target(consumer)
+    except ReleaseCandidateContractError as exc:
+        raise LaravelReleaseCandidateError(str(exc)) from exc
+
+    consumer.mkdir(parents=True, exist_ok=True)
+    validate_clean_consumer_isolation(
+        consumer_root=consumer,
+        package_source_root=package_source_root,
+    )
+
+    manifest = build_clean_consumer_composer_manifest(
+        artifact_directory=artifact_dir,
+        artifact_version=artifact_version,
+        laravel_constraint=laravel_constraint,
+    )
+    composer_path = consumer / "composer.json"
+    composer_path.write_text(
+        json.dumps(
+            manifest,
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    validate_clean_consumer_manifest(
+        json.loads(composer_path.read_text(encoding="utf-8"))
+    )
+    return composer_path
+
+
+def verify_clean_consumer_install(
+    *,
+    consumer_root: Path | str,
+    artifact_version: str,
+    package_source_root: Path | str,
+) -> Path:
+    version = validate_artifact_version(artifact_version)
+    consumer = validate_clean_consumer_isolation(
+        consumer_root=consumer_root,
+        package_source_root=package_source_root,
+    )
+
+    composer_path = consumer / "composer.json"
+    try:
+        root_manifest = json.loads(composer_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise LaravelReleaseCandidateError(
+            "clean consumer composer.json must be valid UTF-8 JSON"
+        ) from exc
+
+    validate_clean_consumer_manifest(root_manifest)
+    requirements = root_manifest["require"]
+    if requirements.get(PACKAGE_NAME) != version:
+        raise LaravelReleaseCandidateError(
+            "clean consumer root manifest version does not match the requested artifact"
+        )
+
+    installed_root = consumer / "vendor" / "surfacerelay" / "laravel"
+    if installed_root.is_symlink() or not installed_root.is_dir():
+        raise LaravelReleaseCandidateError(
+            "installed SurfaceRelay package must be a real vendor directory"
+        )
+
+    installed_manifest_path = installed_root / "composer.json"
+    try:
+        installed_manifest = json.loads(
+            installed_manifest_path.read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise LaravelReleaseCandidateError(
+            "installed SurfaceRelay composer.json must be valid UTF-8 JSON"
+        ) from exc
+
+    if (
+        not isinstance(installed_manifest, dict)
+        or installed_manifest.get("name") != PACKAGE_NAME
+        or installed_manifest.get("version") != version
+    ):
+        raise LaravelReleaseCandidateError(
+            "installed SurfaceRelay package identity/version does not match the candidate"
+        )
+
+    installed_metadata_path = consumer / "vendor" / "composer" / "installed.json"
+    try:
+        installed_metadata = json.loads(
+            installed_metadata_path.read_text(encoding="utf-8")
+        )
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise LaravelReleaseCandidateError(
+            "Composer installed metadata must be valid UTF-8 JSON"
+        ) from exc
+
+    if isinstance(installed_metadata, dict):
+        packages = installed_metadata.get("packages")
+    else:
+        packages = installed_metadata
+
+    if not isinstance(packages, list):
+        raise LaravelReleaseCandidateError(
+            "Composer installed metadata must contain a package list"
+        )
+
+    matches = [
+        package
+        for package in packages
+        if isinstance(package, dict) and package.get("name") == PACKAGE_NAME
+    ]
+    if len(matches) != 1 or matches[0].get("version") != version:
+        raise LaravelReleaseCandidateError(
+            "Composer installed metadata does not contain the exact SurfaceRelay candidate"
+        )
+
+    return installed_root.resolve(strict=True)
+
 def build_laravel_release_candidate(
     *,
     repo: Path | str,
