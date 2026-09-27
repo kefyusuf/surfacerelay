@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 6 RED PROVEN / STEP 7 GREEN NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 7 GREEN VERIFIED / STEP 8 NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1246,3 +1246,39 @@ RED is intentionally caused before runtime dispatch because the clean consumer h
 The temporary PHPUnit RED bridge is removed in this tracking checkpoint. Earlier bridge-probe runs are not evidence; Validate #1023 is the authoritative isolated RED result.
 
 Next explicit gate: **T-802 Step 7 — GREEN latest-supported ActionBus smoke only**. Do not begin the dedicated 4-way CI matrix or T-803 automatically.
+
+## T-802 Step 7 — latest-supported ActionBus smoke GREEN VERIFIED
+
+```text
+Step 6 tracking head:             1caf91d70863dc1f3a7d8a7039bd5b560aea7e5a
+Authoritative GREEN bridge head:  e9d205528556d2c8a7413d0bbaa6de172800d08b
+Authoritative GREEN Validate:     #1030 / 36335013953 — 13/13 SUCCESS
+Target job:                       php-tests (PHP 8.4, Illuminate ^13.0, Testbench ^11.0)
+Target job result:                596 tests / 3180 assertions / SUCCESS
+Artifact source:                  clean `git archive HEAD` snapshot
+Artifact version:                 0.0.0-alpha1 (non-public test prerelease)
+Composer repository:              artifact
+Composer install:                 SUCCESS
+Installed metadata verification:  PASS
+Smoke output:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Repository source fallback:       NONE
+Permanent package/test bridge:    NONE
+Dedicated 4-way CI matrix:        NOT STARTED
+packages/laravel/** permanent diff: NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+The authoritative GREEN proof builds the Composer ZIP from an exact clean committed snapshot materialized with `git archive HEAD`, not from the matrix-mutated `packages/laravel/composer.json` working tree. The resulting ZIP is consumed through a Composer `artifact` repository in an isolated Laravel 13 consumer, then verified through Composer installed metadata before running the permanent smoke fixture.
+
+The smoke fixture emits the exact observable result `SurfaceRelay Laravel clean-consumer smoke: PASS` and reaches the production ActionBus / ActionExecutionStage / OutputPolicyStage path. No repository package path, Composer path repository, `dev-main`, workspace/file link, or source autoload fallback is used.
+
+During GREEN probing, generic prerelease identities accepted by the package-neutral T-801 SemVer validator (for example `0.0.0-t802.step7.1`) were not accepted by Composer as root require constraints. Step 7 therefore uses `0.0.0-alpha1`, which is both a T-801-valid prerelease and Composer-recognized. This does not narrow T-801; it is a T-802 Composer-consumer constraint for Step 8 execution.
+
+The temporary GREEN PHPUnit bridge is removed in this tracking checkpoint. Probe runs #1025–#1029 were bridge/tooling corrections and are not release-readiness evidence; Validate #1030 is the authoritative GREEN run.
+
+Next explicit gate: **T-802 Step 8 — dedicated 4-way CI matrix only**. Do not begin T-803, decision promotion, review handoff, merge, tag, release, or publication automatically.

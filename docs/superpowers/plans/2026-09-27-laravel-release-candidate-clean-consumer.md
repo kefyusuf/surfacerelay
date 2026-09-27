@@ -309,7 +309,7 @@ Requirements:
 - Laravel 12/13 matrix;
 - Composer available from the PHP setup;
 - install `requirements-dev.txt`;
-- use a fixed non-public CI prerelease identity such as `0.0.0-t802-ci.1`;
+- use a fixed Composer-recognized non-public prerelease identity such as `0.0.0-alpha1`; T-801 still accepts generic SemVer prereleases, but Step 7 proved Composer root constraints do not accept every generic prerelease identifier;
 - source revision is exact `git rev-parse HEAD`;
 - build the candidate from the exact checkout;
 - run artifact-repository consumer install in all four legs;
@@ -545,3 +545,28 @@ The permanent smoke fixture requires only `<consumer-root>/vendor/autoload.php`;
 The temporary PHPUnit bridge is test-only RED instrumentation and is removed after this checkpoint. Earlier probe runs that only exercised bridge-targeting mistakes are not Step-6 evidence; Validate #1023 is the authoritative RED run.
 
 Next explicit gate: **Step 7 — GREEN latest-supported ActionBus smoke only**. Stop before Step 8 dedicated CI matrix.
+
+## 19. Step 7 checkpoint — latest-supported ActionBus smoke GREEN verified
+
+```text
+Authoritative GREEN bridge:       e9d205528556d2c8a7413d0bbaa6de172800d08b
+Authoritative Validate:           #1030 / 36335013953 — 13/13 SUCCESS
+Target environment:               PHP 8.4 + Laravel/Illuminate 13
+Target job result:                596 tests / 3180 assertions / SUCCESS
+Source materialization:           clean git archive of exact HEAD
+Artifact repository:              Composer artifact
+Artifact prerelease:              0.0.0-alpha1
+Installed metadata verification:  PASS
+Smoke result:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Repository source fallback:       NONE
+Permanent bridge:                 NONE
+Dedicated CI matrix:              NOT STARTED
+```
+
+Step 7 proves the exact intended latest-supported path: a clean committed source snapshot builds the candidate ZIP, an isolated Laravel 13 project resolves that ZIP through Composer's artifact repository, installed metadata is verified, and the permanent smoke fixture completes through production ActionBus execution/output-policy wiring.
+
+Probe attempts also established a Composer-specific compatibility constraint: T-801's package-neutral generic SemVer prerelease grammar is broader than Composer's accepted root require-constraint prerelease syntax. T-802 CI must therefore choose a Composer-recognized prerelease identity; this does not change or narrow T-801.
+
+The temporary PHPUnit GREEN bridge is removed after this checkpoint. Validate #1030 is the authoritative Step-7 evidence.
+
+Next explicit gate: **Step 8 — dedicated 4-way CI matrix only**. Stop before T-802 completion/review-handoff tracking.

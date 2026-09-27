@@ -1095,7 +1095,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — STEP_6_RED_PROVEN / STEP_7_GREEN_NOT_STARTED
+### T-802 — Laravel artifact + clean consumer proof — STEP_7_GREEN_VERIFIED / STEP_8_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1112,6 +1112,8 @@ Step 4 RED: 7 new consumer/isolation test methods were added at `dc341335f4db17e
 Step 5 GREEN is complete. Initial consumer manifest/isolation/archive seams at `9aad5add6299b70528fcb4e4bf0d59347b9dd605` produced 66/66 PASS in Validate #1016. Self-review then enforced the full Step-5 plan wording by adding bounded workspace generation + Composer-installed metadata verification: micro-RED `a27c25c83976521cde6e2ffee916e969f136f2be` yielded Validate #1017 (**12 SUCCESS / 1 expected FAILURE**, 69 tests / 3 expected errors), and final implementation `80f0fef6e4c4c2e41a3d338438d9bf989f4a2962` yielded Validate #1018 **13/13 SUCCESS**, `release-contract` **69/69 PASS**, publication guard PASS. No Composer process/network resolution, smoke, CI matrix, package production, spec, or conformance implementation occurred.
 
 Step 6 RED fixture head: `7c97ec9448646ab32af3e2a42bdc6635077e954a`. The permanent `scripts/fixtures/laravel-clean-consumer/smoke.php` depends only on clean-consumer `vendor/autoload.php`, minimal Laravel Application/provider registration, and the production ActionBus path. A temporary target-only PHPUnit bridge produced authoritative Validate #1023 (`36333900561`): **12 SUCCESS / 1 expected FAILURE**. Only PHP 8.4 + Illuminate 13 failed, with **596 tests / 3171 assertions / 1 failure** because the smoke exited `66` with `clean consumer vendor/autoload.php is missing`. This proves the fixture does not fall back to repository source/runtime before the artifact-installed consumer exists. The bridge is removed after evidence capture.
+
+Step 7 GREEN is verified at `e9d205528556d2c8a7413d0bbaa6de172800d08b`. Authoritative Validate #1030 (`36335013953`) is **13/13 SUCCESS**. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
 ### T-803 — Browser runtime public API + artifact + clean consumer proof — NOT_STARTED
 
@@ -1140,7 +1142,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`, and post-merge `main` Validate #1001 (`36273220054`) completed **13/13 SUCCESS**. External review is closed with all 5 inline threads resolved; the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-T-802 Step 6 real ActionBus consumer smoke RED is **PROVEN**. The next explicit gate is **T-802 Step 7 — GREEN latest-supported ActionBus smoke only**. Dedicated CI matrix and T-803 must not start automatically.
+T-802 Step 7 latest-supported ActionBus smoke is **GREEN VERIFIED**. The next explicit gate is **T-802 Step 8 — dedicated 4-way CI matrix only**. T-803, decision promotion, review handoff, merge, tag, release, and publication must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
