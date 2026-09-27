@@ -524,3 +524,24 @@ No Composer subprocess or network dependency resolution runs in Step 5. Step 8 o
 The temporary GREEN discovery bridge is removed after this checkpoint; permanent Actions wiring remains Step 8.
 
 Next explicit gate: **Step 6 — RED real ActionBus consumer smoke only**. Stop before Step 7 GREEN smoke implementation.
+
+## 18. Step 6 checkpoint — real ActionBus consumer smoke RED proven
+
+```text
+Permanent smoke fixture:          7c97ec9448646ab32af3e2a42bdc6635077e954a
+Authoritative RED bridge:         e95caa402f4c961aa5116fac09483cb2ff6caf30
+Authoritative Validate:           #1023 / 36333900561 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      PHP 8.4 + Illuminate 13 only
+Target job result:                596 tests / 3171 assertions / 1 failure
+Smoke exit code:                  66
+Smoke stderr:                     clean consumer vendor/autoload.php is missing
+Repository source fallback:       NONE
+Step 7 implementation:           NOT STARTED
+Dedicated CI matrix:              NOT STARTED
+```
+
+The permanent smoke fixture requires only `<consumer-root>/vendor/autoload.php`; it contains no repository `require`, no `packages/laravel` fallback, and no source-relative package autoload. After autoload it is designed to bootstrap minimal Laravel, explicitly register `SurfaceRelayServiceProvider`, register one safe read-only Action, and dispatch the production ActionBus using production execution/output-policy stages.
+
+The temporary PHPUnit bridge is test-only RED instrumentation and is removed after this checkpoint. Earlier probe runs that only exercised bridge-targeting mistakes are not Step-6 evidence; Validate #1023 is the authoritative RED run.
+
+Next explicit gate: **Step 7 — GREEN latest-supported ActionBus smoke only**. Stop before Step 8 dedicated CI matrix.

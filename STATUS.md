@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 5 GREEN VERIFIED / STEP 6 RED NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 6 RED PROVEN / STEP 7 GREEN NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1212,3 +1212,37 @@ Step 5 deliberately does not invoke Composer or perform network dependency resol
 The temporary GREEN discovery bridge is removed in this tracking checkpoint. Permanent T-802 workflow discovery/matrix wiring remains Step 8.
 
 Next explicit gate: **T-802 Step 6 — RED real ActionBus consumer smoke only**. Do not implement the smoke or dedicated CI matrix automatically.
+
+## T-802 Step 6 — real ActionBus consumer smoke RED PROVEN
+
+```text
+Step 5 tracking head:             110b2563b708fab5b958db425250038c56596063
+Smoke fixture head:               7c97ec9448646ab32af3e2a42bdc6635077e954a
+Authoritative RED bridge head:    e95caa402f4c961aa5116fac09483cb2ff6caf30
+Authoritative RED Validate:       #1023 / 36333900561 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      php-tests (PHP 8.4, Illuminate ^13.0, Testbench ^11.0)
+Target test result:               596 tests / 3171 assertions / 1 failure
+Expected smoke exit code:         66
+Expected stderr:                  clean consumer vendor/autoload.php is missing
+Other 12 jobs:                    SUCCESS
+Smoke fixture:                    scripts/fixtures/laravel-clean-consumer/smoke.php
+Repository autoload coupling:     NONE
+Artifact-installed runtime:       NOT AVAILABLE YET
+Step 7 smoke GREEN wiring:        NOT STARTED
+Dedicated 4-way CI matrix:        NOT STARTED
+packages/laravel/** permanent diff: NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+The permanent smoke fixture uses only `<consumer-root>/vendor/autoload.php`, creates a minimal Laravel `Application`, explicitly registers `SurfaceRelayServiceProvider`, and wires the production `ActionBus`, `ActionExecutionStage`, `OutputPolicyStage`, `InMemoryActionRegistry`, `ActionDefinition`, and `ActionCall`. Only validation/authorization/idempotency/confirmation are fixture pass-through stages, exactly as approved.
+
+RED is intentionally caused before runtime dispatch because the clean consumer has not installed the artifact yet. The authoritative PHP 8.4 + Illuminate 13 job reaches the fixture, exits `66`, and reports `clean consumer vendor/autoload.php is missing`; no repository package path is used as fallback.
+
+The temporary PHPUnit RED bridge is removed in this tracking checkpoint. Earlier bridge-probe runs are not evidence; Validate #1023 is the authoritative isolated RED result.
+
+Next explicit gate: **T-802 Step 7 — GREEN latest-supported ActionBus smoke only**. Do not begin the dedicated 4-way CI matrix or T-803 automatically.
