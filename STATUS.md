@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 4 RED PROVEN / STEP 5 GREEN NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 5 GREEN VERIFIED / STEP 6 RED NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1172,3 +1172,43 @@ The RED bridge also exposed one latent test-scope bug from Step 3: artifact-evid
 The temporary `test_release_candidate_t802_consumer_red.py` discovery bridge is removed in this tracking checkpoint. Permanent T-802 Actions discovery remains deferred to Step 8.
 
 Next explicit gate: **T-802 Step 5 — GREEN clean-consumer generator/verifier only**. Do not begin ActionBus smoke or dedicated CI matrix automatically.
+
+## T-802 Step 5 — clean-consumer generator/verifier GREEN VERIFIED
+
+```text
+Step 4 tracking head:             14e58be3fc3860a63e0e330e36973f819ec294e3
+Initial consumer seams head:      9aad5add6299b70528fcb4e4bf0d59347b9dd605
+Initial GREEN bridge head:        746ac7a6c47bdde8b6220857d8cb2e4ae830e7ab
+Initial GREEN Validate:           #1016 / 36324499591 — 13/13 SUCCESS
+Initial release-contract:         66/66 PASS
+Workspace-verifier RED head:      a27c25c83976521cde6e2ffee916e969f136f2be
+Workspace-verifier RED Validate:  #1017 / 36324666762 — 12 SUCCESS / 1 expected FAILURE
+Workspace-verifier RED detail:    69 tests / 3 expected errors
+Final Step 5 implementation:      80f0fef6e4c4c2e41a3d338438d9bf989f4a2962
+Final Step 5 Validate:            #1018 / 36324731032 — 13/13 SUCCESS
+Final release-contract:           69/69 PASS
+Publication guard:                PASS
+Consumer manifest generator:      GREEN
+Manifest isolation validator:     GREEN
+Artifact archive validator:       GREEN
+Consumer workspace generator:     GREEN
+Composer installed-metadata verifier: GREEN
+Composer process/network call:    NONE
+ActionBus smoke:                  NOT STARTED
+Dedicated 4-way CI matrix:        NOT STARTED
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+Step 5 now generates a bounded clean-consumer composer manifest/workspace, rejects source/path/dev-main/file/workspace coupling, validates archive identity, validates consumer/package directory isolation, and verifies exact Composer-installed package metadata under `vendor/**`.
+
+Step 5 deliberately does not invoke Composer or perform network dependency resolution. The authoritative four-way installation execution remains Step 8 CI; this gate only provides the deterministic workspace and verification seams that Step 8 will execute around.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint. Permanent T-802 workflow discovery/matrix wiring remains Step 8.
+
+Next explicit gate: **T-802 Step 6 — RED real ActionBus consumer smoke only**. Do not implement the smoke or dedicated CI matrix automatically.

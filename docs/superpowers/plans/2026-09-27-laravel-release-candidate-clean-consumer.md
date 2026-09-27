@@ -500,3 +500,27 @@ One pre-existing Step-3 test incorrectly retained file paths beyond the temporar
 The temporary discovery bridge is removed after this checkpoint. Permanent workflow discovery/matrix wiring remains Step 8.
 
 Next explicit gate: **Step 5 — GREEN clean-consumer generator/verifier only**. Stop before Step 6 ActionBus smoke RED work.
+
+## 17. Step 5 checkpoint — clean-consumer generator/verifier GREEN verified
+
+```text
+Initial consumer seams:           9aad5add6299b70528fcb4e4bf0d59347b9dd605
+Initial GREEN Validate:           #1016 / 36324499591 — 13/13 SUCCESS
+Initial release-contract:         66/66 PASS
+Workspace/verifier RED:           a27c25c83976521cde6e2ffee916e969f136f2be
+Workspace/verifier RED Validate:  #1017 / 36324666762 — 12 SUCCESS / 1 expected FAILURE
+Workspace/verifier RED detail:    69 tests / 3 expected errors
+Final Step 5 implementation:      80f0fef6e4c4c2e41a3d338438d9bf989f4a2962
+Final Step 5 Validate:            #1018 / 36324731032 — 13/13 SUCCESS
+Final release-contract:           69/69 PASS
+Publication guard:                PASS
+Composer/network execution:       NONE
+```
+
+Step 5 now provides deterministic consumer composer-manifest generation, source-coupling validation, archive identity validation, consumer-directory/symlink isolation, clean workspace creation, and post-Composer installed-metadata verification.
+
+No Composer subprocess or network dependency resolution runs in Step 5. Step 8 owns the authoritative four-way Composer installation matrix using these seams. No ActionBus smoke code exists yet.
+
+The temporary GREEN discovery bridge is removed after this checkpoint; permanent Actions wiring remains Step 8.
+
+Next explicit gate: **Step 6 — RED real ActionBus consumer smoke only**. Stop before Step 7 GREEN smoke implementation.
