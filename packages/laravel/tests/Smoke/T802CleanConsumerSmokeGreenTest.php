@@ -38,7 +38,7 @@ final class T802CleanConsumerSmokeGreenTest extends TestCase
         $workRoot = sys_get_temp_dir() . '/surfacerelay-t802-green-' . bin2hex(random_bytes(6));
         $stageRoot = $workRoot . '/stage';
         $consumerRoot = $workRoot . '/consumer';
-        $artifactVersion = '0.0.0-t802-step7.1';
+        $artifactVersion = '0.0.0-t802.step7.1';
 
         self::assertTrue(mkdir($workRoot, 0777, true));
 
