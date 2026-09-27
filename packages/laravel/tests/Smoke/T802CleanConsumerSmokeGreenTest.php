@@ -26,16 +26,9 @@ final class T802CleanConsumerSmokeGreenTest extends TestCase
         }
 
         $repoRoot = dirname(__DIR__, 4);
-        $smoke = $repoRoot . '/scripts/fixtures/laravel-clean-consumer/smoke.php';
-        self::assertFileExists($smoke);
-
-        $source = file_get_contents($smoke);
-        self::assertIsString($source);
-        self::assertStringContainsString("vendor' . DIRECTORY_SEPARATOR . 'autoload.php", $source);
-        self::assertStringNotContainsString('packages/laravel', $source);
-        self::assertStringNotContainsString('../../packages', $source);
-
         $workRoot = sys_get_temp_dir() . '/surfacerelay-t802-green-' . bin2hex(random_bytes(6));
+        $sourceRoot = $workRoot . '/source';
+        $sourceArchive = $workRoot . '/source.tar';
         $stageRoot = $workRoot . '/stage';
         $consumerRoot = $workRoot . '/consumer';
         $artifactVersion = '0.0.0-alpha1';
@@ -51,6 +44,32 @@ final class T802CleanConsumerSmokeGreenTest extends TestCase
                 'HEAD',
             ]);
             self::assertMatchesRegularExpression('/^[0-9a-f]{40}$/', trim($revision));
+
+            self::assertTrue(mkdir($sourceRoot, 0777, true));
+            $this->runCommand([
+                'git',
+                '-C',
+                $repoRoot,
+                'archive',
+                '--format=tar',
+                '--output=' . $sourceArchive,
+                'HEAD',
+            ]);
+            $this->runCommand([
+                'tar',
+                '-xf',
+                $sourceArchive,
+                '-C',
+                $sourceRoot,
+            ]);
+
+            $smoke = $sourceRoot . '/scripts/fixtures/laravel-clean-consumer/smoke.php';
+            self::assertFileExists($smoke);
+            $source = file_get_contents($smoke);
+            self::assertIsString($source);
+            self::assertStringContainsString("vendor' . DIRECTORY_SEPARATOR . 'autoload.php", $source);
+            self::assertStringNotContainsString('packages/laravel', $source);
+            self::assertStringNotContainsString('../../packages', $source);
 
             $pythonBuild = <<<'PY'
 from pathlib import Path
@@ -85,7 +104,7 @@ PY;
                 'python',
                 '-c',
                 $pythonBuild,
-                $repoRoot,
+                $sourceRoot,
                 $stageRoot,
                 $artifactVersion,
                 trim($revision),
@@ -123,7 +142,7 @@ PY;
                 $pythonVerify,
                 $consumerRoot,
                 $artifactVersion,
-                $repoRoot,
+                $sourceRoot,
             ]);
 
             $output = $this->runCommand([
@@ -136,6 +155,7 @@ PY;
                 "SurfaceRelay Laravel clean-consumer smoke: PASS\n",
                 $output,
             );
+            fwrite(STDOUT, $output);
         } finally {
             $this->removeTree($workRoot);
         }
