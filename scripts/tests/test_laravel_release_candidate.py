@@ -403,5 +403,138 @@ class LaravelCleanConsumerIsolationContractTest(unittest.TestCase):
                 )
 
 
+class LaravelCleanConsumerWorkspaceContractTest(unittest.TestCase):
+    def test_workspace_generator_writes_only_valid_composer_manifest(self):
+        module = laravel_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact_directory = root / "artifacts"
+            artifact_directory.mkdir()
+            package_source = root / "repo" / "packages" / "laravel"
+            package_source.mkdir(parents=True)
+            consumer = root / "consumer"
+
+            composer_path = module.create_clean_consumer_workspace(
+                consumer_root=consumer,
+                artifact_directory=artifact_directory,
+                artifact_version=VERSION,
+                laravel_constraint="^13.0",
+                package_source_root=package_source,
+            )
+            payload = json.loads(composer_path.read_text(encoding="utf-8"))
+            files = sorted(
+                path.relative_to(consumer).as_posix()
+                for path in consumer.rglob("*")
+                if path.is_file()
+            )
+
+        self.assertEqual(["composer.json"], files)
+        self.assertEqual(
+            module.build_clean_consumer_composer_manifest(
+                artifact_directory=artifact_directory,
+                artifact_version=VERSION,
+                laravel_constraint="^13.0",
+            ),
+            payload,
+        )
+
+    def test_install_verifier_accepts_exact_composer_installed_artifact(self):
+        module = laravel_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            consumer = root / "consumer"
+            package_source = root / "repo" / "packages" / "laravel"
+            package_source.mkdir(parents=True)
+            artifact_directory = root / "artifacts"
+            artifact_directory.mkdir()
+
+            module.create_clean_consumer_workspace(
+                consumer_root=consumer,
+                artifact_directory=artifact_directory,
+                artifact_version=VERSION,
+                laravel_constraint="^13.0",
+                package_source_root=package_source,
+            )
+
+            installed_package = consumer / "vendor" / "surfacerelay" / "laravel"
+            installed_package.mkdir(parents=True)
+            (installed_package / "composer.json").write_text(
+                json.dumps({"name": PACKAGE_NAME, "version": VERSION}) + "\n",
+                encoding="utf-8",
+            )
+            composer_metadata = consumer / "vendor" / "composer"
+            composer_metadata.mkdir(parents=True)
+            (composer_metadata / "installed.json").write_text(
+                json.dumps(
+                    {
+                        "packages": [
+                            {
+                                "name": PACKAGE_NAME,
+                                "version": VERSION,
+                            }
+                        ]
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            verified = module.verify_clean_consumer_install(
+                consumer_root=consumer,
+                artifact_version=VERSION,
+                package_source_root=package_source,
+            )
+
+        self.assertEqual(installed_package.resolve(), verified)
+
+    def test_install_verifier_rejects_wrong_installed_version(self):
+        module = laravel_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            consumer = root / "consumer"
+            package_source = root / "repo" / "packages" / "laravel"
+            package_source.mkdir(parents=True)
+            artifact_directory = root / "artifacts"
+            artifact_directory.mkdir()
+
+            module.create_clean_consumer_workspace(
+                consumer_root=consumer,
+                artifact_directory=artifact_directory,
+                artifact_version=VERSION,
+                laravel_constraint="^13.0",
+                package_source_root=package_source,
+            )
+
+            installed_package = consumer / "vendor" / "surfacerelay" / "laravel"
+            installed_package.mkdir(parents=True)
+            (installed_package / "composer.json").write_text(
+                json.dumps({"name": PACKAGE_NAME, "version": "0.0.0-wrong.1"}) + "\n",
+                encoding="utf-8",
+            )
+            composer_metadata = consumer / "vendor" / "composer"
+            composer_metadata.mkdir(parents=True)
+            (composer_metadata / "installed.json").write_text(
+                json.dumps(
+                    {
+                        "packages": [
+                            {
+                                "name": PACKAGE_NAME,
+                                "version": "0.0.0-wrong.1",
+                            }
+                        ]
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(module.LaravelReleaseCandidateError):
+                module.verify_clean_consumer_install(
+                    consumer_root=consumer,
+                    artifact_version=VERSION,
+                    package_source_root=package_source,
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
