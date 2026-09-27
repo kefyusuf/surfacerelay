@@ -1095,7 +1095,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — STEP_3_GREEN_VERIFIED / STEP_4_RED_NOT_STARTED
+### T-802 — Laravel artifact + clean consumer proof — STEP_4_RED_PROVEN / STEP_5_GREEN_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1106,6 +1106,8 @@ Step 1 baseline: `main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5`, Validate #1004
 Step 2 RED head: `eb727e294420f2b44efa663ed4c806ca9d6e953a`. The approved artifact-content test file contains 10 contract tests. Focused execution is **10 tests / 10 ERROR** because `scripts.laravel_release_candidate` does not exist yet. Existing Validate #1007 (`36299355134`) remains **13/13 SUCCESS**; no builder, consumer, CI matrix, package production, spec, or conformance implementation changed.
 
 Step 3 GREEN head: `331490b4942e257749d1e104f20365b5d4583cc7`. `scripts/laravel_release_candidate.py` is the only Step 3 implementation file. The focused artifact suite is **10/10 PASS** in isolated scratch execution, while Validate #1009 (`36315361027`) is **13/13 SUCCESS** with contract validation and publication guard green. No `packages/laravel/**`, `spec/**`, `conformance/**`, consumer, Composer-matrix, smoke, or dedicated-CI implementation changed.
+
+Step 4 RED: 7 new consumer/isolation test methods were added at `dc341335f4db17ed04ab776fbda6d684643a6dbe`. A temporary discovery bridge made them authoritative in existing CI; after correcting one unrelated Step-3 test-scope lifetime bug at `ad834fde68175700b6533c39c6d832f6cdfdc065`, Validate #1013 (`36317673759`) produced the isolated expected result: **12 SUCCESS / 1 FAILURE**, only `release-contract` failing. That job ran 66 tests and reported **11 expected error records** from the 7 new methods/subtests; the existing 10 T-802 artifact tests passed. All RED errors are missing Step-5 consumer tooling seams, not product regressions.
 
 ### T-803 — Browser runtime public API + artifact + clean consumer proof — NOT_STARTED
 
@@ -1134,7 +1136,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`, and post-merge `main` Validate #1001 (`36273220054`) completed **13/13 SUCCESS**. External review is closed with all 5 inline threads resolved; the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-T-802 Step 3 GREEN artifact builder is **VERIFIED**. The next explicit gate is **T-802 Step 4 — RED consumer/isolation tests only**. Consumer generation, Composer installation, ActionBus smoke, and dedicated CI matrix must not start automatically.
+T-802 Step 4 consumer/isolation RED evidence is **PROVEN**. The next explicit gate is **T-802 Step 5 — GREEN clean-consumer generator/verifier only**. ActionBus smoke and dedicated CI matrix must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.

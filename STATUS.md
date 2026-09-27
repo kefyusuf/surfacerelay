@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 3 GREEN VERIFIED / STEP 4 RED NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 4 RED PROVEN / STEP 5 GREEN NOT STARTED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1134,3 +1134,41 @@ The builder now stages only the approved Laravel release allowlist, injects the 
 The low-level Step 3 builder does not yet perform clean-consumer Composer resolution or the final exact-Git clean-source orchestration; those remain later T-802 steps. Existing Actions discovery is also unchanged until the dedicated CI step.
 
 Next explicit gate: **T-802 Step 4 — RED consumer/isolation tests only**. Do not implement consumer generation, Composer installation, ActionBus smoke, or CI matrix automatically.
+
+## T-802 Step 4 — consumer/isolation RED PROVEN
+
+```text
+Step 3 tracking head:             42bb2ae6c867c418853c99035cbf9b5867af77b6
+Consumer RED test head:           dc341335f4db17ed04ab776fbda6d684643a6dbe
+Temporary CI bridge head:         b20ad92dd3deaac6b4de2148267e132b4e52a18f
+Test-scope correction head:       ad834fde68175700b6533c39c6d832f6cdfdc065
+Authoritative RED Validate:       #1013 / 36317673759 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      release-contract only
+Release-contract total:           66 tests / 11 expected error records
+Existing T-802 artifact tests:    10/10 PASS
+New consumer test methods:        7 RED
+Missing consumer seams:           4
+  build_clean_consumer_composer_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_isolation
+  validate_laravel_artifact_archive
+Consumer generator/verifier:      NOT STARTED
+Composer execution:               NOT STARTED
+ActionBus consumer smoke:         NOT STARTED
+Permanent CI discovery/matrix:    NOT STARTED
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+Step 4 RED is isolated to the approved consumer/isolation contract. The 7 new test methods generate 11 unittest error records because one forbidden-coupling test uses five subtests; all errors are AttributeError against the four intentionally missing Step 5 tooling seams.
+
+The RED bridge also exposed one latent test-scope bug from Step 3: artifact-evidence paths were read after the temporary directory closed. That test-only bug was corrected at `ad834fde...`; the rerun proves the existing 10 artifact tests remain green before the consumer errors occur.
+
+The temporary `test_release_candidate_t802_consumer_red.py` discovery bridge is removed in this tracking checkpoint. Permanent T-802 Actions discovery remains deferred to Step 8.
+
+Next explicit gate: **T-802 Step 5 — GREEN clean-consumer generator/verifier only**. Do not begin ActionBus smoke or dedicated CI matrix automatically.

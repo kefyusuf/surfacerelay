@@ -478,3 +478,25 @@ The builder satisfies the ten Step 2 artifact-content contracts: staged-only ver
 Focused T-802 tests are still outside the existing Actions discovery pattern; the 10/10 result is from isolated scratch execution of the committed builder/test contract. GitHub Actions independently proves the unchanged repository regression, `python scripts/validate.py`, and publication guard at the implementation head.
 
 Next explicit gate: **Step 4 — RED consumer/isolation tests only**. Stop before Step 5 GREEN consumer generator/verifier.
+
+## 16. Step 4 checkpoint — consumer/isolation RED proven
+
+```text
+RED test head:                    dc341335f4db17ed04ab776fbda6d684643a6dbe
+Temporary CI bridge:              b20ad92dd3deaac6b4de2148267e132b4e52a18f
+Test-scope correction:            ad834fde68175700b6533c39c6d832f6cdfdc065
+Authoritative Validate:            #1013 / 36317673759 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      release-contract only
+release-contract total:           66 tests / 11 expected error records
+Existing T-802 artifact tests:    10/10 PASS
+New consumer methods:             7 RED
+Consumer implementation:         NONE
+```
+
+The seven new tests cover artifact-repository type, exact candidate version, selected Laravel major, path/dev-main/file/workspace/source coupling rejection, source-symlink rejection, artifact identity validation, and consumer-directory isolation.
+
+One pre-existing Step-3 test incorrectly retained file paths beyond the temporary-directory lifetime. The test-only lifetime bug was corrected before the authoritative RED rerun so the signal is isolated: existing artifact tests pass, and all remaining failures are the intentionally missing Step-5 consumer tooling seams.
+
+The temporary discovery bridge is removed after this checkpoint. Permanent workflow discovery/matrix wiring remains Step 8.
+
+Next explicit gate: **Step 5 — GREEN clean-consumer generator/verifier only**. Stop before Step 6 ActionBus smoke RED work.
