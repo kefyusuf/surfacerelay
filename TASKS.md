@@ -1144,9 +1144,9 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design remains **APPROVED**. T-801 is now **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #19 merged as `84f80858308d35ed532eec3928a7fdf3186ffb34`, and post-merge `main` Validate #1001 (`36273220054`) completed **13/13 SUCCESS**. External review is closed with all 5 inline threads resolved; the latest Major YAML-parsing finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-802 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
+M8 design remains **APPROVED**. T-801 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-802 is now **DONE / REVIEW HANDOFF**, with PR #20 **OPEN / non-draft / mergeable / NOT MERGED** and external review active. The review-handoff head `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6` passed Validate #1038 (`36444627579`) **17/17 SUCCESS**. D-069 through D-073 remain **PROPOSED**; T-803 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, decision promotion, or merge is authorized.
 
-T-802 Step 7 latest-supported ActionBus smoke is **GREEN VERIFIED**. The next explicit gate is **T-802 Step 8 — dedicated 4-way CI matrix only**. T-803, decision promotion, review handoff, merge, tag, release, and publication must not start automatically.
+T-802 implementation and internal verification are complete. The current gate is **external-review finding disposition / exact-head revalidation only**. T-803, decision promotion, merge, tag, release, and publication must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
@@ -1227,4 +1227,4 @@ T-802 Step 9 is **WHOLE-TASK VERIFIED**. Next explicit gate: **T-802 Step 10 —
 T-802 Step 10 forbidden-diff/source-mutation audit is **VERIFIED** on `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`: baseline comparison shows exactly 7 allowed net changed files, **0 forbidden** and **0 unexpected** paths. `packages/laravel/src/**`, `packages/laravel/database/**`, source `packages/laravel/composer.json`, `spec/**`, `conformance/**`, browser-runtime, Laravel-MCP, and OpenAPI-importer remain unchanged. Repository tags/releases are empty; changed executable surfaces contain no publication commands or registry credential wiring. Next explicit gate: **T-802 Step 11 — tracking / external-review handoff only**.
 
 
-T-802 Step 11 is **DONE / REVIEW HANDOFF**. External-review material is prepared in `REVIEW_REQUEST.md`. Next explicit gate: **T-802 external-review PR opening / review kickoff only**. T-803, merge, decision promotion, tag, release, and publication must not start automatically.
+T-802 Step 11 is **DONE / REVIEW HANDOFF**. External-review material is prepared in `REVIEW_REQUEST.md`, PR #20 is open, and the first review cycle has completed. Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**. T-803, merge, decision promotion, tag, release, and publication must not start automatically.
