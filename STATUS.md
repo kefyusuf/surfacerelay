@@ -11,6 +11,8 @@
 - **T-802 PR:** `#20` — **OPEN / non-draft / mergeable / NOT MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
+- **T-802 review-fix head:** `c380d425673a7ff3045ffed1a650af8bf929fa7e`
+- **T-802 review-fix CI:** Validate `#1043` / `36454509211` — **17/17 SUCCESS**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1412,6 +1414,10 @@ Implementation baseline:          main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5
 Audited implementation head:      bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
 Step 10 tracking head:            da39f76378af76a1c64a0ef79de91b06aab1ba8e
 Step 10 exact-head Validate:      #1036 / 36418100242 — 17/17 SUCCESS
+Review-handoff head:              d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6
+Review-handoff Validate:          #1038 / 36444627579 — 17/17 SUCCESS
+Review-fix head:                  c380d425673a7ff3045ffed1a650af8bf929fa7e
+Review-fix exact-head Validate:   #1043 / 36454509211 — 17/17 SUCCESS
 T-802 state:                      DONE / REVIEW HANDOFF
 Consumer matrix:                  4/4 SUCCESS
 Focused T-802 suite:              20/20 PASS per consumer leg
@@ -1430,6 +1436,21 @@ T-803..T-805:                    NOT STARTED
 Merge/tag/release/publication:    NOT AUTHORIZED
 ```
 
-T-802 implementation is complete and external review is active on PR #20. The initial review identified documentation/tracking cleanup only as actionable review comments; no production/tooling scope expansion is authorized by that review cycle. The review must continue to evaluate the audited implementation head and the full branch diff while preserving the distinction between product/release tooling changes and later handoff-only tracking commits.
+Complete branch scope from the T-802 baseline through review-fix head `c380d425673a7ff3045ffed1a650af8bf929fa7e` is exactly eight files:
+
+```text
+.github/workflows/validate.yml
+REVIEW_REQUEST.md
+STATUS.md
+TASKS.md
+docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
+scripts/fixtures/laravel-clean-consumer/smoke.php
+scripts/laravel_release_candidate.py
+scripts/tests/test_laravel_release_candidate.py
+```
+
+The earlier Step 10 seven-file audit remains valid for its audited implementation head because `REVIEW_REQUEST.md` was added later as review-handoff material. The review-fix-only delta from `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6` to `c380d425673a7ff3045ffed1a650af8bf929fa7e` remains limited to `REVIEW_REQUEST.md`, `STATUS.md`, and `TASKS.md`.
+
+T-802 implementation is complete and external review remains active on PR #20. Incremental review identified this stale handoff-evidence record only; no production/tooling scope expansion is authorized by its disposition.
 
 Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**. Do not begin T-803, merge, decision promotion, tag, release, or publication automatically.
