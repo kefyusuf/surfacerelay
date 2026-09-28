@@ -1095,7 +1095,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — STEP_9_WHOLE_TASK_VERIFIED / STEP_10_NOT_STARTED
+### T-802 — Laravel artifact + clean consumer proof — STEP_10_AUDIT_VERIFIED / STEP_11_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1222,3 +1222,6 @@ Next gate: **T-802 implementation-plan preparation only**.
 
 
 T-802 Step 9 is **WHOLE-TASK VERIFIED**. Next explicit gate: **T-802 Step 10 — forbidden-diff / source-mutation audit only**. Step 11 review handoff and T-803 must not start automatically.
+
+
+T-802 Step 10 forbidden-diff/source-mutation audit is **VERIFIED** on `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`: baseline comparison shows exactly 7 allowed net changed files, **0 forbidden** and **0 unexpected** paths. `packages/laravel/src/**`, `packages/laravel/database/**`, source `packages/laravel/composer.json`, `spec/**`, `conformance/**`, browser-runtime, Laravel-MCP, and OpenAPI-importer remain unchanged. Repository tags/releases are empty; changed executable surfaces contain no publication commands or registry credential wiring. Next explicit gate: **T-802 Step 11 — tracking / external-review handoff only**.

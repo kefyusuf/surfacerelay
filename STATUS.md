@@ -1354,3 +1354,50 @@ Step 9 revalidated the complete T-802 implementation path on one exact branch he
 Each consumer leg locked and installed `surfacerelay/laravel (0.0.0-alpha1)` from the Composer `artifact` repository and passed exact installed-metadata/autoload verification. Only the PHP 8.4 + Laravel 13 leg ran the production ActionBus smoke, which emitted the required PASS line.
 
 Next explicit gate: **T-802 Step 10 — forbidden-diff / source-mutation audit only**. Do not start Step 11 review handoff, T-803, merge, decision promotion, tag, release, or publication automatically.
+
+## T-802 Step 10 — forbidden-diff / source-mutation audit VERIFIED
+
+```text
+Audit baseline:                    main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Audited implementation head:       bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
+Branch relation:                   30 ahead / 0 behind
+Net changed files:                 7
+Forbidden diff entries:            0
+Unexpected diff entries:           0
+packages/laravel/src/**:           EMPTY
+packages/laravel/database/**:      EMPTY
+packages/laravel/composer.json:    IDENTICAL BLOB (2d52ac8c1203f7132340f80162bcea2db54ef5ee)
+spec/**:                           EMPTY
+conformance/**:                    EMPTY
+packages/browser-runtime/**:       EMPTY
+packages/laravel-mcp/**:           EMPTY
+packages/openapi-importer/**:      EMPTY
+docs/DECISION-REGISTER.md:         IDENTICAL BLOB
+Repository tags:                   NONE
+GitHub releases:                   NONE
+Publish/tag/release commands:      NONE in changed executable surfaces
+Registry credential wiring:        NONE in changed executable surfaces
+Publication guard exact-head:      PASS
+Step 11 review handoff:            NOT STARTED
+T-803..T-805:                      NOT STARTED
+Decision promotion:                NONE
+Tag/release/publication:           NONE / NOT AUTHORIZED
+```
+
+Allowed net diff is exactly:
+
+```text
+.github/workflows/validate.yml
+STATUS.md
+TASKS.md
+docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
+scripts/fixtures/laravel-clean-consumer/smoke.php
+scripts/laravel_release_candidate.py
+scripts/tests/test_laravel_release_candidate.py
+```
+
+Representative immutable blobs were also checked directly against the baseline: Laravel ActionBus, canonical Action Definition schema, browser-runtime package manifest, Laravel MCP Composer manifest, OpenAPI importer package manifest, and the decision register are byte-identical by Git blob SHA.
+
+The only `packagist` token in the permanent T-802 diff is a negative test assertion (`assertNotIn("packagist", ...)`); no publication or credential wiring exists.
+
+Next explicit gate: **T-802 Step 11 — tracking / external-review handoff only**. Do not begin T-803, merge, decision promotion, tag, release, or publication automatically.
