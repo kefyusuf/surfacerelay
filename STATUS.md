@@ -7,7 +7,10 @@
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **STEP 8 CI MATRIX VERIFIED / STEP 9 NOT STARTED**
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **DONE / REVIEW HANDOFF; EXTERNAL REVIEW ACTIVE**
+- **T-802 PR:** `#20` — **OPEN / non-draft / mergeable / NOT MERGED**
+- **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
+- **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1427,6 +1430,6 @@ T-803..T-805:                    NOT STARTED
 Merge/tag/release/publication:    NOT AUTHORIZED
 ```
 
-T-802 implementation is complete and ready for external review. The review must evaluate the audited implementation head and the full branch diff while preserving the distinction between product/release tooling changes and later handoff-only tracking commits.
+T-802 implementation is complete and external review is active on PR #20. The initial review identified documentation/tracking cleanup only as actionable review comments; no production/tooling scope expansion is authorized by that review cycle. The review must continue to evaluate the audited implementation head and the full branch diff while preserving the distinction between product/release tooling changes and later handoff-only tracking commits.
 
-Next explicit gate: **T-802 external-review PR opening / review kickoff only**. Do not begin T-803, merge, decision promotion, tag, release, or publication automatically.
+Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**. Do not begin T-803, merge, decision promotion, tag, release, or publication automatically.
