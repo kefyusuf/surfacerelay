@@ -9,6 +9,8 @@
 - Audited implementation head: `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`
 - Step-10 tracking head: `da39f76378af76a1c64a0ef79de91b06aab1ba8e`
 - Step-10 exact-head Validate: `#1036` / `36418100242` — **17/17 SUCCESS**
+- Review-handoff head: `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
+- Review-handoff exact-head Validate: `#1038` / `36444627579` — **17/17 SUCCESS**
 - Plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md`
 - Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
@@ -142,18 +144,23 @@ Please review especially:
    - no registry credentials are configured;
    - no package publication, tag, or GitHub Release command exists.
 
-## Historical RED → GREEN evidence
+## Final validation summary
 
-- Step 2 artifact contract: **10 RED → 10/10 PASS**.
-- Step 4 consumer/isolation contract: **7 new RED methods → GREEN**.
-- Step 5 workspace/install verification: **3 RED → GREEN**.
-- Step 6 real smoke: expected exit `66` / missing consumer autoload.
-- Step 7 installed artifact smoke: **GREEN**, production ActionBus path.
-- Step 8 permanent consumer matrix: initial CI-ordering defect fixed; authoritative matrix **4/4 PASS**.
-- Step 9 whole-task verification: **17/17 SUCCESS**.
-- Step 10 forbidden-diff audit: **0 forbidden / 0 unexpected**.
+```text
+Audited implementation head:      bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
+Step-10 tracking head:            da39f76378af76a1c64a0ef79de91b06aab1ba8e
+Step-10 exact-head Validate:      #1036 / 36418100242 — 17/17 SUCCESS
+Review-handoff head:              d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6
+Review-handoff Validate:          #1038 / 36444627579 — 17/17 SUCCESS
+Consumer matrix:                  4/4 SUCCESS
+Focused T-802 suite:              20/20 PASS per consumer leg
+Release-contract discovery:       49/49 PASS
+Publication guard:                PASS
+Canonical validation:             PASS
+Forbidden / unexpected diff:      0 / 0
+```
 
-Probe runs used to repair temporary review/CI instrumentation are not release-readiness evidence; authoritative run IDs are recorded in `STATUS.md` and the implementation plan.
+The detailed RED → GREEN chronology and probe-run history remain in `STATUS.md` and the implementation plan.
 
 ## Deliberately deferred
 
@@ -199,4 +206,4 @@ T-802 is **DONE / REVIEW HANDOFF**, not reviewed or merge-ready.
 
 External review must inspect the current branch against the baseline, disposition every actionable finding, and revalidate the final reviewed head before any merge decision.
 
-Next explicit gate: **T-802 external-review PR opening / review kickoff only**.
+Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**.
