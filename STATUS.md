@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 1 BASELINE LOCKED / RED NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 2 RED PROVEN / GREEN NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1549,3 +1549,35 @@ Publish/tag/release:              NONE / NOT AUTHORIZED
 T-803 now has an exact green implementation baseline and dedicated feature branch. No production, test, CI, package, build, artifact, consumer, spec, or conformance implementation changed in Step 1.
 
 Next explicit gate: **T-803 Step 2 — RED public-root API tests only**. Do not create src/index.ts, build metadata, artifact tooling, consumer fixtures, or CI work automatically.
+
+
+## T-803 Step 2 — public-root API RED PROVEN
+
+~~~text
+Step 1 tracking head:             a531fbce453841d9d3a9b8fda5d25a189f97921e
+Initial RED test head:            88720b6da4c15e4e3a2f4880de11c8f5ab734c6d
+Authoritative RED test head:      e5cfbb73b12d5fdd0d10307ec8455f3e776ca4aa
+RED runtime test:                 packages/browser-runtime/tests/public-api.test.ts
+RED typecheck fixture:            packages/browser-runtime/tests/public-api.typecheck.ts
+Validate:                         #1055 / 36582905214
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Expected RED cause:               TS2307 — ../src/index.js does not exist
+Unexpected typecheck errors:      NONE
+Vitest runtime snapshot:          COMMITTED / not executed because typecheck failed first
+GREEN root facade:                NOT STARTED
+Build/package metadata:           NOT STARTED
+Artifact tooling:                 NOT STARTED
+Clean consumer / CI:              NOT STARTED
+Existing runtime source files:    UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The first RED run exposed the intended missing-root-facade failure plus two fixture-only implicit-any errors. A test-only correction on the authoritative RED head removed those incidental errors without adding implementation. Validate #1055 then failed only at the missing src/index root boundary; all 16 other repository jobs stayed green.
+
+The runtime export snapshot is committed and discoverable by Vitest, but the existing browser job correctly stops at typecheck before Vitest when the root facade is absent. Step 3 must make the typecheck pass and then run the snapshot through the normal browser test harness.
+
+Next explicit gate: **T-803 Step 3 — GREEN curated root facade only**. Do not begin build metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.

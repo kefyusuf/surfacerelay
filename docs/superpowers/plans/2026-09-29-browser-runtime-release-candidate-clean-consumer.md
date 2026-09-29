@@ -732,3 +732,28 @@ Package/build/CI changes:         NONE
 The feature branch was created from the exact green baseline SHA. Step 1 introduced no production, test, CI, package, build, artifact, consumer, spec, or conformance behavior.
 
 Next explicit gate: **Step 2 — RED public-root API tests only**. Stop before Step 3 GREEN curated-root facade implementation.
+
+
+## 18. Step 2 checkpoint — public-root API RED proven
+
+~~~text
+RED test files:
+  packages/browser-runtime/tests/public-api.test.ts
+  packages/browser-runtime/tests/public-api.typecheck.ts
+Initial RED head:                 88720b6da4c15e4e3a2f4880de11c8f5ab734c6d
+Authoritative RED head:           e5cfbb73b12d5fdd0d10307ec8455f3e776ca4aa
+Validate:                         #1055 / 36582905214
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Typecheck RED:                    TS2307 — ../src/index.js missing
+Unexpected typecheck errors:      NONE
+Runtime export snapshot:          committed; Vitest step blocked by earlier expected typecheck failure
+GREEN root facade:                NOT STARTED
+Build/artifact/consumer/CI work:  NOT STARTED
+~~~
+
+The initial RED commit correctly proved the missing root-facade boundary but also surfaced two fixture-only implicit-any errors because the missing module removed contextual typing. The authoritative test-only correction added explicit parameter types and introduced no production or GREEN implementation.
+
+On the authoritative RED head, the browser job fails only because src/index does not exist. The normal job ordering stops before Vitest, so the runtime snapshot remains committed but unexecuted until Step 3 supplies the root facade. All other repository jobs remain green.
+
+Next explicit gate: **Step 3 — GREEN curated root facade only**. Create only packages/browser-runtime/src/index.ts with the approved allowlist, then run the existing typecheck/test harness. Stop before Step 4 build/distribution metadata RED work.
