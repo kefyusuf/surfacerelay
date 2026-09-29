@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 3 GREEN VERIFIED / STEP 4 RED NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 4 RED PROVEN / STEP 5 GREEN NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1612,3 +1612,36 @@ The new root facade exports exactly the approved runtime-value allowlist and the
 Step 3 does not add build output, package exports metadata, artifact tooling, clean-consumer fixtures, publication authority, or dedicated consumer CI.
 
 Next explicit gate: **T-803 Step 4 — RED build/distribution metadata tests only**. Do not add tsconfig.build.json, package.json build/exports metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 4 — build/distribution metadata RED PROVEN
+
+~~~text
+Step 3 tracking head:             c8056e22b483f20bdefba55ff95808340a79a619
+RED test head:                    bfc8c522e1c7dd9e7e3ceee57a67ac3dfb7f52da
+RED test file:                    packages/browser-runtime/tests/distribution-contract.test.ts
+Validate:                         #1059 / 36592466741
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Browser typecheck:                PASS
+Distribution contract:            4 tests / 1 PASS / 3 expected FAIL
+Full Vitest result:               22 files / 330 PASS / 3 expected FAIL
+Expected missing metadata:        types / root exports / files / build script
+Expected missing config:          tsconfig.build.json
+Expected missing emit seam:       npm run build
+Source version/private/type:      PASS / unchanged
+GREEN build metadata/config:      NOT STARTED
+Artifact tooling:                 NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+Existing runtime sources:        UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The RED contract is isolated to the approved distribution boundary. The source package already satisfies the preserved invariants (@surfacerelay/browser-runtime, 0.0.0-dev, private: true, ESM). The three failures are exactly the missing Step 5 seams: root distribution metadata/build script, tsconfig.build.json, and executable JavaScript/declaration emit.
+
+No package metadata, build config, artifact tooling, consumer fixture, workflow, or existing runtime implementation changed in Step 4.
+
+Next explicit gate: **T-803 Step 5 — GREEN ESM/declaration build metadata only**. Do not begin artifact-contract tests, npm-pack tooling, clean-consumer work, or dedicated CI automatically.

@@ -781,3 +781,28 @@ The root facade satisfies the Step 2 contract using only the approved runtime-va
 No existing browser-runtime implementation file changed. Step 3 adds no package exports map, declaration build, tarball tooling, clean-consumer fixture, or dedicated release-consumer CI.
 
 Next explicit gate: **Step 4 — RED build/distribution metadata tests only**. Stop before Step 5 GREEN ESM/declaration build metadata implementation.
+
+## 20. Step 4 checkpoint — build/distribution metadata RED proven
+
+~~~text
+RED test head:                    bfc8c522e1c7dd9e7e3ceee57a67ac3dfb7f52da
+RED test file:                    packages/browser-runtime/tests/distribution-contract.test.ts
+Validate:                         #1059 / 36592466741
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Browser typecheck:                PASS
+Distribution contract:            4 tests / 1 PASS / 3 expected FAIL
+Full Vitest result:               22 files / 330 PASS / 3 expected FAIL
+Missing package seam:             types/root exports/files/build script
+Missing build config:             tsconfig.build.json
+Missing emit seam:                npm run build
+Source package invariants:        PASS
+GREEN metadata/config:            NOT STARTED
+Artifact/consumer/CI work:        NOT STARTED
+~~~
+
+The passing test proves the source package identity, 0.0.0-dev version, private: true publication blocker, and ESM module type remain intact.
+
+The three RED failures map one-to-one to the approved Step 5 implementation boundary: minimal root-only distribution metadata and build script, bounded tsconfig.build.json, and emitted ESM JavaScript plus declarations without source/declaration maps or CommonJS output. No unrelated failure is present.
+
+Next explicit gate: **Step 5 — GREEN ESM/declaration build metadata only**. Add only the approved package metadata and tsconfig.build.json, then make the existing distribution contract green. Stop before Step 6 artifact-contract RED tests.

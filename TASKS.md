@@ -1119,7 +1119,7 @@ Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7
 
 Step 9 whole-task verification is complete on `86ccdc67ff268014d8948112ac07ad7bee410f87`. Exact-head Validate #1034 (`36359223941`) completed **17/17 SUCCESS**. The focused T-802 tooling suite ran **20/20 PASS** in each of the four consumer jobs; `release-contract` discovery ran **49/49 PASS** with publication guard PASS; canonical `python scripts/validate.py` passed. All four consumer legs locked/installed `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository and verified installed metadata/autoload; PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
-### T-803 — Browser runtime public API + artifact + clean consumer proof — STEP_3_GREEN_VERIFIED / STEP_4_RED_NOT_STARTED
+### T-803 — Browser runtime public API + artifact + clean consumer proof — STEP_4_RED_PROVEN / STEP_5_GREEN_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1130,6 +1130,8 @@ Step 1 baseline: `main@5de05ea2498bea186aa6d8d11e1726f6c1c56539`, Validate #1051
 Step 2 RED head: `e5cfbb73b12d5fdd0d10307ec8455f3e776ca4aa`. Two approved root-API contract tests are present. Validate #1055 (`36582905214`) completed **16 SUCCESS / 1 expected FAILURE**; only `browser` failed, with the authoritative typecheck reporting only `TS2307` because `../src/index.js` does not exist. No root facade, build metadata, artifact tooling, consumer fixture, CI wiring, or existing runtime-source change exists.
 
 Step 3 GREEN head: `85ffb7925a61747ba0c099b4cd27c646cb45233f`. The only implementation file is `packages/browser-runtime/src/index.ts`. Validate #1057 (`36589996508`) completed **17/17 SUCCESS**; browser typecheck passed, the runtime snapshot passed inside **21 test files / 329 tests**, canonical browser conformance reported **7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE**, and HTMX fixture run #26 (`36589996536`) succeeded. No existing runtime implementation file, package metadata/build config, artifact tooling, clean consumer, or dedicated T-803 CI changed.
+
+Step 4 RED head: `bfc8c522e1c7dd9e7e3ceee57a67ac3dfb7f52da`. The new `distribution-contract.test.ts` contains 4 tests. Validate #1059 (`36592466741`) completed **16 SUCCESS / 1 expected FAILURE**; only `browser` failed. Browser typecheck passed, then Vitest reported **22 files / 330 PASS / 3 expected FAIL**. The three failures are exactly the missing Step-5 distribution seams: package root metadata/build script, `tsconfig.build.json`, and executable build emit. Source version/private/type invariants already pass. No package/build implementation or later T-803 work exists.
 
 ### T-804 — Release-facing documentation and compatibility policy — NOT_STARTED
 
@@ -1154,7 +1156,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801 and T-802 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`, and post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. External review is closed with both inline review threads resolved; the latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-803 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-T-803 Step 3 GREEN curated root facade is **VERIFIED**. The next explicit gate is **T-803 Step 4 — RED build/distribution metadata tests only**. Build config/package metadata implementation, artifact tooling, clean-consumer work, and dedicated CI must not start automatically.
+T-803 Step 4 build/distribution RED evidence is **PROVEN**. The next explicit gate is **T-803 Step 5 — GREEN ESM/declaration build metadata only**. Artifact-contract tests, npm-pack tooling, clean-consumer work, and dedicated CI must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
