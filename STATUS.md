@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 5 GREEN VERIFIED / STEP 6 RED NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 6 RED PROVEN / STEP 7 GREEN NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1681,3 +1681,34 @@ Step 5 adds only the approved distribution metadata and bounded TypeScript build
 The source package remains private at version 0.0.0-dev. No dependency changed, package-lock.json remained unchanged, no dist output is committed, and no runtime implementation file changed.
 
 Next explicit gate: **T-803 Step 6 — RED artifact-contract tests only**. Do not implement browser release-candidate tooling, npm-pack staging, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 6 — browser artifact-contract RED PROVEN
+
+~~~text
+Step 5 tracking head:             1b965c63d814f5519578fb09a2d627e1275446c2
+Permanent RED test head:          1168947dc24a107a447eb21a3c693fb86eb35e60
+Temporary discovery bridge head:  fa8491ba774d68c7e2f3d64c69ed4ddb9588e651
+RED test file:                    scripts/tests/test_browser_release_candidate.py
+Authoritative Validate:           #1064 / 36611234115
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           60 tests / 11 expected ERROR
+Existing release-contract tests:  49 PASS
+Expected RED cause:               scripts.browser_release_candidate missing
+Browser artifact builder:         NOT STARTED
+npm-pack staging/tooling:         NOT STARTED
+Clean consumer:                   NOT STARTED
+Dedicated T-803 CI:               NOT STARTED
+Existing runtime sources:         UNCHANGED
+Package/build metadata:           STEP 5 green / unchanged
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The permanent Step 6 suite encodes exactly the approved browser artifact contract: exact package/version/revision identity, staged-only version injection, private publication blocker retention, release allowlist/exclusions, symlink rejection, root-only exports, tar path/type safety, exact npm-pack file list, T-801 manifest/evidence reuse, and candidate-only README wording.
+
+The existing release-contract discovery glob does not match test_browser_release_candidate.py, so a temporary test-only discovery bridge exposed the suite to authoritative CI. Validate #1064 then proved all 11 new tests fail only at the intentionally missing scripts.browser_release_candidate module while the pre-existing 49 release-contract tests pass. The temporary bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 7 — GREEN browser release-candidate builder/npm-pack only**. Do not begin clean-consumer/isolation work or dedicated T-803 CI automatically.

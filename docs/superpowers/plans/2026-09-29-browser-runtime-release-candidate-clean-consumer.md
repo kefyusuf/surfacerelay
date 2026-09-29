@@ -833,3 +833,25 @@ The Step 4 RED contract is now fully green. The source package gains only the ap
 No runtime implementation source, dependency lock, artifact builder, npm-pack staging, consumer fixture, workflow, publication credential, tag, or release behavior changed.
 
 Next explicit gate: **Step 6 — RED artifact-contract tests only**. Stop before Step 7 GREEN browser release-candidate builder/npm-pack implementation.
+
+## 22. Step 6 checkpoint — browser artifact-contract RED proven
+
+~~~text
+Permanent RED test file:         scripts/tests/test_browser_release_candidate.py
+Permanent RED test head:         1168947dc24a107a447eb21a3c693fb86eb35e60
+Temporary discovery bridge:      fa8491ba774d68c7e2f3d64c69ed4ddb9588e651
+Authoritative Validate:           #1064 / 36611234115
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           60 tests / 11 expected ERROR
+Existing release-contract tests:  49 PASS
+Expected missing implementation:  scripts.browser_release_candidate
+GREEN builder/npm-pack:           NOT STARTED
+Consumer/isolation/CI work:       NOT STARTED
+~~~
+
+The eleven RED tests cover exactly the approved Step 6 artifact requirements: candidate identity, staged version injection without source mutation, private blocker retention, release allowlist and repository-only exclusions, symlink fail-closed behavior, exact root exports, npm tar path/type safety, exact npm-pack file list, T-801 manifest/evidence identity and hashes, and candidate-only README wording.
+
+The existing release-contract workflow glob intentionally remains unchanged. Because it does not discover test_browser_release_candidate.py directly, a temporary test-only bridge made the new suite authoritative for RED proof. All eleven errors are the missing builder-module boundary; no unrelated test failure is present. The bridge is removed in the tracking checkpoint.
+
+Next explicit gate: **Step 7 — GREEN browser release-candidate builder/npm-pack only**. Create only scripts/browser_release_candidate.py to satisfy this contract and stop before Step 8 clean-consumer/isolation RED work.
