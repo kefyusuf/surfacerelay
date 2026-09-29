@@ -879,3 +879,27 @@ The Step 6 artifact contract is fully green. The builder performs staged-only ca
 The temporary GREEN discovery bridge is removed after evidence capture. Permanent workflow discovery remains unchanged until the dedicated T-803 CI step.
 
 Next explicit gate: **Step 8 — RED clean-consumer/isolation tests only**. Stop before Step 9 GREEN clean-consumer generator/verifier.
+
+## 24. Step 8 checkpoint — clean-consumer/isolation RED proven
+
+~~~text
+Permanent RED test head:          cb68b44f0afc51b577b2efb0f9e8f574bb155ac5
+Temporary discovery bridge:      303e1ca0d65df4eff45b2ac41542f4eeee1638ab
+Authoritative Validate:           #1070 / 36640215454
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           67 tests / 12 expected ERROR
+Existing contract tests:          60 PASS
+New consumer methods:             7 RED
+Missing Step-9 seams:             6
+Permanent main.ts/smoke.mjs:      NOT ADDED
+Consumer implementation:         NOT STARTED
+~~~
+
+The seven RED methods cover consumer manifest isolation from SurfaceRelay source/file/workspace/link dependencies, root-only source import enforcement, consumer/source directory and symlink isolation, tarball identity validation, installed-package symlink rejection, root declaration presence, and deep-export leakage rejection.
+
+Subtests expand those seven methods into twelve expected error records. Every error is caused by one of the six intentionally absent Step-9 tooling seams; all sixty pre-existing contract tests remain green. This proves the failure boundary before permanent main.ts or smoke.mjs fixtures are introduced.
+
+The temporary discovery bridge is removed after evidence capture; permanent workflow wiring remains deferred.
+
+Next explicit gate: **Step 9 — GREEN clean-consumer generator/verifier only**. Implement only the six proven tooling seams needed to satisfy this contract and stop before dedicated CI wiring.

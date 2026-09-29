@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 7 GREEN VERIFIED / STEP 8 RED NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 8 RED PROVEN / STEP 9 GREEN NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1745,3 +1745,42 @@ The builder validates the reviewed source manifest, injects only the explicit pr
 The temporary GREEN discovery bridge is removed in this tracking checkpoint. The permanent browser artifact test remains outside the existing release-contract discovery glob until later dedicated T-803 CI wiring; no workflow change was made in Step 7.
 
 Next explicit gate: **T-803 Step 8 — RED clean-consumer/isolation tests only**. Do not implement consumer generation/verification, Vite bundle/smoke wiring, or dedicated T-803 CI automatically.
+
+## T-803 Step 8 — clean-consumer/isolation RED PROVEN
+
+~~~text
+Step 7 tracking head:             c3214aec678e6cbafdb0d70c53dce51e4e94829c
+Permanent RED test head:          cb68b44f0afc51b577b2efb0f9e8f574bb155ac5
+Temporary discovery bridge head:  303e1ca0d65df4eff45b2ac41542f4eeee1638ab
+Authoritative Validate:           #1070 / 36640215454
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           67 tests / 12 expected ERROR
+Existing contract tests:          60 PASS
+New consumer test methods:        7 RED
+Missing Step-9 seams:             6
+  build_clean_consumer_npm_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_source
+  validate_clean_consumer_isolation
+  validate_browser_artifact_archive
+  verify_clean_consumer_install
+Permanent main.ts fixture:        NOT ADDED
+Permanent smoke.mjs fixture:      NOT ADDED
+Consumer generator/verifier:      NOT STARTED
+Vite bundle/smoke wiring:         NOT STARTED
+Dedicated T-803 CI:               NOT STARTED
+Existing runtime/artifact code:   UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The seven RED methods cover the approved Step 8 boundaries: SurfaceRelay source/file/workspace/link dependency rejection, deep/source import rejection, consumer/source filesystem isolation, source-targeting symlink rejection, missing/wrong tarball identity rejection, installed-package symlink rejection, required root declaration presence, and fail-closed deep-export leakage.
+
+Because several methods use subtests, the seven new methods produce twelve expected error records. Every error is an AttributeError for one of the six intentionally missing Step-9 seams; the pre-existing 60 release-contract tests remain green. No permanent main.ts or smoke.mjs fixture was added before this failure boundary was proven.
+
+The temporary RED discovery bridge is removed in this tracking checkpoint. Workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 9 — GREEN clean-consumer generator/verifier only**. Do not begin permanent consumer fixture execution, Vite bundle/smoke proof, or dedicated T-803 CI beyond what is strictly needed by the approved Step-9 seam implementation.
