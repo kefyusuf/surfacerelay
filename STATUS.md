@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 2 RED PROVEN / GREEN NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 3 GREEN VERIFIED / STEP 4 RED NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1581,3 +1581,34 @@ The first RED run exposed the intended missing-root-facade failure plus two fixt
 The runtime export snapshot is committed and discoverable by Vitest, but the existing browser job correctly stops at typecheck before Vitest when the root facade is absent. Step 3 must make the typecheck pass and then run the snapshot through the normal browser test harness.
 
 Next explicit gate: **T-803 Step 3 — GREEN curated root facade only**. Do not begin build metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.
+
+
+## T-803 Step 3 — GREEN curated root facade VERIFIED
+
+~~~text
+RED tracking head:                1276dfb0a2b0ffa99ab14bd60811a2b6cb5ef579
+GREEN implementation head:       85ffb7925a61747ba0c099b4cd27c646cb45233f
+Implementation file:             packages/browser-runtime/src/index.ts
+Implementation diff:             index.ts only
+Typecheck:                       PASS
+Browser-runtime tests:           21 files / 329 tests PASS
+Public runtime export snapshot:  PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+GitHub Validate:                 #1057 / 36589996508 — 17/17 SUCCESS
+HTMX fixture:                    #26 / 36589996536 — SUCCESS
+Existing runtime sources:        UNCHANGED
+package.json / build config:     UNCHANGED
+Artifact tooling:                NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The new root facade exports exactly the approved runtime-value allowlist and the reviewed type closure. The runtime snapshot proves no additional runtime value leaked into the root API. Existing driver/runtime/projection implementation files remain unchanged.
+
+Step 3 does not add build output, package exports metadata, artifact tooling, clean-consumer fixtures, publication authority, or dedicated consumer CI.
+
+Next explicit gate: **T-803 Step 4 — RED build/distribution metadata tests only**. Do not add tsconfig.build.json, package.json build/exports metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.

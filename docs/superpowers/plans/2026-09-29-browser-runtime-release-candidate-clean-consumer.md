@@ -757,3 +757,27 @@ The initial RED commit correctly proved the missing root-facade boundary but als
 On the authoritative RED head, the browser job fails only because src/index does not exist. The normal job ordering stops before Vitest, so the runtime snapshot remains committed but unexecuted until Step 3 supplies the root facade. All other repository jobs remain green.
 
 Next explicit gate: **Step 3 — GREEN curated root facade only**. Create only packages/browser-runtime/src/index.ts with the approved allowlist, then run the existing typecheck/test harness. Stop before Step 4 build/distribution metadata RED work.
+
+
+## 19. Step 3 checkpoint — GREEN curated root facade verified
+
+~~~text
+GREEN implementation head:       85ffb7925a61747ba0c099b4cd27c646cb45233f
+Implementation file:             packages/browser-runtime/src/index.ts
+Implementation diff:             index.ts only
+Typecheck:                       PASS
+Browser-runtime tests:           21 files / 329 tests PASS
+Public runtime export snapshot:  PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+Repository Validate:             #1057 / 36589996508 — 17/17 SUCCESS
+HTMX fixture:                    #26 / 36589996536 — SUCCESS
+Existing runtime implementation: UNCHANGED
+Build/package metadata:          NOT STARTED
+Artifact/consumer/CI work:       NOT STARTED
+~~~
+
+The root facade satisfies the Step 2 contract using only the approved runtime-value allowlist and type closure. No excluded helper or error type is exported as a runtime value, and the exact runtime export snapshot is green.
+
+No existing browser-runtime implementation file changed. Step 3 adds no package exports map, declaration build, tarball tooling, clean-consumer fixture, or dedicated release-consumer CI.
+
+Next explicit gate: **Step 4 — RED build/distribution metadata tests only**. Stop before Step 5 GREEN ESM/declaration build metadata implementation.
