@@ -1,10 +1,10 @@
-# T-802 — Laravel Artifact + Clean Consumer Proof — External Review Handoff
+# T-802 — Laravel Artifact + Clean Consumer Proof — Final Closure
 
 ## State
 
 - Task: `T-802 — Laravel artifact + clean consumer proof`
-- Branch: `feat/t-802-laravel-artifact-clean-consumer`
-- State: **DONE / REVIEWED**
+- Branch: `main`
+- State: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - Baseline: `main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5`
 - Audited implementation head: `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`
 - Step-10 tracking head: `da39f76378af76a1c64a0ef79de91b06aab1ba8e`
@@ -14,10 +14,12 @@
 - Final reviewed pre-closure head: `951ecd07dfe18063042bf0ad1d06aa6723f952e5`
 - Final reviewed-head Validate: `#1045` / `36487729081` — **17/17 SUCCESS**
 - External review: **CLOSED — 2 inline review threads / 0 unresolved; latest incremental finding CodeRabbit-confirmed addressed**
+- Merge commit: `f7d86c76ccc15dc21b63cf868ad75d559607f730`
+- Post-merge main Validate: `#1048` / `36541971021` — **17/17 SUCCESS**
 - Plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md`
 - Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
-This handoff does not authorize merge, T-803, decision promotion, Git tags, GitHub Releases, Packagist publication, or a public SemVer selection.
+The merge is complete. This closure does not authorize T-803 implementation, decision promotion, Git tags, GitHub Releases, Packagist publication, or a public SemVer selection.
 
 ## What T-802 implements
 
@@ -209,6 +211,20 @@ T-802 external review is **CLOSED** against final reviewed pre-closure head `951
 
 Validate #1045 (`36487729081`) completed **17/17 SUCCESS**. Both inline review threads are resolved; unresolved count is zero. The latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed. The full reviewed branch scope remains the bounded eight-file T-802 diff, with no production package source, canonical spec/conformance, neighboring package, or decision-register mutation.
 
-PR #20 remains **OPEN / non-draft / mergeable / NOT MERGED**. D-026 and D-069 through D-073 remain **PROPOSED**.
+PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`. Post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. D-026 and D-069 through D-073 remain **PROPOSED**.
 
-Next explicit gate: **T-802 merge decision only**. Review closure does not authorize merge, T-803, decision promotion, tag, GitHub Release, Packagist publication, or public SemVer selection automatically.
+## Post-merge main revalidation
+
+```text
+PR:                              #20 — MERGED
+Merge commit:                    f7d86c76ccc15dc21b63cf868ad75d559607f730
+Post-merge main Validate:        #1048 / 36541971021 — 17/17 SUCCESS
+Review threads:                  2 total / 0 unresolved
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Tag/release/publication:         NONE
+```
+
+T-802 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
+
+Next explicit gate: **T-803 implementation-plan preparation only**. Do not begin T-803 implementation, promote decisions, create tags/releases, publish packages, or select a public SemVer automatically.

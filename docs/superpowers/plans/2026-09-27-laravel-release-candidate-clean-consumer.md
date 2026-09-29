@@ -1,6 +1,6 @@
 # T-802 — Laravel Release-Candidate Artifact + Clean Consumer Proof
 
-Status: APPROVED / IMPLEMENTATION COMPLETE / REVIEWED
+Status: APPROVED / IMPLEMENTATION COMPLETE / REVIEWED / MERGED / MAIN REVALIDATED
 Date: 2026-09-27
 Task: T-802
 Baseline: main@138d27f21c92af2c26d62f32dd217724f56efacf
@@ -678,6 +678,14 @@ T-803..T-805:                    NOT STARTED
 Merge/tag/release/publication:    NOT AUTHORIZED
 ```
 
-Review closure does not merge PR #20, begin T-803, promote any decision, create a Git tag or GitHub Release, publish to Packagist, or select a public SemVer.
+Review closure did not itself authorize merge or later release actions.
 
-Next explicit gate: **T-802 merge decision only**.
+## 25. Post-merge main closure — complete
+
+PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`.
+
+Post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. T-802 is therefore **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
+
+D-026 and D-069..D-073 remain PROPOSED. T-803..T-805 remain NOT STARTED. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
+
+Next explicit gate: **T-803 implementation-plan preparation only**. Do not begin T-803 implementation automatically.

@@ -1095,7 +1095,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — DONE / REVIEWED
+### T-802 — Laravel artifact + clean consumer proof — DONE / REVIEWED / MERGED / MAIN_REVALIDATED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1144,9 +1144,9 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design remains **APPROVED**. T-801 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. T-802 is now **DONE / REVIEW HANDOFF**, with PR #20 **OPEN / non-draft / mergeable / NOT MERGED** and external review active. The review-handoff head `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6` passed Validate #1038 (`36444627579`) **17/17 SUCCESS**. D-069 through D-073 remain **PROPOSED**; T-803 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, decision promotion, or merge is authorized.
+M8 design remains **APPROVED**. T-801 and T-802 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`, and post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. External review is closed with both inline review threads resolved; the latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-803 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-T-802 implementation and internal verification are complete. The current gate is **external-review finding disposition / exact-head revalidation only**. T-803, decision promotion, merge, tag, release, and publication must not start automatically.
+The next explicit gate is **T-803 implementation-plan preparation only**. T-803 implementation must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
@@ -1244,3 +1244,18 @@ Merge/tag/release/publication:    NOT AUTHORIZED
 ```
 
 Next explicit gate: **T-802 merge decision only**. Review closure does not start T-803, promote decisions, create tags/releases, publish packages, or select a public SemVer automatically.
+
+
+### T-802 post-merge closure — DONE / REVIEWED / MERGED / MAIN_REVALIDATED
+
+```text
+PR:                              #20 — MERGED
+Merge commit:                    f7d86c76ccc15dc21b63cf868ad75d559607f730
+Post-merge Validate:             #1048 / 36541971021 — 17/17 SUCCESS
+Review threads:                  2 total / 0 unresolved
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Tag/release/publication:         NONE
+```
+
+Next gate: **T-803 implementation-plan preparation only**.

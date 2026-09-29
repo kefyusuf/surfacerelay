@@ -4,11 +4,11 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
+- **Branch:** `main`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **DONE / REVIEWED; MERGE DECISION GATE**
-- **T-802 PR:** `#20` — **OPEN / non-draft / mergeable / NOT MERGED**
+- **Current work:** **NONE** — `T-802 — Laravel artifact + clean consumer proof` is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; T-803 has not started
+- **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
 - **T-802 review-fix head:** `c380d425673a7ff3045ffed1a650af8bf929fa7e`
@@ -16,7 +16,9 @@
 - **T-802 final reviewed pre-closure head:** `951ecd07dfe18063042bf0ad1d06aa6723f952e5`
 - **T-802 reviewed-head CI:** Validate `#1045` / `36487729081` — **17/17 SUCCESS**
 - **T-802 external review:** latest incremental finding **CodeRabbit-confirmed addressed**; **2 review threads / 0 unresolved**
-- **T-802 final state:** **DONE / REVIEWED / NOT MERGED**
+- **T-802 merge commit:** `f7d86c76ccc15dc21b63cf868ad75d559607f730`
+- **T-802 post-merge main CI:** Validate `#1048` / `36541971021` — **17/17 SUCCESS**
+- **T-802 final state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1474,4 +1476,27 @@ Merge/tag/release/publication:    NOT AUTHORIZED
 
 External review is closed. The reviewed branch remains limited to the bounded eight-file T-802 scope recorded above; package production source, canonical spec/conformance, neighboring package manifests, and the decision register remain unchanged.
 
-Next explicit gate: **T-802 merge decision only**. Do not begin T-803, decision promotion, tag, release, publication, or public SemVer selection automatically.
+## T-802 post-merge main closure — FINAL
+
+```text
+PR:                              #20 — MERGED
+Merge commit:                    f7d86c76ccc15dc21b63cf868ad75d559607f730
+Post-merge main Validate:        #1048 / 36541971021 — 17/17 SUCCESS
+Consumer matrix:                 4/4 SUCCESS
+Release-contract:                SUCCESS
+Contract:                        SUCCESS
+Browser:                         SUCCESS
+OpenAPI importer:                SUCCESS
+PHP lint:                        SUCCESS
+Laravel base matrix:             4/4 SUCCESS
+Laravel MCP matrix:              4/4 SUCCESS
+Review threads:                  2 total / 0 unresolved
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Tag/release/publication:         NONE
+```
+
+T-802 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No later M8 task starts automatically.
+
+Next explicit gate: **T-803 implementation-plan preparation only**. Do not begin T-803 implementation, promote D-069..D-073, tag, release, publish, or select a public SemVer automatically.
