@@ -1119,9 +1119,9 @@ Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7
 
 Step 9 whole-task verification is complete on `86ccdc67ff268014d8948112ac07ad7bee410f87`. Exact-head Validate #1034 (`36359223941`) completed **17/17 SUCCESS**. The focused T-802 tooling suite ran **20/20 PASS** in each of the four consumer jobs; `release-contract` discovery ran **49/49 PASS** with publication guard PASS; canonical `python scripts/validate.py` passed. All four consumer legs locked/installed `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository and verified installed metadata/autoload; PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
-### T-803 — Browser runtime public API + artifact + clean consumer proof — PLAN_READY / IMPLEMENTATION_NOT_STARTED
+### T-803 — Browser runtime public API + artifact + clean consumer proof — PLAN_APPROVED / IMPLEMENTATION_NOT_STARTED
 
-Implementation plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md` — **READY FOR APPROVAL**.
+Implementation plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md` — **APPROVED**.
 
 Planned scope: curated root-only ESM API, ES2022 JavaScript + declarations, root-only exports map, npm-pack release-candidate tarball, isolated package-root typecheck/Vite bundle/side-effect-free smoke, and explicit no-source/deep-import/workspace/symlink evidence.
 
@@ -1148,7 +1148,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801 and T-802 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`, and post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. External review is closed with both inline review threads resolved; the latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-803 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-The T-803 implementation plan is prepared. The next explicit gate is **T-803 implementation-plan approval only**. T-803 implementation must not start automatically.
+The T-803 implementation plan is **APPROVED**. The next explicit gate is **T-803 Step 1 — baseline + feature branch only**. Step 2 RED public-root API tests must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.

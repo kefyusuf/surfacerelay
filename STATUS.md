@@ -1501,13 +1501,13 @@ T-802 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No la
 
 Next explicit gate: **T-803 implementation-plan preparation only**. Do not begin T-803 implementation, promote D-069..D-073, tag, release, publish, or select a public SemVer automatically.
 
-## T-803 implementation-plan preparation — READY FOR APPROVAL
+## T-803 implementation plan — APPROVED / IMPLEMENTATION NOT STARTED
 
 ~~~text
-Baseline main:                    9bd71d1212871a27d2b96fa8e428c98d198ef5ce
-Baseline Validate:                #1049 / 36542316261 — 17/17 SUCCESS
 Plan:                             docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md
-T-803 plan state:                 READY FOR APPROVAL
+Plan-preparation head:            8f1a560f8c878221a6c1008bf7d6f7db5cd9e420
+Plan-preparation Validate:        #1050 / 36554343680 — 17/17 SUCCESS
+T-803 plan state:                 APPROVED
 T-803 implementation:            NOT STARTED
 Implementation branch:           NOT CREATED
 Planned package:                  @surfacerelay/browser-runtime
@@ -1522,4 +1522,4 @@ T-804..T-805:                    NOT STARTED
 Publish/tag/release:              NOT AUTHORIZED
 ~~~
 
-Next explicit gate: **T-803 implementation-plan approval only**. Do not create the implementation branch or start RED tests automatically.
+Next explicit gate: **T-803 Step 1 — baseline + feature branch only**. Do not begin Step 2 RED public-root API tests automatically.

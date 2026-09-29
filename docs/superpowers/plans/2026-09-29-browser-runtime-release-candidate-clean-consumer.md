@@ -1,6 +1,6 @@
 # T-803 — Browser Runtime Public API + Release-Candidate Artifact + Clean Consumer Proof
 
-Status: READY FOR APPROVAL / IMPLEMENTATION NOT STARTED
+Status: APPROVED / IMPLEMENTATION NOT STARTED
 Date: 2026-09-29
 Task: T-803
 Baseline: main@9bd71d1212871a27d2b96fa8e428c98d198ef5ce
@@ -695,3 +695,24 @@ This plan-preparation gate does not authorize implementation.
 After this plan is committed and exact-head validation is green, stop.
 
 The next explicit gate is T-803 implementation-plan approval only. Approval may authorize creation of the T-803 feature branch, but implementation must not begin from this plan-preparation commit automatically.
+
+
+## 16. Plan approval checkpoint
+
+Approved against:
+
+~~~text
+Plan-preparation head:            8f1a560f8c878221a6c1008bf7d6f7db5cd9e420
+Plan-preparation Validate:        #1050 / 36554343680 — 17/17 SUCCESS
+Approval scope:                   T-803 plan only
+Implementation branch:           NOT CREATED
+Implementation:                  NOT STARTED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NOT AUTHORIZED
+~~~
+
+The plan is approved as the implementation contract for T-803. Approval does not itself create the feature branch or authorize Step 2 RED work in this commit.
+
+Next explicit gate: **T-803 Step 1 — baseline + feature branch only**. After that gate is separately completed, stop before Step 2 RED public-root API tests.
