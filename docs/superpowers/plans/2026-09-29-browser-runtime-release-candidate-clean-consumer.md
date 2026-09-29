@@ -855,3 +855,27 @@ The eleven RED tests cover exactly the approved Step 6 artifact requirements: ca
 The existing release-contract workflow glob intentionally remains unchanged. Because it does not discover test_browser_release_candidate.py directly, a temporary test-only bridge made the new suite authoritative for RED proof. All eleven errors are the missing builder-module boundary; no unrelated test failure is present. The bridge is removed in the tracking checkpoint.
 
 Next explicit gate: **Step 7 — GREEN browser release-candidate builder/npm-pack only**. Create only scripts/browser_release_candidate.py to satisfy this contract and stop before Step 8 clean-consumer/isolation RED work.
+
+## 23. Step 7 checkpoint — GREEN browser release-candidate builder/npm-pack verified
+
+~~~text
+GREEN implementation head:       279f4b8758303496e50d5e1d306cdd75f2813e6b
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge:          2d0e069044ac09d014eb7071450a2027c5485978
+Authoritative Validate:          #1067 / 36631327207 — 17/17 SUCCESS
+release-contract:                60/60 PASS
+Browser artifact contract:       11/11 PASS
+Pre-existing release contract:   49/49 PASS
+Publication guard:               PASS
+npm artifact:                    real npm pack .tgz
+T-801 evidence format:           reused
+Source package mutation:         NONE
+Runtime/package/build/workflow:  unchanged from prior approved steps
+Consumer/isolation/CI work:      NOT STARTED
+~~~
+
+The Step 6 artifact contract is fully green. The builder performs staged-only candidate version injection, explicit dist JS/declaration copying, repository-only exclusion, symlink fail-closed checks, candidate-only README generation, real npm pack execution with scripts disabled, tar path/type/exact-file validation, and T-801 content-manifest/artifact-evidence hashing.
+
+The temporary GREEN discovery bridge is removed after evidence capture. Permanent workflow discovery remains unchanged until the dedicated T-803 CI step.
+
+Next explicit gate: **Step 8 — RED clean-consumer/isolation tests only**. Stop before Step 9 GREEN clean-consumer generator/verifier.

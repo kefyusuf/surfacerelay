@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 6 RED PROVEN / STEP 7 GREEN NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 7 GREEN VERIFIED / STEP 8 RED NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1712,3 +1712,36 @@ The permanent Step 6 suite encodes exactly the approved browser artifact contrac
 The existing release-contract discovery glob does not match test_browser_release_candidate.py, so a temporary test-only discovery bridge exposed the suite to authoritative CI. Validate #1064 then proved all 11 new tests fail only at the intentionally missing scripts.browser_release_candidate module while the pre-existing 49 release-contract tests pass. The temporary bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
 
 Next explicit gate: **T-803 Step 7 — GREEN browser release-candidate builder/npm-pack only**. Do not begin clean-consumer/isolation work or dedicated T-803 CI automatically.
+
+## T-803 Step 7 — GREEN browser release-candidate builder/npm-pack VERIFIED
+
+~~~text
+RED tracking head:                c80474a50082d8449acdea2d2b50b265a518380f
+GREEN implementation head:       279f4b8758303496e50d5e1d306cdd75f2813e6b
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge head:     2d0e069044ac09d014eb7071450a2027c5485978
+Authoritative Validate:          #1067 / 36631327207 — 17/17 SUCCESS
+release-contract:                60/60 PASS
+New browser artifact tests:      11/11 PASS
+Existing release-contract tests: 49/49 PASS
+Publication guard:               PASS
+Artifact format:                 npm pack .tgz
+npm lifecycle scripts:           ignored during pack
+T-801 manifest/evidence reuse:   PASS
+Source version/private flag:     0.0.0-dev / true / unchanged
+Existing runtime sources:        UNCHANGED
+Package/build metadata:          STEP 5 / unchanged
+Workflow:                        UNCHANGED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The builder validates the reviewed source manifest, injects only the explicit prerelease version into the staged manifest, retains private: true, stages only package.json + dist JS/declarations + LICENSE + candidate-only README, rejects symlinks/non-regular distribution entries, excludes maps/source/tests/config/lock/node_modules material, runs npm pack --json with lifecycle scripts disabled, validates tar path/type/file-list safety, and writes T-801-compatible content/evidence hashes.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint. The permanent browser artifact test remains outside the existing release-contract discovery glob until later dedicated T-803 CI wiring; no workflow change was made in Step 7.
+
+Next explicit gate: **T-803 Step 8 — RED clean-consumer/isolation tests only**. Do not implement consumer generation/verification, Vite bundle/smoke wiring, or dedicated T-803 CI automatically.
