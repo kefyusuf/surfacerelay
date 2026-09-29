@@ -1,6 +1,6 @@
 # T-802 — Laravel Release-Candidate Artifact + Clean Consumer Proof
 
-Status: APPROVED / IMPLEMENTATION NOT STARTED
+Status: APPROVED / IMPLEMENTATION COMPLETE / REVIEWED
 Date: 2026-09-27
 Task: T-802
 Baseline: main@138d27f21c92af2c26d62f32dd217724f56efacf
@@ -309,7 +309,7 @@ Requirements:
 - Laravel 12/13 matrix;
 - Composer available from the PHP setup;
 - install `requirements-dev.txt`;
-- use a fixed non-public CI prerelease identity such as `0.0.0-t802-ci.1`;
+- use a fixed Composer-recognized non-public prerelease identity such as `0.0.0-alpha1`; T-801 still accepts generic SemVer prereleases, but Step 7 proved Composer root constraints do not accept every generic prerelease identifier;
 - source revision is exact `git rev-parse HEAD`;
 - build the candidate from the exact checkout;
 - run artifact-repository consumer install in all four legs;
@@ -425,3 +425,259 @@ Publish/tag/release:              NOT AUTHORIZED
 The plan is approved as the implementation contract for T-802. Approval does not itself create the feature branch or authorize Step 2 RED work in this commit.
 
 Next explicit gate: **T-802 Step 1 — baseline + feature branch only**. After that gate is separately completed, stop before Step 2 RED artifact-content tests.
+
+## 13. Step 1 checkpoint — baseline + feature branch complete
+
+```text
+Implementation baseline:          main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Baseline Validate:                #1004 / 36279906163 — 13/13 SUCCESS
+Feature branch:                   feat/t-802-laravel-artifact-clean-consumer
+Production implementation:       NOT STARTED
+RED artifact-content tests:       NOT STARTED
+```
+
+The feature branch was created from the exact green baseline SHA. Step 1 introduced no production, test, CI, package, spec, conformance, artifact or consumer behavior.
+
+Next explicit gate: **Step 2 — RED artifact-content tests only**. Stop before Step 3 GREEN artifact-builder implementation.
+
+## 14. Step 2 checkpoint — artifact-content RED proven
+
+```text
+RED test head:                    eb727e294420f2b44efa663ed4c806ca9d6e953a
+Focused test:                     scripts/tests/test_laravel_release_candidate.py
+Focused command:                  python -m unittest scripts.tests.test_laravel_release_candidate -v
+Focused result:                   10 tests / 10 ERROR
+Expected missing implementation:  scripts.laravel_release_candidate
+Repository Validate:              #1007 / 36299355134 — 13/13 SUCCESS
+Production builder:               NOT STARTED
+CI discovery/matrix change:       NONE
+```
+
+The RED suite covers exactly the ten Step 2 artifact-content requirements. All ten currently fail at the missing T-802 builder-module boundary, while the pre-existing repository regression remains green.
+
+The current `release-contract` workflow discovery remains intentionally unchanged in Step 2; the focused T-802 RED command is separate until later CI wiring. No GREEN implementation is present in this checkpoint.
+
+Next explicit gate: **Step 3 — GREEN artifact builder only**. Stop before Step 4 consumer/isolation RED work.
+
+## 15. Step 3 checkpoint — GREEN artifact builder verified
+
+```text
+GREEN implementation head:       331490b4942e257749d1e104f20365b5d4583cc7
+Implementation file:             scripts/laravel_release_candidate.py
+Focused artifact suite:          10/10 PASS
+Repository Validate:             #1009 / 36315361027 — 13/13 SUCCESS
+Publication guard:               PASS
+Step 3 implementation diff:      builder file only
+Package production diff:         NONE
+Consumer/isolation implementation:NONE
+Dedicated CI matrix:             NONE
+```
+
+The builder satisfies the ten Step 2 artifact-content contracts: staged-only version injection, explicit package allowlist, source mutation avoidance, symlink fail-closed behavior, candidate-only README, safe deterministic ZIP construction, and T-801 manifest/evidence reuse.
+
+Focused T-802 tests are still outside the existing Actions discovery pattern; the 10/10 result is from isolated scratch execution of the committed builder/test contract. GitHub Actions independently proves the unchanged repository regression, `python scripts/validate.py`, and publication guard at the implementation head.
+
+Next explicit gate: **Step 4 — RED consumer/isolation tests only**. Stop before Step 5 GREEN consumer generator/verifier.
+
+## 16. Step 4 checkpoint — consumer/isolation RED proven
+
+```text
+RED test head:                    dc341335f4db17ed04ab776fbda6d684643a6dbe
+Temporary CI bridge:              b20ad92dd3deaac6b4de2148267e132b4e52a18f
+Test-scope correction:            ad834fde68175700b6533c39c6d832f6cdfdc065
+Authoritative Validate:            #1013 / 36317673759 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      release-contract only
+release-contract total:           66 tests / 11 expected error records
+Existing T-802 artifact tests:    10/10 PASS
+New consumer methods:             7 RED
+Consumer implementation:         NONE
+```
+
+The seven new tests cover artifact-repository type, exact candidate version, selected Laravel major, path/dev-main/file/workspace/source coupling rejection, source-symlink rejection, artifact identity validation, and consumer-directory isolation.
+
+One pre-existing Step-3 test incorrectly retained file paths beyond the temporary-directory lifetime. The test-only lifetime bug was corrected before the authoritative RED rerun so the signal is isolated: existing artifact tests pass, and all remaining failures are the intentionally missing Step-5 consumer tooling seams.
+
+The temporary discovery bridge is removed after this checkpoint. Permanent workflow discovery/matrix wiring remains Step 8.
+
+Next explicit gate: **Step 5 — GREEN clean-consumer generator/verifier only**. Stop before Step 6 ActionBus smoke RED work.
+
+## 17. Step 5 checkpoint — clean-consumer generator/verifier GREEN verified
+
+```text
+Initial consumer seams:           9aad5add6299b70528fcb4e4bf0d59347b9dd605
+Initial GREEN Validate:           #1016 / 36324499591 — 13/13 SUCCESS
+Initial release-contract:         66/66 PASS
+Workspace/verifier RED:           a27c25c83976521cde6e2ffee916e969f136f2be
+Workspace/verifier RED Validate:  #1017 / 36324666762 — 12 SUCCESS / 1 expected FAILURE
+Workspace/verifier RED detail:    69 tests / 3 expected errors
+Final Step 5 implementation:      80f0fef6e4c4c2e41a3d338438d9bf989f4a2962
+Final Step 5 Validate:            #1018 / 36324731032 — 13/13 SUCCESS
+Final release-contract:           69/69 PASS
+Publication guard:                PASS
+Composer/network execution:       NONE
+```
+
+Step 5 now provides deterministic consumer composer-manifest generation, source-coupling validation, archive identity validation, consumer-directory/symlink isolation, clean workspace creation, and post-Composer installed-metadata verification.
+
+No Composer subprocess or network dependency resolution runs in Step 5. Step 8 owns the authoritative four-way Composer installation matrix using these seams. No ActionBus smoke code exists yet.
+
+The temporary GREEN discovery bridge is removed after this checkpoint; permanent Actions wiring remains Step 8.
+
+Next explicit gate: **Step 6 — RED real ActionBus consumer smoke only**. Stop before Step 7 GREEN smoke implementation.
+
+## 18. Step 6 checkpoint — real ActionBus consumer smoke RED proven
+
+```text
+Permanent smoke fixture:          7c97ec9448646ab32af3e2a42bdc6635077e954a
+Authoritative RED bridge:         e95caa402f4c961aa5116fac09483cb2ff6caf30
+Authoritative Validate:           #1023 / 36333900561 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      PHP 8.4 + Illuminate 13 only
+Target job result:                596 tests / 3171 assertions / 1 failure
+Smoke exit code:                  66
+Smoke stderr:                     clean consumer vendor/autoload.php is missing
+Repository source fallback:       NONE
+Step 7 implementation:           NOT STARTED
+Dedicated CI matrix:              NOT STARTED
+```
+
+The permanent smoke fixture requires only `<consumer-root>/vendor/autoload.php`; it contains no repository `require`, no `packages/laravel` fallback, and no source-relative package autoload. After autoload it is designed to bootstrap minimal Laravel, explicitly register `SurfaceRelayServiceProvider`, register one safe read-only Action, and dispatch the production ActionBus using production execution/output-policy stages.
+
+The temporary PHPUnit bridge is test-only RED instrumentation and is removed after this checkpoint. Earlier probe runs that only exercised bridge-targeting mistakes are not Step-6 evidence; Validate #1023 is the authoritative RED run.
+
+Next explicit gate: **Step 7 — GREEN latest-supported ActionBus smoke only**. Stop before Step 8 dedicated CI matrix.
+
+## 19. Step 7 checkpoint — latest-supported ActionBus smoke GREEN verified
+
+```text
+Authoritative GREEN bridge:       e9d205528556d2c8a7413d0bbaa6de172800d08b
+Authoritative Validate:           #1030 / 36335013953 — 13/13 SUCCESS
+Target environment:               PHP 8.4 + Laravel/Illuminate 13
+Target job result:                596 tests / 3180 assertions / SUCCESS
+Source materialization:           clean git archive of exact HEAD
+Artifact repository:              Composer artifact
+Artifact prerelease:              0.0.0-alpha1
+Installed metadata verification:  PASS
+Smoke result:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Repository source fallback:       NONE
+Permanent bridge:                 NONE
+Dedicated CI matrix:              NOT STARTED
+```
+
+Step 7 proves the exact intended latest-supported path: a clean committed source snapshot builds the candidate ZIP, an isolated Laravel 13 project resolves that ZIP through Composer's artifact repository, installed metadata is verified, and the permanent smoke fixture completes through production ActionBus execution/output-policy wiring.
+
+Probe attempts also established a Composer-specific compatibility constraint: T-801's package-neutral generic SemVer prerelease grammar is broader than Composer's accepted root require-constraint prerelease syntax. T-802 CI must therefore choose a Composer-recognized prerelease identity; this does not change or narrow T-801.
+
+The temporary PHPUnit GREEN bridge is removed after this checkpoint. Validate #1030 is the authoritative Step-7 evidence.
+
+Next explicit gate: **Step 8 — dedicated 4-way CI matrix only**. Stop before T-802 completion/review-handoff tracking.
+
+## 20. Step 8 checkpoint — dedicated 4-way CI matrix verified
+
+```text
+Initial CI head:                  9fb95c0e3a16b8e56a7410e708663b1625aa90e5
+Initial Validate:                 #1032 / 36358993358 — wiring failure before artifact build
+Final CI head:                    0e531439b59e849d046434fd932fbe5374c4f586
+Authoritative Validate:           #1033 / 36359056975 — 17/17 SUCCESS
+Existing jobs:                    13/13 SUCCESS
+Release-consumer matrix:          4/4 SUCCESS
+Artifact prerelease:              0.0.0-alpha1
+Exact source:                     clean git archive HEAD
+Composer artifact install:        PASS in all 4 legs
+Installed metadata/autoload:      PASS in all 4 legs
+ActionBus smoke:                  PASS only on PHP 8.4 + Laravel 13
+Smoke output:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Credentials/publication:          NONE
+```
+
+The first Step-8 attempt correctly exposed an ordering bug in CI evidence collection: the clean-check ran after Python tests had produced untracked cache files. The final workflow verifies checkout cleanliness before tooling, then independently builds from exact `git archive HEAD`, so test-generated workspace noise cannot become artifact input.
+
+All four matrix legs run the committed T-802 tooling tests, build the Composer ZIP, create an isolated consumer, install through Composer's `artifact` repository, verify the exact installed candidate and autoload, and remain free of path/dev-main/file/workspace source coupling. Only the PHP 8.4 + Laravel 13 leg runs the real ActionBus smoke.
+
+Next explicit gate: **Step 9 — whole-task verification only**. Stop before Step 10 forbidden-diff audit.
+
+## 21. Step 9 checkpoint — whole-task verification complete
+
+```text
+Exact-head revision:              86ccdc67ff268014d8948112ac07ad7bee410f87
+Validate:                         #1034 / 36359223941 — 17/17 SUCCESS
+Focused T-802 suite:              20/20 PASS per consumer leg
+Release-contract discovery:       49/49 PASS
+Publication guard:                PASS
+Canonical validation:             PASS
+Consumer matrix:                  4/4 SUCCESS
+Artifact install/metadata:        PASS in all 4 legs
+ActionBus smoke:                  PASS on PHP 8.4 + Laravel 13
+```
+
+Step 9 satisfies every required focused verification command through exact-head GitHub Actions evidence:
+
+- `python -m unittest scripts.tests.test_laravel_release_candidate -v` — 20/20 PASS in each consumer matrix leg;
+- `python -m unittest discover -s scripts/tests -p 'test_release_candidate*.py' -v` — 49/49 PASS in `release-contract`;
+- `python scripts/check_release_guardrails.py` — PASS in `release-contract`;
+- `python scripts/validate.py` — PASS in `contract`.
+
+All four `laravel-release-consumer` jobs were inspected explicitly. Every leg installs the exact candidate from the Composer artifact repository and verifies installed metadata/autoload; only the latest-supported PHP 8.4 + Laravel 13 leg runs and passes the permanent ActionBus smoke.
+
+Next explicit gate: **Step 10 — forbidden-diff / source-mutation audit only**. Stop before Step 11 tracking/review handoff.
+
+## 22. Step 10 checkpoint — forbidden-diff / source-mutation audit complete
+
+```text
+Baseline:                         12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Audited head:                     bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
+Net changed files:                7 allowed
+Forbidden diff:                   0
+Unexpected diff:                  0
+Source composer blob:             unchanged
+Package production source:        unchanged
+Canonical spec/conformance:       unchanged
+Browser/MCP/OpenAPI packages:     unchanged
+Tags/releases:                    none
+Publication/credential wiring:    none
+```
+
+Step 10 independently confirms the final implementation head has not mutated package production source, source Composer metadata, canonical contracts/conformance, neighboring packages, or decision state. The permanent diff is limited to the approved T-802 release tooling, smoke fixture, CI matrix, and tracking/plan files.
+
+Repository tag and GitHub Release collections are empty. The changed executable surfaces contain no npm/Packagist/GitHub-release/tag publication commands and no registry credential variables; the exact-head publication guard remains green.
+
+Next explicit gate: **Step 11 — tracking / external-review handoff only**. Do not begin T-803 or any merge/publication action automatically.
+
+## 23. Step 11 checkpoint — tracking / external-review handoff ready
+
+```text
+Audited implementation head:      bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
+Step 10 tracking head:            da39f76378af76a1c64a0ef79de91b06aab1ba8e
+Step 10 Validate:                 #1036 / 36418100242 — 17/17 SUCCESS
+T-802 state:                      DONE / REVIEW HANDOFF
+External-review document:         REVIEW_REQUEST.md
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+Step 11 prepares external review only. It does not promote decisions, merge the branch, select a public version, create a tag/release, publish to Packagist, or begin T-803.
+
+Next explicit gate: **T-802 external-review PR opening / review kickoff only**.
+
+## 24. External-review closure — complete
+
+T-802 external review is closed against final reviewed pre-closure head `951ecd07dfe18063042bf0ad1d06aa6723f952e5`.
+
+```text
+PR:                              #20 — OPEN / non-draft / mergeable / NOT MERGED
+Final reviewed pre-closure head: 951ecd07dfe18063042bf0ad1d06aa6723f952e5
+Reviewed-head Validate:          #1045 / 36487729081 — 17/17 SUCCESS
+Review threads:                  2 total / 0 unresolved
+Latest incremental finding:      CodeRabbit-confirmed addressed
+Full reviewed branch scope:      8 bounded T-802 files
+Package production source:       unchanged
+Canonical spec/conformance:       unchanged
+Decision register:               unchanged
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+Review closure does not merge PR #20, begin T-803, promote any decision, create a Git tag or GitHub Release, publish to Packagist, or select a public SemVer.
+
+Next explicit gate: **T-802 merge decision only**.
