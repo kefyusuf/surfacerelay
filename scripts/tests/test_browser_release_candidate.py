@@ -356,5 +356,239 @@ class BrowserReleaseCandidateArtifactContractTest(unittest.TestCase):
         self.assertNotIn("npmjs", readme.lower())
 
 
+class BrowserCleanConsumerIsolationContractTest(unittest.TestCase):
+    def test_generated_consumer_manifest_contains_only_pinned_host_tools(self):
+        module = browser_candidate_module()
+
+        manifest = module.build_clean_consumer_npm_manifest()
+
+        self.assertEqual(
+            {
+                "name": "surfacerelay-browser-clean-consumer",
+                "private": True,
+                "type": "module",
+                "devDependencies": {
+                    "typescript": "5.9.3",
+                    "vite": "7.3.6",
+                },
+            },
+            manifest,
+        )
+        self.assertNotIn(PACKAGE_NAME, manifest.get("dependencies", {}))
+        self.assertNotIn(PACKAGE_NAME, manifest.get("devDependencies", {}))
+
+    def test_consumer_manifest_and_source_reject_source_deep_workspace_coupling(self):
+        module = browser_candidate_module()
+
+        forbidden_manifests = [
+            {
+                "name": "consumer",
+                "private": True,
+                "type": "module",
+                "dependencies": {
+                    PACKAGE_NAME: "file:../../packages/browser-runtime",
+                },
+            },
+            {
+                "name": "consumer",
+                "private": True,
+                "type": "module",
+                "dependencies": {
+                    PACKAGE_NAME: "workspace:*",
+                },
+            },
+            {
+                "name": "consumer",
+                "private": True,
+                "type": "module",
+                "dependencies": {
+                    PACKAGE_NAME: "link:../../packages/browser-runtime",
+                },
+            },
+        ]
+
+        for manifest in forbidden_manifests:
+            with self.subTest(manifest=manifest):
+                with self.assertRaises(module.BrowserReleaseCandidateError):
+                    module.validate_clean_consumer_manifest(manifest)
+
+        forbidden_sources = [
+            "import { DriverRegistry } from '@surfacerelay/browser-runtime/dist/driver-registry.js';\n",
+            "import { DriverRegistry } from '../../packages/browser-runtime/src/index.js';\n",
+        ]
+
+        for source in forbidden_sources:
+            with self.subTest(source=source):
+                with self.assertRaises(module.BrowserReleaseCandidateError):
+                    module.validate_clean_consumer_source(source)
+
+    def test_consumer_symlink_back_into_package_source_is_rejected(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_source = root / "repo" / "packages" / "browser-runtime"
+            package_source.mkdir(parents=True)
+            consumer = root / "consumer"
+            consumer.mkdir()
+            link = consumer / "linked-source"
+            try:
+                link.symlink_to(package_source, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"symlink creation unavailable: {exc}")
+
+            with self.assertRaises(module.BrowserReleaseCandidateError):
+                module.validate_clean_consumer_isolation(
+                    consumer_root=consumer,
+                    package_source_root=package_source,
+                )
+
+    def test_consumer_directory_must_be_isolated_from_package_source_tree(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            package_source = Path(directory) / "packages" / "browser-runtime"
+            package_source.mkdir(parents=True)
+
+            with self.assertRaises(module.BrowserReleaseCandidateError):
+                module.validate_clean_consumer_isolation(
+                    consumer_root=package_source,
+                    package_source_root=package_source,
+                )
+
+    def test_missing_or_wrong_tarball_identity_is_rejected(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            missing = root / "missing.tgz"
+
+            with self.assertRaises(module.BrowserReleaseCandidateError):
+                module.validate_browser_artifact_archive(
+                    archive_path=missing,
+                    artifact_version=VERSION,
+                )
+
+            wrong = root / "wrong.tgz"
+            manifest_bytes = json.dumps(
+                {
+                    "name": "@surfacerelay/other",
+                    "version": VERSION,
+                    "private": True,
+                    "type": "module",
+                    "types": "./dist/index.d.ts",
+                    "exports": {
+                        ".": {
+                            "types": "./dist/index.d.ts",
+                            "import": "./dist/index.js",
+                        }
+                    },
+                }
+            ).encode("utf-8")
+
+            with tarfile.open(wrong, mode="w:gz") as archive:
+                info = tarfile.TarInfo("package/package.json")
+                info.size = len(manifest_bytes)
+                import io
+                archive.addfile(info, io.BytesIO(manifest_bytes))
+
+            with self.assertRaises(module.BrowserReleaseCandidateError):
+                module.validate_browser_artifact_archive(
+                    archive_path=wrong,
+                    artifact_version=VERSION,
+                )
+
+    def test_installed_package_symlink_is_rejected(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            consumer = root / "consumer"
+            package_source = root / "repo" / "packages" / "browser-runtime"
+            installed_parent = consumer / "node_modules" / "@surfacerelay"
+            installed_parent.mkdir(parents=True)
+            package_source.mkdir(parents=True)
+            installed = installed_parent / "browser-runtime"
+            try:
+                installed.symlink_to(package_source, target_is_directory=True)
+            except OSError as exc:
+                self.skipTest(f"symlink creation unavailable: {exc}")
+
+            with self.assertRaises(module.BrowserReleaseCandidateError):
+                module.verify_clean_consumer_install(
+                    consumer_root=consumer,
+                    artifact_version=VERSION,
+                    package_source_root=package_source,
+                )
+
+    def test_installed_package_requires_root_declarations_and_no_deep_export(self):
+        module = browser_candidate_module()
+
+        cases = [
+            {
+                "label": "missing-root-declaration",
+                "manifest": {
+                    "name": PACKAGE_NAME,
+                    "version": VERSION,
+                    "private": True,
+                    "type": "module",
+                    "types": "./dist/missing.d.ts",
+                    "exports": {
+                        ".": {
+                            "types": "./dist/missing.d.ts",
+                            "import": "./dist/index.js",
+                        }
+                    },
+                },
+                "files": ["dist/index.js"],
+            },
+            {
+                "label": "deep-export-leakage",
+                "manifest": {
+                    "name": PACKAGE_NAME,
+                    "version": VERSION,
+                    "private": True,
+                    "type": "module",
+                    "types": "./dist/index.d.ts",
+                    "exports": {
+                        ".": {
+                            "types": "./dist/index.d.ts",
+                            "import": "./dist/index.js",
+                        },
+                        "./dist/*": "./dist/*",
+                    },
+                },
+                "files": ["dist/index.js", "dist/index.d.ts"],
+            },
+        ]
+
+        for case in cases:
+            with self.subTest(case=case["label"]):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    consumer = root / "consumer"
+                    package_source = root / "repo" / "packages" / "browser-runtime"
+                    installed = (
+                        consumer
+                        / "node_modules"
+                        / "@surfacerelay"
+                        / "browser-runtime"
+                    )
+                    installed.mkdir(parents=True)
+                    package_source.mkdir(parents=True)
+
+                    (installed / "package.json").write_text(
+                        json.dumps(case["manifest"], indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+                    for relative in case["files"]:
+                        target = installed / relative
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        target.write_text("export {};\n", encoding="utf-8")
+
+                    with self.assertRaises(module.BrowserReleaseCandidateError):
+                        module.verify_clean_consumer_install(
+                            consumer_root=consumer,
+                            artifact_version=VERSION,
+                            package_source_root=package_source,
+                        )
+
+
 if __name__ == "__main__":
     unittest.main()
