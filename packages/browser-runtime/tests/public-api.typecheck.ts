@@ -70,7 +70,10 @@ const htmxTarget: HtmxBindingTarget = createHtmxBindingTarget(definition, htmxOp
 const annotations: WebMcpAnnotations = projectAnnotations(definition);
 const toolName: string = projectWebMcpToolName(definition);
 const candidate: BoundActionTool = { definition, binding };
-const executor: BoundActionExecutor = async (_input, _options) => undefined;
+const executor: BoundActionExecutor = async (
+  _input: Record<string, unknown>,
+  _options: WebMcpToolExecuteOptions,
+) => undefined;
 const tool: WebMcpTool = projectBoundActionTool(candidate, executor);
 
 type PublicTypeClosure = [
