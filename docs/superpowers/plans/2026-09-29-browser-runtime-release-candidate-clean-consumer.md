@@ -806,3 +806,30 @@ The passing test proves the source package identity, 0.0.0-dev version, private:
 The three RED failures map one-to-one to the approved Step 5 implementation boundary: minimal root-only distribution metadata and build script, bounded tsconfig.build.json, and emitted ESM JavaScript plus declarations without source/declaration maps or CommonJS output. No unrelated failure is present.
 
 Next explicit gate: **Step 5 — GREEN ESM/declaration build metadata only**. Add only the approved package metadata and tsconfig.build.json, then make the existing distribution contract green. Stop before Step 6 artifact-contract RED tests.
+
+## 21. Step 5 checkpoint — GREEN ESM/declaration build metadata verified
+
+~~~text
+GREEN implementation head:       71af1a28f792723f9c49be911c10130f78d937c1
+Implementation files:
+  packages/browser-runtime/package.json
+  packages/browser-runtime/tsconfig.build.json
+Distribution contract:          4/4 PASS
+Browser-runtime tests:           22 files / 333 tests PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+Repository Validate:             #1061 / 36609079739 — 17/17 SUCCESS
+Source version/private:          0.0.0-dev / true
+Root exports:                    "." only
+Build output:                    ESM JS + .d.ts
+CommonJS/maps:                   NONE
+package-lock.json:               UNCHANGED
+Committed dist/**:               NONE
+Existing runtime implementation: UNCHANGED
+Artifact/consumer/CI work:       NOT STARTED
+~~~
+
+The Step 4 RED contract is now fully green. The source package gains only the approved root distribution metadata, files allowlist, build script, and bounded build tsconfig. The real compiler emit is exercised into temporary storage and proves the expected root JavaScript/declaration output without maps or CommonJS.
+
+No runtime implementation source, dependency lock, artifact builder, npm-pack staging, consumer fixture, workflow, publication credential, tag, or release behavior changed.
+
+Next explicit gate: **Step 6 — RED artifact-contract tests only**. Stop before Step 7 GREEN browser release-candidate builder/npm-pack implementation.

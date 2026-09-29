@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 4 RED PROVEN / STEP 5 GREEN NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 5 GREEN VERIFIED / STEP 6 RED NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1645,3 +1645,39 @@ The RED contract is isolated to the approved distribution boundary. The source p
 No package metadata, build config, artifact tooling, consumer fixture, workflow, or existing runtime implementation changed in Step 4.
 
 Next explicit gate: **T-803 Step 5 — GREEN ESM/declaration build metadata only**. Do not begin artifact-contract tests, npm-pack tooling, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 5 — GREEN ESM/declaration build metadata VERIFIED
+
+~~~text
+RED tracking head:                641727380893695403446f8108e8cbf378a52e61
+GREEN implementation head:       71af1a28f792723f9c49be911c10130f78d937c1
+Implementation files:            package.json + tsconfig.build.json only
+Source version:                  0.0.0-dev / unchanged
+Source private flag:             true / unchanged
+Root exports:                    "." only
+Distribution mode:               ESM / ES2022
+Declarations:                    dist/index.d.ts
+CommonJS export:                 NONE
+Source/declaration maps:         NONE
+Build script:                    tsc -p tsconfig.build.json
+Distribution contract:          4/4 PASS
+Browser-runtime tests:           22 files / 333 tests PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+GitHub Validate:                 #1061 / 36609079739 — 17/17 SUCCESS
+package-lock.json:               UNCHANGED
+Committed dist/**:               NONE
+Existing runtime sources:        UNCHANGED
+Artifact tooling:                NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+Step 5 adds only the approved distribution metadata and bounded TypeScript build config. The build contract executes the real TypeScript compiler into an isolated temporary output directory and proves ES module JavaScript plus declarations without source/declaration maps or CommonJS output.
+
+The source package remains private at version 0.0.0-dev. No dependency changed, package-lock.json remained unchanged, no dist output is committed, and no runtime implementation file changed.
+
+Next explicit gate: **T-803 Step 6 — RED artifact-contract tests only**. Do not implement browser release-candidate tooling, npm-pack staging, clean-consumer work, or dedicated CI automatically.
