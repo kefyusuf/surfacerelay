@@ -716,3 +716,19 @@ Publish/tag/release:              NOT AUTHORIZED
 The plan is approved as the implementation contract for T-803. Approval does not itself create the feature branch or authorize Step 2 RED work in this commit.
 
 Next explicit gate: **T-803 Step 1 — baseline + feature branch only**. After that gate is separately completed, stop before Step 2 RED public-root API tests.
+
+
+## 17. Step 1 checkpoint — baseline + feature branch complete
+
+~~~text
+Implementation baseline:          main@5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Baseline Validate:                #1051 / 36562318964 — 17/17 SUCCESS
+Feature branch:                   feat/t-803-browser-runtime-artifact-clean-consumer
+Production implementation:       NOT STARTED
+RED public-root API tests:        NOT STARTED
+Package/build/CI changes:         NONE
+~~~
+
+The feature branch was created from the exact green baseline SHA. Step 1 introduced no production, test, CI, package, build, artifact, consumer, spec, or conformance behavior.
+
+Next explicit gate: **Step 2 — RED public-root API tests only**. Stop before Step 3 GREEN curated-root facade implementation.
