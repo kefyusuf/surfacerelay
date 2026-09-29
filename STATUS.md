@@ -6,13 +6,17 @@
 - **Repository:** `github.com/kefyusuf/surfacerelay`
 - **Branch:** `feat/t-802-laravel-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
-- **Last completed/reviewed task:** `T-801 — Release-candidate artifact contract`
-- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **DONE / REVIEW HANDOFF; EXTERNAL REVIEW ACTIVE**
+- **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
+- **Current work:** `T-802 — Laravel artifact + clean consumer proof` — **DONE / REVIEWED; MERGE DECISION GATE**
 - **T-802 PR:** `#20` — **OPEN / non-draft / mergeable / NOT MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
 - **T-802 review-fix head:** `c380d425673a7ff3045ffed1a650af8bf929fa7e`
 - **T-802 review-fix CI:** Validate `#1043` / `36454509211` — **17/17 SUCCESS**
+- **T-802 final reviewed pre-closure head:** `951ecd07dfe18063042bf0ad1d06aa6723f952e5`
+- **T-802 reviewed-head CI:** Validate `#1045` / `36487729081` — **17/17 SUCCESS**
+- **T-802 external review:** latest incremental finding **CodeRabbit-confirmed addressed**; **2 review threads / 0 unresolved**
+- **T-802 final state:** **DONE / REVIEWED / NOT MERGED**
 - **T-801 PR:** `#19` — **MERGED**
 - **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
 - **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
@@ -1451,6 +1455,23 @@ scripts/tests/test_laravel_release_candidate.py
 
 The earlier Step 10 seven-file audit remains valid for its audited implementation head because `REVIEW_REQUEST.md` was added later as review-handoff material. The review-fix-only delta from `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6` to `c380d425673a7ff3045ffed1a650af8bf929fa7e` remains limited to `REVIEW_REQUEST.md`, `STATUS.md`, and `TASKS.md`.
 
-T-802 implementation is complete and external review remains active on PR #20. Incremental review identified this stale handoff-evidence record only; no production/tooling scope expansion is authorized by its disposition.
+## T-802 external review closure — complete
 
-Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**. Do not begin T-803, merge, decision promotion, tag, release, or publication automatically.
+```text
+PR:                              #20 — OPEN / non-draft / mergeable / NOT MERGED
+Final reviewed pre-closure head: 951ecd07dfe18063042bf0ad1d06aa6723f952e5
+Reviewed-head Validate:          #1045 / 36487729081 — 17/17 SUCCESS
+Consumer matrix:                 4/4 SUCCESS
+Focused T-802 suite:             20/20 PASS per consumer leg
+Release-contract discovery:      49/49 PASS
+Publication guard:               PASS
+Review threads:                  2 total / 0 unresolved
+Latest incremental finding:      CodeRabbit-confirmed addressed
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+External review is closed. The reviewed branch remains limited to the bounded eight-file T-802 scope recorded above; package production source, canonical spec/conformance, neighboring package manifests, and the decision register remain unchanged.
+
+Next explicit gate: **T-802 merge decision only**. Do not begin T-803, decision promotion, tag, release, publication, or public SemVer selection automatically.

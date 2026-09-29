@@ -4,13 +4,16 @@
 
 - Task: `T-802 — Laravel artifact + clean consumer proof`
 - Branch: `feat/t-802-laravel-artifact-clean-consumer`
-- State: **DONE / REVIEW HANDOFF**
+- State: **DONE / REVIEWED**
 - Baseline: `main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5`
 - Audited implementation head: `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`
 - Step-10 tracking head: `da39f76378af76a1c64a0ef79de91b06aab1ba8e`
 - Step-10 exact-head Validate: `#1036` / `36418100242` — **17/17 SUCCESS**
 - Review-handoff head: `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - Review-handoff exact-head Validate: `#1038` / `36444627579` — **17/17 SUCCESS**
+- Final reviewed pre-closure head: `951ecd07dfe18063042bf0ad1d06aa6723f952e5`
+- Final reviewed-head Validate: `#1045` / `36487729081` — **17/17 SUCCESS**
+- External review: **CLOSED — 2 inline review threads / 0 unresolved; latest incremental finding CodeRabbit-confirmed addressed**
 - Plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md`
 - Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
 
@@ -200,10 +203,12 @@ D-073
 8. Does the new CI job gain any publication authority or expose credentials?
 9. Has any package production code, canonical spec/conformance contract, neighboring package, or decision state leaked into T-802?
 
-## Review closure rule
+## External review closure
 
-T-802 is **DONE / REVIEW HANDOFF**, not reviewed or merge-ready.
+T-802 external review is **CLOSED** against final reviewed pre-closure head `951ecd07dfe18063042bf0ad1d06aa6723f952e5`.
 
-External review must inspect the current branch against the baseline, disposition every actionable finding, and revalidate the final reviewed head before any merge decision.
+Validate #1045 (`36487729081`) completed **17/17 SUCCESS**. Both inline review threads are resolved; unresolved count is zero. The latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed. The full reviewed branch scope remains the bounded eight-file T-802 diff, with no production package source, canonical spec/conformance, neighboring package, or decision-register mutation.
 
-Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**.
+PR #20 remains **OPEN / non-draft / mergeable / NOT MERGED**. D-026 and D-069 through D-073 remain **PROPOSED**.
+
+Next explicit gate: **T-802 merge decision only**. Review closure does not authorize merge, T-803, decision promotion, tag, GitHub Release, Packagist publication, or public SemVer selection automatically.

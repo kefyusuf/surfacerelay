@@ -1095,7 +1095,7 @@ Implementation plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifa
 
 Shared artifact version input, exact clean source-revision binding, `.tmp/release-candidate` staging containment, deterministic content manifests, SHA-256 archive/content evidence, no-publication guardrails, and a dedicated CI contract job. Real Composer/npm package building remains T-802/T-803.
 
-### T-802 — Laravel artifact + clean consumer proof — DONE / REVIEW_HANDOFF
+### T-802 — Laravel artifact + clean consumer proof — DONE / REVIEWED
 
 Implementation plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1227,4 +1227,20 @@ T-802 Step 9 is **WHOLE-TASK VERIFIED**. Next explicit gate: **T-802 Step 10 —
 T-802 Step 10 forbidden-diff/source-mutation audit is **VERIFIED** on `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`: baseline comparison shows exactly 7 allowed net changed files, **0 forbidden** and **0 unexpected** paths. `packages/laravel/src/**`, `packages/laravel/database/**`, source `packages/laravel/composer.json`, `spec/**`, `conformance/**`, browser-runtime, Laravel-MCP, and OpenAPI-importer remain unchanged. Repository tags/releases are empty; changed executable surfaces contain no publication commands or registry credential wiring. Next explicit gate: **T-802 Step 11 — tracking / external-review handoff only**.
 
 
-T-802 Step 11 is **DONE / REVIEW HANDOFF**. External-review material is prepared in `REVIEW_REQUEST.md`, PR #20 is open, and the first review cycle has completed. Next explicit gate: **T-802 external-review finding disposition / exact-head revalidation only**. T-803, merge, decision promotion, tag, release, and publication must not start automatically.
+T-802 Step 11 is **DONE / REVIEW HANDOFF**. External-review material is prepared in `REVIEW_REQUEST.md`, PR #20 is open, and the review cycle completed with both inline threads resolved.
+
+### T-802 external-review closure — DONE / REVIEW_CLOSED
+
+```text
+PR:                              #20 — OPEN / non-draft / mergeable / NOT MERGED
+Final reviewed pre-closure head: 951ecd07dfe18063042bf0ad1d06aa6723f952e5
+Reviewed-head Validate:          #1045 / 36487729081 — 17/17 SUCCESS
+Review threads:                  2 total / 0 unresolved
+Latest incremental finding:      CodeRabbit-confirmed addressed
+Full reviewed branch scope:      8 bounded T-802 files
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+Next explicit gate: **T-802 merge decision only**. Review closure does not start T-803, promote decisions, create tags/releases, publish packages, or select a public SemVer automatically.
