@@ -929,3 +929,33 @@ This partial checkpoint closes only the six seams exposed by Step 8 RED. It inte
 The temporary GREEN discovery bridge is removed after evidence capture. No workflow change is introduced here.
 
 Next explicit gate: **Step 9 continuation — isolated consumer execution proof only**. Complete the real consumer journey before opening Step 10 dedicated CI.
+
+## 26. Step 9 final checkpoint — isolated consumer execution proof verified
+
+~~~text
+Execution RED contract head:     ca6dcc4ec6267d84cc7e48ed32c1178f2fe93933
+Temporary discovery bridge:     9311fb3bfc4126a919ab1f9c735d41fe56a82478
+Execution implementation head:  ded8716d7ae70e058e34499328ce5aad71012374
+Authoritative Validate:          #1077 / 36705973818 — 17/17 SUCCESS
+release-contract:                68/68 PASS
+Permanent fixtures:
+  scripts/fixtures/browser-clean-consumer/main.ts
+  scripts/fixtures/browser-clean-consumer/smoke.mjs
+Exact source snapshot build:     PASS
+Real npm tarball install:        PASS
+Installed identity/isolation:    PASS
+Root package import:             PASS
+Consumer typecheck:              PASS
+Vite bundle:                     PASS
+DriverRegistry smoke:            PASS
+Deep-import rejection:           PASS
+Dedicated CI:                    NOT STARTED
+~~~
+
+The execution proof uses a fresh consumer outside the repository, exact source snapshot, and candidate staging roots. Host tools remain pinned to TypeScript 5.9.3 and Vite 7.3.6. SurfaceRelay is installed separately from the exact generated tarball with no saved source/file/workspace dependency.
+
+The root-only main.ts fixture resolves shipped declarations through the package root. Vite bundles that fixture through the root ESM entry. smoke.mjs imports only the package root and proves DriverRegistry register/resolve plus fail-closed unsupported lookup. A representative package deep import fails with ERR_PACKAGE_PATH_NOT_EXPORTED.
+
+The temporary execution bridge is removed after evidence capture. Step 9 is complete. No dedicated workflow job has been added yet.
+
+Next explicit gate: **Step 10 — dedicated browser-release-consumer CI job only**. Stop before Step 11 whole-task verification.

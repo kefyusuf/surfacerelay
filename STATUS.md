@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 9 TOOLING GREEN / EXECUTION PROOF NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 9 COMPLETE / STEP 10 NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1825,3 +1825,41 @@ This checkpoint deliberately does not claim the full Step-9 consumer journey. Th
 The temporary GREEN discovery bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
 
 Next explicit gate: **T-803 Step 9 continuation — isolated consumer execution proof only**. Do not start Step 10 dedicated CI until the real install/typecheck/bundle/smoke/deep-import proof is separately green.
+
+## T-803 Step 9 continuation — isolated consumer execution proof VERIFIED
+
+~~~text
+Prior Step-9 tooling head:       deb08323471c98e054c6cc8eb685f257d453c9ac
+Execution RED contract head:     ca6dcc4ec6267d84cc7e48ed32c1178f2fe93933
+Temporary discovery bridge:     9311fb3bfc4126a919ab1f9c735d41fe56a82478
+Execution implementation head:  ded8716d7ae70e058e34499328ce5aad71012374
+Authoritative Validate:          #1077 / 36705973818 — 17/17 SUCCESS
+release-contract:                68/68 PASS
+Execution integration test:      PASS
+Exact source snapshot:           git archive HEAD
+Source browser build:            npm ci + npm run build — PASS
+Candidate artifact:              real npm pack .tgz
+Isolated npm consumer install:   PASS
+SurfaceRelay dependency saved:   NO
+Installed identity/isolation:    PASS
+Package-root import:             PASS
+TypeScript root-only typecheck:  PASS
+Vite production bundle:          PASS
+DriverRegistry smoke:            PASS
+Smoke marker:                    SurfaceRelay browser-runtime clean-consumer smoke: PASS
+Representative deep import:      REJECTED by exports map
+Permanent main.ts fixture:       ADDED
+Permanent smoke.mjs fixture:     ADDED
+Dedicated T-803 CI:              NOT STARTED
+Workflow:                        UNCHANGED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The isolated execution test materializes an exact Git archive snapshot, installs the browser-runtime build tooling inside that snapshot, emits the real distribution, builds the reviewed candidate tarball, creates a fresh consumer outside the repository/source/stage trees, installs pinned TypeScript/Vite host tools and the exact tarball without persisting a SurfaceRelay dependency, verifies the installed package, resolves the package root, typechecks the permanent root-only fixture, produces a Vite browser bundle, executes the side-effect-free DriverRegistry smoke, and proves a representative deep import is blocked by the exports map.
+
+This completes Step 9. The temporary execution discovery bridge is removed in this tracking checkpoint. No dedicated browser-release-consumer workflow job, npm credential, publication command, tag, release, or public version selection was introduced.
+
+Next explicit gate: **T-803 Step 10 — dedicated browser-release-consumer CI job only**. Do not start Step 11 whole-task verification, Step 12 audit, or Step 13 review handoff automatically.
