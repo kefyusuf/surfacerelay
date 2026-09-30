@@ -903,3 +903,29 @@ Subtests expand those seven methods into twelve expected error records. Every er
 The temporary discovery bridge is removed after evidence capture; permanent workflow wiring remains deferred.
 
 Next explicit gate: **Step 9 — GREEN clean-consumer generator/verifier only**. Implement only the six proven tooling seams needed to satisfy this contract and stop before dedicated CI wiring.
+
+## 25. Step 9 partial checkpoint — tooling seams GREEN, isolated execution proof pending
+
+~~~text
+GREEN implementation head:       47bab19c3fe42d883665e237161a0d030c698c6a
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge:          48819d5eac4d5cbb077932fa574274f4ab6c803e
+Authoritative Validate:          #1073 / 36649005470 — 17/17 SUCCESS
+release-contract:                67/67 PASS
+New consumer/isolation methods:  7/7 PASS
+Publication guard:               PASS
+Six Step-9 tooling seams:        GREEN
+Real npm tarball install:        NOT EXECUTED
+Permanent main.ts/smoke.mjs:     NOT ADDED
+Root-only consumer typecheck:    NOT EXECUTED
+Vite bundle:                     NOT EXECUTED
+Runtime smoke:                   NOT EXECUTED
+Deep-import execution proof:     NOT EXECUTED
+Dedicated CI:                    NOT STARTED
+~~~
+
+This partial checkpoint closes only the six seams exposed by Step 8 RED. It intentionally does not overstate completion of Step 9: the plan's authoritative consumer journey still requires a real isolated install of the generated .tgz plus root-only typecheck, Vite production bundle, side-effect-free smoke, and executed deep-import rejection.
+
+The temporary GREEN discovery bridge is removed after evidence capture. No workflow change is introduced here.
+
+Next explicit gate: **Step 9 continuation — isolated consumer execution proof only**. Complete the real consumer journey before opening Step 10 dedicated CI.

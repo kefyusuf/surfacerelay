@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 8 RED PROVEN / STEP 9 GREEN NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 9 TOOLING GREEN / EXECUTION PROOF NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1784,3 +1784,44 @@ Because several methods use subtests, the seven new methods produce twelve expec
 The temporary RED discovery bridge is removed in this tracking checkpoint. Workflow discovery remains unchanged.
 
 Next explicit gate: **T-803 Step 9 — GREEN clean-consumer generator/verifier only**. Do not begin permanent consumer fixture execution, Vite bundle/smoke proof, or dedicated T-803 CI beyond what is strictly needed by the approved Step-9 seam implementation.
+
+## T-803 Step 9 — clean-consumer tooling GREEN / execution proof NOT STARTED
+
+~~~text
+RED tracking head:                043b078bd202a1abc98d831950ae0f631d4e3157
+GREEN implementation head:       47bab19c3fe42d883665e237161a0d030c698c6a
+Implementation file:             scripts/browser_release_candidate.py only
+Temporary GREEN bridge head:     48819d5eac4d5cbb077932fa574274f4ab6c803e
+Authoritative Validate:          #1073 / 36649005470 — 17/17 SUCCESS
+release-contract:                67/67 PASS
+New consumer/isolation methods:  7/7 PASS
+Publication guard:               PASS
+Implemented tooling seams:       6/6
+  build_clean_consumer_npm_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_source
+  validate_clean_consumer_isolation
+  validate_browser_artifact_archive
+  verify_clean_consumer_install
+Permanent main.ts fixture:       NOT ADDED
+Permanent smoke.mjs fixture:     NOT ADDED
+Actual npm consumer install:     NOT EXECUTED
+TypeScript consumer typecheck:   NOT EXECUTED
+Vite production bundle:          NOT EXECUTED
+Runtime smoke:                   NOT EXECUTED
+Deep-import runtime check:       tooling guard only / execution proof NOT RUN
+Dedicated T-803 CI:              NOT STARTED
+Existing runtime/artifact code:  unchanged outside browser_release_candidate.py
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The six Step-8 seams are now green. The tooling can build the pinned host-tool manifest, reject persisted SurfaceRelay source/file/workspace/link dependencies, reject deep/source imports, enforce consumer/source filesystem isolation, validate browser artifact identity/root contract, and verify an installed package is physical, exact-version, root-declaration-complete, and root-export-only.
+
+This checkpoint deliberately does not claim the full Step-9 consumer journey. The approved plan still requires a real isolated tarball install followed by root-only typecheck, Vite bundle, side-effect-free smoke, and deep-import rejection execution. Those actions were not needed to satisfy the six proven seams and were not started in this gate.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 9 continuation — isolated consumer execution proof only**. Do not start Step 10 dedicated CI until the real install/typecheck/bundle/smoke/deep-import proof is separately green.
