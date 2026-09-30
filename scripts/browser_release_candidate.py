@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import stat
 import subprocess
@@ -710,6 +711,306 @@ def verify_clean_consumer_install(
     )
 
     return installed_resolved
+
+
+
+def create_clean_consumer_workspace(
+    *,
+    consumer_root: Path | str,
+    fixture_root: Path | str,
+    package_source_root: Path | str,
+) -> dict[str, str]:
+    consumer = Path(consumer_root)
+    fixtures = Path(fixture_root)
+    package_source = Path(package_source_root)
+
+    if fixtures.is_symlink() or not fixtures.is_dir():
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer fixture root must be a real directory"
+        )
+
+    try:
+        ensure_empty_target(consumer)
+    except ReleaseCandidateContractError as exc:
+        raise BrowserReleaseCandidateError(str(exc)) from exc
+
+    consumer.mkdir(parents=True, exist_ok=True)
+    validate_clean_consumer_isolation(
+        consumer_root=consumer,
+        package_source_root=package_source,
+    )
+
+    manifest = build_clean_consumer_npm_manifest()
+    validate_clean_consumer_manifest(manifest)
+
+    package_json_path = consumer / "package.json"
+    package_json_path.write_text(
+        json.dumps(
+            manifest,
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    source_paths: dict[str, Path] = {}
+    for name in ("main.ts", "smoke.mjs"):
+        source = fixtures / name
+        _require_regular_file(
+            source,
+            label=f"browser clean-consumer fixture {name}",
+        )
+        text = source.read_text(encoding="utf-8")
+        validate_clean_consumer_source(text)
+        target = consumer / name
+        target.write_text(text, encoding="utf-8")
+        source_paths[name] = target
+
+    tsconfig = {
+        "compilerOptions": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "strict": True,
+            "noEmit": True,
+            "lib": ["ES2022", "DOM"],
+            "skipLibCheck": True,
+        },
+        "include": ["main.ts"],
+    }
+    tsconfig_path = consumer / "tsconfig.json"
+    tsconfig_path.write_text(
+        json.dumps(tsconfig, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    index_path = consumer / "index.html"
+    index_path.write_text(
+        "<!doctype html>\n"
+        "<html><head><meta charset=\"UTF-8\"></head><body>\n"
+        '<script type="module" src="/main.ts"></script>\n'
+        "</body></html>\n",
+        encoding="utf-8",
+    )
+
+    validate_clean_consumer_manifest(
+        json.loads(package_json_path.read_text(encoding="utf-8"))
+    )
+    validate_clean_consumer_source(
+        source_paths["main.ts"].read_text(encoding="utf-8")
+    )
+    validate_clean_consumer_source(
+        source_paths["smoke.mjs"].read_text(encoding="utf-8")
+    )
+
+    return {
+        "consumerRoot": str(consumer),
+        "packageJsonPath": str(package_json_path),
+        "tsconfigPath": str(tsconfig_path),
+        "indexPath": str(index_path),
+        "mainPath": str(source_paths["main.ts"]),
+        "smokePath": str(source_paths["smoke.mjs"]),
+    }
+
+
+def _consumer_environment() -> dict[str, str]:
+    environment = dict(os.environ)
+    for key in ("NPM_TOKEN", "NODE_AUTH_TOKEN", "PACKAGIST_TOKEN"):
+        environment.pop(key, None)
+
+    environment["npm_config_audit"] = "false"
+    environment["npm_config_fund"] = "false"
+    environment["npm_config_ignore_scripts"] = "true"
+    environment["npm_config_package_lock"] = "false"
+    return environment
+
+
+def _run_consumer_command(
+    command: list[str],
+    *,
+    cwd: Path,
+    allow_failure: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            env=_consumer_environment(),
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError as exc:
+        raise BrowserReleaseCandidateError(
+            f"browser clean-consumer command could not start: {command[0]}"
+        ) from exc
+
+    if not allow_failure and completed.returncode != 0:
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer command failed: "
+            + " ".join(command[:3])
+        )
+
+    return completed
+
+
+def execute_clean_consumer_proof(
+    *,
+    consumer_root: Path | str,
+    archive_path: Path | str,
+    artifact_version: str,
+    package_source_root: Path | str,
+) -> dict[str, object]:
+    version = validate_artifact_version(artifact_version)
+    consumer = validate_clean_consumer_isolation(
+        consumer_root=consumer_root,
+        package_source_root=package_source_root,
+    )
+    archive = Path(archive_path).resolve(strict=False)
+    validate_browser_artifact_archive(
+        archive_path=archive,
+        artifact_version=version,
+    )
+
+    package_json_path = consumer / "package.json"
+    try:
+        original_manifest_bytes = package_json_path.read_bytes()
+        manifest = json.loads(original_manifest_bytes.decode("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer package.json must be valid UTF-8 JSON"
+        ) from exc
+
+    if manifest != build_clean_consumer_npm_manifest():
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer manifest must match the pinned host-tool contract"
+        )
+    validate_clean_consumer_manifest(manifest)
+
+    main_source = (consumer / "main.ts").read_text(encoding="utf-8")
+    smoke_source = (consumer / "smoke.mjs").read_text(encoding="utf-8")
+    validate_clean_consumer_source(main_source)
+    validate_clean_consumer_source(smoke_source)
+
+    _run_consumer_command(
+        [
+            "npm",
+            "install",
+            "--ignore-scripts",
+            "--no-audit",
+            "--no-fund",
+            "--package-lock=false",
+        ],
+        cwd=consumer,
+    )
+    _run_consumer_command(
+        [
+            "npm",
+            "install",
+            "--ignore-scripts",
+            "--no-audit",
+            "--no-fund",
+            "--no-save",
+            "--package-lock=false",
+            str(archive),
+        ],
+        cwd=consumer,
+    )
+
+    if package_json_path.read_bytes() != original_manifest_bytes:
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer install must not persist SurfaceRelay into package.json"
+        )
+
+    installed_root = verify_clean_consumer_install(
+        consumer_root=consumer,
+        artifact_version=version,
+        package_source_root=package_source_root,
+    )
+
+    root_import = _run_consumer_command(
+        [
+            "node",
+            "--input-type=module",
+            "--eval",
+            f"await import('{PACKAGE_NAME}');",
+        ],
+        cwd=consumer,
+    )
+
+    typecheck = _run_consumer_command(
+        [
+            "npm",
+            "exec",
+            "--offline",
+            "--",
+            "tsc",
+            "-p",
+            "tsconfig.json",
+        ],
+        cwd=consumer,
+    )
+
+    bundle = _run_consumer_command(
+        [
+            "npm",
+            "exec",
+            "--offline",
+            "--",
+            "vite",
+            "build",
+        ],
+        cwd=consumer,
+    )
+
+    smoke = _run_consumer_command(
+        ["node", "smoke.mjs"],
+        cwd=consumer,
+    )
+    smoke_output = smoke.stdout.strip()
+    expected_smoke = "SurfaceRelay browser-runtime clean-consumer smoke: PASS"
+    if smoke_output != expected_smoke:
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer smoke output is not the expected PASS marker"
+        )
+
+    deep_import = _run_consumer_command(
+        [
+            "node",
+            "--input-type=module",
+            "--eval",
+            (
+                "await import("
+                f"'{PACKAGE_NAME}/dist/driver-registry.js'"
+                ");"
+            ),
+        ],
+        cwd=consumer,
+        allow_failure=True,
+    )
+    deep_output = deep_import.stdout + deep_import.stderr
+    if (
+        deep_import.returncode == 0
+        or "ERR_PACKAGE_PATH_NOT_EXPORTED" not in deep_output
+    ):
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer deep import was not rejected by the exports map"
+        )
+
+    validate_clean_consumer_isolation(
+        consumer_root=consumer,
+        package_source_root=package_source_root,
+    )
+
+    return {
+        "installedRoot": str(installed_root),
+        "rootImport": root_import.returncode == 0,
+        "typecheck": typecheck.returncode == 0,
+        "bundle": bundle.returncode == 0,
+        "smokeOutput": smoke_output,
+        "deepImportRejected": True,
+    }
 
 
 def build_browser_release_candidate(
