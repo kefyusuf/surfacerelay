@@ -2,6 +2,7 @@ import hashlib
 import importlib
 import json
 from pathlib import Path
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -588,6 +589,90 @@ class BrowserCleanConsumerIsolationContractTest(unittest.TestCase):
                             artifact_version=VERSION,
                             package_source_root=package_source,
                         )
+
+
+class BrowserCleanConsumerExecutionContractTest(unittest.TestCase):
+    def test_exact_artifact_executes_isolated_root_only_consumer_journey(self):
+        module = browser_candidate_module()
+        repository = Path(__file__).resolve().parents[2]
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_root = root / "source"
+            source_root.mkdir()
+            source_tar = root / "source.tar"
+
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(repository),
+                    "archive",
+                    "--format=tar",
+                    "-o",
+                    str(source_tar),
+                    "HEAD",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            with tarfile.open(source_tar, mode="r:") as archive:
+                archive.extractall(source_root, filter="data")
+
+            revision = subprocess.run(
+                ["git", "-C", str(repository), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+
+            consumer = root / "consumer"
+            fixture_root = source_root / "scripts" / "fixtures" / "browser-clean-consumer"
+
+            module.create_clean_consumer_workspace(
+                consumer_root=consumer,
+                fixture_root=fixture_root,
+                package_source_root=source_root / "packages" / "browser-runtime",
+            )
+
+            subprocess.run(
+                ["npm", "ci"],
+                cwd=source_root / "packages" / "browser-runtime",
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            subprocess.run(
+                ["npm", "run", "build"],
+                cwd=source_root / "packages" / "browser-runtime",
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            candidate = module.build_browser_release_candidate(
+                repo=source_root,
+                stage_root=root / "stage",
+                artifact_version=VERSION,
+                source_revision=revision,
+            )
+
+            proof = module.execute_clean_consumer_proof(
+                consumer_root=consumer,
+                archive_path=Path(candidate["archivePath"]),
+                artifact_version=VERSION,
+                package_source_root=source_root / "packages" / "browser-runtime",
+            )
+
+        self.assertEqual(
+            "SurfaceRelay browser-runtime clean-consumer smoke: PASS",
+            proof["smokeOutput"],
+        )
+        self.assertIs(True, proof["rootImport"])
+        self.assertIs(True, proof["typecheck"])
+        self.assertIs(True, proof["bundle"])
+        self.assertIs(True, proof["deepImportRejected"])
 
 
 if __name__ == "__main__":
