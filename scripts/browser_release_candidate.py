@@ -382,6 +382,336 @@ def _validate_tarball(
         )
 
 
+_CONSUMER_DEV_DEPENDENCIES = {
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+}
+
+
+def build_clean_consumer_npm_manifest() -> dict[str, object]:
+    return {
+        "name": "surfacerelay-browser-clean-consumer",
+        "private": True,
+        "type": "module",
+        "devDependencies": dict(_CONSUMER_DEV_DEPENDENCIES),
+    }
+
+
+def validate_clean_consumer_manifest(manifest: object) -> dict[str, object]:
+    if not isinstance(manifest, dict):
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer package manifest must be a JSON object"
+        )
+
+    dependencies = manifest.get("dependencies", {})
+    dev_dependencies = manifest.get("devDependencies", {})
+
+    for label, values in (
+        ("dependencies", dependencies),
+        ("devDependencies", dev_dependencies),
+    ):
+        if not isinstance(values, dict):
+            raise BrowserReleaseCandidateError(
+                f"browser clean-consumer {label} must be a JSON object"
+            )
+
+        surface_spec = values.get(PACKAGE_NAME)
+        if surface_spec is None:
+            continue
+        if not isinstance(surface_spec, str):
+            raise BrowserReleaseCandidateError(
+                "browser clean-consumer SurfaceRelay dependency must be a string"
+            )
+
+        lowered = surface_spec.lower()
+        if (
+            lowered.startswith("file:")
+            or lowered.startswith("workspace:")
+            or lowered.startswith("link:")
+            or "packages/browser-runtime" in lowered
+            or "../packages" in lowered
+        ):
+            raise BrowserReleaseCandidateError(
+                "browser clean-consumer manifest must not couple to SurfaceRelay source"
+            )
+
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer manifest must not persist SurfaceRelay as a dependency"
+        )
+
+    return manifest
+
+
+def validate_clean_consumer_source(source: str) -> str:
+    if not isinstance(source, str):
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer source must be text"
+        )
+
+    forbidden_tokens = (
+        f"{PACKAGE_NAME}/",
+        "packages/browser-runtime",
+        "../packages",
+        "workspace:",
+        "link:",
+    )
+    lowered = source.lower()
+    if any(token.lower() in lowered for token in forbidden_tokens):
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer source must import SurfaceRelay only from the package root"
+        )
+
+    return source
+
+
+def validate_clean_consumer_isolation(
+    *,
+    consumer_root: Path | str,
+    package_source_root: Path | str,
+) -> Path:
+    consumer = Path(consumer_root)
+    package_source = Path(package_source_root)
+
+    if consumer.is_symlink() or package_source.is_symlink():
+        raise BrowserReleaseCandidateError(
+            "consumer and package source roots must be real directories"
+        )
+
+    try:
+        consumer_resolved = consumer.resolve(strict=True)
+        package_resolved = package_source.resolve(strict=True)
+    except OSError as exc:
+        raise BrowserReleaseCandidateError(
+            "consumer and package source roots must exist"
+        ) from exc
+
+    if not consumer_resolved.is_dir() or not package_resolved.is_dir():
+        raise BrowserReleaseCandidateError(
+            "consumer and package source roots must be directories"
+        )
+
+    if (
+        consumer_resolved == package_resolved
+        or package_resolved in consumer_resolved.parents
+        or consumer_resolved in package_resolved.parents
+    ):
+        raise BrowserReleaseCandidateError(
+            "browser clean-consumer directory must be isolated from package source"
+        )
+
+    for path in consumer.rglob("*"):
+        if not path.is_symlink():
+            continue
+
+        try:
+            target = path.resolve(strict=True)
+        except OSError as exc:
+            raise BrowserReleaseCandidateError(
+                "browser clean-consumer must not contain broken symlinks"
+            ) from exc
+
+        if target == package_resolved or package_resolved in target.parents:
+            raise BrowserReleaseCandidateError(
+                "browser clean-consumer symlink must not target package source"
+            )
+
+    return consumer_resolved
+
+
+def _read_tarball_manifest(
+    *,
+    archive_path: Path,
+) -> tuple[dict[str, object], set[str]]:
+    try:
+        _require_regular_file(
+            archive_path,
+            label="browser-runtime npm artifact",
+        )
+    except BrowserReleaseCandidateError:
+        raise
+
+    try:
+        with tarfile.open(archive_path, mode="r:gz") as archive:
+            members = archive.getmembers()
+            names = [member.name for member in members]
+
+            if len(names) != len(set(names)):
+                raise BrowserReleaseCandidateError(
+                    "browser-runtime npm artifact must not contain duplicate paths"
+                )
+
+            regular_files: set[str] = set()
+            for member in members:
+                path = Path(member.name)
+                if (
+                    not member.name.startswith("package/")
+                    or member.name.startswith("/")
+                    or ".." in path.parts
+                    or member.issym()
+                    or member.islnk()
+                    or member.isdev()
+                ):
+                    raise BrowserReleaseCandidateError(
+                        "browser-runtime npm artifact contains an unsafe entry"
+                    )
+                if member.isfile():
+                    regular_files.add(member.name)
+
+            try:
+                manifest_member = archive.extractfile("package/package.json")
+                if manifest_member is None:
+                    raise KeyError("package/package.json")
+                manifest = json.loads(
+                    manifest_member.read().decode("utf-8")
+                )
+            except (KeyError, UnicodeError, json.JSONDecodeError) as exc:
+                raise BrowserReleaseCandidateError(
+                    "browser-runtime npm artifact package.json must be valid UTF-8 JSON"
+                ) from exc
+    except (tarfile.TarError, OSError) as exc:
+        raise BrowserReleaseCandidateError(
+            "browser-runtime npm artifact must be a valid gzip tarball"
+        ) from exc
+
+    if not isinstance(manifest, dict):
+        raise BrowserReleaseCandidateError(
+            "browser-runtime npm artifact package.json must contain a JSON object"
+        )
+
+    return manifest, regular_files
+
+
+def _validate_installed_manifest(
+    *,
+    manifest: object,
+    artifact_version: str,
+    existing_files: set[str] | None = None,
+) -> dict[str, object]:
+    version = validate_artifact_version(artifact_version)
+
+    if not isinstance(manifest, dict):
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package manifest must be a JSON object"
+        )
+    if manifest.get("name") != PACKAGE_NAME:
+        raise BrowserReleaseCandidateError(
+            f"installed browser-runtime package name must be {PACKAGE_NAME}"
+        )
+    if manifest.get("version") != version:
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package version does not match candidate"
+        )
+    if manifest.get("private") is not True:
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package must retain private: true"
+        )
+    if manifest.get("type") != "module":
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package must remain ESM"
+        )
+    if manifest.get("types") != "./dist/index.d.ts":
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime root declaration entry is invalid"
+        )
+    if manifest.get("exports") != _ROOT_EXPORTS:
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package must expose only the reviewed root export"
+        )
+    if "main" in manifest:
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package must not define a CommonJS/main entry"
+        )
+
+    if existing_files is not None:
+        if "dist/index.js" not in existing_files:
+            raise BrowserReleaseCandidateError(
+                "installed browser-runtime package is missing dist/index.js"
+            )
+        if "dist/index.d.ts" not in existing_files:
+            raise BrowserReleaseCandidateError(
+                "installed browser-runtime package is missing dist/index.d.ts"
+            )
+
+    return manifest
+
+
+def validate_browser_artifact_archive(
+    *,
+    archive_path: Path | str,
+    artifact_version: str,
+) -> dict[str, object]:
+    archive = Path(archive_path)
+    manifest, tar_files = _read_tarball_manifest(archive_path=archive)
+
+    package_files = {
+        name.removeprefix("package/")
+        for name in tar_files
+        if name.startswith("package/")
+    }
+    return _validate_installed_manifest(
+        manifest=manifest,
+        artifact_version=artifact_version,
+        existing_files=package_files,
+    )
+
+
+def verify_clean_consumer_install(
+    *,
+    consumer_root: Path | str,
+    artifact_version: str,
+    package_source_root: Path | str,
+) -> Path:
+    consumer = validate_clean_consumer_isolation(
+        consumer_root=consumer_root,
+        package_source_root=package_source_root,
+    )
+    package_source = Path(package_source_root).resolve(strict=True)
+
+    installed = (
+        consumer
+        / "node_modules"
+        / "@surfacerelay"
+        / "browser-runtime"
+    )
+    if installed.is_symlink() or not installed.is_dir():
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package must be a real node_modules directory"
+        )
+
+    installed_resolved = installed.resolve(strict=True)
+    if installed_resolved == package_source or package_source in installed_resolved.parents:
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package must not resolve into package source"
+        )
+
+    manifest_path = installed / "package.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise BrowserReleaseCandidateError(
+            "installed browser-runtime package.json must be valid UTF-8 JSON"
+        ) from exc
+
+    existing_files = {
+        path.relative_to(installed).as_posix()
+        for path in installed.rglob("*")
+        if path.is_file() and not path.is_symlink()
+    }
+    for path in installed.rglob("*"):
+        if path.is_symlink():
+            raise BrowserReleaseCandidateError(
+                "installed browser-runtime package must not contain symlinks"
+            )
+
+    _validate_installed_manifest(
+        manifest=manifest,
+        artifact_version=artifact_version,
+        existing_files=existing_files,
+    )
+
+    return installed_resolved
+
+
 def build_browser_release_candidate(
     *,
     repo: Path | str,
