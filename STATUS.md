@@ -1896,4 +1896,40 @@ T-804..T-805:                   NOT STARTED
 
 Step 10 adds exactly one dedicated CI consumer job and raises Validate from 17 to 18 jobs as planned. The job re-materializes the exact checked-out revision through `git archive HEAD`, rebuilds ESM/declarations inside that snapshot, creates the reviewed non-public `0.0.0-alpha1` candidate tarball, and executes the existing Step-9 isolated consumer proof end to end. It does not add npm authentication, registry credentials, publication commands, tags, releases, public-version selection, runtime behavior, package API expansion, spec changes, or conformance changes.
 
-Next explicit gate: **T-803 Step 11 — whole-task verification only**. Do not start Step 12 forbidden-diff/source-mutation audit, Step 13 review handoff, T-804, decision promotion, tag/release, or publication automatically.
+## T-803 Step 11 — whole-task verification VERIFIED
+
+~~~text
+Whole-task verification head:     0d311d8acb8dc80a82ee62afeca0ffc4ee7ebffa
+Authoritative Validate:           #1081 / 36842525045 — 18/18 SUCCESS
+browser:                          SUCCESS
+browser-release-consumer:         SUCCESS
+release-contract:                 SUCCESS
+contract:                         SUCCESS
+Browser typecheck:                PASS
+Browser runtime tests:            PASS
+Browser build:                    PASS in exact git-archive snapshot
+Browser artifact tooling tests:   PASS
+Release-contract discovery:       PASS
+Publication guardrails:           PASS
+Canonical validate.py:            PASS
+Artifact version:                 0.0.0-alpha1 / exact CI prerelease
+Artifact revision:                exact git rev-parse HEAD
+Package-root import:              PASS
+Consumer TypeScript typecheck:    PASS
+Vite production bundle:           PASS
+DriverRegistry smoke:             PASS
+Representative deep import:       REJECTED by exports map
+Installed package symlink:        REJECTED / physical node_modules package required
+Source/package coupling:          REJECTED
+npm auth/token wiring:            NONE
+Publish/tag/release:              NONE / NOT AUTHORIZED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+~~~
+
+Step 11 re-verifies the complete T-803 execution surface at one exact revision. The normal browser job proves package typecheck/tests and canonical runtime conformance; the dedicated browser-release-consumer job runs the focused browser release-candidate suite, rebuilds the exact `git archive HEAD` snapshot, creates the candidate tarball, and executes the isolated package-root/typecheck/Vite/smoke/deep-import proof. The release-contract job proves the package-neutral release contract and publication guardrails, while the contract job proves canonical repository validation.
+
+The clean-consumer verifier requires a real non-symlink `node_modules/@surfacerelay/browser-runtime` directory, rejects symlinks inside the installed package, rejects resolution into the source package tree, and validates exact artifact identity before consumer execution. The exact-head CI success therefore closes the Step-11 whole-task verification gate without adding implementation.
+
+Next explicit gate: **T-803 Step 12 — forbidden-diff / semantic-mutation audit only**. Do not start Step 13 review handoff, T-804, decision promotion, tag/release, publication, or public SemVer selection automatically.
