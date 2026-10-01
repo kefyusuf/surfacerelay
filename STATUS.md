@@ -1932,4 +1932,43 @@ Step 11 re-verifies the complete T-803 execution surface at one exact revision. 
 
 The clean-consumer verifier requires a real non-symlink `node_modules/@surfacerelay/browser-runtime` directory, rejects symlinks inside the installed package, rejects resolution into the source package tree, and validates exact artifact identity before consumer execution. The exact-head CI success therefore closes the Step-11 whole-task verification gate without adding implementation.
 
-Next explicit gate: **T-803 Step 12 — forbidden-diff / semantic-mutation audit only**. Do not start Step 13 review handoff, T-804, decision promotion, tag/release, publication, or public SemVer selection automatically.
+## T-803 Step 12 — forbidden-diff / semantic-mutation audit VERIFIED
+
+~~~text
+T-803 baseline:                    5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Final implementation head:         66991da7101a773fcce99a17b99dce608080f956
+Current tracking head before audit: dd1c9938d793f594327e43557d4a5c83017eef0b
+Implementation diff files:         14
+Forbidden implementation paths:    0
+Unexpected runtime-source edits:   0
+Existing browser src files:        16/16 blob-identical to baseline
+New browser src file:              src/index.ts only
+package-lock.json:                 unchanged / blob-identical
+packages/laravel/**:               unchanged
+packages/laravel-mcp/**:           unchanged
+packages/openapi-importer/**:      unchanged
+spec/**:                           unchanged
+conformance/**:                    unchanged
+docs/DECISION-REGISTER.md:         unchanged / blob-identical
+Source package version:            0.0.0-dev
+Source package private:            true
+Root exports:                      "." only
+Publication commands in T-803:     NONE
+Registry auth wiring in workflow:  NONE
+Credential env handling:           NPM_TOKEN/NODE_AUTH_TOKEN stripped from consumer subprocesses
+Git tag refs:                      []
+GitHub Releases:                   []
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-804..T-805:                     NOT STARTED
+~~~
+
+The baseline-to-final-implementation comparison contains only the bounded T-803 surfaces: the dedicated CI job, T-803 tracking/plan material, browser package distribution metadata, the new curated `src/index.ts` facade, focused public/distribution tests, browser release-candidate tooling/tests, and clean-consumer fixtures. No pre-existing browser runtime implementation file changed.
+
+A direct directory/blob audit confirms every one of the 16 pre-existing `packages/browser-runtime/src/*.ts` files has the same blob SHA at baseline and final implementation head. `package-lock.json` and `docs/DECISION-REGISTER.md` are also blob-identical. The compare contains no Laravel, Laravel-MCP, OpenAPI-importer, `spec/**`, or `conformance/**` path.
+
+The source manifest remains `0.0.0-dev`, `private: true`, ESM, and root-export-only. The changed executable surfaces contain no `npm publish`, npm login/adduser, `git tag`, or GitHub-release command. The only NPM credential identifiers in browser release tooling are explicitly removed from the clean-consumer subprocess environment. Current tag refs and GitHub Releases are both empty.
+
+Step 12 therefore closes with no semantic drift or forbidden mutation. No corrective implementation is required.
+
+Next explicit gate: **T-803 Step 13 — tracking / external-review handoff only**. Do not begin T-804, promote D-026 or D-069..D-073, create tags/releases, publish packages, or select a public SemVer automatically.
