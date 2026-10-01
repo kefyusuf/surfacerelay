@@ -1119,7 +1119,7 @@ Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7
 
 Step 9 whole-task verification is complete on `86ccdc67ff268014d8948112ac07ad7bee410f87`. Exact-head Validate #1034 (`36359223941`) completed **17/17 SUCCESS**. The focused T-802 tooling suite ran **20/20 PASS** in each of the four consumer jobs; `release-contract` discovery ran **49/49 PASS** with publication guard PASS; canonical `python scripts/validate.py` passed. All four consumer legs locked/installed `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository and verified installed metadata/autoload; PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
-### T-803 — Browser runtime public API + artifact + clean consumer proof — STEP_11_COMPLETE / STEP_12_NOT_STARTED
+### T-803 — Browser runtime public API + artifact + clean consumer proof — STEP_12_COMPLETE / STEP_13_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1149,6 +1149,8 @@ Step 10 dedicated CI is complete at `66991da7101a773fcce99a17b99dce608080f956`. 
 
 Step 11 whole-task verification is complete at `0d311d8acb8dc80a82ee62afeca0ffc4ee7ebffa`. Exact-head Validate #1081 (`36842525045`) completed **18/18 SUCCESS**. The required verification surfaces are all green at that revision: browser-runtime typecheck/tests; exact-snapshot ESM/declaration build; focused `scripts.tests.test_browser_release_candidate`; release-candidate discovery; publication guardrails; canonical `scripts/validate.py`; and the dedicated isolated candidate install/package-root import/typecheck/Vite/smoke/deep-import-rejection proof. The installed-package verifier also rejects symlink/source resolution before execution. Step 11 adds no implementation and does not perform the Step-12 forbidden-diff/semantic-mutation audit.
 
+Step 12 forbidden-diff/semantic-mutation audit is complete against baseline `5de05ea2498bea186aa6d8d11e1726f6c1c56539` and final implementation head `66991da7101a773fcce99a17b99dce608080f956`. The implementation diff has 14 bounded T-803 files and **0 forbidden paths**. All 16 pre-existing browser-runtime source files are blob-identical to baseline; the only new source module is `src/index.ts`. `package-lock.json` and `docs/DECISION-REGISTER.md` are unchanged; Laravel, Laravel-MCP, OpenAPI-importer, `spec/**`, and `conformance/**` are absent from the diff. Source package version/private state remains `0.0.0-dev` / `true`. No publication command or registry-auth workflow wiring was introduced; clean-consumer tooling strips NPM credential variables. Current tag refs and GitHub Releases are empty. No corrective implementation is required.
+
 ### T-804 — Release-facing documentation and compatibility policy — NOT_STARTED
 
 Getting started, CHANGELOG, SECURITY, versioning/compatibility policy, release checklist; no claim that publication already exists.
@@ -1172,7 +1174,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801 and T-802 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`, and post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. External review is closed with both inline review threads resolved; the latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-803 through T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
 
-T-803 Step 11 whole-task verification is **COMPLETE / VERIFIED**. The next explicit gate is **T-803 Step 12 — forbidden-diff / semantic-mutation audit only**. Step 13 review handoff must not start automatically.
+T-803 Step 12 forbidden-diff / semantic-mutation audit is **COMPLETE / VERIFIED**. The next explicit gate is **T-803 Step 13 — tracking / external-review handoff only**. T-804 must not start automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
