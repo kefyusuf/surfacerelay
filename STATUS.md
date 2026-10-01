@@ -1862,4 +1862,38 @@ The isolated execution test materializes an exact Git archive snapshot, installs
 
 This completes Step 9. The temporary execution discovery bridge is removed in this tracking checkpoint. No dedicated browser-release-consumer workflow job, npm credential, publication command, tag, release, or public version selection was introduced.
 
-Next explicit gate: **T-803 Step 10 — dedicated browser-release-consumer CI job only**. Do not start Step 11 whole-task verification, Step 12 audit, or Step 13 review handoff automatically.
+## T-803 Step 10 — dedicated browser-release-consumer CI VERIFIED
+
+~~~text
+Prior Step-9 execution head:      ded8716d7ae70e058e34499328ce5aad71012374
+Step-9 tracking head:             c0446a40a6819cf371d5a3ec96b135026ec4c993
+CI implementation head:          66991da7101a773fcce99a17b99dce608080f956
+Workflow file:                   .github/workflows/validate.yml only
+Authoritative Validate:          #1079 / 36842264896 — 18/18 SUCCESS
+New dedicated job:               browser-release-consumer — SUCCESS
+Job shape:                       single / non-matrix
+Checkout credentials:            persist-credentials: false
+Checkout clean gate:             PASS before setup/tooling
+Node / Python:                   22 / 3.12
+Artifact version:                0.0.0-alpha1 / non-public CI prerelease
+Source revision:                 exact git rev-parse HEAD
+Source materialization:          exact git archive HEAD
+Source browser build:            npm ci + npm run build — PASS
+Candidate artifact:              real npm pack .tgz
+Browser tooling tests:           PASS
+Isolated npm consumer install:   PASS
+Package-root import:             PASS
+TypeScript root-only typecheck:  PASS
+Vite production bundle:          PASS
+DriverRegistry smoke:            PASS
+Representative deep import:      REJECTED by exports map
+npm token/auth wiring:           NONE
+npm publish/tag/release:         NONE / NOT AUTHORIZED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+~~~
+
+Step 10 adds exactly one dedicated CI consumer job and raises Validate from 17 to 18 jobs as planned. The job re-materializes the exact checked-out revision through `git archive HEAD`, rebuilds ESM/declarations inside that snapshot, creates the reviewed non-public `0.0.0-alpha1` candidate tarball, and executes the existing Step-9 isolated consumer proof end to end. It does not add npm authentication, registry credentials, publication commands, tags, releases, public-version selection, runtime behavior, package API expansion, spec changes, or conformance changes.
+
+Next explicit gate: **T-803 Step 11 — whole-task verification only**. Do not start Step 12 forbidden-diff/source-mutation audit, Step 13 review handoff, T-804, decision promotion, tag/release, or publication automatically.
