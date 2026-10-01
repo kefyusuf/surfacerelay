@@ -33,6 +33,107 @@ jobs:
       - name: Check release publication guardrails
         run: python scripts/check_release_guardrails.py
 
+
+  browser-release-consumer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      T803_ARTIFACT_VERSION: 0.0.0-alpha1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify browser release-consumer checkout is exact and clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          git diff --cached --exit-code
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "browser release-consumer checkout must be clean before verification tools run" >&2
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: packages/browser-runtime/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser release-consumer Python dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run browser release-candidate tooling tests
+        run: python -m unittest scripts.tests.test_browser_release_candidate -v
+      - name: Build exact-revision artifact and execute clean consumer proof
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SOURCE_REVISION="$(git rev-parse HEAD)"
+          SOURCE_ROOT="$RUNNER_TEMP/surfacerelay-t803-source"
+          STAGE_ROOT="$RUNNER_TEMP/surfacerelay-t803-stage"
+          CONSUMER_ROOT="$RUNNER_TEMP/surfacerelay-t803-consumer"
+
+          mkdir -p "$SOURCE_ROOT"
+          git archive HEAD | tar -x -C "$SOURCE_ROOT"
+
+          npm --prefix "$SOURCE_ROOT/packages/browser-runtime" ci
+          npm --prefix "$SOURCE_ROOT/packages/browser-runtime" run build
+
+          python - "$SOURCE_ROOT" "$STAGE_ROOT" "$CONSUMER_ROOT" "$SOURCE_REVISION" "$T803_ARTIFACT_VERSION" <<'PY'
+          from pathlib import Path
+          import sys
+
+          source_root = Path(sys.argv[1])
+          stage_root = Path(sys.argv[2])
+          consumer_root = Path(sys.argv[3])
+          revision = sys.argv[4]
+          version = sys.argv[5]
+
+          sys.path.insert(0, str(source_root))
+          from scripts import browser_release_candidate as release
+
+          candidate = release.build_browser_release_candidate(
+              repo=source_root,
+              stage_root=stage_root,
+              artifact_version=version,
+              source_revision=revision,
+          )
+          release.validate_browser_artifact_archive(
+              archive_path=candidate["archivePath"],
+              artifact_version=version,
+          )
+          release.create_clean_consumer_workspace(
+              consumer_root=consumer_root,
+              fixture_root=source_root / "scripts" / "fixtures" / "browser-clean-consumer",
+              package_source_root=source_root / "packages" / "browser-runtime",
+          )
+          proof = release.execute_clean_consumer_proof(
+              consumer_root=consumer_root,
+              archive_path=candidate["archivePath"],
+              artifact_version=version,
+              package_source_root=source_root / "packages" / "browser-runtime",
+          )
+
+          expected_smoke = "SurfaceRelay browser-runtime clean-consumer smoke: PASS"
+          if proof["smokeOutput"] != expected_smoke:
+              raise SystemExit("unexpected browser clean-consumer smoke output")
+          if not all(
+              (
+                  proof["rootImport"],
+                  proof["typecheck"],
+                  proof["bundle"],
+                  proof["deepImportRejected"],
+              )
+          ):
+              raise SystemExit("browser clean-consumer proof is incomplete")
+
+          print(expected_smoke)
+          print("SurfaceRelay browser-runtime deep-import rejection: PASS")
+          PY
+
   laravel-release-consumer:
     runs-on: ubuntu-latest
     permissions:
