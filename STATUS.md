@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **STEP 9 COMPLETE / STEP 10 NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW HANDOFF / EXTERNAL REVIEW PENDING**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1972,3 +1972,24 @@ The source manifest remains `0.0.0-dev`, `private: true`, ESM, and root-export-o
 Step 12 therefore closes with no semantic drift or forbidden mutation. No corrective implementation is required.
 
 Next explicit gate: **T-803 Step 13 — tracking / external-review handoff only**. Do not begin T-804, promote D-026 or D-069..D-073, create tags/releases, publish packages, or select a public SemVer automatically.
+
+## T-803 Step 13 — tracking / external-review handoff READY
+
+Date: 2026-10-02. Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
+
+- Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
+- Final implementation head: `66991da7101a773fcce99a17b99dce608080f956`.
+- Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
+- Pre-handoff Validate: [#1085 / 36934575893](https://github.com/kefyusuf/surfacerelay/actions/runs/36934575893) — **18/18 SUCCESS**, live-verified against the exact SHA.
+- CI browser evidence: **22 files / 333 tests PASS** plus typecheck and canonical conformance.
+- CI browser-release-consumer: **19/19 tooling tests PASS**; exact-revision artifact build, isolated root import/declarations/typecheck/Vite bundle/smoke, and deep-import rejection all PASS. Both final smoke/deep-import PASS markers were checked in the job log.
+- Local Windows checks: typecheck, direct `npm.cmd run build`, `scripts/validate.py`, and publication guard **PASS**.
+- Local Windows limitation: browser suite **332 PASS / 1 ERROR** and Python browser artifact suite **8 PASS / 11 ERROR** because subprocess invocation of bare `npm` fails (`ENOENT` / WinError 2). Ubuntu CI proves those paths; Windows tooling portability is not proven. No implementation change was made in this documentation handoff.
+- Changed files in Step 13: `STATUS.md`, `TASKS.md`, `REVIEW_REQUEST.md` only.
+- Scope/semantic audit from Step 12 remains applicable: all 16 existing browser source files, lockfile, canonical spec/conformance, neighboring packages, and decision register remain unchanged.
+
+The existing remote T-803 RED/GREEN commit sequence is retained. A parallel local Step 1–5 checkpoint is preserved separately at `work/t-803-local-green-checkpoint` (`a1de368`); it is not part of this review branch. No force push or unrelated implementation merge occurred.
+
+T-803 is **DONE / REVIEW HANDOFF**, with external review pending and merge not authorized. D-026 and D-069..D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, publication, or public version selection occurred.
+
+Next gate: **T-803 external review and finding disposition only**. Do not begin T-804 or merge automatically.

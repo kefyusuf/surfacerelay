@@ -1,230 +1,64 @@
-# T-802 — Laravel Artifact + Clean Consumer Proof — Final Closure
+# T-803 — Browser Runtime Artifact + Clean Consumer Proof — Review Handoff
 
-## State
+Downstream projects previously depended on repository source paths. T-803 adds a curated root ESM API, ES2022 JavaScript/declarations, versioned npm tarball staging, and isolated consumer evidence without changing runtime semantics.
 
-- Task: `T-802 — Laravel artifact + clean consumer proof`
-- Branch: `main`
-- State: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
-- Baseline: `main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5`
-- Audited implementation head: `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a`
-- Step-10 tracking head: `da39f76378af76a1c64a0ef79de91b06aab1ba8e`
-- Step-10 exact-head Validate: `#1036` / `36418100242` — **17/17 SUCCESS**
-- Review-handoff head: `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
-- Review-handoff exact-head Validate: `#1038` / `36444627579` — **17/17 SUCCESS**
-- Final reviewed pre-closure head: `951ecd07dfe18063042bf0ad1d06aa6723f952e5`
-- Final reviewed-head Validate: `#1045` / `36487729081` — **17/17 SUCCESS**
-- External review: **CLOSED — 2 inline review threads / 0 unresolved; latest incremental finding CodeRabbit-confirmed addressed**
-- Merge commit: `f7d86c76ccc15dc21b63cf868ad75d559607f730`
-- Post-merge main Validate: `#1048` / `36541971021` — **17/17 SUCCESS**
-- Plan: `docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md`
-- Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+## State and review target
 
-The merge is complete. This closure does not authorize T-803 implementation, decision promotion, Git tags, GitHub Releases, Packagist publication, or a public SemVer selection.
+- Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
+- Task: **DONE / REVIEW HANDOFF / EXTERNAL REVIEW PENDING**; not reviewed or merged.
+- Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
+- Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
+- Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
+- Pre-handoff [Validate #1085 / 36934575893](https://github.com/kefyusuf/surfacerelay/actions/runs/36934575893): **18/18 SUCCESS**, checked live at that exact revision.
+- Plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md`.
+- This handoff changes only STATUS, TASKS, and REVIEW_REQUEST. Review the current PR head and its checks before approving.
 
-## What T-802 implements
+## Implemented behavior
 
-T-802 adds Laravel release-candidate packaging and clean-consumer evidence only:
+- Exact allowlisted root API: ten runtime values and the reviewed type closure, with runtime snapshot/type tests.
+- Root-only package exports, ESM/ES2022 build and declarations; no supported CommonJS/deep-import/source-map contract. Source stays `0.0.0-dev` and `private: true`.
+- Stage only package.json, dist JavaScript/declarations, root LICENSE, and a minimal candidate README. Candidate version is injected only into staging.
+- Run `npm pack --json` inside staging, verify tar paths/types/content, and reuse T-801 manifest/evidence identity and SHA-256 bindings.
+- Install the exact tarball into an isolated consumer, then prove package-root import, shipped declarations, TypeScript typecheck, Vite browser bundle, DriverRegistry smoke, and rejection of a representative deep import.
+- Dedicated Ubuntu/Node 22/Python 3.12 consumer CI uses clean exact Git snapshots, read-only permissions, no retained checkout credentials, and no publication authority.
 
-1. builds a Composer-consumable `surfacerelay/laravel` ZIP from an exact committed source snapshot;
-2. injects the prerelease `version` only into staged `composer.json`, never the source manifest;
-3. allowlists package content to `composer.json`, `src/**`, `database/**`, `LICENSE`, and candidate-only `README.md`;
-4. rejects symlink/non-regular source entries and unsafe ZIP paths;
-5. reuses T-801 content-manifest and artifact-evidence identity/hash contracts;
-6. generates an isolated clean-consumer Composer manifest/workspace using only repository type `artifact`;
-7. rejects `path`, `dev-main`, `file:`, `workspace:`, package-source and symlink coupling;
-8. verifies the exact installed candidate through package metadata and Composer `installed.json`;
-9. provides a permanent clean-consumer smoke fixture that boots Laravel and dispatches a safe read-only Action through production `ActionBus`;
-10. runs a permanent PHP 8.3/8.4 × Laravel 12/13 consumer matrix, with the real ActionBus smoke only on PHP 8.4 + Laravel 13.
+## Evidence
 
-## Review diff boundary
+- CI browser: **22 files / 333 tests PASS**, typecheck and canonical browser conformance PASS.
+- Focused browser release tooling: **19/19 PASS**.
+- Exact-revision clean consumer: root import/typecheck/bundle PASS; smoke and deep-import rejection final PASS markers verified in CI logs.
+- Release-contract, canonical validation, publication guard, Laravel and MCP matrices, OpenAPI importer, and PHP lint all succeed in the 18-job run.
+- Separate RED/GREEN commits and expected-failure CI evidence remain in STATUS/TASKS and the approved plan (root API, distribution, artifact, isolation, execution).
+- Step 12 audit: zero forbidden paths; all 16 pre-existing browser source files and package lockfile blob-identical to baseline. Laravel, Laravel-MCP, OpenAPI importer, spec, conformance, and decision register unchanged.
 
-The audited implementation head `bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a` differs from the T-802 baseline only in:
+Local Windows limitation: direct npm.cmd typecheck/build, canonical validation, and publication guard pass. Browser tests report 332 PASS / 1 ERROR; Python browser tooling reports 8 PASS / 11 ERROR because bare `npm` cannot be launched by subprocess (`ENOENT` / WinError 2). Ubuntu CI proves the intended execution path; Windows tooling portability is not claimed. Node is only a test host for the side-effect-free smoke, not an added supported runtime.
 
-```text
+## Changed paths
+
+```
 .github/workflows/validate.yml
 STATUS.md
 TASKS.md
-docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
-scripts/fixtures/laravel-clean-consumer/smoke.php
-scripts/laravel_release_candidate.py
-scripts/tests/test_laravel_release_candidate.py
+REVIEW_REQUEST.md
+docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md
+packages/browser-runtime/package.json
+packages/browser-runtime/tsconfig.build.json
+packages/browser-runtime/src/index.ts
+packages/browser-runtime/tests/public-api.test.ts
+packages/browser-runtime/tests/public-api.typecheck.ts
+packages/browser-runtime/tests/distribution-contract.test.ts
+scripts/browser_release_candidate.py
+scripts/tests/test_browser_release_candidate.py
+scripts/fixtures/browser-clean-consumer/main.ts
+scripts/fixtures/browser-clean-consumer/smoke.mjs
 ```
 
-The implementation audit proves zero diff in:
+## Review focus
 
-```text
-packages/laravel/src/**
-packages/laravel/database/**
-packages/laravel/composer.json
-spec/**
-conformance/**
-packages/browser-runtime/**
-packages/laravel-mcp/**
-packages/openapi-importer/**
-docs/DECISION-REGISTER.md
-```
+1. Can path, symlink, non-regular-file, or tar entry manipulation bypass containment checks?
+2. Do staged/installed package identity, root exports, file lists and evidence hashes match exactly without source-manifest mutation?
+3. Can the consumer resolve workspace/source/deep imports or silently receive a symlink installation?
+4. Are process environments, npm execution, metadata, and package contents bounded to the reviewed readiness scope?
+5. Does the consumer genuinely use shipped declarations and the exact tarball, and are compatibility claims limited to executable evidence?
 
-The source Laravel Composer manifest is byte-identical to baseline.
-
-## Verification evidence
-
-### Whole-task verification
-
-Exact-head Validate #1034 at `86ccdc67ff268014d8948112ac07ad7bee410f87`:
-
-```text
-17/17 SUCCESS
-```
-
-Required focused checks:
-
-```text
-T-802 tooling tests:              20/20 PASS in each consumer leg
-release-contract discovery:       49/49 PASS
-publication guard:                PASS
-python scripts/validate.py:       PASS
-```
-
-Step-10 tracking head Validate #1036 at `da39f76378af76a1c64a0ef79de91b06aab1ba8e` is also **17/17 SUCCESS**.
-
-### Clean-consumer matrix
-
-```text
-PHP 8.3 + Laravel 12    artifact install + metadata/autoload verify PASS
-PHP 8.3 + Laravel 13    artifact install + metadata/autoload verify PASS
-PHP 8.4 + Laravel 12    artifact install + metadata/autoload verify PASS
-PHP 8.4 + Laravel 13    artifact install + metadata/autoload verify + ActionBus smoke PASS
-```
-
-Each leg locks and installs:
-
-```text
-surfacerelay/laravel (0.0.0-alpha1)
-```
-
-through a Composer `artifact` repository.
-
-The latest-supported leg emits exactly:
-
-```text
-SurfaceRelay Laravel clean-consumer smoke: PASS
-```
-
-`0.0.0-alpha1` is a non-public CI prerelease used because Composer root require constraints accept a narrower prerelease syntax than the package-neutral T-801 SemVer validator. T-802 does not change T-801's generic SemVer contract and does not select a public release version.
-
-## Security / correctness invariants to review
-
-Please review especially:
-
-1. **Source immutability**
-   - staged version injection never mutates `packages/laravel/composer.json`;
-   - artifact source is materialized from exact `git archive HEAD`;
-   - tests/tooling-generated files cannot become artifact input.
-
-2. **Filesystem and archive containment**
-   - package source symlinks/non-regular files fail closed;
-   - archive paths cannot be absolute or contain `..`;
-   - ZIP entries are deterministic and lexically ordered;
-   - package allowlist excludes tests, vendor and repository-only material.
-
-3. **Consumer isolation**
-   - SurfaceRelay resolution uses only Composer repository type `artifact`;
-   - `path`, `dev-main`, `file:`, `workspace:` and package-source references fail closed;
-   - consumer/package-source overlap and symlink-back coupling fail closed.
-
-4. **Installed identity**
-   - installed package `composer.json` must match exact package/version;
-   - Composer `installed.json` must contain exactly the candidate;
-   - `SurfaceRelayServiceProvider` must autoload from the consumer vendor tree.
-
-5. **Runtime authenticity**
-   - smoke requires only consumer `vendor/autoload.php`;
-   - smoke uses production `ActionBus`, `ActionExecutionStage`, `OutputPolicyStage`, `InMemoryActionRegistry`, `ActionDefinition`, and `ActionCall`;
-   - only unrelated validation/authorization/idempotency/confirmation stages are fixture pass-through;
-   - the smoke action is read-only, low-risk, portable, non-idempotent and normal-output.
-
-6. **CI authority**
-   - consumer jobs use `contents: read`;
-   - checkout uses `persist-credentials: false`;
-   - no registry credentials are configured;
-   - no package publication, tag, or GitHub Release command exists.
-
-## Final validation summary
-
-```text
-Audited implementation head:      bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
-Step-10 tracking head:            da39f76378af76a1c64a0ef79de91b06aab1ba8e
-Step-10 exact-head Validate:      #1036 / 36418100242 — 17/17 SUCCESS
-Review-handoff head:              d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6
-Review-handoff Validate:          #1038 / 36444627579 — 17/17 SUCCESS
-Consumer matrix:                  4/4 SUCCESS
-Focused T-802 suite:              20/20 PASS per consumer leg
-Release-contract discovery:       49/49 PASS
-Publication guard:                PASS
-Canonical validation:             PASS
-Forbidden / unexpected diff:      0 / 0
-```
-
-The detailed RED → GREEN chronology and probe-run history remain in `STATUS.md` and the implementation plan.
-
-## Deliberately deferred
-
-T-802 does not:
-
-- publish to Packagist;
-- create a tag or GitHub Release;
-- select the first public SemVer;
-- promote D-026 or D-069 through D-073;
-- implement or publish `surfacerelay/laravel-mcp`;
-- implement T-803 browser packaging;
-- change canonical Action/Binding contracts or conformance;
-- add new ActionBus/trust/security semantics.
-
-## Decision state
-
-These remain **PROPOSED** and unchanged:
-
-```text
-D-026
-D-069
-D-070
-D-071
-D-072
-D-073
-```
-
-## Reviewer questions
-
-1. Can any source/staging/archive path or symlink bypass the fail-closed containment rules?
-2. Can staged version injection alter the source manifest or produce ambiguous Composer identity?
-3. Can the consumer resolve SurfaceRelay from anything other than the built artifact?
-4. Can package-source coupling slip through via an untested Composer repository/reference form?
-5. Is installed identity verification sufficient to prove the candidate, rather than a source/path copy, was consumed?
-6. Does the smoke genuinely exercise production ActionBus execution/output-policy flow without introducing a second simplified runtime?
-7. Does the four-way matrix over-claim compatibility beyond what it actually installs and verifies?
-8. Does the new CI job gain any publication authority or expose credentials?
-9. Has any package production code, canonical spec/conformance contract, neighboring package, or decision state leaked into T-802?
-
-## External review closure
-
-T-802 external review is **CLOSED** against final reviewed pre-closure head `951ecd07dfe18063042bf0ad1d06aa6723f952e5`.
-
-Validate #1045 (`36487729081`) completed **17/17 SUCCESS**. Both inline review threads are resolved; unresolved count is zero. The latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed. The full reviewed branch scope remains the bounded eight-file T-802 diff, with no production package source, canonical spec/conformance, neighboring package, or decision-register mutation.
-
-PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`. Post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. D-026 and D-069 through D-073 remain **PROPOSED**.
-
-## Post-merge main revalidation
-
-```text
-PR:                              #20 — MERGED
-Merge commit:                    f7d86c76ccc15dc21b63cf868ad75d559607f730
-Post-merge main Validate:        #1048 / 36541971021 — 17/17 SUCCESS
-Review threads:                  2 total / 0 unresolved
-D-026 / D-069..D-073:            PROPOSED / unchanged
-T-803..T-805:                    NOT STARTED
-Tag/release/publication:         NONE
-```
-
-T-802 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**.
-
-Next explicit gate: **T-803 implementation-plan preparation only**. Do not begin T-803 implementation, promote decisions, create tags/releases, publish packages, or select a public SemVer automatically.
+D-026 and D-069..D-073 remain PROPOSED. T-804/T-805 have not started. No npm/Packagist publication, tags, GitHub Releases, public version selection, or decision promotion occurred. Next gate is external review/finding disposition only; merge requires an explicit user request.
