@@ -1119,7 +1119,7 @@ Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7
 
 Step 9 whole-task verification is complete on `86ccdc67ff268014d8948112ac07ad7bee410f87`. Exact-head Validate #1034 (`36359223941`) completed **17/17 SUCCESS**. The focused T-802 tooling suite ran **20/20 PASS** in each of the four consumer jobs; `release-contract` discovery ran **49/49 PASS** with publication guard PASS; canonical `python scripts/validate.py` passed. All four consumer legs locked/installed `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository and verified installed metadata/autoload; PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
-### T-803 — Browser runtime public API + artifact + clean consumer proof — DONE / REVIEW_CLOSED / NOT_MERGED
+### T-803 — Browser runtime public API + artifact + clean consumer proof — DONE / REVIEWED / MERGED / MAIN_REVALIDATED
 
 Implementation plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1182,9 +1182,9 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design remains **APPROVED**. T-801 and T-802 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`, and post-merge `main` Validate #1048 (`36541971021`) completed **17/17 SUCCESS**. External review is closed with both inline review threads resolved; the latest incremental handoff-evidence finding was CodeRabbit-confirmed addressed before merge. D-069 through D-073 remain **PROPOSED**; T-803 is **DONE / REVIEW HANDOFF / EXTERNAL REVIEW PENDING**; T-804/T-805 remain **NOT STARTED**. No tag, GitHub Release, registry publication, public SemVer selection, or decision promotion occurred.
+M8 design remains **APPROVED**. T-801, T-802, and T-803 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #21 merged as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`; post-merge main Validate [36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs. External review is closed with 1 thread / 0 unresolved and the npm finding CodeRabbit-confirmed addressed. D-026 and D-069 through D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, registry publication, public version selection, or decision promotion occurred.
 
-T-803 Step 12 audit is **COMPLETE / VERIFIED**, and Step 13 is **DONE / REVIEW HANDOFF**. The next gate is **T-803 external review/finding disposition only**. T-804 and merge must not start automatically.
+T-803 implementation, review, merge, and post-merge verification are complete. Next gate: **T-804 implementation-plan preparation only**, on explicit continuation. Do not implement T-804 or start T-805 automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
@@ -1335,3 +1335,11 @@ Date: 2026-10-02. PR #21 remains OPEN / non-draft / NOT MERGED. Reviewed pre-clo
 This closure changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED; T-804/T-805 remain NOT STARTED. No merge, tag, release, publication, or public version selection occurred.
 
 Next explicit gate: **T-803 merge decision only**. External-review closure does not authorize merge or begin T-804 automatically.
+
+## T-803 post-merge closure — DONE / REVIEWED / MERGED / MAIN REVALIDATED
+
+The user explicitly authorized merge on 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is MERGED as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`. Post-merge main [Validate / 36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs at that exact merge commit. Local main canonical validation and publication guard pass; checkout was clean before this tracking update.
+
+Review is closed: 1 thread / 0 unresolved. This post-merge tracking update changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED. T-804/T-805 remain NOT STARTED; no tag/release/publication/version selection occurred.
+
+Next gate: **T-804 implementation-plan preparation only**, on explicit continuation; do not start its implementation automatically.

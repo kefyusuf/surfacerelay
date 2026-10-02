@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
+- **Branch:** `main`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
-- **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW CLOSED / NOT MERGED**
+- **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
+- **Current work:** `T-803` — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; next gate: T-804 plan preparation only.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2047,3 +2047,11 @@ Date: 2026-10-02. PR #21 remains OPEN / non-draft / NOT MERGED. Reviewed pre-clo
 This closure changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED; T-804/T-805 remain NOT STARTED. No merge, tag, release, publication, or public version selection occurred.
 
 Next explicit gate: **T-803 merge decision only**. External-review closure does not authorize merge or begin T-804 automatically.
+
+## T-803 post-merge closure — DONE / REVIEWED / MERGED / MAIN REVALIDATED
+
+The user explicitly authorized merge on 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is MERGED as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`. Post-merge main [Validate / 36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs at that exact merge commit. Local main canonical validation and publication guard pass; checkout was clean before this tracking update.
+
+Review is closed: 1 thread / 0 unresolved. This post-merge tracking update changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED. T-804/T-805 remain NOT STARTED; no tag/release/publication/version selection occurred.
+
+Next gate: **T-804 implementation-plan preparation only**, on explicit continuation; do not start its implementation automatically.
