@@ -5,7 +5,7 @@ Downstream projects previously depended on repository source paths. T-803 adds a
 ## State and review target
 
 - Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
-- Task: **DONE / REVIEW CLOSED / NOT MERGED**; finding re-checked by CodeRabbit, all review threads resolved.
+- Task: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; PR #21 merged, all review threads resolved.
 - Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
 - Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
 - Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
@@ -109,3 +109,11 @@ Date: 2026-10-02. PR #21 remains OPEN / non-draft / NOT MERGED. Reviewed pre-clo
 This closure changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED; T-804/T-805 remain NOT STARTED. No merge, tag, release, publication, or public version selection occurred.
 
 Next explicit gate: **T-803 merge decision only**. External-review closure does not authorize merge or begin T-804 automatically.
+
+## T-803 post-merge closure — DONE / REVIEWED / MERGED / MAIN REVALIDATED
+
+The user explicitly authorized merge on 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is MERGED as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`. Post-merge main [Validate / 36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs at that exact merge commit. Local main canonical validation and publication guard pass; checkout was clean before this tracking update.
+
+Review is closed: 1 thread / 0 unresolved. This post-merge tracking update changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED. T-804/T-805 remain NOT STARTED; no tag/release/publication/version selection occurred.
+
+Next gate: **T-804 implementation-plan preparation only**, on explicit continuation; do not start its implementation automatically.
