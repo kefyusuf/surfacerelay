@@ -1161,13 +1161,15 @@ Bounded amendment: portable npm launch in `scripts/browser_release_candidate.py`
 
 Next gate: **focused RED tests for this Minor only**. T-804, thread resolution, and merge do not begin automatically.
 
-### T-804 — Release-facing documentation and compatibility policy — PLAN_APPROVED / IMPLEMENTATION_NOT_STARTED
+### T-804 — Release-facing documentation and compatibility policy — BASELINE_READY / CONSUMER_GUIDES_NOT_STARTED
 
 Getting started, CHANGELOG, SECURITY, versioning/compatibility policy, release checklist; no claim that publication already exists.
 
 Prepared plan: `docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md`, baseline `e7d61ef2f044990d12d2aa4cca44a62c57e9e290` with live-verified main Validate **18/18 SUCCESS**. Plan/tracking changes only. Acceptance separates local artifact consumption from registry publication, tested compatibility from broader manifest constraints, and fixture-only proof from production setup. Private reporting is currently disabled and remains a publication blocker. Canonical validation and publication guard pass. Next gate: **T-804 implementation-plan approval only**; implementation and T-805 have not started.
 
 Plan approved on 2026-10-02 from user continuation at the approval gate. Approved plan revision `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141` has Validate **18/18 SUCCESS**. Approved scope is the plan's documentation paths, evidence limits, acceptance and verification only. PR #23 remains open and no automated external-review completion is claimed. Next gate: **T-804 implementation baseline and feature branch only**; consumer guides and T-805 have not started. No merge/publication/decision promotion is authorized.
+
+Step 1 baseline/feature branch is READY: clean `543b60e4988e7ac8ed5a89c861e87affa79b5bc3`, live-verified Validate 37023733891 **18/18 SUCCESS**. Branch `docs/t-804-release-facing-documentation`, stacked on the still-open plan branch/PR #23. Docker canonical validation and publication guard pass. Tracking/plan edits only; no guide or implementation content. Next gate: **Step 2 consumer guides with existing artifact verification**. Plan merge/main integration require explicit authorization; T-805 remains not started.
 
 ### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
 
@@ -1188,7 +1190,7 @@ Explicitly outside M8 first candidate set:
 
 M8 design remains **APPROVED**. T-801, T-802, and T-803 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #21 merged as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`; post-merge main Validate [36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs. External review is closed with 1 thread / 0 unresolved and the npm finding CodeRabbit-confirmed addressed. D-026 and D-069 through D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, registry publication, public version selection, or decision promotion occurred.
 
-T-803 implementation, review, merge, and post-merge verification are complete. T-804 plan is approved; next gate: **T-804 implementation baseline and feature branch only**. Do not start consumer-guide implementation or T-805 automatically.
+T-803 implementation, review, merge, and post-merge verification are complete. T-804 plan is approved and Step 1 baseline/feature branch is ready; next gate: **T-804 Step 2 consumer guides**. Do not start T-805 or merge the open plan/implementation PRs automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.

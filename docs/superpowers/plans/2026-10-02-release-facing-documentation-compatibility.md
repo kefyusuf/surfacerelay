@@ -86,3 +86,11 @@ Plan approval was recorded on 2026-10-02 from the user's continuation at the pla
 Approval covers this documented file boundary, acceptance criteria and verification path only. Runtime/API changes, publication, decision promotion, T-805 and merge remain separate gates.
 
 Next explicit gate: **T-804 implementation baseline and feature branch only**, after selecting a clean approved starting revision. Consumer-guide implementation has not begun.
+
+## Execution record — Step 1 baseline and feature branch
+
+Completed on 2026-10-02. Clean starting revision `543b60e4988e7ac8ed5a89c861e87affa79b5bc3` has live-verified Validate 37023733891 (18/18 SUCCESS). Feature branch: `docs/t-804-release-facing-documentation`. Docker canonical validator/publication guard pass. Only tracking/plan records change in this gate; consumer guides and all other planned release documentation remain unwritten.
+
+PR #23 is still open. Stack the draft implementation PR on `docs/t-804-release-facing-plan`; eventual integration into main requires explicit plan merge authorization, dependency resolution and fresh target checks. No merge, history rewrite or publication occurs here.
+
+Next explicit gate: **Step 2 — the two bounded consumer guides and existing artifact checks**. Keep fixture-only security stages and browser/runtime evidence limits visible. Do not start T-805 automatically.
