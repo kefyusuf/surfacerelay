@@ -1,6 +1,6 @@
 # T-804 — Release-facing documentation and compatibility policy
 
-Status: PROPOSED / PLAN READY / IMPLEMENTATION NOT STARTED
+Status: APPROVED / IMPLEMENTATION NOT STARTED
 Date: 2026-10-02
 Task: T-804
 Branch: docs/t-804-release-facing-plan
@@ -81,4 +81,8 @@ Acceptance does not require broad regression repetition for unchanged prose once
 
 Plan preparation records implementation scope, evidence limits, acceptance and verification. The private security reporting gap is already an explicit publication blocker, not an unresolved new core contract. No security contact or registry promise is selected.
 
-Next explicit gate: **T-804 implementation-plan approval only**. Approval precedes the implementation baseline/branch and consumer-guide work. T-804 implementation and T-805 remain NOT STARTED.
+Plan approval was recorded on 2026-10-02 from the user's continuation at the plan-approval gate. Approved plan head: `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141`; [Validate / 37009779269](https://github.com/kefyusuf/surfacerelay/actions/runs/37009779269) passed 18/18 jobs. Independent read-only review found no material scope/evidence error. No automated external review or merge approval is implied; PR #23 remains open.
+
+Approval covers this documented file boundary, acceptance criteria and verification path only. Runtime/API changes, publication, decision promotion, T-805 and merge remain separate gates.
+
+Next explicit gate: **T-804 implementation baseline and feature branch only**, after selecting a clean approved starting revision. Consumer-guide implementation has not begun.

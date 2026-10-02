@@ -1,12 +1,14 @@
 # T-804 — Implementation-plan review handoff
 
-Active scope: **PLAN READY / APPROVAL PENDING / IMPLEMENTATION NOT STARTED**. Review [the proposed plan](docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md) on `docs/t-804-release-facing-plan`, based on main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290` (Validate 36986576898: 18/18 SUCCESS).
+Active scope: **PLAN APPROVED / IMPLEMENTATION NOT STARTED**. Review [the approved plan](docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md) on `docs/t-804-release-facing-plan`, based on main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290` (Validate 36986576898: 18/18 SUCCESS).
 
 The plan defines README, two consumer guides, Unreleased changelog, SECURITY, compatibility/versioning and release-checklist work. This PR changes the plan and three tracking documents only; none of those future guides is implemented. Canonical validation and publication guard pass; link/scope checks and exact-head CI are verified before handoff completion.
 
 Review focus: are install/bundle/smoke claims bounded to current executable evidence, are Laravel harness policy stages clearly excluded from production guidance, is the disabled private-reporting channel honestly recorded as a publication blocker, and are proposed version policies separated from implemented semantics? No registry/public version, support SLA, security address, runtime/API/decision/CI change or T-805 orchestration is included.
 
-Next gate: **T-804 plan approval only**; no implementation or merge is authorized automatically.
+Approval recorded on 2026-10-02 from user continuation at the plan-approval gate. Approved head `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141` passed Validate 37009779269 (18/18). CodeRabbit auto-review was skipped, so external review is not claimed complete. PR #23 remains open; no merge approval is implied.
+
+Next gate: **T-804 implementation baseline and feature branch only**; no consumer-guide implementation or merge is authorized automatically.
 
 ## Previous T-803 handoff — historical evidence
 

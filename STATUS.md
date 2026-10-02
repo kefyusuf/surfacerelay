@@ -7,7 +7,7 @@
 - **Branch:** `docs/t-804-release-facing-plan`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
-- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **PLAN READY / APPROVAL PENDING / IMPLEMENTATION NOT STARTED**.
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **PLAN APPROVED / IMPLEMENTATION NOT STARTED**.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2067,3 +2067,11 @@ GitHub private vulnerability reporting was checked read-only on 2026-10-02: disa
 Changed paths: the plan, STATUS.md, TASKS.md, REVIEW_REQUEST.md only. Canonical validation, publication guard and diff checks pass. Relative-link/scope audit and exact-head CI are checked for the plan PR. Existing runtime semantics, manifests, schemas, conformance, dependencies, workflows, decisions and source package versions remain unchanged.
 
 Next gate: **T-804 implementation-plan approval only**. No consumer-guide implementation began. T-805 remains NOT STARTED; publication, tags/releases, public version and decision promotion remain outside scope.
+
+## T-804 plan approval — APPROVED / IMPLEMENTATION NOT STARTED
+
+Date: 2026-10-02. The user continued at the plan-approval gate. Plan head `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141`, [Validate / 37009779269](https://github.com/kefyusuf/surfacerelay/actions/runs/37009779269): **18/18 SUCCESS**, live verified. The plan's bounded documentation scope, acceptance and verification path are approved; independent evidence audit found no material issue.
+
+This approval record changes the plan, STATUS, TASKS and REVIEW_REQUEST only. Canonical validator, publication guard, link/scope audit and diff checks are verified. No consumer guides, runtime/API, metadata, dependency, CI, schema or decision changes. CodeRabbit auto-review was skipped; no external-review completion is claimed. PR #23 remains OPEN / NOT MERGED.
+
+Next gate: **T-804 implementation baseline and feature branch only**. Select a clean approved starting revision before consumer-guide work. T-805, merge and publication remain outside this approval.
