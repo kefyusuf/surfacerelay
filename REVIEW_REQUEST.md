@@ -1,4 +1,10 @@
-# T-804 — Implementation-plan review handoff
+# T-804 — Implementation baseline / feature branch handoff
+
+Current gate: **BASELINE READY / CONSUMER GUIDES NOT STARTED**. Branch `docs/t-804-release-facing-documentation` starts at clean approved `543b60e4988e7ac8ed5a89c861e87affa79b5bc3` (Validate 37023733891: 18/18 SUCCESS). Docker canonical validator and publication guard pass. Four plan/tracking paths change only; no consumer or release guide has been implemented.
+
+This draft PR is stacked on the open plan branch `docs/t-804-release-facing-plan` (PR #23). Plan merge and eventual main integration require explicit authorization; no merged-plan state is claimed. Next gate: **Step 2 Laravel/browser consumer guides with existing artifact checks**, not T-805 or merge.
+
+## Approved plan handoff — preceding gate
 
 Active scope: **PLAN APPROVED / IMPLEMENTATION NOT STARTED**. Review [the approved plan](docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md) on `docs/t-804-release-facing-plan`, based on main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290` (Validate 36986576898: 18/18 SUCCESS).
 

@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `docs/t-804-release-facing-plan`
+- **Branch:** `docs/t-804-release-facing-documentation`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
-- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **PLAN APPROVED / IMPLEMENTATION NOT STARTED**.
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **BASELINE READY / CONSUMER GUIDES NOT STARTED**.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2075,3 +2075,13 @@ Date: 2026-10-02. The user continued at the plan-approval gate. Plan head `1bafe
 This approval record changes the plan, STATUS, TASKS and REVIEW_REQUEST only. Canonical validator, publication guard, link/scope audit and diff checks are verified. No consumer guides, runtime/API, metadata, dependency, CI, schema or decision changes. CodeRabbit auto-review was skipped; no external-review completion is claimed. PR #23 remains OPEN / NOT MERGED.
 
 Next gate: **T-804 implementation baseline and feature branch only**. Select a clean approved starting revision before consumer-guide work. T-805, merge and publication remain outside this approval.
+
+## T-804 implementation Step 1 — BASELINE / FEATURE BRANCH READY
+
+Date: 2026-10-02. Clean approved baseline: `543b60e4988e7ac8ed5a89c861e87affa79b5bc3`, [Validate / 37023733891](https://github.com/kefyusuf/surfacerelay/actions/runs/37023733891) **18/18 SUCCESS**, live verified. Created `docs/t-804-release-facing-documentation` from that exact commit. Docker canonical validation and publication guard pass using the existing test image, offline read-only repository mount.
+
+Plan PR #23 remains OPEN / NOT MERGED. The implementation PR is stacked on `docs/t-804-release-facing-plan` so its incremental diff does not duplicate the plan. No plan merge was inferred from continuation. Before eventual main integration, resolve that dependency through an explicitly authorized merge and re-check the target revision/CI; do not rewrite history or merge automatically.
+
+This gate changes the plan and STATUS/TASKS/REVIEW_REQUEST only. No README, consumer guides, CHANGELOG, SECURITY, compatibility/checklist implementation, runtime, manifests, dependencies, CI, schema or decisions changed. Private reporting remains a publication blocker; T-805 remains NOT STARTED.
+
+Next gate: **T-804 Step 2 — bounded Laravel/browser consumer guides and their existing artifact checks**. No guide content was written in Step 1.
