@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW FINDING ACCEPTED / RED NOT STARTED**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW FINDING RED PROVEN / GREEN NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2009,3 +2009,16 @@ Date: 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is 
 - This disposition changes only STATUS, TASKS, and REVIEW_REQUEST. No corrective implementation or RED test was added; the review thread remains open.
 
 Next explicit gate: **focused RED tests for this Minor only**. GREEN implementation and thread resolution follow verified evidence in later gates. T-804, merge, decision promotion, tags/releases, and publication remain outside this gate.
+
+
+## T-803 npm launch finding — RED PROVEN / GREEN NOT STARTED
+
+Five focused `BrowserNpmLaunchContractTest` methods now cover npm path resolution for pack/consumer commands, missing-npm fail-closed behavior for both paths, and a Windows npm.cmd fixture executed via Node's npm CLI with literal arguments and no shell. Arguments include spaces and shell metacharacters. These are process-launch tests; the mocked Windows layout does not claim Windows end-to-end support.
+
+Local focused command: `python -B -m unittest scripts.tests.test_browser_release_candidate.BrowserNpmLaunchContractTest` — **5 tests / 5 expected assertion failures / 0 errors**. Existing production behavior launches bare npm and does not check availability first. No corrective implementation changed. Canonical validation, publication guard, and diff checks pass. The previously verified baseline has 19 browser tooling tests passing in Linux CI; the expected new CI result is 19 PASS / 5 expected FAIL in browser-release-consumer, with the other 17 Validate jobs green.
+
+Docker CLI was not found on PATH or in standard Docker Desktop executable locations. No Docker run or installation is claimed. Linux CI is used for independent RED evidence; Docker remains preferred when an available engine/host is provided.
+
+Changed files: focused Python tests plus STATUS, TASKS, and REVIEW_REQUEST only. No production/browser runtime, API, dependency, workflow, schema, conformance, or decision edits. The external-review finding remains open.
+
+Next explicit gate: **GREEN npm launch implementation for this Minor only**, after the expected Linux CI failures are verified. Do not resolve the review thread, merge, or start T-804 automatically.

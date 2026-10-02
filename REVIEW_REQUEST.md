@@ -5,7 +5,7 @@ Downstream projects previously depended on repository source paths. T-803 adds a
 ## State and review target
 
 - Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
-- Task: **DONE / REVIEW FINDING ACCEPTED / RED NOT STARTED**; one reviewed finding remains open; not merged.
+- Task: **DONE / REVIEW FINDING RED PROVEN / GREEN NOT STARTED**; one reviewed finding remains open; not merged.
 - Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
 - Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
 - Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
@@ -71,3 +71,16 @@ D-026 and D-069..D-073 remain PROPOSED. T-804/T-805 have not started. No npm/Pac
 The Windows npm subprocess finding is accepted and verified against the implementation and existing local failures. The next gate is focused RED tests only. The subsequent fix is bounded to npm launch in the browser artifact tooling, its integration fixture, and the distribution emission test. Preserve argv boundaries, fail clearly when npm is missing, and retain archive/consumer isolation and stripped credentials. Do not infer a broader Windows runtime support claim from tooling portability.
 
 No corrective implementation is included in this disposition. The finding remains unresolved until RED/GREEN and exact-head verification support closure. No reviewer reply, thread resolution, merge, later task, or publication is part of this commit.
+
+
+## T-803 npm launch finding — RED PROVEN / GREEN NOT STARTED
+
+Five focused `BrowserNpmLaunchContractTest` methods now cover npm path resolution for pack/consumer commands, missing-npm fail-closed behavior for both paths, and a Windows npm.cmd fixture executed via Node's npm CLI with literal arguments and no shell. Arguments include spaces and shell metacharacters. These are process-launch tests; the mocked Windows layout does not claim Windows end-to-end support.
+
+Local focused command: `python -B -m unittest scripts.tests.test_browser_release_candidate.BrowserNpmLaunchContractTest` — **5 tests / 5 expected assertion failures / 0 errors**. Existing production behavior launches bare npm and does not check availability first. No corrective implementation changed. Canonical validation, publication guard, and diff checks pass. The previously verified baseline has 19 browser tooling tests passing in Linux CI; the expected new CI result is 19 PASS / 5 expected FAIL in browser-release-consumer, with the other 17 Validate jobs green.
+
+Docker CLI was not found on PATH or in standard Docker Desktop executable locations. No Docker run or installation is claimed. Linux CI is used for independent RED evidence; Docker remains preferred when an available engine/host is provided.
+
+Changed files: focused Python tests plus STATUS, TASKS, and REVIEW_REQUEST only. No production/browser runtime, API, dependency, workflow, schema, conformance, or decision edits. The external-review finding remains open.
+
+Next explicit gate: **GREEN npm launch implementation for this Minor only**, after the expected Linux CI failures are verified. Do not resolve the review thread, merge, or start T-804 automatically.

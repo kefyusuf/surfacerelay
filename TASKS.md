@@ -1119,7 +1119,7 @@ Step 8 dedicated CI matrix is verified. Initial matrix head `9fb95c0e3a16b8e56a7
 
 Step 9 whole-task verification is complete on `86ccdc67ff268014d8948112ac07ad7bee410f87`. Exact-head Validate #1034 (`36359223941`) completed **17/17 SUCCESS**. The focused T-802 tooling suite ran **20/20 PASS** in each of the four consumer jobs; `release-contract` discovery ran **49/49 PASS** with publication guard PASS; canonical `python scripts/validate.py` passed. All four consumer legs locked/installed `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository and verified installed metadata/autoload; PHP 8.4 + Laravel 13 additionally emitted `SurfaceRelay Laravel clean-consumer smoke: PASS`. The PHP 8.4 + Illuminate 13 job completed **596 tests / 3180 assertions**, after building the Laravel ZIP from a clean `git archive HEAD` snapshot, installing it into an isolated Laravel 13 consumer through a Composer `artifact` repository, verifying exact installed metadata, and emitting `SurfaceRelay Laravel clean-consumer smoke: PASS`. Generic package-neutral prerelease identifiers tested during probing were not valid Composer require constraints, so the authoritative proof used non-public `0.0.0-alpha1`; T-801 SemVer behavior remains unchanged. The temporary GREEN bridge is removed after evidence capture.
 
-### T-803 — Browser runtime public API + artifact + clean consumer proof — DONE / REVIEW_FINDING_ACCEPTED / RED_NOT_STARTED
+### T-803 — Browser runtime public API + artifact + clean consumer proof — DONE / REVIEW_FINDING_RED_PROVEN / GREEN_NOT_STARTED
 
 Implementation plan: `docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md` — **APPROVED**.
 
@@ -1297,3 +1297,16 @@ Tag/release/publication:         NONE
 ```
 
 Next gate: **T-803 implementation-plan preparation only**.
+
+
+## T-803 npm launch finding — RED PROVEN / GREEN NOT STARTED
+
+Five focused `BrowserNpmLaunchContractTest` methods now cover npm path resolution for pack/consumer commands, missing-npm fail-closed behavior for both paths, and a Windows npm.cmd fixture executed via Node's npm CLI with literal arguments and no shell. Arguments include spaces and shell metacharacters. These are process-launch tests; the mocked Windows layout does not claim Windows end-to-end support.
+
+Local focused command: `python -B -m unittest scripts.tests.test_browser_release_candidate.BrowserNpmLaunchContractTest` — **5 tests / 5 expected assertion failures / 0 errors**. Existing production behavior launches bare npm and does not check availability first. No corrective implementation changed. Canonical validation, publication guard, and diff checks pass. The previously verified baseline has 19 browser tooling tests passing in Linux CI; the expected new CI result is 19 PASS / 5 expected FAIL in browser-release-consumer, with the other 17 Validate jobs green.
+
+Docker CLI was not found on PATH or in standard Docker Desktop executable locations. No Docker run or installation is claimed. Linux CI is used for independent RED evidence; Docker remains preferred when an available engine/host is provided.
+
+Changed files: focused Python tests plus STATUS, TASKS, and REVIEW_REQUEST only. No production/browser runtime, API, dependency, workflow, schema, conformance, or decision edits. The external-review finding remains open.
+
+Next explicit gate: **GREEN npm launch implementation for this Minor only**, after the expected Linux CI failures are verified. Do not resolve the review thread, merge, or start T-804 automatically.

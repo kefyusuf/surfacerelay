@@ -6,6 +6,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 PACKAGE_NAME = "@surfacerelay/browser-runtime"
@@ -673,6 +674,85 @@ class BrowserCleanConsumerExecutionContractTest(unittest.TestCase):
         self.assertIs(True, proof["typecheck"])
         self.assertIs(True, proof["bundle"])
         self.assertIs(True, proof["deepImportRejected"])
+
+
+
+class BrowserNpmLaunchContractTest(unittest.TestCase):
+    def test_pack_resolves_npm_and_preserves_destination_argument(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = root / "package"
+            package.mkdir()
+            stage = root / "stage with spaces & metacharacters"
+            stage.mkdir()
+            archive = stage / "artifacts" / "candidate.tgz"
+
+            def packed(command, **kwargs):
+                archive.write_bytes(b"test archive")
+                return subprocess.CompletedProcess(command, 0, '[{"filename":"candidate.tgz"}]', '')
+
+            with patch("shutil.which", return_value="/trusted/bin/npm"), patch.object(
+                module.subprocess, "run", side_effect=packed
+            ) as run:
+                self.assertEqual(archive, module._run_npm_pack(package, stage))
+            command = run.call_args.args[0]
+            self.assertEqual("/trusted/bin/npm", command[0])
+            self.assertEqual(str(archive.parent), command[-1])
+            self.assertFalse(run.call_args.kwargs.get("shell", False))
+
+    def test_pack_fails_closed_when_npm_is_missing(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch("shutil.which", return_value=None), patch.object(
+                module.subprocess, "run",
+                side_effect=AssertionError("missing npm must be rejected before process launch"),
+            ) as run:
+                with self.assertRaisesRegex(module.BrowserReleaseCandidateError, "npm.*(not found|not available|missing)"):
+                    module._run_npm_pack(root, root)
+                run.assert_not_called()
+
+    def test_consumer_resolves_npm_without_shell_interpretation(self):
+        module = browser_candidate_module()
+        argument = "archive with spaces & $(untrusted).tgz"
+        completed = subprocess.CompletedProcess([], 0, "", "")
+        with patch("shutil.which", return_value="/trusted/bin/npm"), patch.object(
+            module.subprocess, "run", return_value=completed
+        ) as run:
+            module._run_consumer_command(["npm", "install", argument], cwd=Path.cwd())
+        self.assertEqual(["/trusted/bin/npm", "install", argument], run.call_args.args[0])
+        self.assertFalse(run.call_args.kwargs.get("shell", False))
+
+    def test_consumer_fails_closed_when_npm_is_missing(self):
+        module = browser_candidate_module()
+        with patch("shutil.which", return_value=None), patch.object(
+            module.subprocess, "run",
+            side_effect=AssertionError("missing npm must be rejected before process launch"),
+        ) as run:
+            with self.assertRaisesRegex(module.BrowserReleaseCandidateError, "npm.*(not found|not available|missing)"):
+                module._run_consumer_command(["npm", "install"], cwd=Path.cwd())
+            run.assert_not_called()
+
+    def test_windows_npm_shim_uses_node_cli_with_literal_arguments(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shim = root / "npm.cmd"
+            node = root / "node.exe"
+            cli = root / "node_modules" / "npm" / "bin" / "npm-cli.js"
+            cli.parent.mkdir(parents=True)
+            for file in (shim, node, cli):
+                file.write_text("test fixture", encoding="utf-8")
+            paths = {"npm": str(shim), "node": str(node)}
+            completed = subprocess.CompletedProcess([], 0, "", "")
+            argument = "archive & echo injected.tgz"
+            with patch("shutil.which", side_effect=lambda name: paths.get(name)), patch.object(
+                module.subprocess, "run", return_value=completed
+            ) as run:
+                module._run_consumer_command(["npm", "install", argument], cwd=root)
+            self.assertEqual([str(node), str(cli), "install", argument], run.call_args.args[0])
+            self.assertFalse(run.call_args.kwargs.get("shell", False))
 
 
 if __name__ == "__main__":
