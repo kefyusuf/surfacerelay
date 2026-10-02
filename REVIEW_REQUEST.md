@@ -5,7 +5,7 @@ Downstream projects previously depended on repository source paths. T-803 adds a
 ## State and review target
 
 - Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
-- Task: **DONE / REVIEW FINDING RED PROVEN / GREEN NOT STARTED**; one reviewed finding remains open; not merged.
+- Task: **DONE / FINDING GREEN / CI PENDING**; finding fixed locally, external re-check pending; not merged.
 - Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
 - Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
 - Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
@@ -87,3 +87,13 @@ Next explicit gate: **GREEN npm launch implementation for this Minor only**, aft
 
 
 Linux RED evidence verified at `d4a19c57927e05c1847c47be8a0032771c13895f`: [Validate / 36975704645](https://github.com/kefyusuf/surfacerelay/actions/runs/36975704645) finished **17 SUCCESS / 1 expected FAILURE**. Only `browser-release-consumer` failed. Its job log proves **24 tests / 19 PASS / 5 expected assertion failures / 0 errors**; the isolated real-artifact consumer journey remains green. All five failures are the new npm-launch contracts. RED is independently proven on Linux; next gate remains GREEN implementation only.
+
+## T-803 npm launch finding — GREEN VERIFIED LOCALLY / CI PENDING
+
+The bounded fix resolves npm from the host PATH. POSIX launches the resolved executable; Windows .cmd/.bat shims launch the adjacent npm-cli.js through resolved Node, without a shell. Missing npm, Node, or CLI fails before launching a process. Pack and all four consumer npm commands share this launch path. The integration fixture uses the same launcher; the browser emission test uses the npm-provided CLI path with process.execPath.
+
+Verification on 2026-10-02: Docker Node 22.23.3 / Python 3.12.15, read-only repository mount and temporary filesystem: 25/25 Python artifact/consumer tests PASS, 333/333 browser tests PASS, typecheck/build PASS, canonical validation/publication guard PASS. Windows: 25/25 Python tests including real pack/install/isolated consumer PASS with project-local npm cache and approved process access; 333/333 browser tests and typecheck PASS. The previous Windows bare-npm launch limitation is addressed for these tested paths. This is tooling evidence, not a new supported browser-runtime platform claim.
+
+The five RED tests are GREEN. One additional negative method covers missing Windows Node/CLI prerequisites. Existing archive/consumer isolation, argv boundaries and consumer credential stripping are preserved. No runtime source/API/metadata/dependency/workflow/spec/conformance/decision change. The Dockerfile remains ignored under .tmp; no permanent container infrastructure was added. Docker is available at the user-local Docker Desktop installation, correcting the earlier narrow lookup result.
+
+Changed files: scripts/browser_release_candidate.py, scripts/tests/test_browser_release_candidate.py, packages/browser-runtime/tests/distribution-contract.test.ts, STATUS.md, TASKS.md, REVIEW_REQUEST.md. Exact-head CI remains to be verified after commit. The review thread remains open. Next gate after CI verification: external-review re-check/disposition only; no automatic merge or T-804.

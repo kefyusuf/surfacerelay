@@ -638,14 +638,14 @@ class BrowserCleanConsumerExecutionContractTest(unittest.TestCase):
             )
 
             subprocess.run(
-                ["npm", "ci"],
+                module._npm_command(["ci"]),
                 cwd=source_root / "packages" / "browser-runtime",
                 check=True,
                 capture_output=True,
                 text=True,
             )
             subprocess.run(
-                ["npm", "run", "build"],
+                module._npm_command(["run", "build"]),
                 cwd=source_root / "packages" / "browser-runtime",
                 check=True,
                 capture_output=True,
@@ -678,6 +678,18 @@ class BrowserCleanConsumerExecutionContractTest(unittest.TestCase):
 
 
 class BrowserNpmLaunchContractTest(unittest.TestCase):
+    def test_windows_shim_rejects_missing_node_or_cli_before_launch(self):
+        module = browser_candidate_module()
+        with tempfile.TemporaryDirectory() as directory:
+            shim = str(Path(directory) / "npm.cmd")
+            for node in (None, str(Path(directory) / "node.exe")):
+                with self.subTest(node=node), patch(
+                    "shutil.which", side_effect=lambda name: shim if name == "npm" else node
+                ), patch.object(module.subprocess, "run") as run:
+                    with self.assertRaisesRegex(module.BrowserReleaseCandidateError, "npm Node CLI"):
+                        module._run_consumer_command(["npm", "install"], cwd=Path(directory))
+                    run.assert_not_called()
+
     def test_pack_resolves_npm_and_preserves_destination_argument(self):
         module = browser_candidate_module()
         with tempfile.TemporaryDirectory() as directory:

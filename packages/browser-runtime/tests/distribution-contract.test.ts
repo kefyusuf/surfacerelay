@@ -115,9 +115,11 @@ describe('browser-runtime distribution contract', () => {
     const buildRoot = mkdtempSync(join(tmpdir(), 'surfacerelay-t803-build-'));
 
     try {
+      const npmCli = process.env.npm_execpath;
+      if (!npmCli) throw new Error('Run distribution tests through npm to resolve its CLI');
       execFileSync(
-        'npm',
-        ['run', 'build', '--', '--outDir', buildRoot],
+        process.execPath,
+        [npmCli, 'run', 'build', '--', '--outDir', buildRoot],
         {
           cwd: packageRoot,
           encoding: 'utf8',

@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import shutil
 import subprocess
 import tarfile
 
@@ -243,20 +244,32 @@ def _package_regular_files(package_root: Path) -> list[str]:
     return sorted(files)
 
 
+def _npm_command(arguments: list[str]) -> list[str]:
+    executable = shutil.which("npm")
+    if executable is None:
+        raise BrowserReleaseCandidateError("npm executable not found")
+    if Path(executable).suffix.lower() in {".cmd", ".bat"}:
+        node = shutil.which("node")
+        cli = Path(executable).parent / "node_modules" / "npm" / "bin" / "npm-cli.js"
+        if node is None or not cli.is_file():
+            raise BrowserReleaseCandidateError("npm Node CLI is not available")
+        return [node, str(cli), *arguments]
+    return [executable, *arguments]
+
+
 def _run_npm_pack(package_root: Path, stage_root: Path) -> Path:
     archive_root = resolve_staging_path(stage_root, "artifacts")
     archive_root.mkdir(parents=True, exist_ok=False)
 
     try:
         completed = subprocess.run(
-            [
-                "npm",
+            _npm_command([
                 "pack",
                 "--json",
                 "--ignore-scripts",
                 "--pack-destination",
                 str(archive_root),
-            ],
+            ]),
             cwd=package_root,
             check=True,
             capture_output=True,
@@ -832,6 +845,8 @@ def _run_consumer_command(
     cwd: Path,
     allow_failure: bool = False,
 ) -> subprocess.CompletedProcess[str]:
+    if command[0] == "npm":
+        command = _npm_command(command[1:])
     try:
         completed = subprocess.run(
             command,
