@@ -5,7 +5,7 @@ Downstream projects previously depended on repository source paths. T-803 adds a
 ## State and review target
 
 - Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
-- Task: **DONE / REVIEW HANDOFF / EXTERNAL REVIEW PENDING**; not reviewed or merged.
+- Task: **DONE / REVIEW FINDING ACCEPTED / RED NOT STARTED**; one reviewed finding remains open; not merged.
 - Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
 - Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
 - Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
@@ -62,3 +62,12 @@ scripts/fixtures/browser-clean-consumer/smoke.mjs
 5. Does the consumer genuinely use shipped declarations and the exact tarball, and are compatibility claims limited to executable evidence?
 
 D-026 and D-069..D-073 remain PROPOSED. T-804/T-805 have not started. No npm/Packagist publication, tags, GitHub Releases, public version selection, or decision promotion occurred. Next gate is external review/finding disposition only; merge requires an explicit user request.
+
+
+## External review disposition — 2026-10-02
+
+[PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is non-draft. CodeRabbit completed a full review at `34d8cf0dc7e294af6566d24bdeeb4ce9395720bc` and posted [one actionable Minor](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4163289925). Reviewed-head [Validate / 36971286670](https://github.com/kefyusuf/surfacerelay/actions/runs/36971286670) passed **18/18** jobs.
+
+The Windows npm subprocess finding is accepted and verified against the implementation and existing local failures. The next gate is focused RED tests only. The subsequent fix is bounded to npm launch in the browser artifact tooling, its integration fixture, and the distribution emission test. Preserve argv boundaries, fail clearly when npm is missing, and retain archive/consumer isolation and stripped credentials. Do not infer a broader Windows runtime support claim from tooling portability.
+
+No corrective implementation is included in this disposition. The finding remains unresolved until RED/GREEN and exact-head verification support closure. No reviewer reply, thread resolution, merge, later task, or publication is part of this commit.

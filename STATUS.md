@@ -7,7 +7,7 @@
 - **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW HANDOFF / EXTERNAL REVIEW PENDING**
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW FINDING ACCEPTED / RED NOT STARTED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1993,3 +1993,19 @@ The existing remote T-803 RED/GREEN commit sequence is retained. A parallel loca
 T-803 is **DONE / REVIEW HANDOFF**, with external review pending and merge not authorized. D-026 and D-069..D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, publication, or public version selection occurred.
 
 Next gate: **T-803 external review and finding disposition only**. Do not begin T-804 or merge automatically.
+
+
+## T-803 external-review finding — ACCEPTED / RED NOT STARTED
+
+Date: 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is OPEN, non-draft, and not merged.
+
+- Reviewed head: `34d8cf0dc7e294af6566d24bdeeb4ce9395720bc`.
+- Reviewed-head [Validate / 36971286670](https://github.com/kefyusuf/surfacerelay/actions/runs/36971286670): **18/18 SUCCESS**.
+- CodeRabbit completed the requested full review: **1 actionable Minor**; [bare npm subprocess calls fail on Windows](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4163289925).
+- Finding verified against `_run_npm_pack`, the four npm commands in `execute_clean_consumer_proof`, the distribution emission test, and the integration fixture's source build calls. It matches the previously recorded ENOENT / WinError 2 failures.
+- Accepted bounded scope: portable npm process launch in `scripts/browser_release_candidate.py`, `scripts/tests/test_browser_release_candidate.py`, and `packages/browser-runtime/tests/distribution-contract.test.ts`, plus tracking evidence only.
+- Acceptance: focused RED evidence first; resolve the installed npm entry point on Windows and POSIX; fail clearly when npm is absent; preserve argument boundaries without passing caller-controlled paths through a shell; retain exact archive/consumer evidence and credential stripping; re-run browser and focused tooling checks, canonical validation, publication guard, and exact-head CI.
+- No runtime semantics, root API, package metadata, dependencies, CI matrix, spec, conformance, or decision changes are authorized by this finding.
+- This disposition changes only STATUS, TASKS, and REVIEW_REQUEST. No corrective implementation or RED test was added; the review thread remains open.
+
+Next explicit gate: **focused RED tests for this Minor only**. GREEN implementation and thread resolution follow verified evidence in later gates. T-804, merge, decision promotion, tags/releases, and publication remain outside this gate.
