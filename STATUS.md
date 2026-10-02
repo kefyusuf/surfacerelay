@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `docs/t-804-release-facing-plan`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
-- **Current work:** `T-803` — **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; next gate: T-804 plan preparation only.
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **PLAN APPROVED / IMPLEMENTATION NOT STARTED**.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2055,3 +2055,23 @@ The user explicitly authorized merge on 2026-10-02. [PR #21](https://github.com/
 Review is closed: 1 thread / 0 unresolved. This post-merge tracking update changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED. T-804/T-805 remain NOT STARTED; no tag/release/publication/version selection occurred.
 
 Next gate: **T-804 implementation-plan preparation only**, on explicit continuation; do not start its implementation automatically.
+
+## T-804 plan preparation — PLAN READY / APPROVAL PENDING
+
+Date: 2026-10-02. Baseline main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290`; [Validate / 36986576898](https://github.com/kefyusuf/surfacerelay/actions/runs/36986576898) **18/18 SUCCESS**, checked live. Branch: `docs/t-804-release-facing-plan`.
+
+Plan: `docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md`. It bounds later work to README, two repository consumer guides, Unreleased changelog, SECURITY, compatibility/versioning policy and release checklist, with no package/runtime/publication changes. It distinguishes dependency constraints from tested environments, fixture-only Laravel policy stages from production security, and Node primitive smoke from real-browser evidence.
+
+GitHub private vulnerability reporting was checked read-only on 2026-10-02: disabled. The plan records a publication blocker; no contact, support promise or setting change was invented. Independent read-only evidence audit agrees with the four Composer install legs, one Laravel ActionBus smoke leg, and root-only browser artifact proof.
+
+Changed paths: the plan, STATUS.md, TASKS.md, REVIEW_REQUEST.md only. Canonical validation, publication guard and diff checks pass. Relative-link/scope audit and exact-head CI are checked for the plan PR. Existing runtime semantics, manifests, schemas, conformance, dependencies, workflows, decisions and source package versions remain unchanged.
+
+Next gate: **T-804 implementation-plan approval only**. No consumer-guide implementation began. T-805 remains NOT STARTED; publication, tags/releases, public version and decision promotion remain outside scope.
+
+## T-804 plan approval — APPROVED / IMPLEMENTATION NOT STARTED
+
+Date: 2026-10-02. The user continued at the plan-approval gate. Plan head `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141`, [Validate / 37009779269](https://github.com/kefyusuf/surfacerelay/actions/runs/37009779269): **18/18 SUCCESS**, live verified. The plan's bounded documentation scope, acceptance and verification path are approved; independent evidence audit found no material issue.
+
+This approval record changes the plan, STATUS, TASKS and REVIEW_REQUEST only. Canonical validator, publication guard, link/scope audit and diff checks are verified. No consumer guides, runtime/API, metadata, dependency, CI, schema or decision changes. CodeRabbit auto-review was skipped; no external-review completion is claimed. PR #23 remains OPEN / NOT MERGED.
+
+Next gate: **T-804 implementation baseline and feature branch only**. Select a clean approved starting revision before consumer-guide work. T-805, merge and publication remain outside this approval.
