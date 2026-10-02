@@ -1310,3 +1310,6 @@ Docker CLI was not found on PATH or in standard Docker Desktop executable locati
 Changed files: focused Python tests plus STATUS, TASKS, and REVIEW_REQUEST only. No production/browser runtime, API, dependency, workflow, schema, conformance, or decision edits. The external-review finding remains open.
 
 Next explicit gate: **GREEN npm launch implementation for this Minor only**, after the expected Linux CI failures are verified. Do not resolve the review thread, merge, or start T-804 automatically.
+
+
+Linux RED evidence verified at `d4a19c57927e05c1847c47be8a0032771c13895f`: [Validate / 36975704645](https://github.com/kefyusuf/surfacerelay/actions/runs/36975704645) finished **17 SUCCESS / 1 expected FAILURE**. Only `browser-release-consumer` failed. Its job log proves **24 tests / 19 PASS / 5 expected assertion failures / 0 errors**; the isolated real-artifact consumer journey remains green. All five failures are the new npm-launch contracts. RED is independently proven on Linux; next gate remains GREEN implementation only.
