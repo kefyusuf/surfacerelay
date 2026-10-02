@@ -5,7 +5,7 @@ Downstream projects previously depended on repository source paths. T-803 adds a
 ## State and review target
 
 - Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
-- Task: **DONE / FINDING GREEN / CI PENDING**; finding fixed locally, external re-check pending; not merged.
+- Task: **DONE / FINDING GREEN VERIFIED / EXTERNAL RECHECK PENDING**; finding fixed and exact-head CI green; not merged.
 - Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
 - Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
 - Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
@@ -97,3 +97,5 @@ Verification on 2026-10-02: Docker Node 22.23.3 / Python 3.12.15, read-only repo
 The five RED tests are GREEN. One additional negative method covers missing Windows Node/CLI prerequisites. Existing archive/consumer isolation, argv boundaries and consumer credential stripping are preserved. No runtime source/API/metadata/dependency/workflow/spec/conformance/decision change. The Dockerfile remains ignored under .tmp; no permanent container infrastructure was added. Docker is available at the user-local Docker Desktop installation, correcting the earlier narrow lookup result.
 
 Changed files: scripts/browser_release_candidate.py, scripts/tests/test_browser_release_candidate.py, packages/browser-runtime/tests/distribution-contract.test.ts, STATUS.md, TASKS.md, REVIEW_REQUEST.md. Exact-head CI remains to be verified after commit. The review thread remains open. Next gate after CI verification: external-review re-check/disposition only; no automatic merge or T-804.
+
+GREEN exact-head evidence: `d70da239434beee09635696c8a1b1489afd0a00a`, [Validate / 36977031979](https://github.com/kefyusuf/surfacerelay/actions/runs/36977031979) — **18/18 SUCCESS**. The browser-release-consumer log proves 25 tests PASS plus clean-consumer smoke and deep-import rejection PASS. Docker and Windows checks above are also green. The npm finding is fixed and verified, but its review thread remains open pending external re-check. Next gate: external-review re-check/disposition only; no merge or T-804.
