@@ -5,7 +5,7 @@ Downstream projects previously depended on repository source paths. T-803 adds a
 ## State and review target
 
 - Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
-- Task: **DONE / FINDING GREEN VERIFIED / EXTERNAL RECHECK PENDING**; finding fixed and exact-head CI green; not merged.
+- Task: **DONE / REVIEW CLOSED / NOT MERGED**; finding re-checked by CodeRabbit, all review threads resolved.
 - Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
 - Final implementation: `66991da7101a773fcce99a17b99dce608080f956`.
 - Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
@@ -99,3 +99,13 @@ The five RED tests are GREEN. One additional negative method covers missing Wind
 Changed files: scripts/browser_release_candidate.py, scripts/tests/test_browser_release_candidate.py, packages/browser-runtime/tests/distribution-contract.test.ts, STATUS.md, TASKS.md, REVIEW_REQUEST.md. Exact-head CI remains to be verified after commit. The review thread remains open. Next gate after CI verification: external-review re-check/disposition only; no automatic merge or T-804.
 
 GREEN exact-head evidence: `d70da239434beee09635696c8a1b1489afd0a00a`, [Validate / 36977031979](https://github.com/kefyusuf/surfacerelay/actions/runs/36977031979) — **18/18 SUCCESS**. The browser-release-consumer log proves 25 tests PASS plus clean-consumer smoke and deep-import rejection PASS. Docker and Windows checks above are also green. The npm finding is fixed and verified, but its review thread remains open pending external re-check. Next gate: external-review re-check/disposition only; no merge or T-804.
+
+## T-803 external-review closure — DONE / REVIEW CLOSED
+
+Date: 2026-10-02. PR #21 remains OPEN / non-draft / NOT MERGED. Reviewed pre-closure head: `fa0bafc197dfc5ede0b96bc9fbbabeafe0839fd7`. [Validate / 36977314801](https://github.com/kefyusuf/surfacerelay/actions/runs/36977314801) passed **18/18** jobs at that exact revision.
+
+[CodeRabbit re-check](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4164121881) confirms the original Windows npm launch finding is addressed and no issue remains in its covered launch paths. The bot inspected the changed paths and confirmed CI; it did not rerun tests or independently reproduce Windows execution. Docker/Windows execution evidence is recorded above. The single review thread is resolved: **1 total / 0 unresolved**, verified via GitHub GraphQL after the reply.
+
+This closure changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED; T-804/T-805 remain NOT STARTED. No merge, tag, release, publication, or public version selection occurred.
+
+Next explicit gate: **T-803 merge decision only**. External-review closure does not authorize merge or begin T-804 automatically.
