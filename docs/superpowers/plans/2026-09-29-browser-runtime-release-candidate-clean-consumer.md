@@ -716,3 +716,246 @@ Publish/tag/release:              NOT AUTHORIZED
 The plan is approved as the implementation contract for T-803. Approval does not itself create the feature branch or authorize Step 2 RED work in this commit.
 
 Next explicit gate: **T-803 Step 1 — baseline + feature branch only**. After that gate is separately completed, stop before Step 2 RED public-root API tests.
+
+
+## 17. Step 1 checkpoint — baseline + feature branch complete
+
+~~~text
+Implementation baseline:          main@5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Baseline Validate:                #1051 / 36562318964 — 17/17 SUCCESS
+Feature branch:                   feat/t-803-browser-runtime-artifact-clean-consumer
+Production implementation:       NOT STARTED
+RED public-root API tests:        NOT STARTED
+Package/build/CI changes:         NONE
+~~~
+
+The feature branch was created from the exact green baseline SHA. Step 1 introduced no production, test, CI, package, build, artifact, consumer, spec, or conformance behavior.
+
+Next explicit gate: **Step 2 — RED public-root API tests only**. Stop before Step 3 GREEN curated-root facade implementation.
+
+
+## 18. Step 2 checkpoint — public-root API RED proven
+
+~~~text
+RED test files:
+  packages/browser-runtime/tests/public-api.test.ts
+  packages/browser-runtime/tests/public-api.typecheck.ts
+Initial RED head:                 88720b6da4c15e4e3a2f4880de11c8f5ab734c6d
+Authoritative RED head:           e5cfbb73b12d5fdd0d10307ec8455f3e776ca4aa
+Validate:                         #1055 / 36582905214
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Typecheck RED:                    TS2307 — ../src/index.js missing
+Unexpected typecheck errors:      NONE
+Runtime export snapshot:          committed; Vitest step blocked by earlier expected typecheck failure
+GREEN root facade:                NOT STARTED
+Build/artifact/consumer/CI work:  NOT STARTED
+~~~
+
+The initial RED commit correctly proved the missing root-facade boundary but also surfaced two fixture-only implicit-any errors because the missing module removed contextual typing. The authoritative test-only correction added explicit parameter types and introduced no production or GREEN implementation.
+
+On the authoritative RED head, the browser job fails only because src/index does not exist. The normal job ordering stops before Vitest, so the runtime snapshot remains committed but unexecuted until Step 3 supplies the root facade. All other repository jobs remain green.
+
+Next explicit gate: **Step 3 — GREEN curated root facade only**. Create only packages/browser-runtime/src/index.ts with the approved allowlist, then run the existing typecheck/test harness. Stop before Step 4 build/distribution metadata RED work.
+
+
+## 19. Step 3 checkpoint — GREEN curated root facade verified
+
+~~~text
+GREEN implementation head:       85ffb7925a61747ba0c099b4cd27c646cb45233f
+Implementation file:             packages/browser-runtime/src/index.ts
+Implementation diff:             index.ts only
+Typecheck:                       PASS
+Browser-runtime tests:           21 files / 329 tests PASS
+Public runtime export snapshot:  PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+Repository Validate:             #1057 / 36589996508 — 17/17 SUCCESS
+HTMX fixture:                    #26 / 36589996536 — SUCCESS
+Existing runtime implementation: UNCHANGED
+Build/package metadata:          NOT STARTED
+Artifact/consumer/CI work:       NOT STARTED
+~~~
+
+The root facade satisfies the Step 2 contract using only the approved runtime-value allowlist and type closure. No excluded helper or error type is exported as a runtime value, and the exact runtime export snapshot is green.
+
+No existing browser-runtime implementation file changed. Step 3 adds no package exports map, declaration build, tarball tooling, clean-consumer fixture, or dedicated release-consumer CI.
+
+Next explicit gate: **Step 4 — RED build/distribution metadata tests only**. Stop before Step 5 GREEN ESM/declaration build metadata implementation.
+
+## 20. Step 4 checkpoint — build/distribution metadata RED proven
+
+~~~text
+RED test head:                    bfc8c522e1c7dd9e7e3ceee57a67ac3dfb7f52da
+RED test file:                    packages/browser-runtime/tests/distribution-contract.test.ts
+Validate:                         #1059 / 36592466741
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Browser typecheck:                PASS
+Distribution contract:            4 tests / 1 PASS / 3 expected FAIL
+Full Vitest result:               22 files / 330 PASS / 3 expected FAIL
+Missing package seam:             types/root exports/files/build script
+Missing build config:             tsconfig.build.json
+Missing emit seam:                npm run build
+Source package invariants:        PASS
+GREEN metadata/config:            NOT STARTED
+Artifact/consumer/CI work:        NOT STARTED
+~~~
+
+The passing test proves the source package identity, 0.0.0-dev version, private: true publication blocker, and ESM module type remain intact.
+
+The three RED failures map one-to-one to the approved Step 5 implementation boundary: minimal root-only distribution metadata and build script, bounded tsconfig.build.json, and emitted ESM JavaScript plus declarations without source/declaration maps or CommonJS output. No unrelated failure is present.
+
+Next explicit gate: **Step 5 — GREEN ESM/declaration build metadata only**. Add only the approved package metadata and tsconfig.build.json, then make the existing distribution contract green. Stop before Step 6 artifact-contract RED tests.
+
+## 21. Step 5 checkpoint — GREEN ESM/declaration build metadata verified
+
+~~~text
+GREEN implementation head:       71af1a28f792723f9c49be911c10130f78d937c1
+Implementation files:
+  packages/browser-runtime/package.json
+  packages/browser-runtime/tsconfig.build.json
+Distribution contract:          4/4 PASS
+Browser-runtime tests:           22 files / 333 tests PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+Repository Validate:             #1061 / 36609079739 — 17/17 SUCCESS
+Source version/private:          0.0.0-dev / true
+Root exports:                    "." only
+Build output:                    ESM JS + .d.ts
+CommonJS/maps:                   NONE
+package-lock.json:               UNCHANGED
+Committed dist/**:               NONE
+Existing runtime implementation: UNCHANGED
+Artifact/consumer/CI work:       NOT STARTED
+~~~
+
+The Step 4 RED contract is now fully green. The source package gains only the approved root distribution metadata, files allowlist, build script, and bounded build tsconfig. The real compiler emit is exercised into temporary storage and proves the expected root JavaScript/declaration output without maps or CommonJS.
+
+No runtime implementation source, dependency lock, artifact builder, npm-pack staging, consumer fixture, workflow, publication credential, tag, or release behavior changed.
+
+Next explicit gate: **Step 6 — RED artifact-contract tests only**. Stop before Step 7 GREEN browser release-candidate builder/npm-pack implementation.
+
+## 22. Step 6 checkpoint — browser artifact-contract RED proven
+
+~~~text
+Permanent RED test file:         scripts/tests/test_browser_release_candidate.py
+Permanent RED test head:         1168947dc24a107a447eb21a3c693fb86eb35e60
+Temporary discovery bridge:      fa8491ba774d68c7e2f3d64c69ed4ddb9588e651
+Authoritative Validate:           #1064 / 36611234115
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           60 tests / 11 expected ERROR
+Existing release-contract tests:  49 PASS
+Expected missing implementation:  scripts.browser_release_candidate
+GREEN builder/npm-pack:           NOT STARTED
+Consumer/isolation/CI work:       NOT STARTED
+~~~
+
+The eleven RED tests cover exactly the approved Step 6 artifact requirements: candidate identity, staged version injection without source mutation, private blocker retention, release allowlist and repository-only exclusions, symlink fail-closed behavior, exact root exports, npm tar path/type safety, exact npm-pack file list, T-801 manifest/evidence identity and hashes, and candidate-only README wording.
+
+The existing release-contract workflow glob intentionally remains unchanged. Because it does not discover test_browser_release_candidate.py directly, a temporary test-only bridge made the new suite authoritative for RED proof. All eleven errors are the missing builder-module boundary; no unrelated test failure is present. The bridge is removed in the tracking checkpoint.
+
+Next explicit gate: **Step 7 — GREEN browser release-candidate builder/npm-pack only**. Create only scripts/browser_release_candidate.py to satisfy this contract and stop before Step 8 clean-consumer/isolation RED work.
+
+## 23. Step 7 checkpoint — GREEN browser release-candidate builder/npm-pack verified
+
+~~~text
+GREEN implementation head:       279f4b8758303496e50d5e1d306cdd75f2813e6b
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge:          2d0e069044ac09d014eb7071450a2027c5485978
+Authoritative Validate:          #1067 / 36631327207 — 17/17 SUCCESS
+release-contract:                60/60 PASS
+Browser artifact contract:       11/11 PASS
+Pre-existing release contract:   49/49 PASS
+Publication guard:               PASS
+npm artifact:                    real npm pack .tgz
+T-801 evidence format:           reused
+Source package mutation:         NONE
+Runtime/package/build/workflow:  unchanged from prior approved steps
+Consumer/isolation/CI work:      NOT STARTED
+~~~
+
+The Step 6 artifact contract is fully green. The builder performs staged-only candidate version injection, explicit dist JS/declaration copying, repository-only exclusion, symlink fail-closed checks, candidate-only README generation, real npm pack execution with scripts disabled, tar path/type/exact-file validation, and T-801 content-manifest/artifact-evidence hashing.
+
+The temporary GREEN discovery bridge is removed after evidence capture. Permanent workflow discovery remains unchanged until the dedicated T-803 CI step.
+
+Next explicit gate: **Step 8 — RED clean-consumer/isolation tests only**. Stop before Step 9 GREEN clean-consumer generator/verifier.
+
+## 24. Step 8 checkpoint — clean-consumer/isolation RED proven
+
+~~~text
+Permanent RED test head:          cb68b44f0afc51b577b2efb0f9e8f574bb155ac5
+Temporary discovery bridge:      303e1ca0d65df4eff45b2ac41542f4eeee1638ab
+Authoritative Validate:           #1070 / 36640215454
+Repository result:                16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           67 tests / 12 expected ERROR
+Existing contract tests:          60 PASS
+New consumer methods:             7 RED
+Missing Step-9 seams:             6
+Permanent main.ts/smoke.mjs:      NOT ADDED
+Consumer implementation:         NOT STARTED
+~~~
+
+The seven RED methods cover consumer manifest isolation from SurfaceRelay source/file/workspace/link dependencies, root-only source import enforcement, consumer/source directory and symlink isolation, tarball identity validation, installed-package symlink rejection, root declaration presence, and deep-export leakage rejection.
+
+Subtests expand those seven methods into twelve expected error records. Every error is caused by one of the six intentionally absent Step-9 tooling seams; all sixty pre-existing contract tests remain green. This proves the failure boundary before permanent main.ts or smoke.mjs fixtures are introduced.
+
+The temporary discovery bridge is removed after evidence capture; permanent workflow wiring remains deferred.
+
+Next explicit gate: **Step 9 — GREEN clean-consumer generator/verifier only**. Implement only the six proven tooling seams needed to satisfy this contract and stop before dedicated CI wiring.
+
+## 25. Step 9 partial checkpoint — tooling seams GREEN, isolated execution proof pending
+
+~~~text
+GREEN implementation head:       47bab19c3fe42d883665e237161a0d030c698c6a
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge:          48819d5eac4d5cbb077932fa574274f4ab6c803e
+Authoritative Validate:          #1073 / 36649005470 — 17/17 SUCCESS
+release-contract:                67/67 PASS
+New consumer/isolation methods:  7/7 PASS
+Publication guard:               PASS
+Six Step-9 tooling seams:        GREEN
+Real npm tarball install:        NOT EXECUTED
+Permanent main.ts/smoke.mjs:     NOT ADDED
+Root-only consumer typecheck:    NOT EXECUTED
+Vite bundle:                     NOT EXECUTED
+Runtime smoke:                   NOT EXECUTED
+Deep-import execution proof:     NOT EXECUTED
+Dedicated CI:                    NOT STARTED
+~~~
+
+This partial checkpoint closes only the six seams exposed by Step 8 RED. It intentionally does not overstate completion of Step 9: the plan's authoritative consumer journey still requires a real isolated install of the generated .tgz plus root-only typecheck, Vite production bundle, side-effect-free smoke, and executed deep-import rejection.
+
+The temporary GREEN discovery bridge is removed after evidence capture. No workflow change is introduced here.
+
+Next explicit gate: **Step 9 continuation — isolated consumer execution proof only**. Complete the real consumer journey before opening Step 10 dedicated CI.
+
+## 26. Step 9 final checkpoint — isolated consumer execution proof verified
+
+~~~text
+Execution RED contract head:     ca6dcc4ec6267d84cc7e48ed32c1178f2fe93933
+Temporary discovery bridge:     9311fb3bfc4126a919ab1f9c735d41fe56a82478
+Execution implementation head:  ded8716d7ae70e058e34499328ce5aad71012374
+Authoritative Validate:          #1077 / 36705973818 — 17/17 SUCCESS
+release-contract:                68/68 PASS
+Permanent fixtures:
+  scripts/fixtures/browser-clean-consumer/main.ts
+  scripts/fixtures/browser-clean-consumer/smoke.mjs
+Exact source snapshot build:     PASS
+Real npm tarball install:        PASS
+Installed identity/isolation:    PASS
+Root package import:             PASS
+Consumer typecheck:              PASS
+Vite bundle:                     PASS
+DriverRegistry smoke:            PASS
+Deep-import rejection:           PASS
+Dedicated CI:                    NOT STARTED
+~~~
+
+The execution proof uses a fresh consumer outside the repository, exact source snapshot, and candidate staging roots. Host tools remain pinned to TypeScript 5.9.3 and Vite 7.3.6. SurfaceRelay is installed separately from the exact generated tarball with no saved source/file/workspace dependency.
+
+The root-only main.ts fixture resolves shipped declarations through the package root. Vite bundles that fixture through the root ESM entry. smoke.mjs imports only the package root and proves DriverRegistry register/resolve plus fail-closed unsupported lookup. A representative package deep import fails with ERR_PACKAGE_PATH_NOT_EXPORTED.
+
+The temporary execution bridge is removed after evidence capture. Step 9 is complete. No dedicated workflow job has been added yet.
+
+Next explicit gate: **Step 10 — dedicated browser-release-consumer CI job only**. Stop before Step 11 whole-task verification.

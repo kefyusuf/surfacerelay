@@ -4,10 +4,10 @@
 
 - **Project:** SurfaceRelay
 - **Repository:** `github.com/kefyusuf/surfacerelay`
-- **Branch:** `main`
+- **Branch:** `feat/t-803-browser-runtime-artifact-clean-consumer`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-802 — Laravel artifact + clean consumer proof`
-- **Current work:** **NONE** — `T-802 — Laravel artifact + clean consumer proof` is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; T-803 has not started
+- **Current work:** `T-803 — Browser runtime public API + artifact + clean consumer proof` — **DONE / REVIEW CLOSED / NOT MERGED**
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -1523,3 +1523,527 @@ Publish/tag/release:              NOT AUTHORIZED
 ~~~
 
 Next explicit gate: **T-803 Step 1 — baseline + feature branch only**. Do not begin Step 2 RED public-root API tests automatically.
+
+
+## T-803 Step 1 — baseline + feature branch COMPLETE
+
+~~~text
+Implementation baseline:          5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Baseline branch:                  main
+Baseline Validate:                #1051 / 36562318964 — 17/17 SUCCESS
+Feature branch:                   feat/t-803-browser-runtime-artifact-clean-consumer
+Branch created from baseline:     YES / exact SHA
+Production implementation:       NOT STARTED
+RED public-root API tests:        NOT STARTED
+packages/browser-runtime/src/**:  UNCHANGED
+package.json / build config:      UNCHANGED
+CI changes:                       NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+T-803 now has an exact green implementation baseline and dedicated feature branch. No production, test, CI, package, build, artifact, consumer, spec, or conformance implementation changed in Step 1.
+
+Next explicit gate: **T-803 Step 2 — RED public-root API tests only**. Do not create src/index.ts, build metadata, artifact tooling, consumer fixtures, or CI work automatically.
+
+
+## T-803 Step 2 — public-root API RED PROVEN
+
+~~~text
+Step 1 tracking head:             a531fbce453841d9d3a9b8fda5d25a189f97921e
+Initial RED test head:            88720b6da4c15e4e3a2f4880de11c8f5ab734c6d
+Authoritative RED test head:      e5cfbb73b12d5fdd0d10307ec8455f3e776ca4aa
+RED runtime test:                 packages/browser-runtime/tests/public-api.test.ts
+RED typecheck fixture:            packages/browser-runtime/tests/public-api.typecheck.ts
+Validate:                         #1055 / 36582905214
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Expected RED cause:               TS2307 — ../src/index.js does not exist
+Unexpected typecheck errors:      NONE
+Vitest runtime snapshot:          COMMITTED / not executed because typecheck failed first
+GREEN root facade:                NOT STARTED
+Build/package metadata:           NOT STARTED
+Artifact tooling:                 NOT STARTED
+Clean consumer / CI:              NOT STARTED
+Existing runtime source files:    UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The first RED run exposed the intended missing-root-facade failure plus two fixture-only implicit-any errors. A test-only correction on the authoritative RED head removed those incidental errors without adding implementation. Validate #1055 then failed only at the missing src/index root boundary; all 16 other repository jobs stayed green.
+
+The runtime export snapshot is committed and discoverable by Vitest, but the existing browser job correctly stops at typecheck before Vitest when the root facade is absent. Step 3 must make the typecheck pass and then run the snapshot through the normal browser test harness.
+
+Next explicit gate: **T-803 Step 3 — GREEN curated root facade only**. Do not begin build metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.
+
+
+## T-803 Step 3 — GREEN curated root facade VERIFIED
+
+~~~text
+RED tracking head:                1276dfb0a2b0ffa99ab14bd60811a2b6cb5ef579
+GREEN implementation head:       85ffb7925a61747ba0c099b4cd27c646cb45233f
+Implementation file:             packages/browser-runtime/src/index.ts
+Implementation diff:             index.ts only
+Typecheck:                       PASS
+Browser-runtime tests:           21 files / 329 tests PASS
+Public runtime export snapshot:  PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+GitHub Validate:                 #1057 / 36589996508 — 17/17 SUCCESS
+HTMX fixture:                    #26 / 36589996536 — SUCCESS
+Existing runtime sources:        UNCHANGED
+package.json / build config:     UNCHANGED
+Artifact tooling:                NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The new root facade exports exactly the approved runtime-value allowlist and the reviewed type closure. The runtime snapshot proves no additional runtime value leaked into the root API. Existing driver/runtime/projection implementation files remain unchanged.
+
+Step 3 does not add build output, package exports metadata, artifact tooling, clean-consumer fixtures, publication authority, or dedicated consumer CI.
+
+Next explicit gate: **T-803 Step 4 — RED build/distribution metadata tests only**. Do not add tsconfig.build.json, package.json build/exports metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 4 — build/distribution metadata RED PROVEN
+
+~~~text
+Step 3 tracking head:             c8056e22b483f20bdefba55ff95808340a79a619
+RED test head:                    bfc8c522e1c7dd9e7e3ceee57a67ac3dfb7f52da
+RED test file:                    packages/browser-runtime/tests/distribution-contract.test.ts
+Validate:                         #1059 / 36592466741
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Browser typecheck:                PASS
+Distribution contract:            4 tests / 1 PASS / 3 expected FAIL
+Full Vitest result:               22 files / 330 PASS / 3 expected FAIL
+Expected missing metadata:        types / root exports / files / build script
+Expected missing config:          tsconfig.build.json
+Expected missing emit seam:       npm run build
+Source version/private/type:      PASS / unchanged
+GREEN build metadata/config:      NOT STARTED
+Artifact tooling:                 NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+Existing runtime sources:        UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The RED contract is isolated to the approved distribution boundary. The source package already satisfies the preserved invariants (@surfacerelay/browser-runtime, 0.0.0-dev, private: true, ESM). The three failures are exactly the missing Step 5 seams: root distribution metadata/build script, tsconfig.build.json, and executable JavaScript/declaration emit.
+
+No package metadata, build config, artifact tooling, consumer fixture, workflow, or existing runtime implementation changed in Step 4.
+
+Next explicit gate: **T-803 Step 5 — GREEN ESM/declaration build metadata only**. Do not begin artifact-contract tests, npm-pack tooling, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 5 — GREEN ESM/declaration build metadata VERIFIED
+
+~~~text
+RED tracking head:                641727380893695403446f8108e8cbf378a52e61
+GREEN implementation head:       71af1a28f792723f9c49be911c10130f78d937c1
+Implementation files:            package.json + tsconfig.build.json only
+Source version:                  0.0.0-dev / unchanged
+Source private flag:             true / unchanged
+Root exports:                    "." only
+Distribution mode:               ESM / ES2022
+Declarations:                    dist/index.d.ts
+CommonJS export:                 NONE
+Source/declaration maps:         NONE
+Build script:                    tsc -p tsconfig.build.json
+Distribution contract:          4/4 PASS
+Browser-runtime tests:           22 files / 333 tests PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+GitHub Validate:                 #1061 / 36609079739 — 17/17 SUCCESS
+package-lock.json:               UNCHANGED
+Committed dist/**:               NONE
+Existing runtime sources:        UNCHANGED
+Artifact tooling:                NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+Step 5 adds only the approved distribution metadata and bounded TypeScript build config. The build contract executes the real TypeScript compiler into an isolated temporary output directory and proves ES module JavaScript plus declarations without source/declaration maps or CommonJS output.
+
+The source package remains private at version 0.0.0-dev. No dependency changed, package-lock.json remained unchanged, no dist output is committed, and no runtime implementation file changed.
+
+Next explicit gate: **T-803 Step 6 — RED artifact-contract tests only**. Do not implement browser release-candidate tooling, npm-pack staging, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 6 — browser artifact-contract RED PROVEN
+
+~~~text
+Step 5 tracking head:             1b965c63d814f5519578fb09a2d627e1275446c2
+Permanent RED test head:          1168947dc24a107a447eb21a3c693fb86eb35e60
+Temporary discovery bridge head:  fa8491ba774d68c7e2f3d64c69ed4ddb9588e651
+RED test file:                    scripts/tests/test_browser_release_candidate.py
+Authoritative Validate:           #1064 / 36611234115
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           60 tests / 11 expected ERROR
+Existing release-contract tests:  49 PASS
+Expected RED cause:               scripts.browser_release_candidate missing
+Browser artifact builder:         NOT STARTED
+npm-pack staging/tooling:         NOT STARTED
+Clean consumer:                   NOT STARTED
+Dedicated T-803 CI:               NOT STARTED
+Existing runtime sources:         UNCHANGED
+Package/build metadata:           STEP 5 green / unchanged
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The permanent Step 6 suite encodes exactly the approved browser artifact contract: exact package/version/revision identity, staged-only version injection, private publication blocker retention, release allowlist/exclusions, symlink rejection, root-only exports, tar path/type safety, exact npm-pack file list, T-801 manifest/evidence reuse, and candidate-only README wording.
+
+The existing release-contract discovery glob does not match test_browser_release_candidate.py, so a temporary test-only discovery bridge exposed the suite to authoritative CI. Validate #1064 then proved all 11 new tests fail only at the intentionally missing scripts.browser_release_candidate module while the pre-existing 49 release-contract tests pass. The temporary bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 7 — GREEN browser release-candidate builder/npm-pack only**. Do not begin clean-consumer/isolation work or dedicated T-803 CI automatically.
+
+## T-803 Step 7 — GREEN browser release-candidate builder/npm-pack VERIFIED
+
+~~~text
+RED tracking head:                c80474a50082d8449acdea2d2b50b265a518380f
+GREEN implementation head:       279f4b8758303496e50d5e1d306cdd75f2813e6b
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge head:     2d0e069044ac09d014eb7071450a2027c5485978
+Authoritative Validate:          #1067 / 36631327207 — 17/17 SUCCESS
+release-contract:                60/60 PASS
+New browser artifact tests:      11/11 PASS
+Existing release-contract tests: 49/49 PASS
+Publication guard:               PASS
+Artifact format:                 npm pack .tgz
+npm lifecycle scripts:           ignored during pack
+T-801 manifest/evidence reuse:   PASS
+Source version/private flag:     0.0.0-dev / true / unchanged
+Existing runtime sources:        UNCHANGED
+Package/build metadata:          STEP 5 / unchanged
+Workflow:                        UNCHANGED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The builder validates the reviewed source manifest, injects only the explicit prerelease version into the staged manifest, retains private: true, stages only package.json + dist JS/declarations + LICENSE + candidate-only README, rejects symlinks/non-regular distribution entries, excludes maps/source/tests/config/lock/node_modules material, runs npm pack --json with lifecycle scripts disabled, validates tar path/type/file-list safety, and writes T-801-compatible content/evidence hashes.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint. The permanent browser artifact test remains outside the existing release-contract discovery glob until later dedicated T-803 CI wiring; no workflow change was made in Step 7.
+
+Next explicit gate: **T-803 Step 8 — RED clean-consumer/isolation tests only**. Do not implement consumer generation/verification, Vite bundle/smoke wiring, or dedicated T-803 CI automatically.
+
+## T-803 Step 8 — clean-consumer/isolation RED PROVEN
+
+~~~text
+Step 7 tracking head:             c3214aec678e6cbafdb0d70c53dce51e4e94829c
+Permanent RED test head:          cb68b44f0afc51b577b2efb0f9e8f574bb155ac5
+Temporary discovery bridge head:  303e1ca0d65df4eff45b2ac41542f4eeee1638ab
+Authoritative Validate:           #1070 / 36640215454
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           67 tests / 12 expected ERROR
+Existing contract tests:          60 PASS
+New consumer test methods:        7 RED
+Missing Step-9 seams:             6
+  build_clean_consumer_npm_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_source
+  validate_clean_consumer_isolation
+  validate_browser_artifact_archive
+  verify_clean_consumer_install
+Permanent main.ts fixture:        NOT ADDED
+Permanent smoke.mjs fixture:      NOT ADDED
+Consumer generator/verifier:      NOT STARTED
+Vite bundle/smoke wiring:         NOT STARTED
+Dedicated T-803 CI:               NOT STARTED
+Existing runtime/artifact code:   UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The seven RED methods cover the approved Step 8 boundaries: SurfaceRelay source/file/workspace/link dependency rejection, deep/source import rejection, consumer/source filesystem isolation, source-targeting symlink rejection, missing/wrong tarball identity rejection, installed-package symlink rejection, required root declaration presence, and fail-closed deep-export leakage.
+
+Because several methods use subtests, the seven new methods produce twelve expected error records. Every error is an AttributeError for one of the six intentionally missing Step-9 seams; the pre-existing 60 release-contract tests remain green. No permanent main.ts or smoke.mjs fixture was added before this failure boundary was proven.
+
+The temporary RED discovery bridge is removed in this tracking checkpoint. Workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 9 — GREEN clean-consumer generator/verifier only**. Do not begin permanent consumer fixture execution, Vite bundle/smoke proof, or dedicated T-803 CI beyond what is strictly needed by the approved Step-9 seam implementation.
+
+## T-803 Step 9 — clean-consumer tooling GREEN / execution proof NOT STARTED
+
+~~~text
+RED tracking head:                043b078bd202a1abc98d831950ae0f631d4e3157
+GREEN implementation head:       47bab19c3fe42d883665e237161a0d030c698c6a
+Implementation file:             scripts/browser_release_candidate.py only
+Temporary GREEN bridge head:     48819d5eac4d5cbb077932fa574274f4ab6c803e
+Authoritative Validate:          #1073 / 36649005470 — 17/17 SUCCESS
+release-contract:                67/67 PASS
+New consumer/isolation methods:  7/7 PASS
+Publication guard:               PASS
+Implemented tooling seams:       6/6
+  build_clean_consumer_npm_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_source
+  validate_clean_consumer_isolation
+  validate_browser_artifact_archive
+  verify_clean_consumer_install
+Permanent main.ts fixture:       NOT ADDED
+Permanent smoke.mjs fixture:     NOT ADDED
+Actual npm consumer install:     NOT EXECUTED
+TypeScript consumer typecheck:   NOT EXECUTED
+Vite production bundle:          NOT EXECUTED
+Runtime smoke:                   NOT EXECUTED
+Deep-import runtime check:       tooling guard only / execution proof NOT RUN
+Dedicated T-803 CI:              NOT STARTED
+Existing runtime/artifact code:  unchanged outside browser_release_candidate.py
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The six Step-8 seams are now green. The tooling can build the pinned host-tool manifest, reject persisted SurfaceRelay source/file/workspace/link dependencies, reject deep/source imports, enforce consumer/source filesystem isolation, validate browser artifact identity/root contract, and verify an installed package is physical, exact-version, root-declaration-complete, and root-export-only.
+
+This checkpoint deliberately does not claim the full Step-9 consumer journey. The approved plan still requires a real isolated tarball install followed by root-only typecheck, Vite bundle, side-effect-free smoke, and deep-import rejection execution. Those actions were not needed to satisfy the six proven seams and were not started in this gate.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 9 continuation — isolated consumer execution proof only**. Do not start Step 10 dedicated CI until the real install/typecheck/bundle/smoke/deep-import proof is separately green.
+
+## T-803 Step 9 continuation — isolated consumer execution proof VERIFIED
+
+~~~text
+Prior Step-9 tooling head:       deb08323471c98e054c6cc8eb685f257d453c9ac
+Execution RED contract head:     ca6dcc4ec6267d84cc7e48ed32c1178f2fe93933
+Temporary discovery bridge:     9311fb3bfc4126a919ab1f9c735d41fe56a82478
+Execution implementation head:  ded8716d7ae70e058e34499328ce5aad71012374
+Authoritative Validate:          #1077 / 36705973818 — 17/17 SUCCESS
+release-contract:                68/68 PASS
+Execution integration test:      PASS
+Exact source snapshot:           git archive HEAD
+Source browser build:            npm ci + npm run build — PASS
+Candidate artifact:              real npm pack .tgz
+Isolated npm consumer install:   PASS
+SurfaceRelay dependency saved:   NO
+Installed identity/isolation:    PASS
+Package-root import:             PASS
+TypeScript root-only typecheck:  PASS
+Vite production bundle:          PASS
+DriverRegistry smoke:            PASS
+Smoke marker:                    SurfaceRelay browser-runtime clean-consumer smoke: PASS
+Representative deep import:      REJECTED by exports map
+Permanent main.ts fixture:       ADDED
+Permanent smoke.mjs fixture:     ADDED
+Dedicated T-803 CI:              NOT STARTED
+Workflow:                        UNCHANGED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The isolated execution test materializes an exact Git archive snapshot, installs the browser-runtime build tooling inside that snapshot, emits the real distribution, builds the reviewed candidate tarball, creates a fresh consumer outside the repository/source/stage trees, installs pinned TypeScript/Vite host tools and the exact tarball without persisting a SurfaceRelay dependency, verifies the installed package, resolves the package root, typechecks the permanent root-only fixture, produces a Vite browser bundle, executes the side-effect-free DriverRegistry smoke, and proves a representative deep import is blocked by the exports map.
+
+This completes Step 9. The temporary execution discovery bridge is removed in this tracking checkpoint. No dedicated browser-release-consumer workflow job, npm credential, publication command, tag, release, or public version selection was introduced.
+
+## T-803 Step 10 — dedicated browser-release-consumer CI VERIFIED
+
+~~~text
+Prior Step-9 execution head:      ded8716d7ae70e058e34499328ce5aad71012374
+Step-9 tracking head:             c0446a40a6819cf371d5a3ec96b135026ec4c993
+CI implementation head:          66991da7101a773fcce99a17b99dce608080f956
+Workflow file:                   .github/workflows/validate.yml only
+Authoritative Validate:          #1079 / 36842264896 — 18/18 SUCCESS
+New dedicated job:               browser-release-consumer — SUCCESS
+Job shape:                       single / non-matrix
+Checkout credentials:            persist-credentials: false
+Checkout clean gate:             PASS before setup/tooling
+Node / Python:                   22 / 3.12
+Artifact version:                0.0.0-alpha1 / non-public CI prerelease
+Source revision:                 exact git rev-parse HEAD
+Source materialization:          exact git archive HEAD
+Source browser build:            npm ci + npm run build — PASS
+Candidate artifact:              real npm pack .tgz
+Browser tooling tests:           PASS
+Isolated npm consumer install:   PASS
+Package-root import:             PASS
+TypeScript root-only typecheck:  PASS
+Vite production bundle:          PASS
+DriverRegistry smoke:            PASS
+Representative deep import:      REJECTED by exports map
+npm token/auth wiring:           NONE
+npm publish/tag/release:         NONE / NOT AUTHORIZED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+~~~
+
+Step 10 adds exactly one dedicated CI consumer job and raises Validate from 17 to 18 jobs as planned. The job re-materializes the exact checked-out revision through `git archive HEAD`, rebuilds ESM/declarations inside that snapshot, creates the reviewed non-public `0.0.0-alpha1` candidate tarball, and executes the existing Step-9 isolated consumer proof end to end. It does not add npm authentication, registry credentials, publication commands, tags, releases, public-version selection, runtime behavior, package API expansion, spec changes, or conformance changes.
+
+## T-803 Step 11 — whole-task verification VERIFIED
+
+~~~text
+Whole-task verification head:     0d311d8acb8dc80a82ee62afeca0ffc4ee7ebffa
+Authoritative Validate:           #1081 / 36842525045 — 18/18 SUCCESS
+browser:                          SUCCESS
+browser-release-consumer:         SUCCESS
+release-contract:                 SUCCESS
+contract:                         SUCCESS
+Browser typecheck:                PASS
+Browser runtime tests:            PASS
+Browser build:                    PASS in exact git-archive snapshot
+Browser artifact tooling tests:   PASS
+Release-contract discovery:       PASS
+Publication guardrails:           PASS
+Canonical validate.py:            PASS
+Artifact version:                 0.0.0-alpha1 / exact CI prerelease
+Artifact revision:                exact git rev-parse HEAD
+Package-root import:              PASS
+Consumer TypeScript typecheck:    PASS
+Vite production bundle:           PASS
+DriverRegistry smoke:             PASS
+Representative deep import:       REJECTED by exports map
+Installed package symlink:        REJECTED / physical node_modules package required
+Source/package coupling:          REJECTED
+npm auth/token wiring:            NONE
+Publish/tag/release:              NONE / NOT AUTHORIZED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+~~~
+
+Step 11 re-verifies the complete T-803 execution surface at one exact revision. The normal browser job proves package typecheck/tests and canonical runtime conformance; the dedicated browser-release-consumer job runs the focused browser release-candidate suite, rebuilds the exact `git archive HEAD` snapshot, creates the candidate tarball, and executes the isolated package-root/typecheck/Vite/smoke/deep-import proof. The release-contract job proves the package-neutral release contract and publication guardrails, while the contract job proves canonical repository validation.
+
+The clean-consumer verifier requires a real non-symlink `node_modules/@surfacerelay/browser-runtime` directory, rejects symlinks inside the installed package, rejects resolution into the source package tree, and validates exact artifact identity before consumer execution. The exact-head CI success therefore closes the Step-11 whole-task verification gate without adding implementation.
+
+## T-803 Step 12 — forbidden-diff / semantic-mutation audit VERIFIED
+
+~~~text
+T-803 baseline:                    5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Final implementation head:         66991da7101a773fcce99a17b99dce608080f956
+Current tracking head before audit: dd1c9938d793f594327e43557d4a5c83017eef0b
+Implementation diff files:         14
+Forbidden implementation paths:    0
+Unexpected runtime-source edits:   0
+Existing browser src files:        16/16 blob-identical to baseline
+New browser src file:              src/index.ts only
+package-lock.json:                 unchanged / blob-identical
+packages/laravel/**:               unchanged
+packages/laravel-mcp/**:           unchanged
+packages/openapi-importer/**:      unchanged
+spec/**:                           unchanged
+conformance/**:                    unchanged
+docs/DECISION-REGISTER.md:         unchanged / blob-identical
+Source package version:            0.0.0-dev
+Source package private:            true
+Root exports:                      "." only
+Publication commands in T-803:     NONE
+Registry auth wiring in workflow:  NONE
+Credential env handling:           NPM_TOKEN/NODE_AUTH_TOKEN stripped from consumer subprocesses
+Git tag refs:                      []
+GitHub Releases:                   []
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-804..T-805:                     NOT STARTED
+~~~
+
+The baseline-to-final-implementation comparison contains only the bounded T-803 surfaces: the dedicated CI job, T-803 tracking/plan material, browser package distribution metadata, the new curated `src/index.ts` facade, focused public/distribution tests, browser release-candidate tooling/tests, and clean-consumer fixtures. No pre-existing browser runtime implementation file changed.
+
+A direct directory/blob audit confirms every one of the 16 pre-existing `packages/browser-runtime/src/*.ts` files has the same blob SHA at baseline and final implementation head. `package-lock.json` and `docs/DECISION-REGISTER.md` are also blob-identical. The compare contains no Laravel, Laravel-MCP, OpenAPI-importer, `spec/**`, or `conformance/**` path.
+
+The source manifest remains `0.0.0-dev`, `private: true`, ESM, and root-export-only. The changed executable surfaces contain no `npm publish`, npm login/adduser, `git tag`, or GitHub-release command. The only NPM credential identifiers in browser release tooling are explicitly removed from the clean-consumer subprocess environment. Current tag refs and GitHub Releases are both empty.
+
+Step 12 therefore closes with no semantic drift or forbidden mutation. No corrective implementation is required.
+
+Next explicit gate: **T-803 Step 13 — tracking / external-review handoff only**. Do not begin T-804, promote D-026 or D-069..D-073, create tags/releases, publish packages, or select a public SemVer automatically.
+
+## T-803 Step 13 — tracking / external-review handoff READY
+
+Date: 2026-10-02. Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
+
+- Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
+- Final implementation head: `66991da7101a773fcce99a17b99dce608080f956`.
+- Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
+- Pre-handoff Validate: [#1085 / 36934575893](https://github.com/kefyusuf/surfacerelay/actions/runs/36934575893) — **18/18 SUCCESS**, live-verified against the exact SHA.
+- CI browser evidence: **22 files / 333 tests PASS** plus typecheck and canonical conformance.
+- CI browser-release-consumer: **19/19 tooling tests PASS**; exact-revision artifact build, isolated root import/declarations/typecheck/Vite bundle/smoke, and deep-import rejection all PASS. Both final smoke/deep-import PASS markers were checked in the job log.
+- Local Windows checks: typecheck, direct `npm.cmd run build`, `scripts/validate.py`, and publication guard **PASS**.
+- Local Windows limitation: browser suite **332 PASS / 1 ERROR** and Python browser artifact suite **8 PASS / 11 ERROR** because subprocess invocation of bare `npm` fails (`ENOENT` / WinError 2). Ubuntu CI proves those paths; Windows tooling portability is not proven. No implementation change was made in this documentation handoff.
+- Changed files in Step 13: `STATUS.md`, `TASKS.md`, `REVIEW_REQUEST.md` only.
+- Scope/semantic audit from Step 12 remains applicable: all 16 existing browser source files, lockfile, canonical spec/conformance, neighboring packages, and decision register remain unchanged.
+
+The existing remote T-803 RED/GREEN commit sequence is retained. A parallel local Step 1–5 checkpoint is preserved separately at `work/t-803-local-green-checkpoint` (`a1de368`); it is not part of this review branch. No force push or unrelated implementation merge occurred.
+
+T-803 is **DONE / REVIEW HANDOFF**, with external review pending and merge not authorized. D-026 and D-069..D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, publication, or public version selection occurred.
+
+Next gate: **T-803 external review and finding disposition only**. Do not begin T-804 or merge automatically.
+
+
+## T-803 external-review finding — ACCEPTED / RED NOT STARTED
+
+Date: 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is OPEN, non-draft, and not merged.
+
+- Reviewed head: `34d8cf0dc7e294af6566d24bdeeb4ce9395720bc`.
+- Reviewed-head [Validate / 36971286670](https://github.com/kefyusuf/surfacerelay/actions/runs/36971286670): **18/18 SUCCESS**.
+- CodeRabbit completed the requested full review: **1 actionable Minor**; [bare npm subprocess calls fail on Windows](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4163289925).
+- Finding verified against `_run_npm_pack`, the four npm commands in `execute_clean_consumer_proof`, the distribution emission test, and the integration fixture's source build calls. It matches the previously recorded ENOENT / WinError 2 failures.
+- Accepted bounded scope: portable npm process launch in `scripts/browser_release_candidate.py`, `scripts/tests/test_browser_release_candidate.py`, and `packages/browser-runtime/tests/distribution-contract.test.ts`, plus tracking evidence only.
+- Acceptance: focused RED evidence first; resolve the installed npm entry point on Windows and POSIX; fail clearly when npm is absent; preserve argument boundaries without passing caller-controlled paths through a shell; retain exact archive/consumer evidence and credential stripping; re-run browser and focused tooling checks, canonical validation, publication guard, and exact-head CI.
+- No runtime semantics, root API, package metadata, dependencies, CI matrix, spec, conformance, or decision changes are authorized by this finding.
+- This disposition changes only STATUS, TASKS, and REVIEW_REQUEST. No corrective implementation or RED test was added; the review thread remains open.
+
+Next explicit gate: **focused RED tests for this Minor only**. GREEN implementation and thread resolution follow verified evidence in later gates. T-804, merge, decision promotion, tags/releases, and publication remain outside this gate.
+
+
+## T-803 npm launch finding — RED PROVEN / GREEN NOT STARTED
+
+Five focused `BrowserNpmLaunchContractTest` methods now cover npm path resolution for pack/consumer commands, missing-npm fail-closed behavior for both paths, and a Windows npm.cmd fixture executed via Node's npm CLI with literal arguments and no shell. Arguments include spaces and shell metacharacters. These are process-launch tests; the mocked Windows layout does not claim Windows end-to-end support.
+
+Local focused command: `python -B -m unittest scripts.tests.test_browser_release_candidate.BrowserNpmLaunchContractTest` — **5 tests / 5 expected assertion failures / 0 errors**. Existing production behavior launches bare npm and does not check availability first. No corrective implementation changed. Canonical validation, publication guard, and diff checks pass. The previously verified baseline has 19 browser tooling tests passing in Linux CI; the expected new CI result is 19 PASS / 5 expected FAIL in browser-release-consumer, with the other 17 Validate jobs green.
+
+Docker CLI was not found on PATH or in standard Docker Desktop executable locations. No Docker run or installation is claimed. Linux CI is used for independent RED evidence; Docker remains preferred when an available engine/host is provided.
+
+Changed files: focused Python tests plus STATUS, TASKS, and REVIEW_REQUEST only. No production/browser runtime, API, dependency, workflow, schema, conformance, or decision edits. The external-review finding remains open.
+
+Next explicit gate: **GREEN npm launch implementation for this Minor only**, after the expected Linux CI failures are verified. Do not resolve the review thread, merge, or start T-804 automatically.
+
+
+Linux RED evidence verified at `d4a19c57927e05c1847c47be8a0032771c13895f`: [Validate / 36975704645](https://github.com/kefyusuf/surfacerelay/actions/runs/36975704645) finished **17 SUCCESS / 1 expected FAILURE**. Only `browser-release-consumer` failed. Its job log proves **24 tests / 19 PASS / 5 expected assertion failures / 0 errors**; the isolated real-artifact consumer journey remains green. All five failures are the new npm-launch contracts. RED is independently proven on Linux; next gate remains GREEN implementation only.
+
+## T-803 npm launch finding — GREEN VERIFIED LOCALLY / CI PENDING
+
+The bounded fix resolves npm from the host PATH. POSIX launches the resolved executable; Windows .cmd/.bat shims launch the adjacent npm-cli.js through resolved Node, without a shell. Missing npm, Node, or CLI fails before launching a process. Pack and all four consumer npm commands share this launch path. The integration fixture uses the same launcher; the browser emission test uses the npm-provided CLI path with process.execPath.
+
+Verification on 2026-10-02: Docker Node 22.23.3 / Python 3.12.15, read-only repository mount and temporary filesystem: 25/25 Python artifact/consumer tests PASS, 333/333 browser tests PASS, typecheck/build PASS, canonical validation/publication guard PASS. Windows: 25/25 Python tests including real pack/install/isolated consumer PASS with project-local npm cache and approved process access; 333/333 browser tests and typecheck PASS. The previous Windows bare-npm launch limitation is addressed for these tested paths. This is tooling evidence, not a new supported browser-runtime platform claim.
+
+The five RED tests are GREEN. One additional negative method covers missing Windows Node/CLI prerequisites. Existing archive/consumer isolation, argv boundaries and consumer credential stripping are preserved. No runtime source/API/metadata/dependency/workflow/spec/conformance/decision change. The Dockerfile remains ignored under .tmp; no permanent container infrastructure was added. Docker is available at the user-local Docker Desktop installation, correcting the earlier narrow lookup result.
+
+Changed files: scripts/browser_release_candidate.py, scripts/tests/test_browser_release_candidate.py, packages/browser-runtime/tests/distribution-contract.test.ts, STATUS.md, TASKS.md, REVIEW_REQUEST.md. Exact-head CI remains to be verified after commit. The review thread remains open. Next gate after CI verification: external-review re-check/disposition only; no automatic merge or T-804.
+
+GREEN exact-head evidence: `d70da239434beee09635696c8a1b1489afd0a00a`, [Validate / 36977031979](https://github.com/kefyusuf/surfacerelay/actions/runs/36977031979) — **18/18 SUCCESS**. The browser-release-consumer log proves 25 tests PASS plus clean-consumer smoke and deep-import rejection PASS. Docker and Windows checks above are also green. The npm finding is fixed and verified, but its review thread remains open pending external re-check. Next gate: external-review re-check/disposition only; no merge or T-804.
+
+## T-803 external-review closure — DONE / REVIEW CLOSED
+
+Date: 2026-10-02. PR #21 remains OPEN / non-draft / NOT MERGED. Reviewed pre-closure head: `fa0bafc197dfc5ede0b96bc9fbbabeafe0839fd7`. [Validate / 36977314801](https://github.com/kefyusuf/surfacerelay/actions/runs/36977314801) passed **18/18** jobs at that exact revision.
+
+[CodeRabbit re-check](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4164121881) confirms the original Windows npm launch finding is addressed and no issue remains in its covered launch paths. The bot inspected the changed paths and confirmed CI; it did not rerun tests or independently reproduce Windows execution. Docker/Windows execution evidence is recorded above. The single review thread is resolved: **1 total / 0 unresolved**, verified via GitHub GraphQL after the reply.
+
+This closure changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED; T-804/T-805 remain NOT STARTED. No merge, tag, release, publication, or public version selection occurred.
+
+Next explicit gate: **T-803 merge decision only**. External-review closure does not authorize merge or begin T-804 automatically.
