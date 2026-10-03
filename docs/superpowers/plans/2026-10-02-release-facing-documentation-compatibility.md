@@ -112,3 +112,5 @@ Verified on 2026-10-04. Clean starting revision `ea846f4174588ad28478f4b30ae0c2d
 Offline read-only Docker canonical validator/publication guard, existing guardrail tests 23/23 and 20 relative links PASS. Only these two documents and four plan/tracking paths change; no runtime/package/CI/contract/decision change. Exact new-head CI follows commit/push.
 
 Next explicit gate: **Step 4 — compatibility/versioning policy and release checklist**, with future commitments labeled Proposed. Do not start T-805 or merge automatically.
+
+Step 3 exact implementation head `2945b9da059b017f2db796eb614cb33a21f786f7` passed live-verified [Validate 37158686636](https://github.com/kefyusuf/surfacerelay/actions/runs/37158686636): **18/18 SUCCESS**. This supersedes the pending-CI note above; following tracking-only head CI is checked separately before final handoff.
