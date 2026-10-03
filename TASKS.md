@@ -1181,6 +1181,8 @@ Step 3 exact implementation head `2945b9da059b017f2db796eb614cb33a21f786f7` pass
 
 Step 4 verified on 2026-10-04 from clean `e1767788ce7641045933fc72955db6a5509817dc`, Validate 37158809185 **18/18 SUCCESS**, checked live. Added VERSIONING-COMPATIBILITY and RELEASE-CHECKLIST: implemented package/Action identities, bounded compatibility matrix, Proposed 0.x policy, exact isolated candidate/hash evidence and separate publication go/no-go. T-805 orchestration is not implemented or claimed. Docker existing tooling suites **94/94 PASS**, canonical validator/publication guard and **36 relative links PASS**. Six documentation/tracking paths change only; no runtime/metadata/CI/decision/settings changes. Exact-head CI follows commit/push. Next gate: **Step 5 README links/positioning and documentation command/claim audit**; T-804 remains IN_PROGRESS and private reporting remains a publication blocker.
 
+Step 4 exact document head `117bf0ce325241fa812f002735594637c8342d58` passed [Validate 37161391639](https://github.com/kefyusuf/surfacerelay/actions/runs/37161391639): **18/18 SUCCESS**, checked live. Independent document review and full diff/scope checks found no material issue. This supersedes the pending-CI note above; following tracking-only head CI is checked separately before handoff. Next gate remains Step 5.
+
 ### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
 
 One revision/version input, both candidate artifacts, full repository regression, clean-consumer evidence, hashes, external review, publication-go/no-go handoff.
