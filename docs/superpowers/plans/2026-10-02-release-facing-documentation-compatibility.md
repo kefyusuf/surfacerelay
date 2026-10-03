@@ -102,3 +102,5 @@ Completed on 2026-10-03. Added the two bounded consumer guides. Extracted and ex
 The Docker Laravel recipe verifies one smoke leg; existing CI provides four installation legs. Browser proof runs under Node, not a real browser. Fixture pass-through stages remain explicitly excluded from production guidance. npm's two moderate development-dependency advisories remain outside this prose-only step. No runtime/metadata/CI/contract/decision change, public version selection, publication or merge occurred.
 
 Next explicit gate: **Step 3 — Unreleased changelog and SECURITY, with a read-only reporting-channel recheck**. Do not start T-805 automatically.
+
+Step 2 exact guide-head `3b25d2f1bce2f0147dd51b14a899121197bab0b7` has live-verified [Validate 37147835325](https://github.com/kefyusuf/surfacerelay/actions/runs/37147835325), **18/18 SUCCESS**. This supersedes the pending-CI note above. The following tracking-only commit records the result; final tracking-head CI is checked separately before handoff.

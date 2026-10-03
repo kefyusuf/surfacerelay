@@ -1173,6 +1173,8 @@ Step 1 baseline/feature branch is READY: clean `543b60e4988e7ac8ed5a89c861e87aff
 
 Step 2 consumer guides verified on 2026-10-03: `docs/consumers/laravel.md` and `docs/consumers/browser-runtime.md`. Their exact shell blocks pass in Docker using clean source revision `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`: local Composer ZIP identity/autoload/ActionBus smoke (PHP 8.4.26, Composer 2.10.3, Laravel 13.34.0) and npm tarball root import/typecheck/Vite/DriverRegistry/deep-import rejection (Node 22.23.3). Python 3.12.15 tooling suites pass 25/25 browser + 20/20 Laravel; browser 333 tests, typecheck/build, canonical validator, publication guard and relative links pass. No runtime/package/CI/contract change. Fixture-only security and real-browser evidence limits are explicit. T-804 remains IN_PROGRESS; next gate is **Step 3 Unreleased changelog and SECURITY**. Exact new-head CI remains pending commit/push; no merge, release or publication occurred.
 
+Step 2 exact guide-head CI: `3b25d2f1bce2f0147dd51b14a899121197bab0b7`, [Validate 37147835325](https://github.com/kefyusuf/surfacerelay/actions/runs/37147835325) — **18/18 SUCCESS**. This supersedes the pending-CI note above. All four Laravel artifact installation jobs and the browser artifact consumer job passed. The following tracking-only commit records the result and reconciles the Current boundary; its CI is checked separately before final handoff.
+
 ### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
 
 One revision/version input, both candidate artifacts, full repository regression, clean-consumer evidence, hashes, external review, publication-go/no-go handoff.
@@ -1190,9 +1192,9 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design remains **APPROVED**. T-801, T-802, and T-803 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #21 merged as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`; post-merge main Validate [36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs. External review is closed with 1 thread / 0 unresolved and the npm finding CodeRabbit-confirmed addressed. D-026 and D-069 through D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, registry publication, public version selection, or decision promotion occurred.
+M8 design remains **APPROVED**. T-801, T-802, and T-803 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #21 merged as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`; post-merge main Validate [36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs. External review is closed with 1 thread / 0 unresolved and the npm finding CodeRabbit-confirmed addressed. D-026 and D-069 through D-073 remain **PROPOSED**; T-804 is **IN_PROGRESS / STEP_2_VERIFIED** and T-805 remains **NOT_STARTED**. No tag, release, registry publication, public version selection, or decision promotion occurred.
 
-T-803 implementation, review, merge, and post-merge verification are complete. T-804 plan is approved and Step 1 baseline/feature branch is ready; next gate: **T-804 Step 2 consumer guides**. Do not start T-805 or merge the open plan/implementation PRs automatically.
+T-803 implementation, review, merge, and post-merge verification are complete. T-804 plan is approved and Step 2 consumer guides are verified; next gate: **T-804 Step 3 Unreleased changelog and SECURITY**. Do not start T-805 or merge the open plan/implementation PRs automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
