@@ -7,7 +7,7 @@
 - **Branch:** `docs/t-804-release-facing-documentation`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
-- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **STEP 2 CONSUMER GUIDES VERIFIED / STEP 3 NOT STARTED**.
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **STEP 3 CHANGELOG / SECURITY VERIFIED; STEP 4 NOT STARTED**.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2095,3 +2095,13 @@ Both guides' complete shell blocks were extracted and executed in Docker against
 Existing Docker suites: browser artifact tooling 25/25 + Laravel tooling 20/20 PASS; browser typecheck/build and 22 files / 333 tests PASS. Canonical validation and publication guard PASS. Relative documentation links PASS. These guide executions test one Laravel smoke leg; the existing CI four-leg installation matrix remains the broader check. Node smoke does not prove real browser/WebMCP interoperability; fixture policy bypasses are not production security wiring. npm reported two moderate development-dependency advisories; dependency remediation is outside this documentation step.
 
 Next gate: **T-804 Step 3 — Unreleased changelog and SECURITY, with read-only reporting-channel recheck**. T-804 remains IN_PROGRESS. PR #24 stays draft and stacked on open PR #23; no merge/publication/tag or decision promotion is authorized by this step. Exact guide-head `3b25d2f1bce2f0147dd51b14a899121197bab0b7` has live-verified Validate [37147835325](https://github.com/kefyusuf/surfacerelay/actions/runs/37147835325): **18/18 SUCCESS**, including all four Laravel installation legs and browser clean consumer. The following tracking-only commit records this result; its CI is checked separately before final handoff.
+
+## T-804 implementation Step 3 — CHANGELOG / SECURITY VERIFIED
+
+Date: 2026-10-04. Clean starting revision `ea846f4174588ad28478f4b30ae0c2dd33a47230` has live-verified Validate [37147988730](https://github.com/kefyusuf/surfacerelay/actions/runs/37147988730): **18/18 SUCCESS**. Added `CHANGELOG.md` (Unreleased implemented readiness work only) and `SECURITY.md` (experimental support, private-reporting gap and existing integration responsibilities). Updated STATUS, TASKS, REVIEW_REQUEST and the approved plan. No source, API, package metadata, dependency, workflow, schema, fixture, ADR or decision changes.
+
+Read-only `GET /repos/kefyusuf/surfacerelay/private-vulnerability-reporting` returned `enabled: false`. No alternative private contact is established; this remains a publication blocker. No settings were changed. SECURITY does not direct sensitive reports to public channels or invent support windows, addresses, disclosure timelines or SLAs. It preserves the existing trust boundaries and marks consumer policy bypasses as fixture-only.
+
+Docker `surfacerelay-t803-verify:local` (Python 3.12.15), offline/read-only mount: canonical validation PASS; publication guard PASS; existing guardrail tests **23/23 PASS**; **20 relative links PASS**. No new executable example or runtime behavior was introduced, so no artificial RED tests or repeated consumer build was added. Full diff/scope review and independent read-only document audit found no material issue; exact-head CI follows push to the existing draft PR #24.
+
+Next gate: **T-804 Step 4 — compatibility/versioning policy and release checklist**. T-804 remains IN_PROGRESS; T-805, plan/implementation merge, settings changes and publication remain outside this step. PR #24 remains stacked on open PR #23.

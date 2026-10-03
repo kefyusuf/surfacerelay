@@ -1,6 +1,6 @@
 # T-804 — Release-facing documentation and compatibility policy
 
-Status: APPROVED / IMPLEMENTATION IN PROGRESS (STEP 2 VERIFIED)
+Status: APPROVED / IMPLEMENTATION IN PROGRESS (STEP 3 VERIFIED)
 Date: 2026-10-02
 Task: T-804
 Branch: docs/t-804-release-facing-plan
@@ -104,3 +104,11 @@ The Docker Laravel recipe verifies one smoke leg; existing CI provides four inst
 Next explicit gate: **Step 3 — Unreleased changelog and SECURITY, with a read-only reporting-channel recheck**. Do not start T-805 automatically.
 
 Step 2 exact guide-head `3b25d2f1bce2f0147dd51b14a899121197bab0b7` has live-verified [Validate 37147835325](https://github.com/kefyusuf/surfacerelay/actions/runs/37147835325), **18/18 SUCCESS**. This supersedes the pending-CI note above. The following tracking-only commit records the result; final tracking-head CI is checked separately before handoff.
+
+## Execution record — Step 3 Unreleased changelog and SECURITY
+
+Verified on 2026-10-04. Clean starting revision `ea846f4174588ad28478f4b30ae0c2dd33a47230` passed Validate 37147988730 (18/18), checked live. Added CHANGELOG (implemented readiness work under Unreleased only) and SECURITY (experimental support, absent private-reporting channel, existing trust boundaries and fixture limits). Read-only private vulnerability reporting API returned `enabled: false`; no alternative contact or support/disclosure commitment is established. Publication remains blocked until a private channel is separately established and verified; no settings changed.
+
+Offline read-only Docker canonical validator/publication guard, existing guardrail tests 23/23 and 20 relative links PASS. Only these two documents and four plan/tracking paths change; no runtime/package/CI/contract/decision change. Exact new-head CI follows commit/push.
+
+Next explicit gate: **Step 4 — compatibility/versioning policy and release checklist**, with future commitments labeled Proposed. Do not start T-805 or merge automatically.

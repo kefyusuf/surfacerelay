@@ -1,4 +1,10 @@
-# T-804 — Step 2 consumer guides handoff
+# T-804 — Step 3 changelog / security handoff
+
+Current gate: **STEP 3 VERIFIED / STEP 4 NOT STARTED**. Added Unreleased-only CHANGELOG and SECURITY, with no public version/release claim. Read-only GitHub private vulnerability reporting returned `enabled: false` on 2026-10-04; no alternative private contact is established, and channel verification remains a publication blocker. SECURITY prevents directing sensitive reports to public channels and states existing trust rules without inventing support windows, response SLAs or disclosure deadlines.
+
+Baseline `ea846f4174588ad28478f4b30ae0c2dd33a47230` passed Validate 37147988730 (18/18), checked live. Offline Docker canonical validation/publication guard, 23/23 existing guardrail tests and 20 relative links PASS. No runtime/metadata/dependency/CI/schema/fixture/ADR/decision/settings changes; six documentation/tracking paths only. Exact-head CI follows commit/push. Review claims against current implemented artifact tooling, trust docs and the approved plan. Next gate: **Step 4 compatibility/versioning policy and release checklist**. PR #24 remains draft and stacked on open PR #23; no merge or publication.
+
+## Previous Step 2 handoff
 
 Current gate: **STEP 2 VERIFIED / STEP 3 NOT STARTED**. Added two English consumer guides for exact local Laravel ZIP and browser tarball installation. The full executable shell blocks pass in Docker against clean source revision `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`. Laravel PHP 8.4.26 / Composer 2.10.3 / Laravel 13.34.0: installed identity, autoload and ActionBus smoke PASS. Browser Node 22.23.3: root import, declarations/typecheck, Vite bundle, DriverRegistry smoke and representative deep-import rejection PASS. Python 3.12.15 tooling 45/45 and browser 333/333 tests PASS; canonical validator, publication guard and relative links PASS. Exact guide-head `3b25d2f1bce2f0147dd51b14a899121197bab0b7` passed [Validate 37147835325](https://github.com/kefyusuf/surfacerelay/actions/runs/37147835325), **18/18 SUCCESS**. Final tracking-only head CI is checked separately before final handoff.
 
