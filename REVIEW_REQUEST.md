@@ -1,4 +1,10 @@
-# T-804 — Step 3 changelog / security handoff
+# T-804 — Step 4 compatibility / checklist handoff
+
+Current gate: **STEP 4 VERIFIED / STEP 5 NOT STARTED**. Added VERSIONING-COMPATIBILITY and RELEASE-CHECKLIST. Review implemented package versus Action identities, constraints versus evidence, four Laravel install legs versus one smoke leg, browser/Node limits, Proposed 0.x policy, exact source/isolated consumers/hash fields and separate publication gate. The checklist describes review requirements, not an implemented T-805 runner or publication approval.
+
+Clean baseline `e1767788ce7641045933fc72955db6a5509817dc` passed Validate 37158809185 (18/18), checked live. Docker existing contract/guardrail/artifact suites **94/94 PASS**; canonical validator/publication guard and **36 relative links PASS**. Six documentation/tracking paths change in this step; no API/runtime/metadata/dependency/CI/schema/fixture/ADR/decision/settings change. New-head CI follows commit/push. Private reporting remains a publication blocker per SECURITY. Next gate: **Step 5 README links/positioning and documentation command/claim audit**. PR #24 remains draft and stacked on open PR #23; no merge or publication.
+
+## Previous Step 3 handoff
 
 Current gate: **STEP 3 VERIFIED / STEP 4 NOT STARTED**. Added Unreleased-only CHANGELOG and SECURITY, with no public version/release claim. Read-only GitHub private vulnerability reporting returned `enabled: false` on 2026-10-04; no alternative private contact is established, and channel verification remains a publication blocker. SECURITY prevents directing sensitive reports to public channels and states existing trust rules without inventing support windows, response SLAs or disclosure deadlines.
 

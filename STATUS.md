@@ -7,7 +7,7 @@
 - **Branch:** `docs/t-804-release-facing-documentation`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
-- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **STEP 3 CHANGELOG / SECURITY VERIFIED; STEP 4 NOT STARTED**.
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **STEP 4 COMPATIBILITY / CHECKLIST VERIFIED; STEP 5 NOT STARTED**.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2107,3 +2107,13 @@ Docker `surfacerelay-t803-verify:local` (Python 3.12.15), offline/read-only moun
 Next gate: **T-804 Step 4 — compatibility/versioning policy and release checklist**. T-804 remains IN_PROGRESS; T-805, plan/implementation merge, settings changes and publication remain outside this step. PR #24 remains stacked on open PR #23.
 
 Step 3 exact implementation head `2945b9da059b017f2db796eb614cb33a21f786f7` passed live-verified [Validate 37158686636](https://github.com/kefyusuf/surfacerelay/actions/runs/37158686636): **18/18 SUCCESS**. This supersedes the pending exact-head CI note above. The following tracking-only commit records this result; its CI is checked separately before final handoff.
+
+## T-804 implementation Step 4 — COMPATIBILITY / CHECKLIST VERIFIED
+
+Date: 2026-10-04. Clean baseline `e1767788ce7641045933fc72955db6a5509817dc` passed live-verified Validate [37158809185](https://github.com/kefyusuf/surfacerelay/actions/runs/37158809185): **18/18 SUCCESS**. Added `docs/VERSIONING-COMPATIBILITY.md` and `docs/RELEASE-CHECKLIST.md`; updated the approved plan and three tracking files. No runtime/API, metadata/dependency, CI, schema/fixture, ADR/decision or settings changes.
+
+The policy separates staged package SemVer from positive integer Action identity, dependency ranges from tested consumption, four Laravel installation legs from one smoke leg, and Node/browser tooling from real-browser interoperability. Future 0.x behavior remains Proposed. The checklist records exact clean revision/version, isolated archived source/stages/consumers, package identities, content/archive SHA-256 evidence, review and separate publication go/no-go. It adds no runner and does not claim integrated T-805 verification, registry ownership, credentials or approval. Private reporting remains a publication blocker per SECURITY; no channel state change is claimed.
+
+Docker `surfacerelay-t803-verify:local` (Python 3.12.15 / Node 22.23.3), read-only repository mount and temporary writes: existing contract/guardrail/Laravel/browser artifact suites **94/94 PASS**, canonical validation and publication guard PASS, **36 relative links PASS**. Existing npm consumer integration ran as part of the tooling suite; no new executable verification behavior was added. Exact new-head CI follows commit/push; complete diff/scope and independent documentation review are checked before handoff.
+
+Next gate: **T-804 Step 5 — README links/positioning and documentation command/claim audit**. T-804 remains IN_PROGRESS. PR #24 is draft, stacked on open PR #23; T-805, merge, tags/releases, publication and decision promotion remain outside this step.

@@ -1,6 +1,6 @@
 # T-804 — Release-facing documentation and compatibility policy
 
-Status: APPROVED / IMPLEMENTATION IN PROGRESS (STEP 3 VERIFIED)
+Status: APPROVED / IMPLEMENTATION IN PROGRESS (STEP 4 VERIFIED)
 Date: 2026-10-02
 Task: T-804
 Branch: docs/t-804-release-facing-plan
@@ -114,3 +114,11 @@ Offline read-only Docker canonical validator/publication guard, existing guardra
 Next explicit gate: **Step 4 — compatibility/versioning policy and release checklist**, with future commitments labeled Proposed. Do not start T-805 or merge automatically.
 
 Step 3 exact implementation head `2945b9da059b017f2db796eb614cb33a21f786f7` passed live-verified [Validate 37158686636](https://github.com/kefyusuf/surfacerelay/actions/runs/37158686636): **18/18 SUCCESS**. This supersedes the pending-CI note above; following tracking-only head CI is checked separately before final handoff.
+
+## Execution record — Step 4 compatibility policy and checklist
+
+Verified on 2026-10-04 from clean `e1767788ce7641045933fc72955db6a5509817dc`, Validate 37158809185 (18/18), checked live. Added VERSIONING-COMPATIBILITY and RELEASE-CHECKLIST, separating current contracts/evidence from Proposed 0.x policy and local candidate proofs from publication approval. Same-revision/two-artifact aggregate verification remains T-805. Exact identities, source snapshot/isolation and content/archive SHA-256 fields match existing tooling. Private reporting remains a publication blocker; no settings or decisions changed.
+
+Docker existing shared contract/guardrail and Laravel/browser artifact suites **94/94 PASS**; canonical validator/publication guard and **36 relative links PASS**. Only two documents and four tracking/plan paths change; no runtime/package/CI/contract change. Exact new-head CI follows commit/push.
+
+Next explicit gate: **Step 5 — README links/positioning and documentation command/claim audit**. Do not start T-805 or merge automatically.

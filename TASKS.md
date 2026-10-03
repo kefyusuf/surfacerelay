@@ -1161,7 +1161,7 @@ Bounded amendment: portable npm launch in `scripts/browser_release_candidate.py`
 
 Next gate: **focused RED tests for this Minor only**. T-804, thread resolution, and merge do not begin automatically.
 
-### T-804 — Release-facing documentation and compatibility policy — IN_PROGRESS / STEP_3_VERIFIED
+### T-804 — Release-facing documentation and compatibility policy — IN_PROGRESS / STEP_4_VERIFIED
 
 Getting started, CHANGELOG, SECURITY, versioning/compatibility policy, release checklist; no claim that publication already exists.
 
@@ -1178,6 +1178,8 @@ Step 2 exact guide-head CI: `3b25d2f1bce2f0147dd51b14a899121197bab0b7`, [Validat
 Step 3 verified on 2026-10-04 from clean `ea846f4174588ad28478f4b30ae0c2dd33a47230` (Validate 37147988730: 18/18 SUCCESS). Added Unreleased-only CHANGELOG and SECURITY. Read-only GitHub private vulnerability reporting returned `enabled: false`; no private alternative is established, so publication remains blocked. No setting/contact/SLA/support-window/release-version commitment was introduced. Offline Docker canonical validation/publication guard, 23 guardrail tests and 20 relative links PASS. Only six documentation/tracking paths change; runtime, manifests, dependencies, CI and decisions remain unchanged. Exact-head CI follows commit/push. Next gate: **Step 4 compatibility/versioning policy and release checklist**; T-804 remains IN_PROGRESS.
 
 Step 3 exact implementation head `2945b9da059b017f2db796eb614cb33a21f786f7` passed [Validate 37158686636](https://github.com/kefyusuf/surfacerelay/actions/runs/37158686636): **18/18 SUCCESS**, checked live. This supersedes the pending-CI note above. Following tracking-only head CI is checked separately before final handoff. Next gate remains Step 4; publication remains blocked by the private-reporting gap.
+
+Step 4 verified on 2026-10-04 from clean `e1767788ce7641045933fc72955db6a5509817dc`, Validate 37158809185 **18/18 SUCCESS**, checked live. Added VERSIONING-COMPATIBILITY and RELEASE-CHECKLIST: implemented package/Action identities, bounded compatibility matrix, Proposed 0.x policy, exact isolated candidate/hash evidence and separate publication go/no-go. T-805 orchestration is not implemented or claimed. Docker existing tooling suites **94/94 PASS**, canonical validator/publication guard and **36 relative links PASS**. Six documentation/tracking paths change only; no runtime/metadata/CI/decision/settings changes. Exact-head CI follows commit/push. Next gate: **Step 5 README links/positioning and documentation command/claim audit**; T-804 remains IN_PROGRESS and private reporting remains a publication blocker.
 
 ### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
 
@@ -1196,9 +1198,9 @@ Explicitly outside M8 first candidate set:
 
 ## Current boundary
 
-M8 design remains **APPROVED**. T-801, T-802, and T-803 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #21 merged as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`; post-merge main Validate [36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs. External review is closed with 1 thread / 0 unresolved and the npm finding CodeRabbit-confirmed addressed. D-026 and D-069 through D-073 remain **PROPOSED**; T-804 is **IN_PROGRESS / STEP_3_VERIFIED** and T-805 remains **NOT_STARTED**. No tag, release, registry publication, public version selection, or decision promotion occurred.
+M8 design remains **APPROVED**. T-801, T-802, and T-803 are **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. PR #21 merged as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`; post-merge main Validate [36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs. External review is closed with 1 thread / 0 unresolved and the npm finding CodeRabbit-confirmed addressed. D-026 and D-069 through D-073 remain **PROPOSED**; T-804 is **IN_PROGRESS / STEP_4_VERIFIED** and T-805 remains **NOT_STARTED**. No tag, release, registry publication, public version selection, or decision promotion occurred.
 
-T-803 implementation, review, merge, and post-merge verification are complete. T-804 plan is approved and Step 3 CHANGELOG/SECURITY are verified; next gate: **T-804 Step 4 compatibility/versioning policy and release checklist**. Do not start T-805 or merge the open plan/implementation PRs automatically.
+T-803 implementation, review, merge, and post-merge verification are complete. T-804 plan is approved and Step 4 compatibility/checklist documents are verified; next gate: **T-804 Step 5 README and documentation audit**. Do not start T-805 or merge the open plan/implementation PRs automatically.
 ### T-801 external-review amendment — workflow YAML parsing boundary — DESIGN_LOCKED / FIX_NOT_STARTED
 
 External review of PR #19 identified one unresolved Major: the current handwritten workflow folding logic can miss valid YAML `run` scalar forms.
