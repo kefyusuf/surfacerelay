@@ -7,7 +7,7 @@
 - **Branch:** `docs/t-804-release-facing-documentation`
 - **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
 - **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
-- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **BASELINE READY / CONSUMER GUIDES NOT STARTED**.
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **STEP 2 CONSUMER GUIDES VERIFIED / STEP 3 NOT STARTED**.
 - **T-802 PR:** `#20` — **MERGED**
 - **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
 - **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
@@ -2085,3 +2085,13 @@ Plan PR #23 remains OPEN / NOT MERGED. The implementation PR is stacked on `docs
 This gate changes the plan and STATUS/TASKS/REVIEW_REQUEST only. No README, consumer guides, CHANGELOG, SECURITY, compatibility/checklist implementation, runtime, manifests, dependencies, CI, schema or decisions changed. Private reporting remains a publication blocker; T-805 remains NOT STARTED.
 
 Next gate: **T-804 Step 2 — bounded Laravel/browser consumer guides and their existing artifact checks**. No guide content was written in Step 1.
+
+## T-804 implementation Step 2 — CONSUMER GUIDES VERIFIED
+
+Verified on 2026-10-03. Added `docs/consumers/laravel.md` and `docs/consumers/browser-runtime.md`; updated the approved plan and three tracking documents. No runtime/API, package metadata, lockfile, workflow, schema, fixture or decision changes.
+
+Both guides' complete shell blocks were extracted and executed in Docker against a clean clone/archive of `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`. Browser: exact local tarball install, root import, shipped declarations/typecheck, Vite bundle, DriverRegistry smoke and representative deep-import rejection PASS. Laravel: exact local ZIP installed through Composer artifact repository, installed identity/autoload and ActionBus smoke PASS with Laravel 13.34.0. Verification hosts: Node 22.23.3 / Python 3.12.15 (`surfacerelay-t803-verify:local`); PHP 8.4.26 / Composer 2.10.3 (`surfacerelay-t804-verify:local`). Repository mount was read-only; all consumer writes were temporary. Temporary Docker/verification files remain ignored under `.tmp`.
+
+Existing Docker suites: browser artifact tooling 25/25 + Laravel tooling 20/20 PASS; browser typecheck/build and 22 files / 333 tests PASS. Canonical validation and publication guard PASS. Relative documentation links PASS. These guide executions test one Laravel smoke leg; the existing CI four-leg installation matrix remains the broader check. Node smoke does not prove real browser/WebMCP interoperability; fixture policy bypasses are not production security wiring. npm reported two moderate development-dependency advisories; dependency remediation is outside this documentation step.
+
+Next gate: **T-804 Step 3 — Unreleased changelog and SECURITY, with read-only reporting-channel recheck**. T-804 remains IN_PROGRESS. PR #24 stays draft and stacked on open PR #23; no merge/publication/tag or decision promotion is authorized by this step. Exact new-head CI is pending commit/push; earlier baseline CI 37045063575 passed 18/18.

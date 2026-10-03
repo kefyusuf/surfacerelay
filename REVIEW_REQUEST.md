@@ -1,8 +1,10 @@
-# T-804 — Implementation baseline / feature branch handoff
+# T-804 — Step 2 consumer guides handoff
 
-Current gate: **BASELINE READY / CONSUMER GUIDES NOT STARTED**. Branch `docs/t-804-release-facing-documentation` starts at clean approved `543b60e4988e7ac8ed5a89c861e87affa79b5bc3` (Validate 37023733891: 18/18 SUCCESS). Docker canonical validator and publication guard pass. Four plan/tracking paths change only; no consumer or release guide has been implemented.
+Current gate: **STEP 2 VERIFIED / STEP 3 NOT STARTED**. Added two English consumer guides for exact local Laravel ZIP and browser tarball installation. The full executable shell blocks pass in Docker against clean source revision `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`. Laravel PHP 8.4.26 / Composer 2.10.3 / Laravel 13.34.0: installed identity, autoload and ActionBus smoke PASS. Browser Node 22.23.3: root import, declarations/typecheck, Vite bundle, DriverRegistry smoke and representative deep-import rejection PASS. Python 3.12.15 tooling 45/45 and browser 333/333 tests PASS; canonical validator, publication guard and relative links PASS. New-head CI is pending commit/push.
 
-This draft PR is stacked on the open plan branch `docs/t-804-release-facing-plan` (PR #23). Plan merge and eventual main integration require explicit authorization; no merged-plan state is claimed. Next gate: **Step 2 Laravel/browser consumer guides with existing artifact checks**, not T-805 or merge.
+Review focus: exact archive/version and root-only import instructions, source isolation, fixture-only security bypass warnings, provider migration behavior, four Laravel installation legs versus one smoke leg, and Node proof versus real-browser interoperability. Only six documentation/tracking paths change. npm reported two moderate development-dependency advisories; no dependencies were changed.
+
+This draft PR is stacked on the open plan branch `docs/t-804-release-facing-plan` (PR #23). Plan merge and eventual main integration require explicit authorization. Next gate: **Step 3 Unreleased changelog and SECURITY**, not T-805 or merge. No publication, public version selection, runtime/API/metadata/CI/decision change occurred.
 
 ## Approved plan handoff — preceding gate
 

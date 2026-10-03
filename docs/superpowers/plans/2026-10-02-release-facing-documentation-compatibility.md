@@ -1,6 +1,6 @@
 # T-804 — Release-facing documentation and compatibility policy
 
-Status: APPROVED / IMPLEMENTATION NOT STARTED
+Status: APPROVED / IMPLEMENTATION IN PROGRESS (STEP 2 VERIFIED)
 Date: 2026-10-02
 Task: T-804
 Branch: docs/t-804-release-facing-plan
@@ -94,3 +94,11 @@ Completed on 2026-10-02. Clean starting revision `543b60e4988e7ac8ed5a89c861e87a
 PR #23 is still open. Stack the draft implementation PR on `docs/t-804-release-facing-plan`; eventual integration into main requires explicit plan merge authorization, dependency resolution and fresh target checks. No merge, history rewrite or publication occurs here.
 
 Next explicit gate: **Step 2 — the two bounded consumer guides and existing artifact checks**. Keep fixture-only security stages and browser/runtime evidence limits visible. Do not start T-805 automatically.
+
+## Execution record — Step 2 consumer guides
+
+Completed on 2026-10-03. Added the two bounded consumer guides. Extracted and executed all their shell blocks in Docker against clean archived source `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`: Laravel exact Composer ZIP install/identity/autoload/ActionBus smoke PASS (PHP 8.4.26, Composer 2.10.3, Laravel 13.34.0); browser exact tarball/root import/declarations/typecheck/Vite/DriverRegistry/deep-import rejection PASS (Node 22.23.3). Python 3.12.15 suites pass 25 browser + 20 Laravel tests; browser typecheck/build and 333 tests pass. Canonical validator, publication guard and relative links pass. Only the two guides and plan/tracking files change. New-head CI awaits commit/push.
+
+The Docker Laravel recipe verifies one smoke leg; existing CI provides four installation legs. Browser proof runs under Node, not a real browser. Fixture pass-through stages remain explicitly excluded from production guidance. npm's two moderate development-dependency advisories remain outside this prose-only step. No runtime/metadata/CI/contract/decision change, public version selection, publication or merge occurred.
+
+Next explicit gate: **Step 3 — Unreleased changelog and SECURITY, with a read-only reporting-channel recheck**. Do not start T-805 automatically.

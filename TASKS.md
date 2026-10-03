@@ -1161,7 +1161,7 @@ Bounded amendment: portable npm launch in `scripts/browser_release_candidate.py`
 
 Next gate: **focused RED tests for this Minor only**. T-804, thread resolution, and merge do not begin automatically.
 
-### T-804 — Release-facing documentation and compatibility policy — BASELINE_READY / CONSUMER_GUIDES_NOT_STARTED
+### T-804 — Release-facing documentation and compatibility policy — IN_PROGRESS / STEP_2_VERIFIED
 
 Getting started, CHANGELOG, SECURITY, versioning/compatibility policy, release checklist; no claim that publication already exists.
 
@@ -1170,6 +1170,8 @@ Prepared plan: `docs/superpowers/plans/2026-10-02-release-facing-documentation-c
 Plan approved on 2026-10-02 from user continuation at the approval gate. Approved plan revision `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141` has Validate **18/18 SUCCESS**. Approved scope is the plan's documentation paths, evidence limits, acceptance and verification only. PR #23 remains open and no automated external-review completion is claimed. Next gate: **T-804 implementation baseline and feature branch only**; consumer guides and T-805 have not started. No merge/publication/decision promotion is authorized.
 
 Step 1 baseline/feature branch is READY: clean `543b60e4988e7ac8ed5a89c861e87affa79b5bc3`, live-verified Validate 37023733891 **18/18 SUCCESS**. Branch `docs/t-804-release-facing-documentation`, stacked on the still-open plan branch/PR #23. Docker canonical validation and publication guard pass. Tracking/plan edits only; no guide or implementation content. Next gate: **Step 2 consumer guides with existing artifact verification**. Plan merge/main integration require explicit authorization; T-805 remains not started.
+
+Step 2 consumer guides verified on 2026-10-03: `docs/consumers/laravel.md` and `docs/consumers/browser-runtime.md`. Their exact shell blocks pass in Docker using clean source revision `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`: local Composer ZIP identity/autoload/ActionBus smoke (PHP 8.4.26, Composer 2.10.3, Laravel 13.34.0) and npm tarball root import/typecheck/Vite/DriverRegistry/deep-import rejection (Node 22.23.3). Python 3.12.15 tooling suites pass 25/25 browser + 20/20 Laravel; browser 333 tests, typecheck/build, canonical validator, publication guard and relative links pass. No runtime/package/CI/contract change. Fixture-only security and real-browser evidence limits are explicit. T-804 remains IN_PROGRESS; next gate is **Step 3 Unreleased changelog and SECURITY**. Exact new-head CI remains pending commit/push; no merge, release or publication occurred.
 
 ### T-805 — Integrated release-readiness verification + external-review handoff — NOT_STARTED
 
