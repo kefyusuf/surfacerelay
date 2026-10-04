@@ -1,9 +1,9 @@
 # Release-candidate evidence checklist
 
 This checklist reviews local experimental candidates. It is not a publication
-workflow, release approval, or claim that integrated release verification is
-complete. The two existing builders and consumer guides remain independent;
-same-revision/two-artifact orchestration and aggregate evidence belong to T-805.
+workflow or release approval. Same-revision/two-artifact orchestration and
+aggregate evidence are implemented by [release readiness](RELEASE-READINESS.md)
+(T-805); the consumer guides remain the per-artifact installation proofs.
 
 ## Candidate inputs and source
 
@@ -78,8 +78,8 @@ Local candidate verification does not satisfy this gate. Publication remains
 - [ ] Verify intended registry namespace ownership, separately scoped credentials,
   publication authority and an approved first public version. None is established
   by this checklist; do not add credentials or publish while running local proofs.
-- [ ] Complete T-804's remaining documentation/review and T-805's integrated
-  same-revision/two-artifact verification. Confirm required policy/decision work
+- [ ] Re-run the [integrated readiness verification](RELEASE-READINESS.md) on the
+  merged target revision and review its evidence. Confirm required policy/decision work
   and migration notes are approved; proposed decisions are not silently promoted.
 - [ ] Resolve the open plan/implementation PR dependency and obtain explicit merge
   approval before integration; verify the resulting target revision and checks.

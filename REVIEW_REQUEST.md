@@ -1,27 +1,26 @@
-# Review Request — T-808 HTMX business output
+# Review Request — T-805 integrated release readiness
 
-Branch `feat/t-808-htmx-result`, top of the open stack (#23 → … → #31).
+Branch `feat/t-805-release-readiness`, top of the open stack (#23 → … → #32).
 
 ## What changed
 
-- `GlobalHtmxBrowserRuntime.ajax()` resolves with the plain object the server declared as
-  `surfacerelay:result` in the issued request's `HX-Trigger` JSON header; otherwise
-  `undefined`. `HtmxBrowserRuntime.ajax()` now returns `Promise<unknown>`.
-- Read from the correlated xhr, not htmx's event detail (htmx adds `elt` to it).
-- Absent, non-JSON, array, non-object or null declarations → `undefined`, never an error:
-  the server already applied the request, and an error would invite a duplicate retry.
-- HTMX fixture `POST /items` declares `{itemId}`; the live WebMCP tool call returns it.
-- Proposed **D-078**; open question resolved.
+- `scripts/release_readiness.py`: `build_release_readiness()` — one clean exact revision and
+  one prerelease version in; both candidates built into separate stages by the unchanged
+  builders; identity and archive/manifest hashes independently re-verified; aggregate
+  `readiness-evidence.json` written only after every check passes.
+- Publication handoff is always `NO-GO` with explicit blockers (D-073).
+- CI: Validate runs the new tests. Docs: `docs/RELEASE-READINESS.md` (run record),
+  RELEASE-CHECKLIST points at it; CHANGELOG; tracking files (no open tasks left).
 
 ## Review focus
 
-- Is "malformed declaration → `undefined`" the right trade-off vs. surfacing an app bug?
-- No browser-side output-schema validation (no JSON Schema dependency); output policy
-  stays server-side.
+- Verification depth: identity in result, evidence and manifest; filename, size, archive
+  and manifest SHA-256 recomputed.
+- The recorded run is **pre-merge** (`e722d01`, branch revision); must be repeated on merged `main`.
 
 ## Verification
 
-- RED first: unit positive case and the live `executeTool()` result (`"undefined"`).
-- `packages/browser-runtime`: `npm test` 364/364, `tsc --noEmit`.
-- `examples/htmx-prep-list`: 17/17 (real HTMX 2.0.10, Chromium 153).
-- `run_conformance.py` 7 PASS / 1 N/A; `validate.py`; `test_browser_release_candidate` OK.
+- RED first: 10/10 new tests errored (module missing); now 10/10 OK.
+- Real run on a clean `git worktree` of `e722d01` (Windows): both archives built and verified;
+  browser clean consumer PASS; Laravel artifact install + identity + ActionBus smoke PASS.
+- Release-candidate suites, publication guardrails, `validate.py`: pass.

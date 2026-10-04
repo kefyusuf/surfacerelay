@@ -8,7 +8,8 @@ Current state only. History lives in git, PRs, and
 - **Main:** `e7d61ef` — M0–M7 and T-801…T-803 merged; main CI green.
 - **Open PR stack (merge in order, owner review):** #23 T-804 plan → #24 T-804 docs →
   #25 native WebMCP proof → #26 tracking cleanup → #27 T-806 → #28 T-804 README →
-  #29 T-807a live Filament proof → #30 T-807b approved retry → #31 T-809 distinct receipt → T-808 HTMX output.
+  #29 T-807a → #30 T-807b → #31 T-809 → #32 T-808 → T-805 readiness.
+- **Open tasks:** none. Everything left is an owner action (below).
 - **Release:** nothing published; no public version selected.
 
 ## What works today
@@ -20,12 +21,13 @@ Current state only. History lives in git, PRs, and
   (7 PASS / 1 NOT_APPLICABLE).
 - Filament vertical: current record, current selection, active filters as trusted context.
 - Optional Laravel MCP projection and OpenAPI importer packages.
-- Release-candidate artifacts for `surfacerelay/laravel` and `@surfacerelay/browser-runtime`
-  with clean-consumer checks.
+- Release candidates for `surfacerelay/laravel` and `@surfacerelay/browser-runtime`, with
+  integrated same-revision readiness verification and clean-consumer proofs
+  ([record](docs/RELEASE-READINESS.md), pre-merge).
 - Native WebMCP in real Chromium (`document.modelContext`, flag-enabled):
-  - HTMX fixture ([details](examples/htmx-prep-list/README.md#native-webmcp-proof));
-    server rejections and unsent requests reach the agent as failures (T-806, D-074);
-    declared business output reaches the agent (T-808, D-078).
+  - HTMX fixture ([details](examples/htmx-prep-list/README.md#native-webmcp-proof)):
+    failures reach the agent as failures (T-806, D-074); declared business output
+    reaches the agent (T-808, D-078).
   - Real Filament 5 panel ([details](examples/filament-orders-live/README.md)): agent
     hold on the current record; agent refund over the human-visible selection
     (D-075) → Filament confirmation modal → human approves → agent retry refunds
@@ -35,24 +37,18 @@ Current state only. History lives in git, PRs, and
 
 - Chromium 153 drops `consequentialHint` from `getTools()`; consequential safety must
   keep relying on server-issued confirmation receipts.
+- WebMCP evidence uses a flag-enabled Chromium with the page as caller, not a real agent.
 
-## Needs decision
+## Owner actions
 
-- D-074 … D-078: promote to ACCEPTED or revise.
-
-## Publication blockers
-
-- GitHub private vulnerability reporting is disabled (owner must enable it in repo settings).
-- T-805 integrated release verification not done.
-- Publication needs an explicit owner go (D-073).
+- Review and merge the PR stack in order (agent merges are blocked by policy).
+- Promote D-074 … D-078 to ACCEPTED or revise them.
+- Enable GitHub private vulnerability reporting (repo settings) — publication blocker.
+- After merging: re-run release readiness on the merged `main` revision.
+- Publication needs approved public version, registry namespace/credentials and an
+  explicit go (D-073).
 
 ## Decisions
 
 - Accepted through D-068. Proposed: D-026, D-069…D-078
   ([register](docs/DECISION-REGISTER.md)).
-
-## Next
-
-T-805. See [`TASKS.md`](TASKS.md).
-
-

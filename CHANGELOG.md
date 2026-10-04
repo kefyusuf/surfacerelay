@@ -26,6 +26,11 @@ dates. SurfaceRelay remains experimental and unofficial.
   security wiring, and Node tooling evidence from real-browser interoperability.
 - A [security policy](SECURITY.md) recording experimental support status and the
   private vulnerability-reporting channel gap.
+- Integrated release-readiness verification: `build_release_readiness()` builds
+  both candidates from one clean revision and prerelease version, re-verifies
+  identity and archive/manifest hashes, and writes `readiness-evidence.json` with
+  an always-NO-GO publication handoff listing the remaining blockers. See
+  [release readiness](docs/RELEASE-READINESS.md).
 - `resolveDocumentModelContext()` in the browser runtime root API: feature-detects
   the native `document.modelContext` and returns `null` when WebMCP is absent or
   malformed. It does not polyfill or fall back to `navigator.modelContext`.
@@ -90,4 +95,5 @@ There is no public version or registry installation promise in these entries.
 Artifact and fixture checks do not certify production readiness or general
 WebMCP interoperability; the native WebMCP proof covers one flag-enabled Chromium
 build with the page itself acting as the tool caller, not a real AI agent. Private reporting availability remains a publication
-blocker; integrated two-artifact release verification remains T-805 work.
+blocker; integrated readiness evidence so far is pre-merge and must be re-run on
+the merged revision.
