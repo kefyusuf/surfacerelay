@@ -1,6 +1,6 @@
 # Review Request — T-805 integrated release readiness
 
-Branch `feat/t-805-release-readiness`, top of the open stack (#23 → … → #32).
+Branch `feat/t-805-release-readiness`, merged for review via integration PR #34.
 
 ## What changed
 

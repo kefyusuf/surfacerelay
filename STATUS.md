@@ -6,9 +6,7 @@ Current state only. History lives in git, PRs, and
 ## Snapshot — 2026-10-04
 
 - **Main:** `e7d61ef` — M0–M7 and T-801…T-803 merged; main CI green.
-- **Open PR stack (merge in order, owner review):** #23 T-804 plan → #24 T-804 docs →
-  #25 native WebMCP proof → #26 tracking cleanup → #27 T-806 → #28 T-804 README →
-  #29 T-807a → #30 T-807b → #31 T-809 → #32 T-808 → T-805 readiness.
+- **Open PR:** #34 integrates the former stack #23…#33 against `main` (one review, one merge).
 - **Open tasks:** none. Everything left is an owner action (below).
 - **Release:** nothing published; no public version selected.
 
@@ -41,7 +39,7 @@ Current state only. History lives in git, PRs, and
 
 ## Owner actions
 
-- Review and merge the PR stack in order (agent merges are blocked by policy).
+- Review and merge #34 (agent merges are blocked by policy).
 - Promote D-074 … D-078 to ACCEPTED or revise them.
 - Enable GitHub private vulnerability reporting (repo settings) — publication blocker.
 - After merging: re-run release readiness on the merged `main` revision.
