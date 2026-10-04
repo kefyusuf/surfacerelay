@@ -1,0 +1,25 @@
+# Fixture-only real-browser app for the T-807a Filament/WebMCP proof
+# (examples/filament-orders-live). Not a production configuration.
+laravel: '@testbench'
+
+providers:
+  - SurfaceRelay\Laravel\Tests\Browser\OrderDemoBrowserServiceProvider
+
+env:
+  - APP_KEY="base64:Wv+T/q+R/0Fzebi+7oGs2PoLhE4cxzrhb6Xmk9h5ors="
+  - APP_DEBUG=true
+  - DB_CONNECTION=sqlite
+  - SESSION_DRIVER=file
+  - CACHE_STORE=array
+
+migrations:
+  - database/migrations
+
+seeders:
+  - SurfaceRelay\Laravel\Tests\Browser\OrderDemoBrowserSeeder
+
+workbench:
+  start: '/admin/orders'
+  build:
+    - create-sqlite-db
+    - migrate:fresh

@@ -69,6 +69,8 @@ final class FilamentOrderDemoHarness
 
     public readonly FilamentActionGateway $gateway;
 
+    public readonly InMemoryActionRegistry $registry;
+
     private int $correlationSequence = 0;
 
     public function __construct(
@@ -90,7 +92,7 @@ final class FilamentOrderDemoHarness
         $app->instance(OrderDemoActorContext::class, $this->actor);
         $app->instance(OrderDemoTenantContext::class, $this->tenant);
 
-        $registry = new InMemoryActionRegistry();
+        $registry = $this->registry = new InMemoryActionRegistry();
         $holdDefinition = $this->holdDefinition();
         $refundDefinition = $this->refundDefinition();
         $registry->register($holdDefinition);
