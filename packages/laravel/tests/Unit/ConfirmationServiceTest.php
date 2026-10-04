@@ -108,7 +108,70 @@ final class ConfirmationServiceTest extends TestCase
         }
     }
 
-    public function test_approval_transitions_exact_pending_token_and_returns_same_opaque_receipt(): void
+    public function test_approval_moves_the_pending_challenge_to_a_distinct_opaque_receipt(): void
+    {
+        $this->requireTypes();
+        $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
+        $store = new RecordingConfirmationStore();
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C, self::TOKEN_B]));
+        $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
+
+        $clock->advance(30);
+        $receipt = $service->approveChallenge($challenge->challengeId);
+
+        self::assertSame(self::TOKEN_C, $receipt);
+        self::assertNotSame($challenge->challengeId, $receipt);
+        self::assertSame(hash('sha256', self::TOKEN_A), $store->lastApproveTokenHash);
+        self::assertSame(hash('sha256', self::TOKEN_C), $store->lastApproveReceiptHash);
+        self::assertSame($clock->now(), $store->lastApproveNow);
+        self::assertSame($clock->now() + 120, $store->lastApproveReceiptExpiresAt);
+        self::assertNull($store->recordForToken(self::TOKEN_A), 'The challenge id must stop addressing the record.');
+        self::assertSame(ConfirmationRecordState::Approved, $store->recordForToken(self::TOKEN_C)?->state);
+        self::assertSame($clock->now() + 120, $store->recordForToken(self::TOKEN_C)?->receiptExpiresAt);
+
+        $originalExpiry = $store->recordForToken(self::TOKEN_C)?->receiptExpiresAt;
+        $clock->advance(5);
+        self::assertNull($service->approveChallenge($challenge->challengeId));
+        self::assertSame($originalExpiry, $store->recordForToken(self::TOKEN_C)?->receiptExpiresAt,
+            'Repeat approval must not reset or extend receipt expiry.');
+        self::assertNull($store->recordForToken(self::TOKEN_B), 'Repeat approval must not mint a second receipt.');
+    }
+
+    public function test_a_known_challenge_id_never_becomes_receipt_authority(): void
+    {
+        $this->requireTypes();
+        $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
+        $store = new RecordingConfirmationStore();
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C]));
+        $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
+        $receipt = $service->approveChallenge($challenge->challengeId);
+
+        self::assertFalse($service->consumeReceipt($challenge->challengeId, 'scope-hash'));
+        self::assertTrue($service->consumeReceipt((string) $receipt, 'scope-hash'),
+            'A failed challenge-id attempt must not spend the real receipt.');
+    }
+
+    public function test_receipt_generator_output_that_is_malformed_or_equals_the_challenge_fails_closed(): void
+    {
+        $this->requireTypes();
+        foreach ([self::TOKEN_A, self::TOKEN_D] as $badReceipt) {
+            $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
+            $store = new RecordingConfirmationStore();
+            $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([$badReceipt]));
+            $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
+
+            try {
+                $service->approveChallenge($challenge->challengeId);
+                self::fail('Expected invalid receipt generator output to fail closed.');
+            } catch (ConfirmationTokenGenerationFailed) {
+            }
+
+            self::assertSame(0, $store->approvePendingCalls);
+            self::assertSame(ConfirmationRecordState::Pending, $store->recordForToken(self::TOKEN_A)?->state);
+        }
+    }
+
+    public function test_default_receipt_generator_mints_a_random_receipt(): void
     {
         $this->requireTypes();
         $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
@@ -116,21 +179,12 @@ final class ConfirmationServiceTest extends TestCase
         $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]));
         $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
 
-        $clock->advance(30);
         $receipt = $service->approveChallenge($challenge->challengeId);
 
-        self::assertSame(self::TOKEN_A, $receipt);
-        self::assertSame(hash('sha256', self::TOKEN_A), $store->lastApproveTokenHash);
-        self::assertSame($clock->now(), $store->lastApproveNow);
-        self::assertSame($clock->now() + 120, $store->lastApproveReceiptExpiresAt);
-        self::assertSame(ConfirmationRecordState::Approved, $store->recordForToken(self::TOKEN_A)?->state);
-        self::assertSame($clock->now() + 120, $store->recordForToken(self::TOKEN_A)?->receiptExpiresAt);
-
-        $originalExpiry = $store->recordForToken(self::TOKEN_A)?->receiptExpiresAt;
-        $clock->advance(5);
-        self::assertNull($service->approveChallenge($challenge->challengeId));
-        self::assertSame($originalExpiry, $store->recordForToken(self::TOKEN_A)?->receiptExpiresAt,
-            'Repeat approval must not reset or extend receipt expiry.');
+        self::assertIsString($receipt);
+        self::assertMatchesRegularExpression('/^[A-Za-z0-9_-]{43}$/D', $receipt);
+        self::assertNotSame($challenge->challengeId, $receipt);
+        self::assertTrue($service->consumeReceipt($receipt, 'scope-hash'));
     }
 
     public function test_unknown_pending_as_receipt_and_expired_challenge_never_grant_authority(): void
@@ -138,7 +192,7 @@ final class ConfirmationServiceTest extends TestCase
         $this->requireTypes();
         $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
         $store = new RecordingConfirmationStore();
-        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]));
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C, self::TOKEN_C]));
         $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
 
         self::assertNull($service->approveChallenge(self::TOKEN_B));
@@ -155,15 +209,15 @@ final class ConfirmationServiceTest extends TestCase
         $this->requireTypes();
         $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
         $store = new RecordingConfirmationStore();
-        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]));
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C]));
         $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
         $receipt = $service->approveChallenge($challenge->challengeId);
-        self::assertSame(self::TOKEN_A, $receipt);
+        self::assertSame(self::TOKEN_C, $receipt);
 
         self::assertTrue($service->consumeReceipt($receipt, 'scope-hash'));
         self::assertFalse($service->consumeReceipt($receipt, 'scope-hash'));
         self::assertSame(2, $store->consumeApprovedCalls);
-        self::assertNull($store->recordForToken(self::TOKEN_A), 'Successful consume must irreversibly spend the record.');
+        self::assertNull($store->recordForToken(self::TOKEN_C), 'Successful consume must irreversibly spend the record.');
     }
 
     public function test_scope_mismatch_fails_without_spending_valid_receipt(): void
@@ -171,13 +225,13 @@ final class ConfirmationServiceTest extends TestCase
         $this->requireTypes();
         $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
         $store = new RecordingConfirmationStore();
-        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]));
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C]));
         $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
         $receipt = $service->approveChallenge($challenge->challengeId);
-        self::assertSame(self::TOKEN_A, $receipt);
+        self::assertSame(self::TOKEN_C, $receipt);
 
         self::assertFalse($service->consumeReceipt($receipt, 'wrong-scope'));
-        self::assertNotNull($store->recordForToken(self::TOKEN_A),
+        self::assertNotNull($store->recordForToken(self::TOKEN_C),
             'Wrong-scope attempt must not consume an otherwise-valid receipt.');
         self::assertTrue($service->consumeReceipt($receipt, 'scope-hash'));
     }
@@ -187,14 +241,14 @@ final class ConfirmationServiceTest extends TestCase
         $this->requireTypes();
         $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
         $store = new RecordingConfirmationStore();
-        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]));
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C]));
         $challenge = $service->issueChallenge('scope-hash', 'Approve refund');
         $receipt = $service->approveChallenge($challenge->challengeId);
-        self::assertSame(self::TOKEN_A, $receipt);
+        self::assertSame(self::TOKEN_C, $receipt);
 
         $clock->advance(120);
         self::assertFalse($service->consumeReceipt($receipt, 'scope-hash'));
-        self::assertNotNull($store->recordForToken(self::TOKEN_A));
+        self::assertNotNull($store->recordForToken(self::TOKEN_C));
     }
 
     public function test_non_positive_ttls_fail_before_any_store_operation(): void
@@ -224,7 +278,7 @@ final class ConfirmationServiceTest extends TestCase
         $this->requireTypes();
         $clock = new MutableConfirmationClock(strtotime('2026-09-07T12:00:00Z'));
         $store = new RecordingConfirmationStore();
-        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]));
+        $service = new ConfirmationService($store, $clock, new QueueConfirmationTokenGenerator([self::TOKEN_A]), receiptTokenGenerator: new QueueConfirmationTokenGenerator([self::TOKEN_C]));
         $secret = 'not-valid!!receipt-secret';
 
         self::assertNull($service->approveChallenge($secret));
@@ -338,6 +392,7 @@ if (
         public ?ConfirmationRecord $lastCreatedRecord = null;
         public ?int $lastCreateTtlSeconds = null;
         public ?string $lastApproveTokenHash = null;
+        public ?string $lastApproveReceiptHash = null;
         public ?int $lastApproveNow = null;
         public ?int $lastApproveReceiptExpiresAt = null;
 
@@ -356,10 +411,11 @@ if (
             return true;
         }
 
-        public function approvePending(string $tokenHash, int $now, int $receiptExpiresAt): bool
+        public function approvePending(string $tokenHash, string $receiptHash, int $now, int $receiptExpiresAt): bool
         {
             $this->approvePendingCalls++;
             $this->lastApproveTokenHash = $tokenHash;
+            $this->lastApproveReceiptHash = $receiptHash;
             $this->lastApproveNow = $now;
             $this->lastApproveReceiptExpiresAt = $receiptExpiresAt;
 
@@ -368,7 +424,12 @@ if (
                 return false;
             }
 
-            $this->records[$tokenHash] = new ConfirmationRecord(
+            if (isset($this->records[$receiptHash])) {
+                return false;
+            }
+
+            unset($this->records[$tokenHash]);
+            $this->records[$receiptHash] = new ConfirmationRecord(
                 state: ConfirmationRecordState::Approved,
                 scopeFingerprint: $record->scopeFingerprint,
                 summary: $record->summary,

@@ -44,9 +44,9 @@ final class FilamentConfirmationApprovalIntegrationTest extends TestCase
         ]);
 
         self::assertNull($result);
-        self::assertSame(
-            ConfirmationRecordState::Approved,
-            $store->recordForToken($challengeA->challengeId)?->state,
+        self::assertNull(
+            $store->recordForToken($challengeA->challengeId),
+            'Approval moves challenge A to a separate receipt (D-077).',
         );
         self::assertSame(
             ConfirmationRecordState::Pending,

@@ -16,13 +16,18 @@ final readonly class ConfirmationService
     private const string TOKEN_PATTERN = '/^[A-Za-z0-9_-]{43}$/D';
     private const int MAX_CREATE_ATTEMPTS = 3;
 
+    private ConfirmationTokenGenerator $receiptTokenGenerator;
+
     public function __construct(
         private ConfirmationStore $store,
         private ConfirmationClock $clock,
         private ConfirmationTokenGenerator $tokenGenerator,
         private int $challengeTtlSeconds = 300,
         private int $receiptTtlSeconds = 120,
+        ?ConfirmationTokenGenerator $receiptTokenGenerator = null,
     ) {
+        $this->receiptTokenGenerator = $receiptTokenGenerator ?? new RandomConfirmationTokenGenerator();
+
         if ($this->challengeTtlSeconds <= 0) {
             throw new \InvalidArgumentException('Confirmation challenge TTL must be a positive integer.');
         }
@@ -73,22 +78,32 @@ final readonly class ConfirmationService
         throw ConfirmationTokenGenerationFailed::afterCollisions();
     }
 
+    /**
+     * Approves a pending challenge and returns a fresh receipt. The challenge id
+     * is shown to the human and the page, so it never becomes receipt authority.
+     */
     public function approveChallenge(string $challengeId): ?string
     {
         if (!$this->isOpaqueToken($challengeId)) {
             return null;
         }
 
+        $receipt = $this->receiptTokenGenerator->generate();
+        if (!$this->isOpaqueToken($receipt) || hash_equals($challengeId, $receipt)) {
+            throw ConfirmationTokenGenerationFailed::invalidGeneratorOutput();
+        }
+
         $now = $this->clock->now();
         if (!$this->store->approvePending(
             $this->tokenHash($challengeId),
+            $this->tokenHash($receipt),
             $now,
             $now + $this->receiptTtlSeconds,
         )) {
             return null;
         }
 
-        return $challengeId;
+        return $receipt;
     }
 
     public function consumeReceipt(string $candidate, string $scopeFingerprint): bool

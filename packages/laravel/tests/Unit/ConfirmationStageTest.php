@@ -165,7 +165,8 @@ final class ConfirmationStageTest extends TestCase
         $scope = $hasher->fingerprint($base);
         $challenge = $service->issueChallenge($scope, $definition->title);
         $receipt = $service->approveChallenge($challenge->challengeId);
-        self::assertSame(self::TOKEN_A, $receipt);
+        self::assertIsString($receipt);
+        self::assertNotSame(self::TOKEN_A, $receipt);
 
         $decision = $stage->process($this->state(
             $definition,
@@ -302,14 +303,19 @@ final class StageConfirmationStore implements ConfirmationStore
         return true;
     }
 
-    public function approvePending(string $tokenHash, int $now, int $receiptExpiresAt): bool
+    public function approvePending(string $tokenHash, string $receiptHash, int $now, int $receiptExpiresAt): bool
     {
         $this->approveCalls++;
         $record = $this->records[$tokenHash] ?? null;
         if ($record === null || $record->state !== ConfirmationRecordState::Pending || $now >= $record->challengeExpiresAt) {
             return false;
         }
-        $this->records[$tokenHash] = new ConfirmationRecord(
+        if (isset($this->records[$receiptHash])) {
+            return false;
+        }
+
+        unset($this->records[$tokenHash]);
+        $this->records[$receiptHash] = new ConfirmationRecord(
             ConfirmationRecordState::Approved,
             $record->scopeFingerprint,
             $record->summary,

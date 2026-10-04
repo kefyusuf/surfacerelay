@@ -50,13 +50,16 @@ final class CacheConfirmationStore implements ConfirmationStore
         });
     }
 
-    public function approvePending(string $tokenHash, int $now, int $receiptExpiresAt): bool
+    public function approvePending(string $tokenHash, string $receiptHash, int $now, int $receiptExpiresAt): bool
     {
         if ($receiptExpiresAt <= $now) {
             throw new \InvalidArgumentException('Confirmation receipt expiry must be after the current time.');
         }
+        if (hash_equals($tokenHash, $receiptHash)) {
+            throw new \InvalidArgumentException('Confirmation receipt must be addressed separately from its challenge.');
+        }
 
-        return $this->withTokenLock($tokenHash, function () use ($tokenHash, $now, $receiptExpiresAt): bool {
+        return $this->withTokenLock($tokenHash, function () use ($tokenHash, $receiptHash, $now, $receiptExpiresAt): bool {
             $key = $this->recordKey($tokenHash);
             $raw = $this->read($key);
             if ($raw === null) {
@@ -71,6 +74,11 @@ final class CacheConfirmationStore implements ConfirmationStore
                 return false;
             }
 
+            $receiptKey = $this->recordKey($receiptHash);
+            if ($this->read($receiptKey) !== null) {
+                return false;
+            }
+
             $approved = new ConfirmationRecord(
                 state: ConfirmationRecordState::Approved,
                 scopeFingerprint: $record->scopeFingerprint,
@@ -80,7 +88,10 @@ final class CacheConfirmationStore implements ConfirmationStore
                 receiptExpiresAt: $receiptExpiresAt,
             );
 
-            $this->write($key, $approved->toArray(), $receiptExpiresAt - $now);
+            // Remove the challenge first: if the receipt write then fails, nothing
+            // remains approvable and the human must confirm again (fail closed).
+            $this->delete($key);
+            $this->write($receiptKey, $approved->toArray(), $receiptExpiresAt - $now);
             return true;
         });
     }

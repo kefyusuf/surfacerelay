@@ -40,9 +40,11 @@ final class FilamentConfirmationApprovedReceiptIntegrationTest extends TestCase
 
         $page->callMountedAction();
 
-        self::assertSame($challenge->challengeId, $page->pullApprovedReceiptForTest());
+        $receipt = $page->pullApprovedReceiptForTest();
+        self::assertIsString($receipt);
+        self::assertNotSame($challenge->challengeId, $receipt);
         self::assertNull($page->pullApprovedReceiptForTest());
-        self::assertTrue($service->consumeReceipt($challenge->challengeId, 'scope-A'));
+        self::assertTrue($service->consumeReceipt($receipt, 'scope-A'));
     }
 
     public function test_approved_receipt_never_enters_public_component_state(): void
@@ -68,7 +70,7 @@ final class FilamentConfirmationApprovedReceiptIntegrationTest extends TestCase
         $approving->callMountedAction();
 
         self::assertNull($this->page('page-2')->pullApprovedReceiptForTest());
-        self::assertSame($challenge->challengeId, $approving->pullApprovedReceiptForTest());
+        self::assertIsString($approving->pullApprovedReceiptForTest());
     }
 
     public function test_cancelled_or_unapprovable_challenges_leave_no_receipt(): void

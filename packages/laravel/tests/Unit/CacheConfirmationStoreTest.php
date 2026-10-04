@@ -18,6 +18,7 @@ use SurfaceRelay\Laravel\Confirmation\CorruptConfirmationRecord;
 final class CacheConfirmationStoreTest extends TestCase
 {
     private const string HASH = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    private const string RECEIPT_HASH = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
     public function test_cache_store_types_exist(): void
     {
@@ -58,13 +59,13 @@ final class CacheConfirmationStoreTest extends TestCase
         $store = new LockingCacheStore();
         $adapter = new CacheConfirmationStore($store);
 
-        self::assertFalse($adapter->approvePending(self::HASH, 120, 240));
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
         $this->assertMutationWasInsideExactTokenLock($store, null);
 
         $store->seedRaw(self::HASH, ['corrupt' => true]);
         $store->resetLog();
         try {
-            $adapter->approvePending(self::HASH, 120, 240);
+            $adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240);
             self::fail('Expected corrupt record to fail closed.');
         } catch (CorruptConfirmationRecord $exception) {
             self::assertStringNotContainsString(self::HASH, $exception->getMessage());
@@ -82,7 +83,7 @@ final class CacheConfirmationStoreTest extends TestCase
         );
         $store->seedRaw(self::HASH, $approved->toArray());
         $store->resetLog();
-        self::assertFalse($adapter->approvePending(self::HASH, 130, 260));
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 130, 260));
         self::assertSame(0, $store->putCalls, 'Repeat approval must not rewrite or extend an approved record.');
         self::assertSame(220, $store->rawRecord(self::HASH)['receiptExpiresAt']);
 
@@ -95,7 +96,7 @@ final class CacheConfirmationStoreTest extends TestCase
         );
         $store->seedRaw(self::HASH, $expired->toArray());
         $store->resetLog();
-        self::assertFalse($adapter->approvePending(self::HASH, 120, 240), 'Expiry equality is invalid.');
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240), 'Expiry equality is invalid.');
         self::assertSame(0, $store->putCalls);
     }
 
@@ -106,12 +107,62 @@ final class CacheConfirmationStoreTest extends TestCase
         $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
         $adapter = new CacheConfirmationStore($store);
 
-        self::assertTrue($adapter->approvePending(self::HASH, 120, 240));
-        $saved = $store->rawRecord(self::HASH);
+        self::assertTrue($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
+        self::assertNull($store->rawRecord(self::HASH), 'The challenge must stop addressing the approved record.');
+        $saved = $store->rawRecord(self::RECEIPT_HASH);
         self::assertSame('approved', $saved['state']);
         self::assertSame(240, $saved['receiptExpiresAt']);
         self::assertSame(120, $store->lastPutSeconds);
         $this->assertMutationWasInsideExactTokenLock($store, 'put');
+        self::assertLessThan(
+            array_search('put', $store->operations, true),
+            array_search('forget', $store->operations, true),
+            'The challenge is removed before the receipt is written, so a failed write fails closed.',
+        );
+    }
+
+    public function test_approve_pending_refuses_an_occupied_receipt_address_without_mutation(): void
+    {
+        $this->requireTypes();
+        $store = new LockingCacheStore();
+        $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
+        $store->seedRaw(self::RECEIPT_HASH, $this->pendingRecord()->toArray());
+        $adapter = new CacheConfirmationStore($store);
+        $store->resetLog();
+
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
+        self::assertSame(0, $store->putCalls);
+        self::assertSame(0, $store->forgetCalls);
+        self::assertSame('pending', $store->rawRecord(self::HASH)['state']);
+    }
+
+    public function test_approve_pending_rejects_a_receipt_address_equal_to_the_challenge(): void
+    {
+        $this->requireTypes();
+        $store = new LockingCacheStore();
+        $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
+        $adapter = new CacheConfirmationStore($store);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $adapter->approvePending(self::HASH, self::HASH, 120, 240);
+    }
+
+    public function test_failed_receipt_write_leaves_no_approvable_challenge(): void
+    {
+        $this->requireTypes();
+        $store = new LockingCacheStore();
+        $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
+        $store->putSucceeds = false;
+        $adapter = new CacheConfirmationStore($store);
+
+        try {
+            $adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240);
+            self::fail('Expected a failed receipt write to fail closed.');
+        } catch (ConfirmationStoreUnavailable) {
+        }
+
+        self::assertNull($store->rawRecord(self::HASH));
+        self::assertNull($store->rawRecord(self::RECEIPT_HASH));
     }
 
     public function test_consume_is_locked_scope_mismatch_does_not_spend_and_exact_scope_deletes_before_success(): void

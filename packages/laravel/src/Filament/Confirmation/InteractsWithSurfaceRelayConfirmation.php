@@ -146,10 +146,6 @@ trait InteractsWithSurfaceRelayConfirmation
 
         $this->clearSurfaceRelayConfirmation();
 
-        if ($receipt !== null && $receipt !== $challengeId) {
-            throw InvalidFilamentConfirmationBridge::presentationFailed();
-        }
-
         if ($receipt === null) {
             Notification::make()
                 ->warning()

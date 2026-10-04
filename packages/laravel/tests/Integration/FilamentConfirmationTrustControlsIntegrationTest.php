@@ -100,12 +100,14 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         self::assertSame($challenge->challengeId, $page->surfaceRelayConfirmationChallengeId);
 
         $page->callMountedAction();
+
+        $receipt = $this->approvedReceipt($page);
         self::assertSame(0, $harness->executor->calls, 'Human approval must not execute business code.');
 
         $second = $harness->dispatch(
             $page,
             key: 'refund-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-happy-2',
         );
         self::assertTrue($second->completed);
@@ -123,7 +125,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $spent = $harness->dispatch(
             $page,
             key: 'refund-K-fresh',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-happy-spent',
         );
         $this->assertConfirmationRequired($spent);
@@ -140,12 +142,13 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $first = $harness->dispatch($page, key: 'record-K');
         $challenge = $this->assertConfirmationRequired($first);
         $page->callMountedAction();
+        $receipt = $this->approvedReceipt($page);
 
         $page->record = $recordB;
         $wrong = $harness->dispatch(
             $page,
             key: 'record-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-record-B',
         );
         $this->assertConfirmationRequired($wrong);
@@ -156,7 +159,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $exact = $harness->dispatch(
             $page,
             key: 'record-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-record-A-exact',
         );
         self::assertTrue($exact->completed);
@@ -176,12 +179,13 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $first = $harness->dispatch($page, key: 'selection-K');
         $challenge = $this->assertConfirmationRequired($first);
         $page->callMountedAction();
+        $receipt = $this->approvedReceipt($page);
 
         $page->selectedTableRecords = [15];
         $wrong = $harness->dispatch(
             $page,
             key: 'selection-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-selection-B',
         );
         $this->assertConfirmationRequired($wrong);
@@ -192,7 +196,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $exact = $harness->dispatch(
             $page,
             key: 'selection-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-selection-A-exact',
         );
         self::assertTrue($exact->completed);
@@ -211,6 +215,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $first = $harness->dispatch($page, key: 'filter-K', exposure: $exposure);
         $challenge = $this->assertConfirmationRequired($first);
         $page->callMountedAction();
+        $receipt = $this->approvedReceipt($page);
 
         $page->getTableFiltersForm()->fill([
             'status' => ['isActive' => false],
@@ -227,7 +232,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $wrong = $harness->dispatch(
             $page,
             key: 'filter-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-filter-B',
             exposure: $exposure,
         );
@@ -240,7 +245,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         $exact = $harness->dispatch(
             $page,
             key: 'filter-K',
-            receipt: $challenge->challengeId,
+            receipt: $receipt,
             correlationId: 'corr-filter-A-exact',
             exposure: $exposure,
         );
@@ -276,6 +281,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
             $first = $harness->dispatch($page, key: $key, input: ['amount' => 100, 'ignored' => 'first']);
             $challenge = $this->assertConfirmationRequired($first);
             $page->callMountedAction();
+            $receipt = $this->approvedReceipt($page);
 
             $wrongCall = [
                 'input' => ['amount' => 100, 'ignored' => 'second'],
@@ -287,7 +293,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
             $wrong = $harness->dispatch(
                 $page,
                 key: $key,
-                receipt: $challenge->challengeId,
+                receipt: $receipt,
                 correlationId: 'corr-wrong-' . str_replace(' ', '-', $name),
                 input: $wrongCall['input'],
                 surface: $wrongCall['surface'],
@@ -302,7 +308,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
             $exact = $harness->dispatch(
                 $page,
                 key: $key,
-                receipt: $challenge->challengeId,
+                receipt: $receipt,
                 correlationId: 'corr-exact-' . str_replace(' ', '-', $name),
                 input: ['amount' => 100, 'ignored' => 'third'],
                 surface: 'filament',
@@ -313,6 +319,15 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
         }
     }
 
+    /** Reads the receipt the page itself kept after modal approval (D-076). */
+    private function approvedReceipt(object $page): string
+    {
+        $receipt = (fn (): ?string => $this->pullApprovedSurfaceRelayConfirmationReceipt())->call($page);
+        self::assertIsString($receipt, 'Modal approval must leave a receipt for the approving page.');
+
+        return $receipt;
+    }
+
     private function harness(): FilamentConfirmationE2EHarness
     {
         return FilamentConfirmationE2EHarness::boot($this->app);
@@ -321,6 +336,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
     private function plainPage(): TestConfirmationPage
     {
         $page = new TestConfirmationPage();
+        $page->setId('trust-plain');
         $page->bootedInteractsWithActions();
 
         return $page;
@@ -329,6 +345,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
     private function recordPage(TestRecord $record): TestConfirmationRecordPage
     {
         $page = new TestConfirmationRecordPage();
+        $page->setId('trust-record');
         $page->record = $record;
         $page->bootedInteractsWithActions();
 
@@ -338,6 +355,7 @@ final class FilamentConfirmationTrustControlsIntegrationTest extends TestCase
     private function tablePage(): TestConfirmationTablePage
     {
         $page = new TestConfirmationTablePage();
+        $page->setId('trust-table');
         $page->bootedInteractsWithTable();
         $page->bootedInteractsWithActions();
 
