@@ -66,9 +66,12 @@ Observed Chromium 153 behavior that differs from the 2026-10-02 WebMCP draft:
   confirmation receipts;
 - the tool result reaches the caller JSON-serialized.
 
-Known gap: a successful call returns no business result (the caller sees
-`"undefined"`), because the driver does not synthesize output from returned HTML
-(D-054). See T-808 in [`TASKS.md`](../../TASKS.md).
+Business output (D-078): `POST /items` declares the Action output explicitly with
+`HX-Trigger: {"surfacerelay:result": {"itemId": "1"}}`, so the tool call returns
+`{"itemId": "1"}`. The runtime reads it from the issued request's own response; it
+never parses the HTML fragment (D-054). Without that declaration a successful call
+returns `undefined`. The human path is unaffected — htmx merely fires an unused
+`surfacerelay:result` event.
 
 Limits: one flag-enabled Chromium build, the page itself acting as tool caller, and
 no real AI agent or origin-trial token. This is not WebMCP conformance.

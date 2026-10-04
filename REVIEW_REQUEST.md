@@ -1,30 +1,27 @@
-# Review Request — T-809 distinct confirmation receipt
+# Review Request — T-808 HTMX business output
 
-Branch `fix/t-809-distinct-receipt`, top of the open stack (#23 → … → #30).
+Branch `feat/t-808-htmx-result`, top of the open stack (#23 → … → #31).
 
 ## What changed
 
-- `ConfirmationService::approveChallenge()` returns a fresh random receipt, never the
-  challenge id. Optional receipt token generator (default random); malformed output or
-  output equal to the challenge fails closed.
-- `ConfirmationStore::approvePending($challengeHash, $receiptHash, ...)`: atomically moves
-  the approvable pending record to the receipt hash. `CacheConfirmationStore` deletes the
-  challenge before writing the receipt (failed write → nothing approvable), refuses an
-  occupied receipt hash, and rejects receipt hash == challenge hash.
-- `InteractsWithSurfaceRelayConfirmation` drops the `receipt === challengeId` assertion.
-- Proposed **D-077**; THREAT-MODEL T11 updated.
+- `GlobalHtmxBrowserRuntime.ajax()` resolves with the plain object the server declared as
+  `surfacerelay:result` in the issued request's `HX-Trigger` JSON header; otherwise
+  `undefined`. `HtmxBrowserRuntime.ajax()` now returns `Promise<unknown>`.
+- Read from the correlated xhr, not htmx's event detail (htmx adds `elt` to it).
+- Absent, non-JSON, array, non-object or null declarations → `undefined`, never an error:
+  the server already applied the request, and an error would invite a duplicate retry.
+- HTMX fixture `POST /items` declares `{itemId}`; the live WebMCP tool call returns it.
+- Proposed **D-078**; open question resolved.
 
 ## Review focus
 
-- Breaking interface change for custom `ConfirmationStore` implementations (unpublished;
-  CHANGELOG "Changed").
-- Delete-then-write ordering in the cache store: fail closed vs. lost approval.
-- Ten tests encoded `receipt === challengeId`; they now read the real receipt (trust-control
-  tests pull it from the approving page's server state, D-076).
+- Is "malformed declaration → `undefined`" the right trade-off vs. surfacing an app bug?
+- No browser-side output-schema validation (no JSON Schema dependency); output policy
+  stays server-side.
 
 ## Verification
 
-- RED first: 12 errors / 2 failures in the new service and cache-store tests.
-- `packages/laravel`: PHPUnit 608 OK (2 skipped).
-- `examples/filament-orders-live`: 10/10 live (approval → exactly-once retry unchanged).
-- `scripts/validate.py`.
+- RED first: unit positive case and the live `executeTool()` result (`"undefined"`).
+- `packages/browser-runtime`: `npm test` 364/364, `tsc --noEmit`.
+- `examples/htmx-prep-list`: 17/17 (real HTMX 2.0.10, Chromium 153).
+- `run_conformance.py` 7 PASS / 1 N/A; `validate.py`; `test_browser_release_candidate` OK.

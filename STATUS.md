@@ -8,7 +8,7 @@ Current state only. History lives in git, PRs, and
 - **Main:** `e7d61ef` — M0–M7 and T-801…T-803 merged; main CI green.
 - **Open PR stack (merge in order, owner review):** #23 T-804 plan → #24 T-804 docs →
   #25 native WebMCP proof → #26 tracking cleanup → #27 T-806 → #28 T-804 README →
-  #29 T-807a live Filament proof → #30 T-807b approved retry → T-809 distinct receipt.
+  #29 T-807a live Filament proof → #30 T-807b approved retry → #31 T-809 distinct receipt → T-808 HTMX output.
 - **Release:** nothing published; no public version selected.
 
 ## What works today
@@ -24,7 +24,8 @@ Current state only. History lives in git, PRs, and
   with clean-consumer checks.
 - Native WebMCP in real Chromium (`document.modelContext`, flag-enabled):
   - HTMX fixture ([details](examples/htmx-prep-list/README.md#native-webmcp-proof));
-    server rejections and unsent requests reach the agent as failures (T-806, D-074).
+    server rejections and unsent requests reach the agent as failures (T-806, D-074);
+    declared business output reaches the agent (T-808, D-078).
   - Real Filament 5 panel ([details](examples/filament-orders-live/README.md)): agent
     hold on the current record; agent refund over the human-visible selection
     (D-075) → Filament confirmation modal → human approves → agent retry refunds
@@ -32,14 +33,12 @@ Current state only. History lives in git, PRs, and
 
 ## Known gaps
 
-- HTMX tool calls return no business output on success (T-808).
 - Chromium 153 drops `consequentialHint` from `getTools()`; consequential safety must
   keep relying on server-issued confirmation receipts.
 
 ## Needs decision
 
-- T-808: HTMX business-output convention.
-- D-074 … D-077: promote to ACCEPTED or revise.
+- D-074 … D-078: promote to ACCEPTED or revise.
 
 ## Publication blockers
 
@@ -49,10 +48,11 @@ Current state only. History lives in git, PRs, and
 
 ## Decisions
 
-- Accepted through D-068. Proposed: D-026, D-069…D-077
+- Accepted through D-068. Proposed: D-026, D-069…D-078
   ([register](docs/DECISION-REGISTER.md)).
 
 ## Next
 
-T-808 → T-805. See [`TASKS.md`](TASKS.md).
+T-805. See [`TASKS.md`](TASKS.md).
+
 

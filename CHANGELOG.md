@@ -63,6 +63,12 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Fixed
 
+- HTMX-backed Actions can return business output: when the business route sets
+  `HX-Trigger` to a JSON object with a plain-object `surfacerelay:result`
+  member, `GlobalHtmxBrowserRuntime.ajax()` resolves with it, read from the
+  issued request's own response. Absent or malformed declarations resolve
+  `undefined`; output is never derived from HTML. `HtmxBrowserRuntime.ajax()`
+  now returns `Promise<unknown>` (proposed D-078).
 - The HTMX driver no longer reports failed requests as success. `htmx.ajax()`
   resolves after HTTP error responses and on paths that never send the request;
   `GlobalHtmxBrowserRuntime.ajax()` now tracks its own request and rejects with

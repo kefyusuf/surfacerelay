@@ -6,18 +6,6 @@ one-line entry; full history is in
 
 ## Open
 
-### T-808 — Business output for HTMX-backed Actions
-
-After T-806 a successful HTMX tool call proves the server accepted the request but
-returns no output (`itemId`), because D-054 forbids synthesizing output from HTML.
-
-- Needs a decision: an app-owned, opt-in response convention. Candidate: the server
-  emits `HX-Trigger: {"surfacerelay:result": <ActionResult data>}` on the business
-  route and the driver returns that payload, validated against the Action's
-  `outputSchema`; absent payload stays `undefined`.
-- Acceptance: payload only from the exact issued request; schema-invalid payload
-  fails closed; no output from HTML; human path unchanged.
-
 ### T-805 — Integrated release-readiness verification
 
 One revision/version input, both candidate artifacts, full regression, clean-consumer
@@ -38,7 +26,8 @@ evidence, hashes, publication go/no-go handoff. Publication itself stays outside
 | M7 Conformance / bridges | T-701 runner, T-702 adapter guide, T-703 Laravel MCP, T-704 OpenAPI importer |
 | M8 Release readiness | T-801 artifact contract, T-802 Laravel artifact, T-803 browser artifact |
 | M8 docs | T-804 consumer guides, CHANGELOG, SECURITY, versioning, release checklist, README |
-| Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed); T-807a live Filament panel proof + selection sync (D-075 proposed); T-807b approved retry on the agent path (D-076 proposed); T-809 distinct confirmation receipt (D-077 proposed) |
+| Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed); T-807a live Filament panel proof + selection sync (D-075 proposed); T-807b approved retry on the agent path (D-076 proposed); T-809 distinct confirmation receipt (D-077 proposed); T-808 HTMX business output via `HX-Trigger` (D-078 proposed) |
+
 
 
 
