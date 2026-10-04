@@ -1,37 +1,34 @@
-# Review Request — native WebMCP proof + T-806
+# Review Request — T-807a live Filament + WebMCP proof
 
-Branch `feat/webmcp-live-browser-proof`, stacked on `docs/t-804-release-facing-documentation` (#24).
+Branch `feat/t-807a-filament-live-webmcp`, top of the open stack (#23 → … → #28).
 
 ## What changed
 
-- `resolveDocumentModelContext()` added to the browser runtime root API (feature
-  detection only; no polyfill, no `navigator` fallback).
-- HTMX fixture registers its Action tool on Chromium's native `document.modelContext`;
-  new `chromium-webmcp` Playwright project drives it through `executeTool()`.
-- **T-806:** `GlobalHtmxBrowserRuntime.ajax()` resolves only when the request it issued
-  (matched by the xhr in its own `htmx:beforeSend`) completed with
-  `successful === true`. New driver-local codes `htmx_request_not_sent` and
-  `htmx_request_failed`. Proposed as D-074.
-- Tracking files reduced to current state; prior versions moved to `docs/archive/`.
+- `packages/laravel/testbench.yaml` + `tests/Browser/*`: fixture-only real Filament 5
+  panel under `testbench serve`, reusing `FilamentOrderDemoHarness` (actor/tenant fixed
+  to `tenant-a`, no login). A `PAGE_END` render hook emits bindings from the production
+  `LivewireBindingProducer` as inert JSON inside the page component.
+- Fixture tweaks: `OrderResource` gains columns + `->selectable()`; the edit-page stub
+  view is wrapped in `<x-filament-panels::page>`; the harness exposes its registry.
+- `examples/filament-orders-live`: browser glue + Playwright on flag-enabled Chromium,
+  invoking tools through `document.modelContext.executeTool()`.
+- **Finding / D-075 (proposed):** Filament 5 syncs table selection to the server only on
+  `mountAction`; an agent call reached the server with an empty `current_selection`
+  (`required_context_missing`). The glue now pushes the Alpine selection first, as
+  Filament does.
+- New `filament-live` CI workflow.
 
 ## Review focus
 
-- D-074 correlation: can a foreign request on the same source be mistaken for ours?
-  (Busy sources already fail closed per D-055.)
-- `htmx:onLoadError` path: htmx's promise never settles there; the runtime now rejects.
-- Interface contract change for custom `HtmxBrowserRuntime` implementations and the new
-  `addEventListener` requirement on sources (fails closed as `htmx_runtime_unsupported`).
-- Is keeping "no business output" (D-054) right until T-808 decides a convention?
+- Is pushing Alpine selection before agent calls the right authority (D-049/D-075)?
+  Server-side per-record, all-or-nothing tenant authorization is unchanged.
+- Fixture provider routes `/__test/*` and runtime file serving: fixture-only, path-pattern bound.
+- T-807b (approved retry) intentionally not implemented; needs a receipt-location decision.
 
 ## Verification
 
-- `packages/browser-runtime`: `npm test` 355/355, `npx tsc --noEmit` clean; RED proven
-  first (14 new runtime tests failing, one by hanging).
-- `examples/htmx-prep-list`: `npm test` 17/17 on real HTMX 2.0.10 + Chromium 153,
-  including 422 and vetoed-request cases through `executeTool()`.
-- `scripts/run_conformance.py`: 7 PASS / 1 NOT_APPLICABLE (unchanged).
-- `python scripts/validate.py`, `scripts/check_release_guardrails.py`: pass.
-- Python tooling: release-candidate 49/49, browser release-candidate 25/25;
-  conformance 46/47 — the one error (Windows temp-dir lock) also fails on the
-  unchanged baseline locally.
-
+- `examples/filament-orders-live`: 5/5 on Filament 5.9 / Livewire 4.4 / Laravel 13.34 /
+  PHP 8.4 / Chromium 153. RED first: refund failed with `required_context_missing`,
+  edit page had no binding (stub view).
+- `packages/laravel`: PHPUnit 595 tests OK (2 skipped, unchanged).
+- `scripts/validate.py`, release guardrails, `test_laravel_release_candidate` 20/20.

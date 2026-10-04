@@ -163,7 +163,7 @@ ListOrders::refundSelected(reason)
 
 Page methods delegate through `OrderDemoPageActions`; they contain no direct Eloquent mutation, `ActionBus`, or `ActionCall` shortcut. The non-consequential hold method is executed through the same page-method → gateway → ActionBus → executor seam.
 
-The Testbench fixture does not configure a full Filament panel container. Therefore method execution boots the Filament page directly instead of rendering it through `Livewire::test()`. Binding production itself is tested with the production Livewire binding producer. A full application may add panel-level browser/render coverage without changing this authority model.
+The Testbench fixture does not configure a full Filament panel container. Therefore method execution boots the Filament page directly instead of rendering it through `Livewire::test()`. Binding production itself is tested with the production Livewire binding producer. Panel-level real-browser coverage, including native WebMCP invocation, lives in [`../filament-orders-live`](../filament-orders-live/README.md) without changing this authority model.
 
 ## Durable audit secrecy
 

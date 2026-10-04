@@ -36,6 +36,14 @@ dates. SurfaceRelay remains experimental and unofficial.
   bindings, undeclared input, server rejections and unsent requests, and
   unregisters when the lease is disposed. See
   [the fixture](examples/htmx-prep-list/README.md#native-webmcp-proof).
+- A live Filament proof: a real Filament 5 panel served by `testbench serve`
+  registers the order demo's Livewire-bound Actions on the native
+  `document.modelContext`. An agent hold mutates exactly the trusted current
+  record; an agent refund over the human-visible table selection stops at
+  `confirmation_required`; forged order ids are rejected. Filament's client-side
+  selection is pushed to the server before agent calls, as Filament's own
+  `mountAction` does (proposed D-075). See
+  [the example](examples/filament-orders-live/README.md).
 
 ### Fixed
 

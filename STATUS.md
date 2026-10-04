@@ -6,8 +6,9 @@ Current state only. History lives in git, PRs, and
 ## Snapshot — 2026-10-04
 
 - **Main:** `e7d61ef` — M0–M7 and T-801…T-803 merged; main CI green.
-- **Open PRs:** #23 (T-804 plan, ready) → #24 (T-804 docs, draft, stacked on #23).
-- **Working branch:** `feat/webmcp-live-browser-proof`, stacked on #24's branch.
+- **Open PR stack (merge in order, owner review):** #23 T-804 plan → #24 T-804 docs →
+  #25 native WebMCP proof → #26 tracking cleanup → #27 T-806 → #28 T-804 README →
+  T-807a live Filament proof.
 - **Release:** nothing published; no public version selected.
 
 ## What works today
@@ -21,19 +22,25 @@ Current state only. History lives in git, PRs, and
 - Optional Laravel MCP projection and OpenAPI importer packages.
 - Release-candidate artifacts for `surfacerelay/laravel` and `@surfacerelay/browser-runtime`
   with clean-consumer checks.
-- **New:** native WebMCP proof — the HTMX fixture registers on Chromium's own
-  `document.modelContext` and is invoked through `executeTool()`
-  ([details](examples/htmx-prep-list/README.md#native-webmcp-proof)).
-
-- **New:** HTMX driver reports server rejections and unsent requests as failures
-  instead of success (T-806, D-074 proposed).
+- Native WebMCP in real Chromium (`document.modelContext`, flag-enabled):
+  - HTMX fixture ([details](examples/htmx-prep-list/README.md#native-webmcp-proof));
+    server rejections and unsent requests reach the agent as failures (T-806, D-074).
+  - Real Filament 5 panel ([details](examples/filament-orders-live/README.md)):
+    agent hold mutates the exact current record; agent refund over the human-visible
+    selection stops at `confirmation_required` (T-807a, D-075 selection sync).
 
 ## Known gaps
 
+- Approved retry on the agent path is blocked on a design decision (T-807b).
 - HTMX tool calls return no business output on success (T-808).
-- No live WebMCP demo of the Filament/Livewire vertical yet (T-807).
 - Chromium 153 drops `consequentialHint` from `getTools()`; consequential safety must
   keep relying on server-issued confirmation receipts.
+
+## Needs decision
+
+- T-807b: where an approved confirmation receipt lives between approval and retry.
+- T-808: HTMX business-output convention.
+- D-074, D-075: promote to ACCEPTED or revise.
 
 ## Publication blockers
 
@@ -43,10 +50,9 @@ Current state only. History lives in git, PRs, and
 
 ## Decisions
 
-- Accepted through D-068. Proposed: D-026, D-069…D-074
+- Accepted through D-068. Proposed: D-026, D-069…D-075
   ([register](docs/DECISION-REGISTER.md)).
 
 ## Next
 
-T-807 → T-808 → T-805. See [`TASKS.md`](TASKS.md).
-
+T-807b / T-808 after decisions → T-805. See [`TASKS.md`](TASKS.md).
