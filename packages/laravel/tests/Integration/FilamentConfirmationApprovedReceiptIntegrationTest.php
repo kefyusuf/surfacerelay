@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace SurfaceRelay\Laravel\Tests\Integration;
 
+use Livewire\Component;
+use Livewire\Exceptions\MethodNotFoundException;
+use Livewire\Livewire;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase;
 use ReflectionMethod;
@@ -57,8 +60,31 @@ final class FilamentConfirmationApprovedReceiptIntegrationTest extends TestCase
         $page->callMountedAction();
 
         $public = json_encode(get_object_vars($page), JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $snapshot = json_encode(Livewire::snapshot($page), JSON_THROW_ON_ERROR);
+        $receipt = $page->pullApprovedReceiptForTest();
+        self::assertIsString($receipt);
+        self::assertNotSame($challenge->challengeId, $receipt);
         self::assertIsString($public);
         self::assertStringNotContainsString($challenge->challengeId, $public);
+        self::assertStringNotContainsString($receipt, $public);
+        self::assertStringNotContainsString($receipt, $snapshot);
+        self::assertTrue($service->consumeReceipt($receipt, 'scope-A'));
+    }
+
+    public function test_browser_cannot_call_the_protected_receipt_accessor(): void
+    {
+        $probe = Livewire::test(ApprovedReceiptBoundaryProbe::class);
+        $key = 'surfacerelay.filament.confirmation.approved.' . hash('sha256', $probe->instance()->getId());
+        $receipt = str_repeat('R', 43);
+        session()->put($key, $receipt);
+
+        try {
+            $probe->call('pullApprovedSurfaceRelayConfirmationReceipt');
+            self::fail('The browser must not call the protected receipt accessor.');
+        } catch (MethodNotFoundException) {
+        }
+
+        self::assertSame($receipt, session()->get($key), 'A rejected browser call must not pull the receipt.');
     }
 
     public function test_receipt_is_bound_to_the_approving_component(): void
@@ -160,5 +186,15 @@ final class FilamentConfirmationApprovedReceiptIntegrationTest extends TestCase
         $page->bootedInteractsWithActions();
 
         return $page;
+    }
+}
+
+final class ApprovedReceiptBoundaryProbe extends Component
+{
+    use InteractsWithSurfaceRelayConfirmation;
+
+    public function render(): string
+    {
+        return '<div>approved-receipt-boundary-probe</div>';
     }
 }

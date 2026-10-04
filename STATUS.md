@@ -10,9 +10,13 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
   Readiness builds from the requested Git archive and freshly compiles browser output;
   ignored source files and stale checkout distribution are excluded.
 - T-809 receipt-address concurrency correction locks both token addresses in sorted
-  order. Three regressions proved RED first; Docker Laravel: 611 tests, 3266 assertions
-  (2 skipped); Composer validation, PHP syntax and canonical validation pass.
-  Independent real-store reproduction confirms one winner and an unchanged loser.
+  order. Three regressions proved RED first; independent real-store reproduction
+  confirms one winner and an unchanged loser.
+- T-807b receipt-boundary tests now inspect the actual receipt and Livewire snapshot,
+  and reject browser calls to the protected accessor. Isolated leak/public-accessor
+  mutations are rejected; scoped independent review found no production defect.
+- Docker Laravel: 612 tests, 3272 assertions (2 skipped); Composer validation,
+  changed PHP syntax and canonical validation pass.
 - T-805 evidence: 111 Python tests and two actual artifacts/isolated consumers pass.
 - The two local Composer lockfiles are preserved and excluded from the change.
 - No release or public version is selected. Publication remains NO-GO.
