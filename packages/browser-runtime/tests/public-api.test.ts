@@ -14,6 +14,7 @@ describe('browser-runtime public root API', () => {
       'projectAnnotations',
       'projectBoundActionTool',
       'projectWebMcpToolName',
+      'resolveDocumentModelContext',
     ]);
   });
 });

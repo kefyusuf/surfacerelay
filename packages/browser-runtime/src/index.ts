@@ -8,6 +8,7 @@ export { GlobalHtmxBrowserRuntime } from './htmx-browser-runtime.js';
 export { createHtmxBindingTarget } from './htmx-binding-descriptor.js';
 
 export { WebMcpRegistrationLifecycle } from './webmcp-registration-lifecycle.js';
+export { resolveDocumentModelContext } from './webmcp-model-context.js';
 export { projectAnnotations } from './webmcp-projection.js';
 export {
   projectBoundActionTool,

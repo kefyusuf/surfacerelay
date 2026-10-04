@@ -16,7 +16,9 @@ shell, from the repository root. Temporary outputs remain outside the checkout.
 The existing CI consumer uses TypeScript 5.9.3 and Vite 7.3.6. Its evidence covers
 root ESM import, shipped declarations, typecheck, bundle, and a Node DriverRegistry
 smoke. It does not establish real-browser/WebMCP interoperability or support for
-every operating system. Separate Windows npm launch checks cover tested tooling
+every operating system. Native WebMCP evidence is separate and narrower: the
+[HTMX fixture](../../examples/htmx-prep-list/README.md#native-webmcp-proof) registers
+through Chromium's own `document.modelContext` behind a feature flag. Separate Windows npm launch checks cover tested tooling
 paths; this POSIX recipe is not a Windows shell recipe.
 
 ## Build an exact candidate

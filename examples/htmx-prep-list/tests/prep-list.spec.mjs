@@ -34,6 +34,7 @@ test('boots real HTMX 2.0.10 with one exact server-issued page binding', async (
     };
   }, { bindingSelector, sourceSelector });
 
+  expect(await page.evaluate(() => globalThis.surfaceRelayFixture.webMcpAvailable)).toBe(false);
   expect(snapshot.htmxVersion).toBe('2.0.10');
   expect(snapshot.sourceCount).toBe(1);
   expect(snapshot.binding.driver).toBe('htmx');

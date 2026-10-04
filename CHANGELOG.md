@@ -26,6 +26,15 @@ dates. SurfaceRelay remains experimental and unofficial.
   security wiring, and Node tooling evidence from real-browser interoperability.
 - A [security policy](SECURITY.md) recording experimental support status and the
   private vulnerability-reporting channel gap.
+- `resolveDocumentModelContext()` in the browser runtime root API: feature-detects
+  the native `document.modelContext` and returns `null` when WebMCP is absent or
+  malformed. It does not polyfill or fall back to `navigator.modelContext`.
+- A native WebMCP proof in the HTMX fixture: the projected
+  `prep_list.add_item.v1` tool registers on Chromium's own `document.modelContext`
+  (`--enable-blink-features=WebMCP`), is invoked through the browser's
+  `executeTool()`, drives the same real HTMX `POST /items`, fails closed for stale
+  bindings and undeclared input, and unregisters when the lease is disposed. See
+  [the fixture](examples/htmx-prep-list/README.md#native-webmcp-proof).
 
 ### Fixed
 
@@ -39,6 +48,7 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 The consumer guides use `0.0.0-alpha1` only as an internal verification input.
 There is no public version or registry installation promise in these entries.
-Artifact and fixture checks do not certify production readiness or real-browser
-WebMCP interoperability. Private reporting availability remains a publication
+Artifact and fixture checks do not certify production readiness or general
+WebMCP interoperability; the native WebMCP proof covers one flag-enabled Chromium
+build with the page itself acting as the tool caller, not a real AI agent. Private reporting availability remains a publication
 blocker; integrated two-artifact release verification remains T-805 work.

@@ -34,6 +34,44 @@ The fixture also proves:
 - runtime static serving rejects nested/traversal paths;
 - item content is HTML-escaped in partial and full-page rendering.
 
+## Native WebMCP proof
+
+`client.mjs` calls `resolveDocumentModelContext()`. When the browser exposes
+`document.modelContext`, the page registers `prep_list.add_item.v1` through
+`WebMcpRegistrationLifecycle` and the same `HtmxBrowserDriver`; otherwise it registers
+nothing and the human/driver paths behave exactly as before.
+
+`tests/webmcp.spec.mjs` runs in a separate Playwright project, `chromium-webmcp`,
+launched with `--enable-blink-features=WebMCP` (verified on Chromium 153 headless
+shell). The test plays the agent by calling the browser's own
+`document.modelContext.getTools()` and `executeTool()`, so invocation crosses the
+real WebMCP boundary rather than calling the driver directly. It proves:
+
+- exactly one tool is registered, with name, title, description, input schema and
+  annotations projected from the Action Definition;
+- a tool call produces the same real HTMX `POST /items` as a human click, overrides
+  stale same-name form state, and persists across reload;
+- a stale binding and undeclared input properties fail the tool call closed without
+  sending `/items`;
+- disposing the registration lease unregisters the tool; reload re-registers one tool
+  bound to the renewed page binding.
+
+Observed Chromium 153 behavior that differs from the 2026-10-02 WebMCP draft:
+
+- `executeTool()` accepts the input as a JSON string, not an object;
+- `consequentialHint` is accepted at registration but not returned by `getTools()`,
+  so agents cannot rely on it — consequential safety stays with server-issued
+  confirmation receipts;
+- the tool result reaches the caller JSON-serialized.
+
+Known gap, pinned with `test.fail()`: `htmx.ajax()` resolves on HTTP error
+responses, so a server rejection (`422`) is reported to the caller as a successful
+tool call, and a successful call returns no business result (`"undefined"`). See
+T-806 in [`TASKS.md`](../../TASKS.md).
+
+Limits: one flag-enabled Chromium build, the page itself acting as tool caller, and
+no real AI agent or origin-trial token. This is not WebMCP conformance.
+
 ## Test-only surface
 
 The only test-only server endpoint is:
@@ -44,7 +82,7 @@ POST /__test/reset
 
 It only clears in-memory fixture state. It is not a second business mutation path.
 
-The browser test bridge exposes only delegation to the production `HtmxBrowserDriver.execute()` path plus a DOM-only source-replacement helper. It does not call `fetch`, XHR, or `htmx.ajax()` directly and does not mutate server state.
+The browser test bridge exposes only delegation to the production `HtmxBrowserDriver.execute()` path, a DOM-only source-replacement helper, and disposal of the page's own WebMCP registration lease. It does not call `fetch`, XHR, or `htmx.ajax()` directly and does not mutate server state.
 
 ## Run locally
 

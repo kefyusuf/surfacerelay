@@ -86,6 +86,7 @@ function renderPage() {
     </form>
     <ul id="items">${items}</ul>
   </main>
+  <script type="application/json" id="surfacerelay-action">${jsonForHtmlScript(definition)}</script>
   <script type="application/json" id="surfacerelay-binding">${jsonForHtmlScript(binding)}</script>
   <script src="/vendor/htmx.min.js"></script>
   <script type="module" src="/client.mjs"></script>
