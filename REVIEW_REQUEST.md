@@ -1,26 +1,31 @@
-# Review Request — T-805 integrated release readiness
+# Integration Review Request
 
-Branch `feat/t-805-release-readiness`, merged for review via integration PR #34.
+Review [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) against main.
+It contains unmerged release documentation/readiness and WebMCP/Filament work.
 
-## What changed
+## Latest correction — T-805 source isolation
 
-- `scripts/release_readiness.py`: `build_release_readiness()` — one clean exact revision and
-  one prerelease version in; both candidates built into separate stages by the unchanged
-  builders; identity and archive/manifest hashes independently re-verified; aggregate
-  `readiness-evidence.json` written only after every check passes.
-- Publication handoff is always `NO-GO` with explicit blockers (D-073).
-- CI: Validate runs the new tests. Docs: `docs/RELEASE-READINESS.md` (run record),
-  RELEASE-CHECKLIST points at it; CHANGELOG; tracking files (no open tasks left).
+The previous readiness implementation copied the live checkout after a Git clean
+check, allowing ignored source files or stale distribution into a SHA-labeled artifact.
+Both builders now consume a temporary archive of the requested revision. The default
+browser builder gets freshly compiled output there. Unsafe archive entries fail closed;
+extraction/build/verification failure does not produce aggregate evidence.
 
-## Review focus
+TDD proved three failing regressions first; all 17 readiness tests now pass.
+Docker full tooling: 111 tests plus canonical validation and publication guard pass.
+Real default builders produced both artifacts; isolated browser and Laravel consumers
+passed. Injected ignored `.env` and stale `dist` were excluded and originals preserved.
+Independent correction review found no material remaining issue.
 
-- Verification depth: identity in result, evidence and manifest; filename, size, archive
-  and manifest SHA-256 recomputed.
-- The recorded run is **pre-merge** (`e722d01`, branch revision); must be repeated on merged `main`.
+## Integration focus
 
-## Verification
+- Review the full PR confirmation/store contract, approved-receipt session boundary,
+  HTMX request/result correlation and Filament selection synchronization separately.
+- Node/fixture and flag-enabled browser proofs are bounded; they are not general
+  WebMCP certification or production-security approval.
+- Readiness evidence remains pre-merge. Public API of the readiness function and core
+  runtime contracts are unchanged by this correction; publication always stays NO-GO.
+- User Composer lockfiles are excluded. Check the latest PR CI before approval.
 
-- RED first: 10/10 new tests errored (module missing); now 10/10 OK.
-- Real run on a clean `git worktree` of `e722d01` (Windows): both archives built and verified;
-  browser clean consumer PASS; Laravel artifact install + identity + ActionBus smoke PASS.
-- Release-candidate suites, publication guardrails, `validate.py`: pass.
+Next gate: external integration review/finding disposition. Merge, decision promotion,
+settings changes and publication need explicit authorization.

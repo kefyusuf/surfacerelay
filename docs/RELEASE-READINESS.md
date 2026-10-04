@@ -10,19 +10,34 @@ a public version (D-073).
 
 1. The checkout is exactly the requested 40-character revision with no tracked or
    untracked changes (`preflight_repository`), and the version is a SemVer prerelease.
-2. The stage root is empty; each candidate builds into its own subdirectory
+2. The requested revision is materialized with `git archive` in an isolated temporary
+   source directory. Archive links, special files and escaping paths are rejected.
+   Ignored checkout files do not enter the snapshot. Browser dependencies are installed
+   with lifecycle scripts disabled and distribution is freshly built in that snapshot.
+3. The stage root is empty; each candidate builds into its own subdirectory
    (`laravel/`, `browser-runtime/`) with the unchanged existing builders.
-3. For each candidate: reported identity, `artifact-evidence.json` and
+4. For each candidate: reported identity, `artifact-evidence.json` and
    `content-manifest.json` identity (package name, version, revision) match the inputs;
    archive filename, size and SHA-256 and the content-manifest SHA-256 are recomputed
    and must match the evidence.
-4. Only then is `readiness-evidence.json` written. Any mismatch fails without it.
-5. `publication.decision` is always `NO-GO`, with the remaining blockers listed.
+5. Only then is `readiness-evidence.json` written. A source extraction, browser build
+   or candidate verification failure leaves no aggregate evidence.
+6. `publication.decision` is always `NO-GO`, with the remaining blockers listed.
 
-The browser builder packs an existing `packages/browser-runtime/dist`; build it in the
-clean checkout first (ignored output does not dirty the tree).
+The standalone browser builder still packs an existing distribution. The readiness
+function rebuilds it from the archived sources; it does not trust checkout `dist`.
+Default execution requires Git, Python, Node/npm, access to build dependencies and
+the prerequisites in the consumer guides. npm launch uses the existing cross-platform
+launcher and credential-stripping environment. Temporary source is removed on exit;
+candidate archives/evidence remain under the supplied stage root. Injected builders
+receive the same isolated source snapshot and own their build behavior.
 
 ## Recorded run — 2026-10-04 (branch revision, pre-merge)
+
+This historical run predates the source-isolation correction. It proves that the
+reported archives installed, but the old readiness implementation did not exclude
+all Git-ignored inputs. Re-run the corrected function before relying on its source
+provenance guarantee or making a publication decision.
 
 Run on Windows 11 from a detached `git worktree` of
 `e722d01dd9a0b9e3617428673a18c5db7ee1601e` (branch `feat/t-805-release-readiness`,
@@ -48,6 +63,18 @@ helpers:
 Publication handoff: **NO-GO** — `private-vulnerability-reporting-unverified`,
 `public-version-not-approved`, `registry-namespace-and-credentials-unverified`,
 `publication-not-authorized`.
+
+## Corrected source-isolation verification
+
+The verified source is the unmerged [source-isolation correction](https://github.com/kefyusuf/surfacerelay/commit/c743545942003a6991c5e2488e484602e19249b1).
+
+Docker verification of the correction used Python 3.12.15, Node 22.23.3,
+PHP 8.4.26 and Composer 2.10.3 with a read-only host checkout and temporary writes.
+Both default builders and both isolated consumers passed. Deliberately ignored
+`.env` and stale `dist` sentinels were excluded from archives and preserved in the
+input copy. Publication stayed NO-GO. The 17 readiness tests and full 111-test Python
+tooling set pass, including negative archive/extraction and build-failure cases.
+This verifies the correction before merge; it does not replace merged-main evidence.
 
 ## Before any publication decision
 

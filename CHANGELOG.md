@@ -68,6 +68,12 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Fixed
 
+- Integrated release readiness now builds from an isolated archive of the requested
+  Git revision and freshly rebuilds browser distribution there. Ignored source
+  files and stale checkout distribution cannot silently enter the default
+  candidates; unsafe archive entries and build failures stop aggregate evidence.
+  See [release readiness](docs/RELEASE-READINESS.md).
+
 - HTMX-backed Actions can return business output: when the business route sets
   `HX-Trigger` to a JSON object with a plain-object `surfacerelay:result`
   member, `GlobalHtmxBrowserRuntime.ajax()` resolves with it, read from the
