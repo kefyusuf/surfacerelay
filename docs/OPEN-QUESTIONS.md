@@ -35,7 +35,7 @@ Still open:
 
 - Should the first HTMX driver execute an explicit form submission or call an app-owned endpoint descriptor?
 - ~~Which browser events are sufficient to establish completion?~~ Proposed in D-074: the issued request's own `htmx:beforeSend`/`htmx:afterRequest` pair (T-806).
-- ~~How should an HTMX-backed Action return business output without synthesizing it from returned HTML (D-054)?~~ Proposed in D-078: an explicit `HX-Trigger` `surfacerelay:result` declaration (T-808).
+- ~~How should an HTMX-backed Action return business output without synthesizing it from returned HTML (D-054)?~~ Proposed in D-078: an explicit `HX-Trigger` `surfacerelay:result.value` envelope (T-808), isolated from HTMX control fields.
 
 ## Conformance
 

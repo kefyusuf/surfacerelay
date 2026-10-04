@@ -111,6 +111,27 @@ test('human and SurfaceRelay execution converge on the same real HTMX request pa
   );
 });
 
+for (const target of ['archive', null, 42, '#items', { nested: true }]) {
+  test(`business target ${JSON.stringify(target)} remains data through real HTMX`, async ({ page }) => {
+    const value = { itemId: '1', target, value: { nested: 'business' }, elt: 'business' };
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.route('**/items', async (route) => {
+      const response = await route.fetch();
+      await route.fulfill({ response, headers: {
+        ...response.headers(),
+        'hx-trigger': JSON.stringify({ 'surfacerelay:result': { value } }),
+      } });
+    });
+    const result = await page.evaluate(() => globalThis.surfaceRelayFixture.addItem('target-data'));
+    expect(result).toEqual(value);
+    await expect(page.locator('#items li')).toHaveText('target-data');
+    await page.reload();
+    await expect(page.locator('#items li')).toHaveText('target-data');
+    expect(errors).toEqual([]);
+  });
+}
+
 test('deferred confirmation is an unknown outcome even when the request sends later', async ({ page }) => {
   let itemRequests = 0;
   page.on('request', (request) => {

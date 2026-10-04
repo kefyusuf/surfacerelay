@@ -9,9 +9,11 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
 - Reviewed corrections pass: T-805 archived-source isolation, T-809 sorted receipt
   locks, and T-807b receipt secrecy/protected-call evidence. Scoped independent
   reviews do not replace the full integration review.
-- T-808 review correction treats vetoed HTMX confirmation as an unknown outcome
-  (`htmx_request_failed`), preserving deferred human approval. Docker: 366 browser
-  tests and typecheck pass; real Chrome HTMX fixture: 9 tests pass.
+- T-808 uses the owner-approved `surfacerelay:result.value` envelope. Business
+  `target`, `value` and `elt` remain data; deferred confirmation remains an unknown
+  outcome. Docker: 398 browser tests/typecheck and 22 shared schema fixtures pass.
+  Real Chrome HTMX: 14 tests and scoped independent review pass. See
+  [wire migration guidance](docs/consumers/browser-runtime.md#htmx-result-envelope).
 - Docker Laravel: 612 tests, 3272 assertions (2 skipped); Composer validation,
   changed PHP syntax and canonical validation pass.
 - T-805 evidence: 111 Python tests and two actual artifacts/isolated consumers pass.
@@ -34,13 +36,3 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
   credentials and public-version/publication approval separately.
 - Next agent scope: integration review findings only, then merged-main verification
   after an authorized merge. See [TASKS](TASKS.md) and [review handoff](REVIEW_REQUEST.md).
-
-## Needs decision
-
-- D-078: HTMX interprets business output's top-level `target` as an event destination.
-  Real HTMX 2.0.10 writes successfully then throws for `{target: "archive"}`, `null`
-  or numeric targets. The current arbitrary-object output claim is not qualified.
-  Proposed: wrap business data in `{"surfacerelay:result":{"value":{...}}}` and
-  unwrap `value` in the adapter, with fixtures/docs and unpublished-contract migration.
-  Alternative: explicitly forbid HTMX control keys in business output. The wire
-  contract stays unchanged until this owner decision; do not hide response failures.

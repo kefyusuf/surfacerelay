@@ -37,7 +37,7 @@ export interface HtmxBrowserRuntime {
    * with `htmx_request_failed`.
    *
    * On success it resolves with the object the server declared as
-   * `surfacerelay:result` in that response's `HX-Trigger` JSON header, or
+   * `surfacerelay:result.value` in that response's `HX-Trigger` JSON header, or
    * `undefined` when none is declared (D-078). Output is never derived from HTML.
    */
   ajax(method: HtmxAjaxMethod, path: string, context: HtmxAjaxContext): Promise<unknown>;
@@ -149,7 +149,9 @@ function declaredResultOf(xhr: unknown): Record<string, unknown> | undefined {
   if (!isPlainObject(triggers)) return undefined;
 
   const result = triggers[RESULT_TRIGGER_NAME];
-  return isPlainObject(result) ? result : undefined;
+  if (!isPlainObject(result) || Object.keys(result).length !== 1
+    || !Object.prototype.hasOwnProperty.call(result, 'value')) return undefined;
+  return isPlainObject(result.value) ? result.value : undefined;
 }
 
 function requestNotSent(): HtmxBindingExecutionError {

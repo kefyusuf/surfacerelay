@@ -3,27 +3,27 @@
 Review [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) against main.
 It contains unmerged release documentation/readiness and WebMCP/Filament work.
 
-## Latest correction — T-808 deferred confirmation outcome
+## Latest correction — T-808 HTMX result envelope
 
-Real HTMX resolves its original promise after a `htmx:confirm` veto, while the
-application can call `issueRequest` later. The runtime previously claimed `not_sent`
-before a delayed server write. It now associates the confirmation event with the
-exact source and values object and conservatively reports `htmx_request_failed`.
-Native confirmation is preserved; foreign confirmation and beforeRequest veto
-retain the existing classification. A negative unit regression proved RED first.
+HTMX interpreted business `target` as event routing and could fail after a server
+write. The owner-approved wire declaration is now
+`{"surfacerelay:result":{"value":{...}}}`. The runtime unwraps only the exact
+envelope from its issued xhr. Business control-like fields stay data. Request
+correlation, failure handling and deferred-confirmation classification are preserved.
 
-Docker: 366 browser tests and typecheck pass. Real Chrome standard HTMX fixture:
-9 tests pass, including failure-before-explicit-resume and exactly one later write.
-Independent real-browser review also proves normal result and beforeRequest veto.
-The local full fixture's fixed-4173 origin assertion did not fit the isolated port;
-check the unmodified full fixture on current-head CI. Canonical validation passes.
+TDD: 11 failures before correction. Docker: 398 browser tests and typecheck pass;
+schema and actual runtime share 22 fixtures. Canonical validation passes. Real
+Chrome HTMX: 14 tests pass, including five business-target cases with persisted
+writes. Scoped independent review found no material defect. Local Chrome uses
+isolated port 48173; check the full native fixture on current-head CI.
 
-## Open contract finding — D-078
+## Migration impact — D-078
 
-Real HTMX interprets output `target` as event routing: a valid business object can
-cause onLoadError after the server writes. Do not suppress that error. The proposed
-`value` envelope, alternative field restriction and migration gate are recorded in
-[STATUS](STATUS.md#needs-decision); no new wire contract is implemented yet.
+Update servers and runtimes together for this unpublished wire-format change.
+No legacy fallback exists; declarations outside the exact envelope return undefined.
+Old output with only an object-valued `value` is structurally indistinguishable;
+inventory producers. See [migration guidance](docs/consumers/browser-runtime.md#htmx-result-envelope).
+Neutral core schemas and the returned business-object shape remain unchanged.
 
 ## Integration focus
 

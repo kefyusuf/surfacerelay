@@ -130,6 +130,34 @@ provide reviewed binding drivers and preserve server-side authorization, trusted
 context, confirmation receipts and idempotency. Browser discovery never grants
 invocation authority. An unsupported driver fails closed in the existing smoke.
 
+## HTMX result envelope
+
+The experimental D-078 result declaration is:
+
+```json
+{"surfacerelay:result":{"value":{"itemId":"1","target":"archive"}}}
+```
+
+Set this JSON object in the issued response's `HX-Trigger` header. The runtime
+returns `{"itemId":"1","target":"archive"}`. The envelope has exactly one member,
+`value`, which must be a JSON object. Keep all business fields inside it; outer
+HTMX event-routing fields are not allowed. Other root trigger names may coexist.
+Server-side output validation and redaction remain application responsibilities.
+
+Migration impact: this replaces the unpublished direct business-object declaration.
+Update route producers and browser runtimes together. There is no legacy fallback:
+absent, malformed or old declarations return `undefined` after a successful request.
+An old object containing only an object-valued `value` is structurally the new
+envelope, so inventory producers before upgrading. The returned business object
+and neutral ActionDefinition/RuntimeBinding schemas do not change. Response errors
+continue to reject; this migration does not suppress HTMX response-handling failures.
+
+The [adapter schema](../../packages/browser-runtime/conformance/htmx-result-envelope.schema.json)
+and [fixtures](../../packages/browser-runtime/conformance/htmx-result-envelope.fixtures.json)
+are checked by `python scripts/validate.py`. The
+[real HTMX fixture](../../examples/htmx-prep-list/README.md) verifies native dispatch
+and persistence with business control-like fields.
+
 ## Related checks
 
 The repository tooling suite is `python -m unittest scripts.tests.test_browser_release_candidate`.

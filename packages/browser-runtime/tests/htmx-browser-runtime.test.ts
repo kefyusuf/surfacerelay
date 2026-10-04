@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { HtmxBindingExecutionError } from '../src/htmx-errors.js';
 import {
   GlobalHtmxBrowserRuntime,
@@ -363,14 +364,37 @@ describe('HTMX request outcome boundary', () => {
       responseHeaders: headers,
     });
 
+    const contractCases = JSON.parse(readFileSync(
+      new URL('../conformance/htmx-result-envelope.fixtures.json', import.meta.url), 'utf8',
+    )) as { name: string; expect: string; header: Record<string, { value: unknown }> }[];
+    it.each(contractCases)('matches the adapter fixture $name', async (fixture) => {
+      const { ambient, call } = setup();
+      ambient.htmx.ajax.mockImplementation(htmxRequest(ok({
+        'HX-Trigger': JSON.stringify(fixture.header),
+      })));
+      await expect(call()).resolves.toEqual(fixture.expect === 'valid'
+        ? fixture.header['surfacerelay:result'].value : undefined);
+    });
+
     it('returns the surfacerelay:result object from HX-Trigger of the issued request', async () => {
       const { ambient, call } = setup();
       ambient.htmx.ajax.mockImplementation(htmxRequest(ok({
-        'HX-Trigger': JSON.stringify({ 'surfacerelay:result': { itemId: '7' }, unrelated: 1 }),
+        'HX-Trigger': JSON.stringify({ 'surfacerelay:result': { value: { itemId: '7' } }, unrelated: 1 }),
       })));
 
       await expect(call()).resolves.toEqual({ itemId: '7' });
     });
+
+    it.each(['archive', null, 42, '#items', { nested: true }])(
+      'preserves business target %j and other HTMX-like fields inside value', async (target) => {
+        const { ambient, call } = setup();
+        const value = { itemId: '7', target, value: { nested: 'business' }, elt: 'business' };
+        ambient.htmx.ajax.mockImplementation(htmxRequest(ok({
+          'HX-Trigger': JSON.stringify({ 'surfacerelay:result': { value } }),
+        })));
+        await expect(call()).resolves.toEqual(value);
+      },
+    );
 
     it('returns undefined when the response declares no result', async () => {
       const { ambient, call } = setup();
@@ -385,6 +409,11 @@ describe('HTMX request outcome boundary', () => {
       ['an array result', JSON.stringify({ 'surfacerelay:result': [1, 2] })],
       ['a string result', JSON.stringify({ 'surfacerelay:result': 'done' })],
       ['a null result', JSON.stringify({ 'surfacerelay:result': null })],
+      ['a legacy result', JSON.stringify({ 'surfacerelay:result': { itemId: '7' } })],
+      ['an outer target', JSON.stringify({ 'surfacerelay:result': { value: {}, target: '#items' } })],
+      ['an array value', JSON.stringify({ 'surfacerelay:result': { value: [] } })],
+      ['a null value', JSON.stringify({ 'surfacerelay:result': { value: null } })],
+      ['a scalar value', JSON.stringify({ 'surfacerelay:result': { value: 'done' } })],
       ['a JSON array trigger', JSON.stringify([{ 'surfacerelay:result': { itemId: '7' } }])],
     ])('treats %s as no result without failing the completed request', async (_label, header) => {
       const { ambient, call } = setup();
@@ -398,7 +427,7 @@ describe('HTMX request outcome boundary', () => {
       ambient.htmx.ajax.mockImplementation(htmxRequest({
         status: 422,
         successful: false,
-        responseHeaders: { 'HX-Trigger': JSON.stringify({ 'surfacerelay:result': { itemId: '7' } }) },
+        responseHeaders: { 'HX-Trigger': JSON.stringify({ 'surfacerelay:result': { value: { itemId: '7' } } }) },
       }));
 
       await expectAjaxCode(call(), 'htmx_request_failed');

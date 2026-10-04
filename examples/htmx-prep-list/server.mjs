@@ -178,7 +178,7 @@ async function handleItemsPost(request, response) {
   state.items.push(item);
   // D-078: declare the Action output explicitly; agents never parse the HTML fragment.
   sendText(response, 201, 'text/html; charset=utf-8', renderItem(item), {
-    'hx-trigger': JSON.stringify({ 'surfacerelay:result': { itemId: String(item.id) } }),
+    'hx-trigger': JSON.stringify({ 'surfacerelay:result': { value: { itemId: String(item.id) } } }),
   });
 }
 

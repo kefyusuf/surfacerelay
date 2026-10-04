@@ -83,13 +83,15 @@ dates. SurfaceRelay remains experimental and unofficial.
   See [release readiness](docs/RELEASE-READINESS.md).
 
 - HTMX-backed Actions can return business output: when the business route sets
-  `HX-Trigger` to a JSON object with a plain-object `surfacerelay:result`
-  member, `GlobalHtmxBrowserRuntime.ajax()` resolves with it, read from the
+  `HX-Trigger` to `{"surfacerelay:result":{"value":{...}}}`,
+  `GlobalHtmxBrowserRuntime.ajax()` resolves with the business `value`, read from the
   issued request's own response. Absent or malformed declarations resolve
   `undefined`; output is never derived from HTML. `HtmxBrowserRuntime.ajax()`
   now returns `Promise<unknown>` (proposed D-078).
-  Known limitation: a top-level business `target` collides with HTMX event routing;
-  the output envelope decision remains open in [STATUS](STATUS.md#needs-decision).
+  The exact envelope isolates business `target`, `value` and `elt` from HTMX
+  event routing. This changes the unpublished wire format: update the server and
+  runtime together; declarations outside the exact envelope resolve `undefined`. See
+  [migration guidance](docs/consumers/browser-runtime.md#htmx-result-envelope).
 - The HTMX driver no longer reports failed requests as success. `htmx.ajax()`
   resolves after HTTP error responses and on paths that never send the request;
   `GlobalHtmxBrowserRuntime.ajax()` now tracks its own request and rejects with

@@ -67,16 +67,17 @@ Observed Chromium 153 behavior that differs from the 2026-10-02 WebMCP draft:
 - the tool result reaches the caller JSON-serialized.
 
 Business output (D-078): `POST /items` declares the Action output explicitly with
-`HX-Trigger: {"surfacerelay:result": {"itemId": "1"}}`, so the tool call returns
+`HX-Trigger: {"surfacerelay:result": {"value": {"itemId": "1"}}}`, so the tool call returns
 `{"itemId": "1"}`. The runtime reads it from the issued request's own response; it
 never parses the HTML fragment (D-054). Without that declaration a successful call
 returns `undefined`. The human path is unaffected — htmx merely fires an unused
 `surfacerelay:result` event.
 
-Known D-078 limitation: HTMX treats a top-level business `target` field as event
-routing. Some otherwise valid objects therefore fail response handling after the
-server writes. A result envelope is proposed in [Needs decision](../../STATUS.md#needs-decision);
-the current wire format is unchanged and these failures must not be hidden.
+The result envelope contains only `value`, a JSON object. Business fields such as
+`target`, `value` and `elt` belong inside that object and remain data. This replaces
+the unpublished plain-object declaration; update the server and runtime together.
+Declarations outside the exact envelope return `undefined`; unsuccessful requests
+still fail. See [migration guidance](../../docs/consumers/browser-runtime.md#htmx-result-envelope).
 
 Event-based `htmx:confirm` hooks can resume an invocation after its original promise
 settles. A vetoed confirmation is an unknown outcome (`htmx_request_failed`), not
