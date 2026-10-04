@@ -34,8 +34,12 @@ export interface HtmxBrowserRuntime {
    * response. A request HTMX never sent rejects with `htmx_request_not_sent`; an
    * unsuccessful HTTP status, transport failure, or response-handling failure rejects
    * with `htmx_request_failed`.
+   *
+   * On success it resolves with the object the server declared as
+   * `surfacerelay:result` in that response's `HX-Trigger` JSON header, or
+   * `undefined` when none is declared (D-078). Output is never derived from HTML.
    */
-  ajax(method: HtmxAjaxMethod, path: string, context: HtmxAjaxContext): Promise<void>;
+  ajax(method: HtmxAjaxMethod, path: string, context: HtmxAjaxContext): Promise<unknown>;
 }
 
 interface HtmxRequestEventSource {
@@ -51,6 +55,8 @@ interface HtmxRequestEventDetail {
 const REQUEST_SENT_EVENT = 'htmx:beforeSend';
 const REQUEST_COMPLETED_EVENT = 'htmx:afterRequest';
 const RESPONSE_HANDLING_FAILED_EVENT = 'htmx:onLoadError';
+const RESULT_TRIGGER_HEADER = 'HX-Trigger';
+const RESULT_TRIGGER_NAME = 'surfacerelay:result';
 
 interface HtmxGlobalLike {
   version?: unknown;
@@ -109,6 +115,38 @@ function requestEventDetail(event: Event): HtmxRequestEventDetail {
 function httpStatusOf(xhr: unknown): number | null {
   const status = (xhr as { status?: unknown } | null)?.status;
   return typeof status === 'number' ? status : null;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+// The request already succeeded server-side, so an absent or malformed result
+// yields `undefined` rather than an error that would invite a duplicate retry.
+function declaredResultOf(xhr: unknown): Record<string, unknown> | undefined {
+  const getResponseHeader = (xhr as { getResponseHeader?: unknown } | null)?.getResponseHeader;
+  if (typeof getResponseHeader !== 'function') return undefined;
+
+  let header: unknown;
+  try {
+    header = getResponseHeader.call(xhr, RESULT_TRIGGER_HEADER);
+  } catch {
+    return undefined;
+  }
+  if (typeof header !== 'string' || !header.trimStart().startsWith('{')) return undefined;
+
+  let triggers: unknown;
+  try {
+    triggers = JSON.parse(header);
+  } catch {
+    return undefined;
+  }
+  if (!isPlainObject(triggers)) return undefined;
+
+  const result = triggers[RESULT_TRIGGER_NAME];
+  return isPlainObject(result) ? result : undefined;
 }
 
 function requestNotSent(): HtmxBindingExecutionError {
@@ -182,7 +220,7 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
     method: HtmxAjaxMethod,
     path: string,
     context: HtmxAjaxContext,
-  ): Promise<void> {
+  ): Promise<unknown> {
     this.assertSupported();
     const htmx = this.requireHtmx();
     const events = requireRequestEventSource(context.source);
@@ -256,6 +294,8 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
           : `HTMX request completed with unsuccessful HTTP status ${status}.`,
       );
     }
+
+    return declaredResultOf(xhr);
   }
 
   private requireHtmx(): HtmxGlobalLike {

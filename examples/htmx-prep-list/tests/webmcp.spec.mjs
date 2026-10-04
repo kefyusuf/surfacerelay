@@ -74,7 +74,7 @@ test('browser-mediated tool call runs the same real HTMX POST /items as the huma
   const request = await requestPromise;
   const body = new URLSearchParams(request.postData() ?? '');
 
-  expect(outcome.status).toBe('returned');
+  expect(outcome).toEqual({ status: 'returned', value: JSON.stringify({ itemId: '1' }) });
   expect(request.headers()['hx-request']).toBe('true');
   expect(body.getAll('name')).toEqual(['agent-webmcp']);
   expect(body.get('uiContext')).toBe('prep-list');
