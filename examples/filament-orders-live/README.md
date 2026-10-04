@@ -18,13 +18,23 @@ It is a fixture, not a starter app. The trusted actor and tenant are fixed to `t
 | Agent repeats the call without approval | Never refunds. |
 | Agent adds `confirmed: true` or `confirmationReceipt` | Rejected by the Livewire driver before any request. |
 | Human ticks and unticks, agent calls refund | Fails closed (no trusted selection). |
+| Table missing, ambiguous, foreign-owned or malformed after approval | Retry rejected before a Livewire request; stale server selection cannot execute. |
 | Agent adds `orderIds: [201, 202]` | Rejected by the Livewire driver before any request. |
 
 ## Selection sync (finding)
 
 Filament 5 keeps table selection in Alpine and pushes it to the server only when a table action is mounted (`filament/tables` `table.js`, `mountAction`). An agent calling the page method directly therefore reached the server with an **empty** `current_selection` (`required_context_missing` in the audit trail) even though the human saw two rows selected — and could, in principle, reach it with a stale one.
 
-`client.mjs` wraps the Livewire driver so that, before each call, it pushes the Alpine selection to `$wire` exactly as Filament's own `mountAction` does. The server's `current_selection` is then the selection the human sees at invocation time. This grants no new authority — page script could always set that property — and the server still authorizes every selected record against the trusted tenant, all-or-nothing. Proposed as D-075.
+`client.mjs` wraps the Livewire driver for bindings whose server-issued definition
+requires `current_selection`. It resolves exactly one table owned by that component,
+validates the tracking flag and both string-key Sets before writing any state, then
+pushes all three fields to `$wire` as Filament's own `mountAction` does. Missing,
+ambiguous, foreign-owned or malformed table state stops before the page method can
+reuse an older server selection. The edit-page current-record action does not
+require a table. This grants no new authority; the server still resolves selected
+records and authorizes every record against the trusted tenant, all-or-nothing.
+Proposed as D-075. Browser proofs use sequential invocations; independent selection
+snapshots for concurrent calls are not qualified by this fixture.
 
 ## Approved retry (T-807b)
 
@@ -34,7 +44,7 @@ Issue, approval and retry are three Livewire requests, so the fixture uses a fil
 
 ## Run locally
 
-Requires PHP 8.3+ with `pdo_sqlite`, Composer, and Node 22.
+Requires PHP 8.3+ with `pdo_sqlite` and `intl`, Composer, and Node 22.
 
 ```bash
 cd packages/laravel

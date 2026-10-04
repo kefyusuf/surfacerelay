@@ -11,24 +11,40 @@ import { WebMcpRegistrationLifecycle } from '/surfacerelay/runtime/webmcp-regist
 // grants no new authority: the server still validates every selected record.
 function syncFilamentTableSelection(componentId) {
   const wire = globalThis.Livewire?.find(componentId);
-  const tableElement = wire?.$el?.querySelector('[x-data^="filamentTable("]');
-  if (!tableElement) {
-    return;
+  const componentElement = wire?.$el;
+  if (componentElement?.getAttribute('wire:id') !== componentId || typeof wire?.$set !== 'function') {
+    throw new Error('Filament selection component is unavailable.');
   }
-
-  const table = globalThis.Alpine.$data(tableElement);
+  const tables = [...componentElement.querySelectorAll('[x-data^="filamentTable("]')]
+    .filter((element) => element.closest('[wire\\:id]') === componentElement);
+  if (tables.length !== 1 || typeof globalThis.Alpine?.$data !== 'function') {
+    throw new Error('Filament selection requires exactly one current owned table.');
+  }
+  const table = globalThis.Alpine.$data(tables[0]);
+  if (typeof table?.isTrackingDeselectedRecords !== 'boolean'
+    || !(table.selectedRecords instanceof Set) || !(table.deselectedRecords instanceof Set)) {
+    throw new Error('Filament table selection state is invalid.');
+  }
+  const selected = [...table.selectedRecords];
+  const deselected = [...table.deselectedRecords];
+  if ([...selected, ...deselected].some((key) => typeof key !== 'string')) {
+    throw new Error('Filament table selection keys are invalid.');
+  }
   wire.$set('isTrackingDeselectedTableRecords', table.isTrackingDeselectedRecords, false);
-  wire.$set('selectedTableRecords', [...table.selectedRecords], false);
-  wire.$set('deselectedTableRecords', [...table.deselectedRecords], false);
+  wire.$set('selectedTableRecords', selected, false);
+  wire.$set('deselectedTableRecords', deselected, false);
 }
 
 class FilamentSelectionSyncingDriver {
-  constructor(inner) {
+  constructor(inner, selectionBindings) {
     this.inner = inner;
+    this.selectionBindings = selectionBindings;
   }
 
   execute(binding, input, context) {
-    syncFilamentTableSelection(binding.target.componentId);
+    if (this.selectionBindings.has(binding)) {
+      syncFilamentTableSelection(binding.target.componentId);
+    }
     return this.inner.execute(binding, input, context);
   }
 }
@@ -48,7 +64,11 @@ async function registerWebMcpTools() {
   const drivers = new DriverRegistry();
   drivers.register(
     'livewire',
-    new FilamentSelectionSyncingDriver(new LivewireBrowserDriver(new GlobalLivewireBrowserRuntime())),
+    new FilamentSelectionSyncingDriver(
+      new LivewireBrowserDriver(new GlobalLivewireBrowserRuntime()),
+      new Set(tools.filter((tool) => tool.definition.contextRequirements.includes('current_selection'))
+        .map((tool) => tool.binding)),
+    ),
   );
   const lifecycle = new WebMcpRegistrationLifecycle(modelContext, drivers);
   const lease = await lifecycle.register(tools);

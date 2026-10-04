@@ -7,8 +7,12 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
 - [Integration PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) contains the
   unmerged T-804–T-809 work. Main contains M0–M7 and T-801–T-803.
 - Reviewed corrections pass: T-805 archived-source isolation, T-809 sorted receipt
-  locks, and T-807b receipt secrecy/protected-call evidence. Scoped independent
-  reviews do not replace the full integration review.
+  locks, T-807b receipt secrecy/protected-call evidence and T-807a selection guard.
+  Scoped independent reviews do not replace the full integration review.
+- T-807a rejects missing, ambiguous, foreign-owned or malformed table selection
+  before retry. Old-client real-browser RED refunded a stale selected order;
+  corrected Chrome + Docker Filament: 14 tests pass, including four negative paths.
+  Independent guard matrix: 17 scenarios pass. Canonical validation passes.
 - T-808 uses the owner-approved `surfacerelay:result.value` envelope. Business
   `target`, `value` and `elt` remain data; deferred confirmation remains an unknown
   outcome. Docker: 398 browser tests/typecheck and 22 shared schema fixtures pass.
@@ -22,8 +26,8 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
 
 ## Remaining review and gaps
 
-- External integration review remains open, including confirmation/store changes,
-  server-held approved receipts, HTMX request/result handling and selection sync.
+- Full external integration review and cross-contract finding disposition remain
+  open. Sequential selection proofs do not qualify concurrent-call snapshots.
 - Native WebMCP evidence uses flag-enabled Chromium and page callers, not a real agent.
   Chromium drops `consequentialHint`; server confirmation receipts remain required.
 - Corrected readiness evidence is pre-merge; repeat it on merged main.

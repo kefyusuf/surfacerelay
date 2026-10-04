@@ -141,6 +141,42 @@ test('selection drift after approval requires a new confirmation and refunds not
   expect(await refundedIds(request)).toEqual([]);
 });
 
+for (const state of ['missing', 'ambiguous', 'foreign', 'malformed']) {
+  test(`${state} table selection after approval refuses retry before sending the stale selection`, async ({ page, request }) => {
+    await page.goto('/admin/orders');
+    await waitForSurfaceRelay(page);
+    await recordCheckbox(page, 101).check();
+    await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+    await approveInModal(page);
+    await page.evaluate((state) => {
+      const table = document.querySelector('[x-data^="filamentTable("]');
+      if (state === 'missing') table.removeAttribute('x-data');
+      if (state === 'ambiguous') {
+        const duplicate = document.createElement('div');
+        duplicate.setAttribute('x-data', 'filamentTable({})');
+        table.parentElement.append(duplicate);
+      }
+      if (state === 'foreign') {
+        const nestedComponent = document.createElement('div');
+        nestedComponent.setAttribute('wire:id', 'another-component');
+        table.parentElement.insertBefore(nestedComponent, table);
+        nestedComponent.append(table);
+      }
+      if (state === 'malformed') Alpine.$data(table).selectedRecords = null;
+    }, state);
+    let invocations = 0;
+    page.on('request', (request) => {
+      if (request.method() === 'POST') invocations++;
+    });
+
+    const retry = await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+
+    expect(retry.status).toBe('threw');
+    expect(invocations).toBe(0);
+    expect(await refundedIds(request)).toEqual([]);
+  });
+}
+
 test('input drift after approval requires a new confirmation and refunds nothing', async ({ page, request }) => {
   await page.goto('/admin/orders');
   await waitForSurfaceRelay(page);
