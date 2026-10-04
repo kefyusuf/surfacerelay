@@ -28,4 +28,9 @@ final class TestConfirmationPage extends Page
     {
         $this->presentSurfaceRelayConfirmation(new ConfirmationChallenge($id, $summary, $expiresAt));
     }
+
+    public function pullApprovedReceiptForTest(): ?string
+    {
+        return $this->pullApprovedSurfaceRelayConfirmationReceipt();
+    }
 }
