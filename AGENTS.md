@@ -79,9 +79,19 @@ Before completion:
 2. Run `python scripts/validate.py`.
 3. Review the full diff for architecture drift and security regressions.
 4. Update the task status in `TASKS.md` only after verification passes.
-5. Update `STATUS.md` with changed files, verification evidence, known limitations, and next task.
-6. Update `REVIEW_REQUEST.md` with a concise external-review handoff.
+5. Update `STATUS.md` with current state, known gaps, and next task.
+6. Update `REVIEW_REQUEST.md` with a concise external-review handoff for the open branch.
 7. Do not push, merge, tag, or publish unless the user explicitly requests it.
+
+## Tracking file discipline
+
+`STATUS.md`, `TASKS.md`, and `REVIEW_REQUEST.md` describe the **present**, not history.
+
+- Rewrite them in place; do not append dated paragraphs. Git, PRs, and `docs/archive/` hold history.
+- Keep `STATUS.md` and `REVIEW_REQUEST.md` to about one screen each.
+- Do not record CI run IDs, commit hashes per step, or "supersedes the pending-CI note" entries; link the PR instead.
+- Do not create commits whose only purpose is recording CI evidence.
+- Completed tasks collapse to one line in `TASKS.md`.
 
 ## Documentation discipline
 

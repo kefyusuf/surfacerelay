@@ -1,0 +1,2121 @@
+# Project Status
+
+## Snapshot
+
+- **Project:** SurfaceRelay
+- **Repository:** `github.com/kefyusuf/surfacerelay`
+- **Branch:** `docs/t-804-release-facing-documentation`
+- **Milestone:** `M8 — Consumer & Release Readiness` — **IMPLEMENTATION IN PROGRESS**
+- **Last completed/reviewed task:** `T-803 — Browser runtime public API + artifact + clean consumer proof`
+- **Current work:** `T-804 — Release-facing documentation and compatibility policy` — **STEP 4 COMPATIBILITY / CHECKLIST VERIFIED; STEP 5 NOT STARTED**.
+- **T-802 PR:** `#20` — **MERGED**
+- **T-802 review-handoff head:** `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6`
+- **T-802 review-handoff CI:** Validate `#1038` / `36444627579` — **17/17 SUCCESS**
+- **T-802 review-fix head:** `c380d425673a7ff3045ffed1a650af8bf929fa7e`
+- **T-802 review-fix CI:** Validate `#1043` / `36454509211` — **17/17 SUCCESS**
+- **T-802 final reviewed pre-closure head:** `951ecd07dfe18063042bf0ad1d06aa6723f952e5`
+- **T-802 reviewed-head CI:** Validate `#1045` / `36487729081` — **17/17 SUCCESS**
+- **T-802 external review:** latest incremental finding **CodeRabbit-confirmed addressed**; **2 review threads / 0 unresolved**
+- **T-802 merge commit:** `f7d86c76ccc15dc21b63cf868ad75d559607f730`
+- **T-802 post-merge main CI:** Validate `#1048` / `36541971021` — **17/17 SUCCESS**
+- **T-802 final state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-801 PR:** `#19` — **MERGED**
+- **T-801 final reviewed pre-closure head:** `f1257054f6d828d5e25fa68cdc23bf334188192e`
+- **T-801 reviewed-head CI:** Validate `#998` / `36266212552` — **13/13 SUCCESS**
+- **T-801 release-contract suite:** **49/49 PASS**; publication guard **PASS**
+- **T-801 external review:** latest Major finding **CodeRabbit-confirmed addressed**; **5 review threads / 0 unresolved**
+- **T-801 merge commit:** `84f80858308d35ed532eec3928a7fdf3186ffb34`
+- **T-801 post-merge main CI:** Validate `#1001` / `36273220054` — **13/13 SUCCESS**
+- **T-801 final state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-701 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-702 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-702 design:** `docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md`
+- **T-702 implementation plan:** `docs/superpowers/plans/2026-09-16-adapter-author-guide.md`
+- **T-702 integration:** fast-forwarded from `feat/t-702-adapter-author-guide` to `main`
+- **T-702 verified documentation head:** `04e69ecb8a4d752732f2ab85eaf0f14798944e68`
+- **T-702 implementation-head CI:** `#821` / `35150202622` — **7/7 jobs SUCCESS**
+- **T-702 merged main head:** `ffd97c9a6608e37a4042d899e079ab751ecc5272`
+- **T-702 post-merge main CI:** `#825` / `35299100221` — **7/7 jobs SUCCESS**
+- **T-702 browser evidence:** **20 files / 328/328 Vitest + typecheck**
+- **T-702 Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **T-702 canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **T-702 contract validation:** **PASS**
+- **T-701 verified implementation head:** `2c15515a77d2dd1d79ea970a2811ca0c40191ceb`
+- **T-701 external-review code-fix head:** `89a968785a09032cbf3b71f7f60c3f14b76c10ab`
+- **T-701 final reviewed PR head:** `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`
+- **T-701 review-closure tracking head:** `3777fce830ae2d4a1bcc64925af24563f611ea3e`
+- **T-701 decision-promotion head:** `1efe11714e9d3abcd0e8a12fcb90912b23522ad4`
+- **T-701 final feature/tracking head:** `5da153c3c0a0f6c38d9b5f01b26899efa24ea949`
+- **T-701 merge commit:** `50c8c482165a115b8b3b8cb740f123ecf4203041`
+- **T-701 post-merge main CI:** `#809` / `35080877519` — **7/7 jobs SUCCESS**
+- **T-701 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
+- **T-701 post-merge Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **T-701 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **Accepted decisions:** `D-059`, `D-060`, `D-061`, `D-062`, `D-063`, `D-064`, `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
+- **Proposed decisions:** `D-026`, `D-069`, `D-070`, `D-071`, `D-072`, `D-073` — **PROPOSED**
+- **M7 closure baseline:** `main@b2de658f9feaee18ac60cb0c2786b45c3d95e342`
+- **M7 closure baseline CI:** Validate `#943` / `35666645607` — **12/12 jobs SUCCESS**
+- **M7 closure scope:** current-facing documentation/state reconciliation only; no production/spec/conformance semantic change; no D-026 promotion; no T-705/M8 implementation
+- **M7 reconciliation verified head:** `8575364732f2a8c574fcf0eb30af7eb5bd028a9c`
+- **M7 reconciliation CI:** Validate `#945` / `35668629999` — **12/12 jobs SUCCESS**
+- **M7 external review:** PR `#18` — **REVIEW CLOSED / 2 Minor findings addressed**
+- **M7 review-fix head:** `186c67f3840a63f5b8fd6c803ae4be9e7632c586`
+- **M7 review-fix CI:** push `#948` / `35679413486` + PR `#949` / `35679414826` — **12/12 SUCCESS each**
+- **M7 review closure:** inline STATUS finding CodeRabbit-confirmed + resolved; outside-diff T-703 wording finding CodeRabbit-confirmed; unresolved inline threads **0**
+- **M7 review-closure tracking head:** `6ff7ad666e9dcaffaa1f68937c66d2e864e336fb`
+- **M7 review-closure CI:** push `#950` / `35679576665` + PR `#951` / `35679580318` — **12/12 SUCCESS each**
+- **M7 closure PR:** `#18` — **MERGED**
+- **M7 merge commit:** `893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c`
+- **M7 post-merge main CI:** `#952` / `35680926172` — **12/12 SUCCESS**
+- **T-702 review-only PR:** `#15` — **CLOSED WITHOUT MERGE**
+- **T-702 CodeRabbit review:** **1 Minor actionable / 1 resolved / 0 unresolved**
+- **T-702 review-fix head:** `d5c67a5ee403cdd6cc5805ac072dc05f6139d309`
+- **T-702 review-fix CI:** `#830` / `35299933662` — **7/7 jobs SUCCESS**
+- **T-702 post-review main CI:** `#832` / `35300067389` — **7/7 jobs SUCCESS**
+- **T-702 decision-promotion head:** `f37955979bf0c45878b449b5dd7c608046d94fb4`
+- **T-702 decision-promotion CI:** `#834` / `35302680228` — **7/7 jobs SUCCESS**
+- **T-703 design:** `docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md`
+- **T-703 decisions:** `D-063`, `D-064` — **ACCEPTED**
+- **T-703 implementation plan:** `docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md` — **APPROVED**
+- **T-703 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-703 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED**
+- **T-703 Task 1 head:** `407a8a9c7c8a2d1d14db9252e600cf4284cb3175`
+- **T-703 Task 1 CI:** `#839` / `35324030173` — **11/11 jobs SUCCESS**
+- **T-703 Task 1 bridge matrix:** **4/4 SUCCESS**, each with **1 architecture test / 157 assertions**
+- **T-703 design-head CI:** `#837` / `35319627802` — **7/7 jobs SUCCESS**
+- **T-703 Task 2 RED head:** `d7881d9f4eed15edc45ca1a1c4260a7134c78864` — `#841` expected FAILURE
+- **T-703 Task 2 GREEN head:** `d73811fb3f8a6c24ea47eb04ef3c3acf771dd3e5`
+- **T-703 Task 2 CI:** `#842` / `35327114009` — **11/11 jobs SUCCESS**
+- **T-703 Task 2 bridge suite:** **9 tests / 171 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 3 RED head:** `624392b0ba03d652100a4c7dbf7a41952afc7ed1` — `#845` expected FAILURE
+- **T-703 Task 3 GREEN head:** `5892bb4361a1f829c5b2ebae9185b1d11ae4781a`
+- **T-703 Task 3 CI:** `#846` / `35329092370` — **11/11 jobs SUCCESS**
+- **T-703 Task 3 bridge suite:** **18 tests / 190 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 4 RED head:** `b664afbf2009b303eb77d7c3effad5dee6b18ecd` — `#849` expected FAILURE
+- **T-703 Task 4 GREEN head:** `92034ab0752619b5da7216d3b3cb23452b50409a`
+- **T-703 Task 4 CI:** `#850` / `35362116668` — **11/11 jobs SUCCESS**
+- **T-703 Task 4 bridge suite:** **28 tests / 236 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 5 RED head:** `d9d3aa927ff9730940faf6cc156bb545d7cd5b46` — `#853` expected FAILURE
+- **T-703 Task 5 GREEN head:** `d859d822d49f497713411b780ab434ebffc27d0b`
+- **T-703 Task 5 CI:** `#854` / `35379570033` — **11/11 jobs SUCCESS**
+- **T-703 Task 5 bridge suite:** **33 tests / 254 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 6 RED head:** `62990a8d034c906b7bfa69292809ccfb8b526adf` — `#857` expected FAILURE
+- **T-703 Task 6 GREEN head:** `e3320c56fb7ec2ad1e5e687bfbfbed13d6be222a`
+- **T-703 Task 6 CI:** `#858` / `35390396145` — **11/11 jobs SUCCESS**
+- **T-703 Task 6 bridge suite:** **39 tests / 307 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 7 RED head:** `1778bf9fa4d16c852ddcc03ec30aa51c34ba7561` — `#860` expected FAILURE
+- **T-703 Task 7 GREEN head:** `8a3b099175ee85182d54be57c323ecd04b97cc3a`
+- **T-703 Task 7 CI:** `#861` / `35398392055` — **11/11 jobs SUCCESS**
+- **T-703 Task 7 bridge suite:** **47 tests / 337 assertions**, 4/4 bridge matrix SUCCESS
+- **T-703 Task 8 documentation head:** `ca03e02abfb53c1b260e05f02014bb11c2787d58`
+- **T-703 Task 8 exact-head CI:** `#863` / `35400607926` — **11/11 jobs SUCCESS**
+- **T-703 bridge verification:** **4/4 compatibility jobs; 47 tests / 337 assertions**
+- **T-703 base Laravel regression:** **4/4 compatibility jobs; 595 tests / 3164 assertions**
+- **T-703 browser regression:** **20 files / 328/328 Vitest + typecheck**
+- **T-703 Python conformance:** **47/47 PASS** on CPython 3.12.14
+- **T-703 canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **T-703 forbidden diff audit:** **EMPTY** for base Laravel production, canonical spec, T-701 targets/model/runner
+- **T-703 review PR:** `#16` — **MERGED**
+- **T-703 initial review handoff head:** `fb71d595053c827b740eb3cd05e8e410a76672ce`
+- **T-703 initial handoff CI:** push `#864` + PR `#865` — **11/11 SUCCESS each**
+- **T-703 CodeRabbit findings:** **3 Minor actionable**
+- **T-703 review-fix head:** `2616213489228d5b47daeaafed108fa5c326e457`
+- **T-703 review-fix CI:** push `#866` + PR `#867` — **11/11 SUCCESS each**
+- **T-703 CodeRabbit closure:** **3/3 confirmed addressed + resolved / 0 unresolved**
+- **T-703 incremental CodeRabbit:** `fb71d595…2616213` — **SUCCESS / review finished / 0 new actionable findings**
+- **T-703 decision promotion:** D-063 + D-064 — **ACCEPTED**
+- **T-703 decision-promotion head:** `9c6fe28296801158ca86810fc04ed48a3099707c`
+- **T-703 decision-promotion CI:** push `#870` + PR `#871` — **11/11 SUCCESS each**
+- **T-703 merge commit:** `99551c4f796c25c560821930c8b4ffc2443aadef`
+- **T-703 post-merge main CI:** `#872` / `35407443826` — **11/11 SUCCESS**
+- **T-703 post-merge bridge:** **4/4 compatibility jobs; 47 tests / 337 assertions**
+- **T-703 post-merge base Laravel:** **4/4 compatibility jobs; 595 tests / 3164 assertions**
+- **T-703 post-merge browser:** **20 files / 328/328 Vitest + typecheck**
+- **T-703 post-merge Python conformance:** **47/47 PASS**
+- **T-703 post-merge canonical matrix:** **7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR**
+- **D-026:** **PROPOSED** — unchanged
+- **T-704 design:** `docs/superpowers/specs/2026-09-19-openapi-importer-design.md` — **APPROVED**
+- **T-704 design approval head:** `814d610e40ddbccee051885895070f9d08c7a76c`
+- **T-704 design approval CI:** `#876` / `35408438835` — **11/11 SUCCESS**
+- **T-704 design diff audit:** **DOCUMENTATION/TRACKING ONLY; no packages/spec/conformance/scripts changes**
+- **T-704 decisions:** `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
+- **T-704 implementation plan:** `docs/superpowers/plans/2026-09-19-openapi-importer.md` — **APPROVED**
+- **T-704 plan approval head:** `9c03048ffa6e9b8aaa2892df24e8d41cc0793e2d`
+- **T-704 plan approval CI:** `#880` / `35495182605` — **11/11 SUCCESS**
+- **T-704 plan diff audit:** **PLAN/DESIGN/TRACKING ONLY; no package/spec/conformance/CI changes**
+- **T-704 state:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-704 implementation:** **IMPLEMENTED / EXTERNALLY REVIEWED / DECISIONS ACCEPTED**
+- **T-704 implementation code head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
+- **T-704 implementation CI:** `#911` / `35537472977` — **12/12 SUCCESS**
+- **T-704 pre-handoff tracking head:** `106cba54fe85909362cab3c1ec5f3d1db1036011`
+- **T-704 pre-handoff tracking CI:** `#912` / `35537581965` — **12/12 SUCCESS**
+- **T-704 full verification:** **importer 171 tests; browser 328; Python conformance 47; runtime matrix 7 PASS / 1 N/A; Laravel 4/4; Laravel MCP 4/4; contract + PHP lint PASS**
+- **T-704 forbidden-path audit:** **PASS** against merge-base `7e26d61a4739efb1111ab148cdad38e5c145e141`
+- **T-704 dependency audit:** **yaml-only production dependency; no generic OpenAPI dereferencer; no filesystem/network retrieval; no internal SurfaceRelay package dependency**
+- **T-704 Task 8 documentation/review-handoff head:** `201b030b91c8642387514510ea120cd9282122f2`
+- **T-704 Task 8 documentation/review-handoff CI:** `#913` / `35538173232` — **12/12 SUCCESS**
+- **T-704 Task 8 handoff diff:** **README + package README + REVIEW_REQUEST + STATUS + TASKS only; no implementation/spec/conformance/CI changes**
+- **T-704 review state:** **EXTERNALLY REVIEWED / REVIEW CLOSED / DECISIONS ACCEPTED / MERGED / MAIN REVALIDATED**
+- **T-704 external review target:** `b83632c790b893f993630c452c47a41444832918`
+- **T-704 external review target CI:** push `#934` + PR `#935` — **12/12 SUCCESS each**
+- **T-704 CodeRabbit round-one closure:** **4/4 actionable inline findings confirmed addressed + resolved; 1 REVIEW_REQUEST nitpick addressed**
+- **T-704 CodeRabbit incremental re-review:** **SUCCESS / Review completed** on `b83632c790b893f993630c452c47a41444832918`
+- **T-704 incremental re-review result:** **0 new inline review comments / 0 unresolved review threads**
+- **T-704 review closure:** **COMPLETE — no new actionable findings**
+- **T-704 decision promotion:** `D-065`, `D-066`, `D-067`, `D-068` — **ACCEPTED**
+- **T-704 decision-promotion head:** `f014c7253a91d78e3b03b7761d1fc5d4ce83ba5a`
+- **T-704 decision-promotion CI:** push `#938` / `35625605195` + PR `#939` / `35625610665` — **12/12 SUCCESS each**
+- **T-704 decision-promotion diff:** **DECISION/TRACKING DOCS ONLY; no package/spec/conformance/scripts/CI changes**
+- **T-704 decision-promotion basis:** review-fix head `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2` + re-review head `b83632c790b893f993630c452c47a41444832918` + review-closure head `32385c1ace536178ce7dbc90907d4b670f915384`; push/PR CI green through #936/#937
+- **D-026:** **PROPOSED** — unchanged
+- **T-704 merge commit:** `7890907c408c1e529c955c8d37520ac8d83ffe1f`
+- **T-704 post-merge main CI:** `#942` / `35665487192` — **12/12 SUCCESS**
+- **T-704 post-merge main head:** `7890907c408c1e529c955c8d37520ac8d83ffe1f`
+- **T-704 closure:** **DONE / REVIEWED / MERGED / MAIN REVALIDATED**
+- **T-704 next gate:** **none automatically; any later work requires a separate explicit scope/design gate**
+- **T-704 review PR:** `#17` — **MERGED**
+- **T-704 CodeRabbit reviewed head:** `f004463185876b3a40d8fd71a4519e81b1f7c3f7` — **4 actionable + 1 nitpick**
+- **T-704 review-fix RED head:** `ed591be06b8455a1e0e1e1f5047af0db576b1d7a`
+- **T-704 review-fix RED CI:** push `#930` + PR `#931` — **expected FAILURE; 7 new regression tests RED / 177 prior tests PASS**
+- **T-704 review-fix code head:** `e88cd9e34e515aa63df0a7ab87c8d8ec4495edf2`
+- **T-704 review-fix CI:** push `#932` + PR `#933` — **12/12 SUCCESS each**
+- **T-704 review-fix importer suite:** **7 files / 184 tests PASS + typecheck + npm ci**
+- **T-704 review fixes:** **chained Parameter refs; JSON-null ref target fail-closed across all ref callers; cross-dimension schema-suggestion blocking consistency; tracking/handoff clarity**
+- **T-704 Task 7 initial RED head:** `e215133ab38d3d5644f1664a41c0bb3ce0d9fb72` — `#909` typecheck RED in diagnostic/AJV test-contract typing
+- **T-704 Task 7 corrected RED head:** `479312aed8f4e0ac93f9fb53046bfd64ab7394d2`
+- **T-704 Task 7 corrected RED CI:** `#910` / `35537328082` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 7 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–6 tests **132 PASS**; Task 7 materialization contract **39/39 expected FAIL**
+- **T-704 Task 7 GREEN head:** `58d18dc201be5e50ea7e20d1747d906a3ec5a412`
+- **T-704 Task 7 GREEN CI:** `#911` / `35537472977` — **12/12 SUCCESS**
+- **T-704 Task 7 importer suite:** **7 files / 171 tests PASS + typecheck + npm ci**
+- **T-704 Task 7 explicit semantics:** **id/version/title/description/scope/effect/risk/idempotency/output policy/context requirements/input+output schema choice all required explicitly**
+- **T-704 Task 7 identity boundary:** **canonical lowercase dot grammar / 160-byte id / positive integer version; no trim/slug/case normalization**
+- **T-704 Task 7 metadata boundary:** **title 1..120 and description 1..2000 Unicode code points; no OpenAPI metadata fallback**
+- **T-704 Task 7 trusted context:** **canonical enum only, unique, deterministic declaration order; never inferred from OpenAPI security**
+- **T-704 Task 7 schema materialization:** **candidate suggestion requires non-blocked presence; explicit/candidate schemas deep-copied under 64-depth / 5,000-node budgets**
+- **T-704 Task 7 canonical verification:** **all positive materializations validated against repo spec/0.1/action-definition.schema.json via AJV Draft 2020-12**
+- **T-704 Task 7 provenance separation:** **exact OpenApiSourceProvenance returned separately; no provenance/extensions/runtime-binding data embedded in ActionDefinition**
+- **T-704 Task 7 batch identity gate:** **duplicate final id+version rejects batch with duplicate_action_identity**
+- **T-704 Task 7 capability audit:** **no filesystem/network/HTTP execution/RuntimeBinding/ActionBus/MCP/WebMCP capability**
+- **T-704 Task 7 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 6 RED head:** `5d132bb1ac019e39e2270eacc5acd0bb253db4c9`
+- **T-704 Task 6 RED CI:** `#905` / `35534734087` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 6 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–5 tests **122 PASS**; Task 6 report/candidate-builder contract **10/10 expected FAIL**
+- **T-704 Task 6 GREEN head:** `cd6b4e68e544f9c310f93af72b9db42623aad180`
+- **T-704 Task 6 GREEN CI:** `#906` / `35534812616` — **12/12 SUCCESS**
+- **T-704 Task 6 final implementation head:** `e9f1c761a378fe7978fab6c13627a2c9bc7ed8fd`
+- **T-704 Task 6 final implementation CI:** `#907` / `35534896771` — **12/12 SUCCESS**
+- **T-704 Task 6 importer suite:** **6 files / 132 tests PASS + typecheck + npm ci**
+- **T-704 Task 6 report pipeline:** **parse → version-family → root operation selection → safe schema suggestions → deterministic report**
+- **T-704 Task 6 candidate ordering:** **pathTemplate → httpMethod → operationPointer**
+- **T-704 Task 6 diagnostic ordering:** **sourcePointer → code → insertion sequence; duplicate diagnostics preserved**
+- **T-704 Task 6 diagnostic budget:** **500 final entries maximum; overflow becomes 499 ordinary + one terminal diagnostic_limit_reached**
+- **T-704 Task 6 diagnostic ownership:** **candidate diagnostics retained on candidates and aggregated into report with operation provenance**
+- **T-704 Task 6 public API:** **importOpenApi() + OpenApiImportReport exported from package entrypoint**
+- **T-704 Task 6 capability audit:** **no filesystem/network/runtime-binding/execution/exposure capability**
+- **T-704 Task 6 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 5 RED head:** `dae76466437c5e6cf720bcb3b1cedb3f5fbaa32f`
+- **T-704 Task 5 RED CI:** `#900` / `35533887718` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 5 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–4 tests **67 PASS**; Task 5 schema/suggestion contract **52/52 expected FAIL**
+- **T-704 Task 5 initial GREEN head:** `683adf0a0fbc3047bd5c69b821888bfdf916acf4`
+- **T-704 Task 5 initial GREEN CI:** `#901` / `35534003405` — **expected corrective FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 5 initial GREEN proof:** Task 5 suite **52/52 PASS**; one prior Task 4 test failed because selector enrichment exceeded the approved Task 5 file/scope boundary
+- **T-704 Task 5 scope-correction head:** `bba9857219afadc17a9dcc72c2cbacc5420d27a4`
+- **T-704 Task 5 scope-correction CI:** `#902` / `35534039877` — **SUCCESS; importer 5 files / 119 tests PASS**
+- **T-704 Task 5 final GREEN head:** `bca7488a080e32cdc07bed5ea9dfbebc71f97fd1`
+- **T-704 Task 5 final GREEN CI:** `#903` / `35534181870` — **12/12 SUCCESS**
+- **T-704 Task 5 importer suite:** **5 files / 122 tests PASS + typecheck + npm ci**
+- **T-704 Task 5 schema dialect boundary:** **default OAS dialect only; explicit jsonSchemaDialect and schema-local $schema fail closed**
+- **T-704 Task 5 schema subset:** **whitelist-only semantics; unsupported/annotation/custom keywords fail closed instead of being dropped**
+- **T-704 Task 5 schema ref boundary:** **same-document acyclic $ref inline only; $ref+sibling fails closed**
+- **T-704 Task 5 schema budget:** **5,000 fragment nodes including supported scalar/array keyword values**
+- **T-704 Task 5 input suggestion boundary:** **zero parameters + no body => empty object; otherwise exactly one supported application/json body schema**
+- **T-704 Task 5 output suggestion boundary:** **exactly one explicit 2xx; no content => null; otherwise exactly one supported application/json schema**
+- **T-704 Task 5 prior-blocking gate:** **blocking source diagnostics prevent automatic input/output suggestions**
+- **T-704 Task 5 selector boundary:** **operation-selector remains unchanged from Task 4; enrichment is deferred to Task 6 candidate-builder**
+- **T-704 Task 5 capability audit:** **no filesystem/network capability; yaml remains the only production dependency**
+- **T-704 Task 5 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 4 RED head:** `f1b58b9feeed38509f2620d59affbbd22acace1a`
+- **T-704 Task 4 RED CI:** `#895` / `35503293113` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 4 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–3 tests **47 PASS**; Task 4 operation/provenance contract **18/18 expected FAIL**
+- **T-704 Task 4 initial implementation head:** `97bbffd8e3c7a61f12bfd142dec1f5992c74dc65`
+- **T-704 Task 4 initial implementation CI:** `#896` / `35503411754` — **typecheck FAIL** in strict JsonValue narrowing
+- **T-704 Task 4 type-guard fix head:** `1c34d3b7bb5d921cde523e1caa23b68a4bf00c18`
+- **T-704 Task 4 type-guard fix CI:** `#897` / `35503457399` — **12/12 SUCCESS; importer 4 files / 65 tests PASS**
+- **T-704 Task 4 final GREEN head:** `cd5205d2b8918e30a77290c2d64616471aa89fb6`
+- **T-704 Task 4 final GREEN CI:** `#898` / `35503516563` — **12/12 SUCCESS**
+- **T-704 Task 4 importer suite:** **4 files / 67 tests PASS + typecheck + npm ci**
+- **T-704 Task 4 operation boundary:** **OAS 3.1 fixed methods; OAS 3.2 adds query; callbacks/webhooks not promoted; additionalOperations unsupported**
+- **T-704 Task 4 operation budget:** **1,000 encountered fixed-operation entries, including malformed entries**
+- **T-704 Task 4 provenance:** **exact operationId / method / path / JSON Pointer; no normalization**
+- **T-704 Task 4 source prose boundary:** **8,192 Unicode characters; oversized summary/description omitted with non-blocking diagnostic**
+- **T-704 Task 4 parameter evidence:** **path+operation merge by exact (name,in); operation overrides; no Action-input flattening**
+- **T-704 Task 4 security evidence:** **inheritance/override/anonymous/removal/OR+AND structure only; no trusted authority**
+- **T-704 Task 4 capability audit:** **same-document lookup only; no filesystem/network capability**
+- **T-704 Task 4 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 3 initial RED head:** `c7a817dd330d523f915996ac81a77c47bdef06ee` — `#891` typecheck RED because ref-budget constants were intentionally not yet present
+- **T-704 Task 3 corrected RED head:** `bdc3329b35189ede1a12c66a7a116f7625ea4bfe`
+- **T-704 Task 3 corrected RED CI:** `#892` / `35497077001` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 3 RED proof:** importer `npm ci` + typecheck SUCCESS; prior Task 1–2 tests **15 PASS**; Task 3 version/ref contract **32/32 expected FAIL**
+- **T-704 Task 3 GREEN head:** `4deab64fd7aa8ddc4b71660836e0d3bf06132ad1`
+- **T-704 Task 3 GREEN CI:** `#893` / `35497163796` — **12/12 SUCCESS**
+- **T-704 Task 3 importer suite:** **3 files / 47 tests PASS + typecheck + npm ci**
+- **T-704 Task 3 version boundary:** **OpenAPI 3.1.x / 3.2.x semantic patch families only**
+- **T-704 Task 3 ref boundary:** **same-document JSON Pointer only; external refs and named anchors fail closed**
+- **T-704 Task 3 ref budgets:** **32 hops / cycle detection / 4,096 unique targets**
+- **T-704 Task 3 capability audit:** **lookup-only; no dereference copy, filesystem or network capability**
+- **T-704 Task 3 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 2 RED head:** `e72e03052a289d99931a3fa52b85c5c1d8f6b97c`
+- **T-704 Task 2 RED CI:** `#886` / `35496515711` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 2 RED proof:** importer `npm ci` + typecheck SUCCESS; source parser contract **12/12 failed as expected** while Task 1 architecture tests stayed green
+- **T-704 Task 2 initial GREEN head:** `9fcbf94a1a1ee5af29d4d36c289e0c8b634f3f30` — `#887` typecheck failure in YAML generic narrowing
+- **T-704 Task 2 narrowing fix head:** `3db875b3cb5eca245f7b70bd178e163d276c6658` — `#888` remaining sequence generic narrowing failure
+- **T-704 Task 2 GREEN head:** `19f2628511b65617a6c21ef2e0235e2af56530ed`
+- **T-704 Task 2 GREEN CI:** `#889` / `35496725520` — **12/12 SUCCESS**
+- **T-704 Task 2 importer suite:** **2 files / 15 tests PASS + typecheck + npm ci**
+- **T-704 Task 2 parser boundary:** **2 MiB source / depth 64 / 50,000 nodes; duplicate JSON keys and unsafe YAML alias/tag/multi-doc forms fail closed**
+- **T-704 Task 2 capability audit:** **content-only API; no filesystem/network capability; yaml remains the only production dependency**
+- **T-704 Task 2 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance, scripts and CI definition
+- **T-704 Task 1 RED head:** `d09d6cd3034a1a897cfebba185a054b1cf8c4a8b`
+- **T-704 Task 1 RED CI:** `#883` / `35496056306` — **expected FAILURE; 11 existing jobs SUCCESS + importer FAIL**
+- **T-704 Task 1 RED proof:** importer `npm ci` + typecheck SUCCESS; Vitest **1 failed / 2 passed** because `src/index.ts` was intentionally absent
+- **T-704 Task 1 GREEN head:** `185e9c2e0455831b4e896fb0176b39555742010a`
+- **T-704 Task 1 GREEN CI:** `#884` / `35496138107` — **12/12 SUCCESS**
+- **T-704 Task 1 importer suite:** **1 file / 3 tests PASS + typecheck + npm ci**
+- **T-704 Task 1 production dependency:** **yaml only**
+- **T-704 Task 1 forbidden diff audit:** **EMPTY** for Laravel, Laravel-MCP, browser runtime, canonical spec, conformance and scripts
+- **Next gate:** none automatically. T-704 is **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; any later work requires a separate explicit scope/design gate.
+
+## M6 historical evidence — preserved
+
+M6 established four cumulative HTMX portability proofs:
+
+```text
+T-601: generic RuntimeBinding carries an explicit HTMX page/source target
+        ↓
+T-602: production HtmxBrowserDriver validates and executes that target fail-closed
+        ↓
+T-603: real non-Laravel Node + HTMX 2.x + Chromium fixture proves the path end-to-end
+        ↓
+T-604: one shared executable matrix proves the common BindingDriver invariants
+        against materially different Livewire and HTMX implementations
+```
+
+Key closure evidence:
+
+```text
+T-601 final feature:             e4cbf0b3831863f4e0a7c89a0700726246b6f4b9
+T-601 merge:                     96581ff9d12dba5487b4831c3bc146081945decb
+T-601 post-merge CI:             34657967629 — 7/7 green
+
+T-602 PR:                        #11
+T-602 final feature:             ebad0f04a3b540a5a1536350038d0919ff600ebd
+T-602 merge:                     ee9af986f22cba45b05c59059c11e68ac46111fd
+T-602 final closure CI:          34702679885 — 7/7 green
+
+T-603 PR:                        #12
+T-603 final feature/review:      076108554d6995fea65108ca07c9b64d3994d459
+T-603 merge:                     e98c919b90f9f19b58ae56b88e391f1abbb179e7
+T-603 post-merge validate:       34758253025 — 7/7 green
+T-603 real-browser fixture:      34758253003 — 8/8 Playwright
+
+T-604 PR:                        #13
+T-604 implementation head:      9d49c22ac2127c7ade6e235fae488f87490feb43
+T-604 implementation validate:  34793229849 — 7/7 green
+T-604 shared matrix:             22/22 — 11 Livewire + 11 HTMX
+T-604 browser:                   19 files / 319/319 + typecheck
+T-604 fresh T-603 regression:   job 103821380728 — 8/8 real Chromium
+T-604 review-fix validate:      34803374097 — 7/7 green
+T-604 decision-promotion CI:    34806672450 — 7/7 green
+T-604 merge:                    2b25b5ccfbbdc9bf8a9e757f93f2cc59fe9ea080
+T-604 post-merge validate:      34806790431 — 7/7 green
+```
+
+`D-058` and `D-020` remain ACCEPTED from the T-604 closure. T-702 does not alter that bounded portability conclusion.
+
+## T-701 implemented boundary
+
+T-701 provides a repo-local executable conformance runner for a deliberately closed v1 claim:
+
+```text
+profile: runtime-binding/driver
+
+targets:
+  browser/livewire  capabilities=[lifecycle.component]
+  browser/htmx      capabilities=[]
+
+executable runtime scenarios:
+  BIND-EXACT-TARGET-EXECUTES
+  BIND-EXPIRED-NOT-EXECUTABLE
+  BIND-COMPONENT-STALE
+  BIND-NO-SILENT-RETARGET
+```
+
+Applicability and verified result:
+
+```text
+BIND-EXACT-TARGET-EXECUTES       Livewire PASS / HTMX PASS
+BIND-EXPIRED-NOT-EXECUTABLE     Livewire PASS / HTMX PASS
+BIND-COMPONENT-STALE             Livewire PASS / HTMX NOT_APPLICABLE
+BIND-NO-SILENT-RETARGET          Livewire PASS / HTMX PASS
+
+7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+```
+
+`BIND-ID-UNKNOWN`, `BIND-DRIVER-UNKNOWN`, and `BIND-ACTION-VERSION-UNAVAILABLE` remain documented rather than executable in T-701 v1.
+
+### Runner/process authority
+
+- Python runner owns canonical scenario selection, capability applicability and `PASS` / `FAIL` verdicts;
+- v1 validation rejects missing or unexpected executable runtime scenario IDs and target IDs;
+- target manifests cannot provide an ad-hoc scenario allowlist;
+- HTMX component-stale is runner-owned N/A before child-process spawn;
+- harnesses emit bounded raw observations only;
+- every claimed profile has a mandatory positive control;
+- one applicable target/scenario pair uses one fresh subprocess;
+- stdin is one JSON request, stdout exactly one protocol JSON response, stderr diagnostics only;
+- production timeout is fixed at 10 seconds;
+- commands are argv arrays, use `shell=False`, and execute from repository `ROOT` so repo-relative harness paths are caller-cwd independent;
+- `recommendedCode` / raw `errorCode` remain advisory and do not independently flip a verdict;
+- `scripts/validate.py` validates structure/configuration and never executes harnesses.
+
+Canonical semantic truth remains in `spec/0.1/fixtures/conformance-scenarios.json`; target command/profile/capability wiring remains repo-local under `conformance/targets/`.
+
+T-701 reuses Vitest-free controlled Livewire/HTMX target builders with T-604 so package tests and process harnesses do not maintain separate behavioral models. No semantic production change was made under `packages/browser-runtime/src/**`.
+
+## Implementation and verification evidence
+
+Implementation sequence:
+
+```text
+Task 1 model/evaluator:                8351954b95b94902ca91f3d0d8fe78c0d6675a49
+Task 2 process runner/protocol:        ecc14a0a9ff571e9c0de20fba7e3fc2f43387a13
+Task 3 shared browser target support:  706a476b5178e9dcbfb9af942446f810cdcc470c
+Task 4 Livewire process harness:       9563299aec93508b7275a44efe82325f4a69fa26
+Task 5 HTMX process harness:           7ef086d7547837331ca5662ebcbce49ce7b1f44a
+Task 6 canonical config/manifests:     65e978393b55ffa2f908cb1518f9b768c9e3fbc3
+Task 7 CI/documentation integration:   2c15515a77d2dd1d79ea970a2811ca0c40191ceb
+Task 8 review-prep tracking:           041dc9126f63225de0338bdb557446906da78c62
+```
+
+Implementation-head verification:
+
+```text
+GitHub Actions validate:           #789 / 35016612915 — 7/7 jobs SUCCESS
+browser Vitest:                    20 files / 328/328 PASS + typecheck
+Python conformance tests:          45/45 PASS
+conformance harness build:         PASS
+canonical matrix:                  7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+contract / scripts/validate.py:     PASS
+```
+
+## External review closure
+
+PR `#14 — feat(conformance): add executable browser conformance runner` received a CodeRabbit external review with four actionable threads.
+
+Review handling:
+
+1. **HTMX replacement identity** — not changed. D-053 requires a replacement target to receive a new opaque `sourceId`; CodeRabbit re-ran its analysis, confirmed the original suggestion invalid, and resolved the thread.
+2. **Review handoff concision** — shortened in `b7d2c4aee175da80f0c97d103f915f751c6b0fc7`; CodeRabbit confirmed and resolved the thread.
+3. **Closed v1 completeness** — fixed in `89a968785a09032cbf3b71f7f60c3f14b76c10ab` with a dedicated v1 validation layer plus regression tests; CodeRabbit confirmed and resolved the thread.
+4. **Repo-relative harness cwd** — fixed in `89a968785a09032cbf3b71f7f60c3f14b76c10ab` with `cwd=ROOT` plus regression coverage; CodeRabbit confirmed and resolved the thread.
+
+Executable review evidence:
+
+```text
+External-review RED:              #794 / 35049387890 — FAILURE as intended on new review regressions
+Correctness-fix head:             89a968785a09032cbf3b71f7f60c3f14b76c10ab
+Correctness-fix validate:         #796 / 35049689721 — SUCCESS
+Final reviewed PR head:           b7d2c4aee175da80f0c97d103f915f751c6b0fc7
+Final reviewed PR validate:       #798 / 35049891609 — SUCCESS, 7 jobs total
+Review-closure tracking:          3777fce830ae2d4a1bcc64925af24563f611ea3e
+Review-closure push validate:     #799 / 35050355079 — 7/7 SUCCESS
+Final Python conformance suite:    47/47 PASS on CPython 3.12.14
+Final browser suite:               20 files / 328/328 PASS + typecheck
+Final harness build:               PASS
+Final canonical matrix:            7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+CodeRabbit threads:                4/4 individually rechecked/resolved / 0 unresolved
+```
+
+No second full CodeRabbit sweep is claimed; review closure is based on the initial full review, thread-specific reviewer rechecks, and fresh exact-head CI.
+
+## Decision promotion
+
+External review confirmed the implemented T-701 architecture, and the decision-promotion gate accepted the decisions that exactly describe that reviewed implementation:
+
+- `D-059` — **ACCEPTED** — profile + capability applicability; runner-owned canonical selection/applicability/verdicts; raw harness observations only.
+- `D-060` — **ACCEPTED** — repo-local one-scenario/one-subprocess JSON protocol, fixed timeout, Python stdlib orchestrator, repo-root command execution.
+- `D-061` — **ACCEPTED** — canonical scenario semantics in the registry, execution wiring outside the spec, mandatory positive control, closed four-scenario/two-target browser v1 claim.
+- `D-026` — **PROPOSED** independently; provisional binding failure codes remain advisory rather than globally normative.
+
+Decision-promotion evidence:
+
+```text
+Decision-promotion head:           1efe11714e9d3abcd0e8a12fcb90912b23522ad4
+Decision-promotion PR validate:    #802 / 35058068033 — 7/7 SUCCESS
+Tracking-closure head:             5da153c3c0a0f6c38d9b5f01b26899efa24ea949
+Tracking-closure push validate:    #803 / 35058313792 — 7/7 SUCCESS
+Browser:                           20 files / 328/328 PASS + typecheck
+Python conformance tests:          47/47 PASS
+Harness build:                     PASS
+Canonical matrix:                  7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+Contract validation:               PASS
+```
+
+The accepted vocabulary remains bounded to the reviewed repo-local T-701 v1 runner. It does not publish a standalone specification, certification program, or global error-code enum.
+
+## Merge / main revalidation
+
+PR #14 was merged from the exact reviewed/tracking head into `main`.
+
+```text
+Final feature/tracking head:       5da153c3c0a0f6c38d9b5f01b26899efa24ea949
+Merge commit:                      50c8c482165a115b8b3b8cb740f123ecf4203041
+Post-merge main validate:          #809 / 35080877519 — 7/7 SUCCESS
+Post-merge contract validation:    PASS
+Post-merge browser typecheck:      PASS
+Post-merge browser Vitest:         20 files / 328/328 PASS
+Post-merge Python conformance:     47/47 PASS on CPython 3.12.14
+Post-merge harness build:          PASS
+Post-merge canonical matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+The main-branch execution checked out exact merge SHA `50c8c482165a115b8b3b8cb740f123ecf4203041`; the canonical runner remained green after integration.
+
+## T-702 implementation
+
+T-702 design and implementation plan:
+
+```text
+docs/superpowers/specs/2026-09-16-adapter-author-guide-design.md
+docs/superpowers/plans/2026-09-16-adapter-author-guide.md
+```
+
+Implemented documentation:
+
+```text
+docs/adapters/README.md
+docs/adapters/author-guide.md
+docs/adapters/conformance.md
+docs/adapters/security.md
+```
+
+The implementation preserves the approved design boundary:
+
+- the guide is explanatory and explicitly subordinate to canonical contracts, accepted decisions, and executable conformance semantics;
+- import/definition, runtime/binding, and surface/projection roles are author-facing responsibility categories, not new core interfaces;
+- trusted context, explicit exposure, discovery-vs-invocation, exact-target, no-retarget, deterministic mapping, lifecycle/expiry, fail-closed, and bounded cancellation invariants remain canonical rather than being redefined by examples;
+- `docs/adapters/author-guide.md` provides the responsibility matrix and 12-step author workflow;
+- `docs/adapters/security.md` makes trust/security constraints part of adapter correctness rather than an appendix;
+- `docs/adapters/conformance.md` carries D-059 through D-061 forward exactly: truthful profile/capability claims, runner-owned selection/applicability/verdicts, bounded raw harness observations, current repo-local process boundary, revision-scoped evidence, and bounded compatibility wording;
+- Livewire and HTMX are documented as materially different reference techniques for shared portable invariants, not a universal target shape;
+- D-026 remains PROPOSED; no global error enum is created;
+- D-062 remains PROPOSED; implementation does not promote it;
+- Historical T-702 boundary: T-703 Laravel MCP projection and T-704 OpenAPI import remained outside T-702 and had not started at that point.
+
+### T-702 implementation verification
+
+Verified documentation/navigation head:
+
+```text
+04e69ecb8a4d752732f2ab85eaf0f14798944e68
+```
+
+Exact-head GitHub Actions evidence:
+
+```text
+Validate:                       #821 / 35150202622 — 7/7 SUCCESS
+Contract / scripts/validate.py: PASS
+PHP matrix:                     4/4 PASS
+PHP lint:                       PASS
+Browser typecheck:              PASS
+Browser Vitest:                 20 files / 328/328 PASS
+Python conformance:             47/47 PASS on CPython 3.12.14
+Harness build:                  PASS
+Canonical runtime matrix:       7 PASS / 1 NOT_APPLICABLE / 0 FAIL / 0 ERROR
+```
+
+The canonical runtime result remained unchanged:
+
+```text
+BIND-EXACT-TARGET-EXECUTES       Livewire PASS / HTMX PASS
+BIND-EXPIRED-NOT-EXECUTABLE     Livewire PASS / HTMX PASS
+BIND-COMPONENT-STALE             Livewire PASS / HTMX NOT_APPLICABLE
+BIND-NO-SILENT-RETARGET          Livewire PASS / HTMX PASS
+```
+
+## Scope audit
+
+The pre-merge `main..feat/t-702-adapter-author-guide` diff was inspected before integration; the same exact feature head was then fast-forwarded to `main`.
+
+T-702 implementation adds documentation/navigation/tracking only and introduces no semantic changes under:
+
+```text
+packages/browser-runtime/src/**
+packages/laravel/src/**
+spec/0.1/**
+conformance/targets/**
+scripts/conformance_model.py
+scripts/run_conformance.py
+```
+
+Additional boundaries remain intact:
+
+- no new dependency;
+- no new profile/capability/canonical scenario;
+- no T-701 runner/applicability/verdict change;
+- no Livewire/HTMX production behavior change;
+- no MCP implementation;
+- no OpenAPI importer;
+- no standalone public-spec extraction;
+- no compatibility badge/certification/signing/registry infrastructure;
+- D-026 remains PROPOSED;
+- D-062 is ACCEPTED as the externally reviewed guide-authority boundary; it does not authorize new adapter semantics.
+
+## Explicit non-goals
+
+T-702 does not create or claim an adapter SDK, universal adapter interface, scaffolding CLI, plugin loader, new RuntimeBinding/BindingDriver abstraction, new Action Definition field, new profile/capability, new canonical scenario, new failure-code enum, compatibility registry, certification program, remote conformance system, MCP implementation, OpenAPI importer, production Livewire/HTMX behavior change, or standalone public-spec extraction.
+
+## T-703 scope/design gate
+
+T-703 is complete: Tasks 1–8 are implemented, external review is closed, D-063/D-064 are accepted, PR #16 is merged, and the merge commit is revalidated on main.
+
+```text
+Branch:                   main
+Design:                   docs/superpowers/specs/2026-09-18-laravel-mcp-projection-design.md
+D-063:                    ACCEPTED
+D-064:                    ACCEPTED
+Implementation plan:      docs/superpowers/plans/2026-09-18-laravel-mcp-projection.md — APPROVED
+Implementation:           DONE / REVIEWED / MERGED / MAIN REVALIDATED
+Final feature head:       9c6fe28296801158ca86810fc04ed48a3099707c
+Merge commit:              99551c4f796c25c560821930c8b4ffc2443aadef
+Post-merge main validate:  #872 / 35407443826 — 11/11 SUCCESS
+Production core changes:  NONE
+Canonical spec changes:   NONE
+T-701 conformance change: NONE
+T-704 work at T-703 closure: NOT STARTED (historical snapshot)
+```
+
+Locked design direction:
+
+- maintained `laravel/mcp` rather than an in-house MCP protocol implementation;
+- optional `packages/laravel-mcp` bridge with one-way dependency on `packages/laravel`;
+- MCP Tools only for v1;
+- explicit MCP exposure by exact Action identity;
+- only portable/headless action scopes;
+- MCP request arguments remain untrusted business input;
+- trusted actor/tenant authority remains existing Laravel runtime state;
+- namespaced confirmation/idempotency metadata remains non-authoritative until existing server-side verification;
+- all business invocation converges on ActionBus and ActionResultNormalizer;
+- no expansion of T-701's closed conformance profile.
+
+## Historical boundary before T-704 implementation
+
+**M6 is closed. T-604 is closed. T-701 is closed.**
+
+Historical snapshot after T-703 closure: T-702 and T-703 were **DONE / REVIEWED / MERGED / MAIN REVALIDATED**; `D-059` through `D-064` were **ACCEPTED** and `D-026`, `D-065` through `D-068` were **PROPOSED**. At that point T-704 was design-only and implementation had not started. The authoritative current T-704 state is recorded at the top of this file.
+
+## Historical T-704 scope/design gate
+
+At this historical gate, T-704 scope/design review and implementation-plan review were complete, design and plan were approved, and implementation had not started.
+
+```text
+Branch:                 feat/t-704-openapi-importer-design
+Design:                 docs/superpowers/specs/2026-09-19-openapi-importer-design.md
+D-065:                  PROPOSED
+D-066:                  PROPOSED
+D-067:                  PROPOSED
+D-068:                  PROPOSED
+Design status:          APPROVED
+Implementation plan:    APPROVED
+Implementation at this gate: NOT STARTED (historical snapshot)
+Canonical spec change:  NONE
+Runtime binding change: NONE
+T-701 conformance:      UNCHANGED
+T-703 MCP bridge:       UNCHANGED
+```
+
+The approved design keeps OpenAPI subordinate to D-012 and separates source/provenance parsing from canonical SurfaceRelay semantics. Review also locked same-document-only refs, no secondary filesystem/network retrieval, exact fixed-operation selection, Path Item ref/sibling fail-closed behavior, schema-dialect compatibility checks, and source-description sanitization/explicit presentation resolution. No package code, parser dependency, generated runtime binding, HTTP execution path, or exposure mechanism exists yet.
+
+Design approval evidence is revision-bounded to `814d610e40ddbccee051885895070f9d08c7a76c` with Validate #876 / `35408438835` at **11/11 SUCCESS**.
+
+Historical next gate at that point was **implementation execution preflight + Task 1 only** on `feat/t-704-openapi-importer`. That historical gate is closed. M7 is now closed, merged, and main-revalidated; no T-704 implementation preflight should be restarted.
+
+
+## M7 closure / state reconciliation
+
+```text
+Branch:                          main
+Baseline main:                   b2de658f9feaee18ac60cb0c2786b45c3d95e342
+Baseline Validate:               #943 / 35666645607 — 12/12 SUCCESS
+T-701..T-704:                    DONE / REVIEWED / MERGED / MAIN REVALIDATED
+D-059..D-068 except D-026:       ACCEPTED
+D-026:                           PROPOSED
+Production/spec semantic change: NONE
+Later milestone implementation:  NOT STARTED
+Changed paths:                   STATUS.md; TASKS.md; REVIEW_REQUEST.md; docs/ROADMAP.md;
+                                 docs/adapters/README.md; docs/adapters/author-guide.md;
+                                 packages/laravel-mcp/README.md; packages/openapi-importer/README.md
+Review-closure head:             6ff7ad666e9dcaffaa1f68937c66d2e864e336fb
+Review-closure push/PR:          #950 / #951 — 12/12 SUCCESS each
+Closure PR:                      #18 — MERGED
+Merge commit:                    893e39582cd80e07f1a455d1cb5a1d7c9d1ca35c
+Post-merge main Validate:        #952 / 35680926172 — 12/12 SUCCESS
+Next gate:                       separate product/scope reassessment only; not started
+State:                           DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED
+```
+
+The M7 roadmap outcome is satisfied by T-701 through T-704. Reconciliation, review-fix, review-closure, and post-merge `main` validation are green; both external-review findings are closed and there are zero unresolved inline review threads. M7 is final on `main`: **DONE / CLOSED / EXTERNALLY REVIEWED / MERGED / MAIN REVALIDATED**. Historical design/plan snapshots remain historical. No T-705 or later milestone implementation begins automatically.
+
+## Post-M7 product/scope reassessment
+
+Spec: `docs/superpowers/specs/2026-09-22-post-m7-product-reassessment.md`
+
+This reassessment is documentation-only. It does not open M8 and does not authorize implementation or publication.
+
+```text
+Baseline main:                    a3ee94751cef344e0d1038325297629a0f212c02
+Baseline Validate:                #953 / 35681090013 — 12/12 SUCCESS
+Current implemented milestones:   M0 through M7 complete
+Current GitHub releases:          none
+Browser runtime package:          0.0.0-dev / private:true / no reviewed distribution contract
+OpenAPI importer package:         0.0.0-dev / private:true / no publication promise
+Laravel MCP dependency:           surfacerelay/laravel dev-main via local path repository
+Root user flow:                   development-oriented; no clean external install contract
+Release automation:               none
+CHANGELOG:                        none
+Root vulnerability-reporting doc: none
+Clean downstream consumer proof:  none
+Recommended direction:            M8 — Consumer & Release Readiness
+M8 state:                         PROPOSED ONLY / NOT OPENED / NOT STARTED
+Registry publication:             NOT AUTHORIZED
+Tag/release creation:             NOT AUTHORIZED
+Contract/spec semantic change:    NONE
+T-705 / T-801:                    NOT CREATED
+```
+
+The recommendation is to prove versioned release-candidate artifacts in clean downstream consumers before any registry publication. Publication, tagging, and public compatibility promises remain separate later gates.
+
+If this reassessment is approved, the next explicit gate is **M8 scope/design only**. It must first resolve the intended public package set, package-version relationship, release-candidate artifact shape, clean-consumer verification matrix, and compatibility/support wording. Implementation does not begin automatically.
+
+## M8 — Consumer & Release Readiness scope/design
+
+Design: `docs/superpowers/specs/2026-09-22-consumer-release-readiness-design.md`
+
+```text
+Design base:                    3ea6904f0131588769464dd16ff68180220ec7bd
+Reassessment Validate:          #957 / 35682496627 — 12/12 SUCCESS
+First candidate package set:    surfacerelay/laravel + @surfacerelay/browser-runtime
+Deferred package publication:   surfacerelay/laravel-mcp + @surfacerelay/openapi-importer
+Version topology:               coordinated first release train; exact public SemVer deferred
+Artifact proof:                 Composer archive + npm pack tarball; registry-independent
+Consumer proof:                 isolated artifact-only downstream projects
+Browser public API:             curated root ESM entry + declarations; no supported deep imports
+Publication:                    separate later go/no-go gate
+D-069..D-073:                   PROPOSED
+T-801..T-805:                   DEFINED / NOT STARTED
+Implementation:                 NOT STARTED
+Package publish/tag/release:    NOT AUTHORIZED
+D-026:                          PROPOSED / unchanged
+```
+
+The next gate is **M8 design approval only**. Approval does not start T-801 implementation.
+
+## T-801 implementation-plan preparation
+
+Plan: `docs/superpowers/plans/2026-09-22-release-candidate-artifact-contract.md`
+
+```text
+M8 design approval head:        4f4a52db8a1c9e03e0467d6cbe24bb1f6b646af1
+M8 design Validate:             #960 / 35698730292 — 12/12 SUCCESS
+T-801 plan state:               READY FOR APPROVAL
+T-801 implementation:          NOT STARTED
+Implementation branch:         NOT CREATED
+Expected implementation scope: scripts/release_candidate.py + guard/tests + one CI job
+Real Laravel artifact:         DEFERRED TO T-802
+Real browser package artifact: DEFERRED TO T-803
+D-069..D-073:                  PROPOSED
+D-026:                         PROPOSED
+Publish/tag/release:           NOT AUTHORIZED
+```
+
+The next gate is **T-801 plan approval only**. Approval may then authorize T-801 implementation execution, but not T-802.
+
+## T-801 implementation checkpoint — Step 2 GREEN
+
+```text
+Implementation branch:           feat/t-801-release-candidate-artifact-contract
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Plan-base Validate:               #962 / 35723555301 — 12/12 SUCCESS
+Step 1 RED head:                 c7b14467b4e3e6d01f024a132bb19529d374659e
+Step 1 RED contract:             12 expected errors; scripts.release_candidate absent
+Step 1 regression Validate:      #964 / 35781050443 — 12/12 SUCCESS
+Step 2 GREEN head:               9edfde11ffba0d0655600fbbac8dbabf8b3b61e2
+Step 2 contract suite:           12/12 PASS in isolated local reproduction
+Step 2 repository Validate:      #965 / 35813427924 — 12/12 SUCCESS
+New implementation file:        scripts/release_candidate.py
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 2 implements only prerelease SemVer validation, exact Git revision/clean-worktree preflight, release-candidate staging-root construction, staging path containment, and non-empty target rejection. Manifest/evidence generation is not implemented yet.
+
+Next explicit gate: **Step 3 — extend RED tests for deterministic content/evidence behavior only**. Do not implement Step 4 automatically.
+
+## T-801 implementation checkpoint — Step 4 GREEN
+
+```text
+Step 3 RED head:                 60f5a0ce8834d02286b2c6a1fc7a85cef9de7c9c
+Step 3 RED contract:             24 tests total; 12 prior GREEN + 12 new RED methods
+Step 3 RED error instances:      13 (one archive test has two subcases)
+Step 3 regression Validate:      #967 / 35813929556 — 12/12 SUCCESS
+Step 4 GREEN head:               2ffab24aaadb66814cfefd628da3b25c36d745f8
+Step 4 isolated contract checks: 24/24 PASS
+Step 4 repository Validate:      #968 / 35826283418 — 12/12 SUCCESS
+Contract job:                    python scripts/validate.py — SUCCESS
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 4 adds only deterministic package-content manifests, sorted compact newline-terminated JSON evidence serialization, SHA-256 content/archive evidence, regular-file enforcement, symlink rejection, and stage-root containment for evidence inputs. It does not build Composer/npm artifacts.
+
+Next explicit gate: **Step 5 — publication-guard RED tests only**. Do not implement Step 6 automatically.
+
+## T-801 implementation checkpoint — Step 6 GREEN
+
+```text
+Step 5 RED head:                 c7d54d6a3983bed47c81f5489897e3de1597b058
+Step 5 regression Validate:      #970 / 35915085927 — 12/12 SUCCESS
+Step 6 initial guard head:       8463b783794a32f0041d830af7511c44c2653741
+Step 6 initial Validate:         #971 / 36065158219 — 12/12 SUCCESS
+Isolated test finding:           invalid token regex caught before Step 6 closure
+Step 6 corrected guard head:     c740ef9e3307afd8d0b33fe96e6320bd7dd8e336
+T-801 isolated suites:           37/37 PASS
+Repository publication guard:   PASS on scanner-defined current surfaces
+Validate contract job:          python scripts/validate.py — SUCCESS
+Step 6 exact-head Validate:      #972 / 36065464314 — 12/12 SUCCESS
+Package/spec/conformance diff:   EMPTY
+Workflow change:                 NONE
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+The existing 12-job workflow does not yet execute the new T-801 release-candidate suites. The isolated Step 6 run caught a regex bug that #971 could not detect; this is concrete evidence for the planned dedicated `release-contract` CI job in Step 7.
+
+Next explicit gate: **Step 7 — add the dedicated `release-contract` CI job only**. Do not begin Step 8 whole-task closure or T-802 automatically.
+
+## T-801 implementation checkpoint — Step 7 GREEN
+
+```text
+Step 7 CI head:                  19e78b15bc86334b9a0e95455988c9823030e2da
+Step 7 first Validate:           #974 / 36118303242 — release-contract FAILED
+Step 7 discovered defect:        prerelease SemVer regex used double-escaped dot separators
+Step 7 defect-fix head:          b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+Dedicated release-contract job:  SUCCESS
+Release-contract test step:      SUCCESS / 37 tests
+Publication guard step:          SUCCESS
+Step 7 corrected Validate:       #975 / 36118400942 — 13/13 SUCCESS
+Release-contract credentials:    contents:read only; checkout persist-credentials=false
+Real package artifacts:          NONE
+Registry credentials:            NONE
+Package/spec/conformance diff:   EMPTY
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Publish/tag/release:             NONE
+```
+
+Step 7 converted the previously manual T-801 verification gap into a dedicated CI contract. Its first run immediately exposed a latent Step-2 SemVer regex defect that the previous 12-job workflow could not observe; the defect was minimally corrected and the full 13-job matrix is green.
+
+Next explicit gate: **Step 8 — whole-task verification only**. Do not start Step 9/10 closure, T-802, or publication automatically.
+
+## T-801 implementation checkpoint — Step 8 VERIFIED
+
+```text
+Verification head:               ecc80edc2697d3a27f83c1c543c986dcf95c0024
+Validate run:                    #976 / 36118598072
+Fresh verification attempt:     attempt 2
+Whole matrix:                    13/13 SUCCESS
+Release-contract tests:         37/37 PASS
+Publication guard:              PASS
+python scripts/validate.py:      SUCCESS
+Browser regression:             SUCCESS
+OpenAPI importer regression:    SUCCESS
+Laravel base matrix:            4/4 SUCCESS
+Laravel MCP matrix:             4/4 SUCCESS
+PHP lint:                       SUCCESS
+Implementation changes in Step 8: NONE
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+T-802..T-805:                  NOT STARTED
+Publish/tag/release:            NONE
+```
+
+Step 8 re-ran the exact-head verification on GitHub Actions. The dedicated release contract reported `Ran 37 tests` / `OK`, the publication guard passed, the existing `contract` job's `python scripts/validate.py` step succeeded, and all 13 workflow jobs completed successfully.
+
+Next explicit gate: **Step 9 — forbidden-diff audit only**. Do not start Step 10 review handoff, T-802, or publication automatically.
+
+## T-801 implementation checkpoint — Step 9 AUDITED
+
+```text
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Audited head:                    6cebbabf3150d29577cff0b14c67740f7d18b083
+Changed files total:             8
+Allowed implementation files:   scripts/release_candidate.py
+                                scripts/check_release_guardrails.py
+Allowed test files:             scripts/tests/test_release_candidate_contract.py
+                                scripts/tests/test_release_candidate_guardrails.py
+Allowed CI file:                .github/workflows/validate.yml
+Allowed tracking/docs:          STATUS.md / TASKS.md / T-801 plan
+packages/** forbidden diff:     EMPTY
+spec/** forbidden diff:         EMPTY
+conformance/** forbidden diff:  EMPTY
+Package manifest diff:          EMPTY
+Decision-register diff:         EMPTY
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+Exact audited-head Validate:    #977 / 36125095486 — 13/13 SUCCESS
+T-802..T-805:                  NOT STARTED
+Publish/tag/release:            NONE
+```
+
+The Step 9 audit confirms that T-801 stayed inside release-tooling/tests/CI/tracking boundaries. No package implementation, package manifest, canonical spec, conformance asset, or decision-register implementation change exists between the implementation base and audited head.
+
+Next explicit gate: **Step 10 — tracking / external-review handoff only**. Do not begin T-802, decision promotion, merge, tag, release, or publication automatically.
+
+## T-801 implementation checkpoint — Step 10 REVIEW HANDOFF
+
+```text
+Implementation base:             da8ea76545afaf434b26a69ba92713db2784c785
+Last implementation-code head:   b605dd240d0cbf54d1b543ad6a8aecff4a2af649
+Step 8 verified head:            6cebbabf3150d29577cff0b14c67740f7d18b083
+Step 9 audited/tracking head:     4ea3279538ac4aba646104db37c1a9c21442b579
+Step 9 exact-head Validate:       #978 / 36140680524 — 13/13 SUCCESS
+T-801 release-contract suite:    37/37 PASS
+Publication guard:              PASS
+python scripts/validate.py:      SUCCESS
+Forbidden package/spec diff:    EMPTY
+External review:                NOT STARTED
+D-026:                          PROPOSED / unchanged
+D-069..D-073:                  PROPOSED / unchanged
+T-802..T-805:                  NOT STARTED
+Merge/tag/release/publication:  NOT AUTHORIZED
+```
+
+T-801 implementation is complete for handoff. It is not yet externally reviewed, merged, or decision-promoted. `REVIEW_REQUEST.md` is now the authoritative T-801 external-review brief.
+
+Next explicit gate: **T-801 external review only**. Do not begin T-802, promote D-069..D-073, merge, tag, release, or publish automatically.
+## T-801 external-review checkpoint — workflow YAML parsing boundary DESIGN LOCKED
+
+```text
+PR:                               #19 — OPEN / mergeable
+Pre-amendment head:               caca04423dedc4119a9ac32e0ff93812f0f988eb
+External review state:            ACTIVE
+Open actionable finding:          1 Major
+Finding:                          workflow publication guard does not parse all valid YAML run scalar forms
+Current scanner limitation:       handwritten folded-scalar handling only
+Design resolution:                strict parsed-workflow boundary; no further regex expansion
+Parser direction:                 PyYAML 6.x / BaseLoader-derived strict duplicate-key rejecting loader
+Command authority:               parsed jobs.*.steps[*].run string values only
+Workflow credential scan:         parsed string keys/values; comments excluded
+Malformed/duplicate/non-string:   fail closed as GuardrailScanError
+Implementation/tests:             NOT STARTED by this checkpoint
+Review thread:                    REMAINS UNRESOLVED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-802..T-805:                    NOT STARTED
+Merge/tag/release/publication:   NOT AUTHORIZED
+```
+
+The Major finding is accepted as valid. The prior `run: >` regex/folding fix is not extended further because that would keep a correctness-critical YAML boundary dependent on syntax-shape matching.
+
+Next explicit gate: **T-801 external-review finding RED tests only**. Do not implement GREEN, resolve the review thread, merge, promote decisions, or start T-802 automatically.
+## T-801 external-review checkpoint — workflow YAML parsing RED PROVEN
+
+```text
+Design-lock head:                 f503a9cb1afeda7091f700414ccabbebaa6d092c
+Design-lock Validate:             #991 / 36238605824 — 13/13 SUCCESS
+RED test head:                    3702b9786fe3a171571acd3988021ba7083cf232
+RED Validate:                     #992 / 36250401675 — 12 SUCCESS / 1 FAILURE
+Failing job:                      release-contract only
+T-801 suite at RED:               49 tests / 6 expected failures
+Unrelated CI jobs:                12/12 SUCCESS
+Open review finding:              1 Major / thread unresolved
+Production scanner change:        NONE in RED gate
+Dependency/workflow setup change: NONE in RED gate
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-802..T-805:                    NOT STARTED
+Merge/tag/release/publication:   NOT AUTHORIZED
+```
+
+The six RED failures prove exactly the locked parsing gap:
+
+1. multi-line plain-scalar `run` is not reconstructed;
+2. explicit indentation-indicator folded scalar (`>2`) is not reconstructed;
+3. duplicate workflow mapping keys do not fail closed;
+4. malformed workflow YAML does not fail closed;
+5. non-string parsed `run` values do not fail closed;
+6. workflow comments are incorrectly scanned as executable publication/credential text.
+
+Existing folded `>`, `>-`, and `>+` coverage remained green. The other 12 Validate jobs also remained green, so the RED signal is isolated to the intended T-801 publication-guard boundary.
+
+Next explicit gate: **GREEN implementation for this Major finding only**. Do not resolve the review thread until the parser fix, focused suite, publication guard, full Validate matrix, and exact-head review evidence are green.
+## T-801 external-review checkpoint — workflow YAML parsing GREEN VERIFIED
+
+```text
+RED head:                          3702b9786fe3a171571acd3988021ba7083cf232
+RED Validate:                      #992 / 36250401675 — 12 SUCCESS / 1 expected FAILURE
+GREEN implementation head:         c50b9f12cd809107f4d95f553716d9a96df3f038
+GREEN Validate:                    #996 / 36266106312 — 13/13 SUCCESS
+Release-contract suite:            49/49 PASS
+Publication guard:                 PASS
+Contract validation:               SUCCESS
+Workflow parser:                   PyYAML 6.x BaseLoader-derived strict loader
+Duplicate mapping keys:            FAIL CLOSED
+Malformed workflow YAML:           FAIL CLOSED
+Non-string run values:             FAIL CLOSED
+Plain/folded/indent scalar runs:    PARSED BEFORE COMMAND SCAN
+Workflow comments:                 NOT EXECUTABLE SCAN INPUT
+Manual YAML folding regex:         REMOVED
+Changed implementation files:      4 allowed files only
+Open review finding:               1 Major / thread still unresolved
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-802..T-805:                     NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+The accepted Major YAML parsing finding is technically fixed and exact-head verified. The implementation now parses workflow YAML before scanning `run` commands, rejects duplicate mappings and invalid structures fail-closed, scans credential identifiers from parsed string keys/values, and removes the handwritten folded-scalar approximation.
+
+The inline review thread intentionally remains unresolved in this gate. Next explicit gate: **external-review finding disposition / thread resolution only**, followed by any required review re-check. Do not begin T-802, merge, promote decisions, tag, release, or publish automatically.
+
+## T-801 external-review closure — REVIEW CLOSED
+
+```text
+PR:                                #19 — OPEN / mergeable / NOT MERGED
+Final reviewed pre-closure head:   f1257054f6d828d5e25fa68cdc23bf334188192e
+Reviewed-head Validate:            #998 / 36266212552 — 13/13 SUCCESS
+Release-contract suite:            49/49 PASS
+Publication guard:                 PASS
+External reviewer re-check:        CodeRabbit confirmed Major finding addressed
+Review threads:                    5 total / 0 unresolved
+Package/spec/conformance drift:    NONE
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-802..T-805:                     NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+T-801 now satisfies the external-review closure rule: all actionable inline findings are addressed or dispositioned, the final reviewed pre-closure head is green, the latest Major fix was independently re-checked by CodeRabbit, and unresolved review threads are zero.
+
+Next explicit gate: **T-801 merge decision only**. Do not begin T-802, promote D-069..D-073, tag, release, or publish automatically.
+
+## T-801 post-merge main closure — FINAL
+
+```text
+PR:                              #19 — MERGED
+Merge commit:                    84f80858308d35ed532eec3928a7fdf3186ffb34
+Post-merge main Validate:        #1001 / 36273220054 — 13/13 SUCCESS
+Release-contract:                SUCCESS
+Contract:                        SUCCESS
+Browser:                         SUCCESS
+OpenAPI importer:                SUCCESS
+PHP lint:                        SUCCESS
+Laravel base matrix:             4/4 SUCCESS
+Laravel MCP matrix:              4/4 SUCCESS
+Review threads:                  5 total / 0 unresolved
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-802..T-805:                   NOT STARTED
+Tag/release/publication:        NONE
+```
+
+T-801 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No later M8 task starts automatically.
+
+Next explicit gate: **T-802 implementation-plan preparation only**. Do not begin T-802 implementation, promote D-069..D-073, tag, release, or publish automatically.
+
+## T-802 implementation plan — APPROVED / IMPLEMENTATION NOT STARTED
+
+```text
+Plan:                             docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
+Plan-preparation head:            13fa25393c179257d1de724752f2dec49173653f
+Plan-preparation Validate:        #1003 / 36277458713 — 13/13 SUCCESS
+T-802 plan state:                 APPROVED
+T-802 implementation:            NOT STARTED
+Implementation branch:           NOT CREATED
+Planned artifact:                 surfacerelay/laravel Composer ZIP
+Planned consumer matrix:          PHP 8.3/8.4 × Laravel 12/13
+Planned smoke:                    PHP 8.4 + Laravel 13 / production ActionBus
+Source composer version change:   NONE; staged injection only
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NOT AUTHORIZED
+```
+
+Next explicit gate: **T-802 Step 1 — baseline + feature branch only**. Do not begin RED artifact-content tests automatically.
+
+## T-802 Step 1 — baseline + feature branch COMPLETE
+
+```text
+Implementation baseline:          12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Baseline branch:                  main
+Baseline Validate:                #1004 / 36279906163 — 13/13 SUCCESS
+Feature branch:                   feat/t-802-laravel-artifact-clean-consumer
+Branch created from baseline:     YES / exact SHA
+Production implementation:       NOT STARTED
+RED artifact-content tests:       NOT STARTED
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+T-802 now has an exact green implementation baseline and dedicated feature branch. No production, test, CI, artifact, consumer, package, spec, or conformance implementation changed in Step 1.
+
+Next explicit gate: **T-802 Step 2 — RED artifact-content tests only**. Do not implement the artifact builder or start consumer/matrix/smoke work automatically.
+
+## T-802 Step 2 — artifact-content RED PROVEN
+
+```text
+Step 1 tracking head:             3c1381f1f0d79e6b2585bec471cb3b4e0be0da0c
+RED test head:                    eb727e294420f2b44efa663ed4c806ca9d6e953a
+RED test file:                    scripts/tests/test_laravel_release_candidate.py
+Focused command:                  python -m unittest scripts.tests.test_laravel_release_candidate -v
+Focused RED result:               10 tests / 10 ERROR
+RED cause:                        scripts.laravel_release_candidate module does not exist
+Regression Validate:              #1007 / 36299355134 — 13/13 SUCCESS
+Production artifact builder:      NOT STARTED
+Consumer/isolation implementation:NOT STARTED
+CI discovery/matrix change:       NONE
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+The ten RED tests encode only the approved artifact-content contract: exact identity, staged version injection without source mutation, release allowlist/exclusions, symlink rejection, candidate-only README, ZIP safety/order/determinism, and reuse of T-801 manifest/evidence identity and hashes.
+
+The existing `release-contract` discovery pattern intentionally remains unchanged in Step 2 and does not include `test_laravel_release_candidate.py`; therefore focused RED evidence is recorded separately while the existing 13-job repository regression remains green.
+
+Next explicit gate: **T-802 Step 3 — GREEN artifact builder only**. Do not begin consumer isolation, Composer matrix, ActionBus smoke, or Step 8 CI matrix automatically.
+
+## T-802 Step 3 — GREEN artifact builder VERIFIED
+
+```text
+RED tracking head:                d079ff8da404a8ec56617a968096f012c8f5522e
+GREEN implementation head:       331490b4942e257749d1e104f20365b5d4583cc7
+Implementation file:             scripts/laravel_release_candidate.py
+Focused artifact suite:          10/10 PASS
+Focused execution:               isolated scratch execution of committed builder/test contract
+GitHub Validate:                 #1009 / 36315361027 — 13/13 SUCCESS
+python scripts/validate.py:      PASS
+Publication guard:               PASS
+Step 3 diff:                     builder file only
+packages/laravel/** changes:     NONE
+spec/** changes:                 NONE
+conformance/** changes:          NONE
+Consumer/isolation work:         NOT STARTED
+Composer matrix:                 NOT STARTED
+ActionBus consumer smoke:        NOT STARTED
+Dedicated T-802 CI matrix:       NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-803..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+```
+
+The builder now stages only the approved Laravel release allowlist, injects the prerelease version only into the staged Composer manifest, rejects source symlinks/non-regular entries, generates a candidate-only README, produces a deterministic path-safe ZIP, and writes T-801-compatible manifest/evidence hashes. Source package files are not modified.
+
+The low-level Step 3 builder does not yet perform clean-consumer Composer resolution or the final exact-Git clean-source orchestration; those remain later T-802 steps. Existing Actions discovery is also unchanged until the dedicated CI step.
+
+Next explicit gate: **T-802 Step 4 — RED consumer/isolation tests only**. Do not implement consumer generation, Composer installation, ActionBus smoke, or CI matrix automatically.
+
+## T-802 Step 4 — consumer/isolation RED PROVEN
+
+```text
+Step 3 tracking head:             42bb2ae6c867c418853c99035cbf9b5867af77b6
+Consumer RED test head:           dc341335f4db17ed04ab776fbda6d684643a6dbe
+Temporary CI bridge head:         b20ad92dd3deaac6b4de2148267e132b4e52a18f
+Test-scope correction head:       ad834fde68175700b6533c39c6d832f6cdfdc065
+Authoritative RED Validate:       #1013 / 36317673759 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      release-contract only
+Release-contract total:           66 tests / 11 expected error records
+Existing T-802 artifact tests:    10/10 PASS
+New consumer test methods:        7 RED
+Missing consumer seams:           4
+  build_clean_consumer_composer_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_isolation
+  validate_laravel_artifact_archive
+Consumer generator/verifier:      NOT STARTED
+Composer execution:               NOT STARTED
+ActionBus consumer smoke:         NOT STARTED
+Permanent CI discovery/matrix:    NOT STARTED
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+Step 4 RED is isolated to the approved consumer/isolation contract. The 7 new test methods generate 11 unittest error records because one forbidden-coupling test uses five subtests; all errors are AttributeError against the four intentionally missing Step 5 tooling seams.
+
+The RED bridge also exposed one latent test-scope bug from Step 3: artifact-evidence paths were read after the temporary directory closed. That test-only bug was corrected at `ad834fde...`; the rerun proves the existing 10 artifact tests remain green before the consumer errors occur.
+
+The temporary `test_release_candidate_t802_consumer_red.py` discovery bridge is removed in this tracking checkpoint. Permanent T-802 Actions discovery remains deferred to Step 8.
+
+Next explicit gate: **T-802 Step 5 — GREEN clean-consumer generator/verifier only**. Do not begin ActionBus smoke or dedicated CI matrix automatically.
+
+## T-802 Step 5 — clean-consumer generator/verifier GREEN VERIFIED
+
+```text
+Step 4 tracking head:             14e58be3fc3860a63e0e330e36973f819ec294e3
+Initial consumer seams head:      9aad5add6299b70528fcb4e4bf0d59347b9dd605
+Initial GREEN bridge head:        746ac7a6c47bdde8b6220857d8cb2e4ae830e7ab
+Initial GREEN Validate:           #1016 / 36324499591 — 13/13 SUCCESS
+Initial release-contract:         66/66 PASS
+Workspace-verifier RED head:      a27c25c83976521cde6e2ffee916e969f136f2be
+Workspace-verifier RED Validate:  #1017 / 36324666762 — 12 SUCCESS / 1 expected FAILURE
+Workspace-verifier RED detail:    69 tests / 3 expected errors
+Final Step 5 implementation:      80f0fef6e4c4c2e41a3d338438d9bf989f4a2962
+Final Step 5 Validate:            #1018 / 36324731032 — 13/13 SUCCESS
+Final release-contract:           69/69 PASS
+Publication guard:                PASS
+Consumer manifest generator:      GREEN
+Manifest isolation validator:     GREEN
+Artifact archive validator:       GREEN
+Consumer workspace generator:     GREEN
+Composer installed-metadata verifier: GREEN
+Composer process/network call:    NONE
+ActionBus smoke:                  NOT STARTED
+Dedicated 4-way CI matrix:        NOT STARTED
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+Step 5 now generates a bounded clean-consumer composer manifest/workspace, rejects source/path/dev-main/file/workspace coupling, validates archive identity, validates consumer/package directory isolation, and verifies exact Composer-installed package metadata under `vendor/**`.
+
+Step 5 deliberately does not invoke Composer or perform network dependency resolution. The authoritative four-way installation execution remains Step 8 CI; this gate only provides the deterministic workspace and verification seams that Step 8 will execute around.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint. Permanent T-802 workflow discovery/matrix wiring remains Step 8.
+
+Next explicit gate: **T-802 Step 6 — RED real ActionBus consumer smoke only**. Do not implement the smoke or dedicated CI matrix automatically.
+
+## T-802 Step 6 — real ActionBus consumer smoke RED PROVEN
+
+```text
+Step 5 tracking head:             110b2563b708fab5b958db425250038c56596063
+Smoke fixture head:               7c97ec9448646ab32af3e2a42bdc6635077e954a
+Authoritative RED bridge head:    e95caa402f4c961aa5116fac09483cb2ff6caf30
+Authoritative RED Validate:       #1023 / 36333900561 — 12 SUCCESS / 1 expected FAILURE
+Failing job:                      php-tests (PHP 8.4, Illuminate ^13.0, Testbench ^11.0)
+Target test result:               596 tests / 3171 assertions / 1 failure
+Expected smoke exit code:         66
+Expected stderr:                  clean consumer vendor/autoload.php is missing
+Other 12 jobs:                    SUCCESS
+Smoke fixture:                    scripts/fixtures/laravel-clean-consumer/smoke.php
+Repository autoload coupling:     NONE
+Artifact-installed runtime:       NOT AVAILABLE YET
+Step 7 smoke GREEN wiring:        NOT STARTED
+Dedicated 4-way CI matrix:        NOT STARTED
+packages/laravel/** permanent diff: NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+The permanent smoke fixture uses only `<consumer-root>/vendor/autoload.php`, creates a minimal Laravel `Application`, explicitly registers `SurfaceRelayServiceProvider`, and wires the production `ActionBus`, `ActionExecutionStage`, `OutputPolicyStage`, `InMemoryActionRegistry`, `ActionDefinition`, and `ActionCall`. Only validation/authorization/idempotency/confirmation are fixture pass-through stages, exactly as approved.
+
+RED is intentionally caused before runtime dispatch because the clean consumer has not installed the artifact yet. The authoritative PHP 8.4 + Illuminate 13 job reaches the fixture, exits `66`, and reports `clean consumer vendor/autoload.php is missing`; no repository package path is used as fallback.
+
+The temporary PHPUnit RED bridge is removed in this tracking checkpoint. Earlier bridge-probe runs are not evidence; Validate #1023 is the authoritative isolated RED result.
+
+Next explicit gate: **T-802 Step 7 — GREEN latest-supported ActionBus smoke only**. Do not begin the dedicated 4-way CI matrix or T-803 automatically.
+
+## T-802 Step 7 — latest-supported ActionBus smoke GREEN VERIFIED
+
+```text
+Step 6 tracking head:             1caf91d70863dc1f3a7d8a7039bd5b560aea7e5a
+Authoritative GREEN bridge head:  e9d205528556d2c8a7413d0bbaa6de172800d08b
+Authoritative GREEN Validate:     #1030 / 36335013953 — 13/13 SUCCESS
+Target job:                       php-tests (PHP 8.4, Illuminate ^13.0, Testbench ^11.0)
+Target job result:                596 tests / 3180 assertions / SUCCESS
+Artifact source:                  clean `git archive HEAD` snapshot
+Artifact version:                 0.0.0-alpha1 (non-public test prerelease)
+Composer repository:              artifact
+Composer install:                 SUCCESS
+Installed metadata verification:  PASS
+Smoke output:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Repository source fallback:       NONE
+Permanent package/test bridge:    NONE
+Dedicated 4-way CI matrix:        NOT STARTED
+packages/laravel/** permanent diff: NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+```
+
+The authoritative GREEN proof builds the Composer ZIP from an exact clean committed snapshot materialized with `git archive HEAD`, not from the matrix-mutated `packages/laravel/composer.json` working tree. The resulting ZIP is consumed through a Composer `artifact` repository in an isolated Laravel 13 consumer, then verified through Composer installed metadata before running the permanent smoke fixture.
+
+The smoke fixture emits the exact observable result `SurfaceRelay Laravel clean-consumer smoke: PASS` and reaches the production ActionBus / ActionExecutionStage / OutputPolicyStage path. No repository package path, Composer path repository, `dev-main`, workspace/file link, or source autoload fallback is used.
+
+During GREEN probing, generic prerelease identities accepted by the package-neutral T-801 SemVer validator (for example `0.0.0-t802.step7.1`) were not accepted by Composer as root require constraints. Step 7 therefore uses `0.0.0-alpha1`, which is both a T-801-valid prerelease and Composer-recognized. This does not narrow T-801; it is a T-802 Composer-consumer constraint for Step 8 execution.
+
+The temporary GREEN PHPUnit bridge is removed in this tracking checkpoint. Probe runs #1025–#1029 were bridge/tooling corrections and are not release-readiness evidence; Validate #1030 is the authoritative GREEN run.
+
+Next explicit gate: **T-802 Step 8 — dedicated 4-way CI matrix only**. Do not begin T-803, decision promotion, review handoff, merge, tag, release, or publication automatically.
+
+## T-802 Step 8 — dedicated 4-way CI matrix VERIFIED
+
+```text
+Step 7 tracking head:             6a6731ad29cf767a7a301e49e6e1afe718168fb6
+Initial Step 8 CI head:           9fb95c0e3a16b8e56a7410e708663b1625aa90e5
+Initial Step 8 Validate:          #1032 / 36358993358 — consumer wiring failure
+Step 8 fix head:                  0e531439b59e849d046434fd932fbe5374c4f586
+Authoritative Validate:           #1033 / 36359056975 — 17/17 SUCCESS
+Existing repository jobs:        13/13 SUCCESS
+Consumer matrix jobs:             4/4 SUCCESS
+  PHP 8.3 + Laravel 12:          SUCCESS
+  PHP 8.3 + Laravel 13:          SUCCESS
+  PHP 8.4 + Laravel 12:          SUCCESS
+  PHP 8.4 + Laravel 13:          SUCCESS + ActionBus smoke
+T-802 tooling tests in matrix:    SUCCESS
+Artifact version:                 0.0.0-alpha1 (non-public CI prerelease)
+Artifact source:                  exact clean git archive HEAD snapshot
+Composer repository:              artifact
+Installed metadata/autoload:      VERIFIED in all 4 legs
+Smoke output (8.4 + 13 only):     SurfaceRelay Laravel clean-consumer smoke: PASS
+checkout persist-credentials:     false
+job permissions:                  contents: read
+Registry credentials:             NONE
+Path/dev-main/file/workspace link: NONE
+Package publication:              NONE
+packages/laravel/** changes:      NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Tag/release/publication:          NONE / NOT AUTHORIZED
+```
+
+The initial Step-8 matrix attempt placed checkout-clean verification after Python tooling tests, so generated `__pycache__` files made the later cleanliness check fail. The fix moved clean-check evidence before tooling execution while continuing to materialize the artifact source from exact `git archive HEAD`; no package/runtime behavior changed.
+
+The authoritative PHP 8.4 + Laravel 13 consumer log shows Composer locking, downloading, and installing `surfacerelay/laravel (0.0.0-alpha1)` from the artifact repository, followed by exact installed metadata/autoload verification and `SurfaceRelay Laravel clean-consumer smoke: PASS`. The other three matrix legs perform the same artifact build/install/verify flow with the smoke step explicitly skipped.
+
+Next explicit gate: **T-802 Step 9 — whole-task verification only**. Do not start Step 10 forbidden-diff audit, review handoff, T-803, merge, decision promotion, tag, release, or publication automatically.
+
+## T-802 Step 9 — whole-task verification VERIFIED
+
+```text
+Step 8 tracking head:             86ccdc67ff268014d8948112ac07ad7bee410f87
+Exact-head Validate:              #1034 / 36359223941 — 17/17 SUCCESS
+Focused T-802 suite:              20/20 PASS in each consumer matrix leg
+Release-contract discovery:       49/49 PASS
+Publication guard:                PASS
+python scripts/validate.py:       PASS
+Consumer matrix:                  4/4 SUCCESS
+  PHP 8.3 + Laravel 12:           artifact install + verify PASS
+  PHP 8.3 + Laravel 13:           artifact install + verify PASS
+  PHP 8.4 + Laravel 12:           artifact install + verify PASS
+  PHP 8.4 + Laravel 13:           artifact install + verify + smoke PASS
+Artifact version:                 0.0.0-alpha1 (non-public CI prerelease)
+Composer repository:              artifact
+Installed package:                surfacerelay/laravel 0.0.0-alpha1
+Smoke output:                     SurfaceRelay Laravel clean-consumer smoke: PASS
+Registry credentials:             NONE
+Path/dev-main/file/workspace link: NONE
+Step 10 forbidden-diff audit:     NOT STARTED
+Review handoff:                   NOT STARTED
+T-803..T-805:                     NOT STARTED
+Tag/release/publication:          NONE / NOT AUTHORIZED
+```
+
+Step 9 revalidated the complete T-802 implementation path on one exact branch head. The focused Laravel release-candidate tooling suite ran in all four consumer legs, the existing release-contract suite and publication guard remained green, canonical repository validation passed, and all 17 GitHub Actions jobs succeeded.
+
+Each consumer leg locked and installed `surfacerelay/laravel (0.0.0-alpha1)` from the Composer `artifact` repository and passed exact installed-metadata/autoload verification. Only the PHP 8.4 + Laravel 13 leg ran the production ActionBus smoke, which emitted the required PASS line.
+
+Next explicit gate: **T-802 Step 10 — forbidden-diff / source-mutation audit only**. Do not start Step 11 review handoff, T-803, merge, decision promotion, tag, release, or publication automatically.
+
+## T-802 Step 10 — forbidden-diff / source-mutation audit VERIFIED
+
+```text
+Audit baseline:                    main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Audited implementation head:       bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
+Branch relation:                   30 ahead / 0 behind
+Net changed files:                 7
+Forbidden diff entries:            0
+Unexpected diff entries:           0
+packages/laravel/src/**:           EMPTY
+packages/laravel/database/**:      EMPTY
+packages/laravel/composer.json:    IDENTICAL BLOB (2d52ac8c1203f7132340f80162bcea2db54ef5ee)
+spec/**:                           EMPTY
+conformance/**:                    EMPTY
+packages/browser-runtime/**:       EMPTY
+packages/laravel-mcp/**:           EMPTY
+packages/openapi-importer/**:      EMPTY
+docs/DECISION-REGISTER.md:         IDENTICAL BLOB
+Repository tags:                   NONE
+GitHub releases:                   NONE
+Publish/tag/release commands:      NONE in changed executable surfaces
+Registry credential wiring:        NONE in changed executable surfaces
+Publication guard exact-head:      PASS
+Step 11 review handoff:            NOT STARTED
+T-803..T-805:                      NOT STARTED
+Decision promotion:                NONE
+Tag/release/publication:           NONE / NOT AUTHORIZED
+```
+
+Allowed net diff is exactly:
+
+```text
+.github/workflows/validate.yml
+STATUS.md
+TASKS.md
+docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
+scripts/fixtures/laravel-clean-consumer/smoke.php
+scripts/laravel_release_candidate.py
+scripts/tests/test_laravel_release_candidate.py
+```
+
+Representative immutable blobs were also checked directly against the baseline: Laravel ActionBus, canonical Action Definition schema, browser-runtime package manifest, Laravel MCP Composer manifest, OpenAPI importer package manifest, and the decision register are byte-identical by Git blob SHA.
+
+The only `packagist` token in the permanent T-802 diff is a negative test assertion (`assertNotIn("packagist", ...)`); no publication or credential wiring exists.
+
+Next explicit gate: **T-802 Step 11 — tracking / external-review handoff only**. Do not begin T-803, merge, decision promotion, tag, release, or publication automatically.
+
+## T-802 Step 11 — tracking / external-review handoff READY
+
+```text
+Implementation baseline:          main@12de01ae0539a4862adc1acda1cb36b7f4a00fd5
+Audited implementation head:      bfb6053258a8fe23c9e6a0bc0529fbdfdf85911a
+Step 10 tracking head:            da39f76378af76a1c64a0ef79de91b06aab1ba8e
+Step 10 exact-head Validate:      #1036 / 36418100242 — 17/17 SUCCESS
+Review-handoff head:              d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6
+Review-handoff Validate:          #1038 / 36444627579 — 17/17 SUCCESS
+Review-fix head:                  c380d425673a7ff3045ffed1a650af8bf929fa7e
+Review-fix exact-head Validate:   #1043 / 36454509211 — 17/17 SUCCESS
+T-802 state:                      DONE / REVIEW HANDOFF
+Consumer matrix:                  4/4 SUCCESS
+Focused T-802 suite:              20/20 PASS per consumer leg
+Release-contract discovery:       49/49 PASS
+Publication guard:                PASS
+Canonical validation:             PASS
+Artifact install/metadata:        PASS in all 4 legs
+ActionBus smoke:                  PASS on PHP 8.4 + Laravel 13
+Forbidden diff entries:           0
+Unexpected diff entries:          0
+packages/laravel/** production:   UNCHANGED
+spec/** / conformance/**:         UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+Complete branch scope from the T-802 baseline through review-fix head `c380d425673a7ff3045ffed1a650af8bf929fa7e` is exactly eight files:
+
+```text
+.github/workflows/validate.yml
+REVIEW_REQUEST.md
+STATUS.md
+TASKS.md
+docs/superpowers/plans/2026-09-27-laravel-release-candidate-clean-consumer.md
+scripts/fixtures/laravel-clean-consumer/smoke.php
+scripts/laravel_release_candidate.py
+scripts/tests/test_laravel_release_candidate.py
+```
+
+The earlier Step 10 seven-file audit remains valid for its audited implementation head because `REVIEW_REQUEST.md` was added later as review-handoff material. The review-fix-only delta from `d7c50ca50966a8cb3994fed3ea2ac3b3879b6fc6` to `c380d425673a7ff3045ffed1a650af8bf929fa7e` remains limited to `REVIEW_REQUEST.md`, `STATUS.md`, and `TASKS.md`.
+
+## T-802 external review closure — complete
+
+```text
+PR:                              #20 — OPEN / non-draft / mergeable / NOT MERGED
+Final reviewed pre-closure head: 951ecd07dfe18063042bf0ad1d06aa6723f952e5
+Reviewed-head Validate:          #1045 / 36487729081 — 17/17 SUCCESS
+Consumer matrix:                 4/4 SUCCESS
+Focused T-802 suite:             20/20 PASS per consumer leg
+Release-contract discovery:      49/49 PASS
+Publication guard:               PASS
+Review threads:                  2 total / 0 unresolved
+Latest incremental finding:      CodeRabbit-confirmed addressed
+D-026 / D-069..D-073:            PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Merge/tag/release/publication:    NOT AUTHORIZED
+```
+
+External review is closed. The reviewed branch remains limited to the bounded eight-file T-802 scope recorded above; package production source, canonical spec/conformance, neighboring package manifests, and the decision register remain unchanged.
+
+## T-802 post-merge main closure — FINAL
+
+```text
+PR:                              #20 — MERGED
+Merge commit:                    f7d86c76ccc15dc21b63cf868ad75d559607f730
+Post-merge main Validate:        #1048 / 36541971021 — 17/17 SUCCESS
+Consumer matrix:                 4/4 SUCCESS
+Release-contract:                SUCCESS
+Contract:                        SUCCESS
+Browser:                         SUCCESS
+OpenAPI importer:                SUCCESS
+PHP lint:                        SUCCESS
+Laravel base matrix:             4/4 SUCCESS
+Laravel MCP matrix:              4/4 SUCCESS
+Review threads:                  2 total / 0 unresolved
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-803..T-805:                    NOT STARTED
+Tag/release/publication:         NONE
+```
+
+T-802 is final on `main`: **DONE / REVIEWED / MERGED / MAIN REVALIDATED**. No later M8 task starts automatically.
+
+Next explicit gate: **T-803 implementation-plan preparation only**. Do not begin T-803 implementation, promote D-069..D-073, tag, release, publish, or select a public SemVer automatically.
+
+## T-803 implementation plan — APPROVED / IMPLEMENTATION NOT STARTED
+
+~~~text
+Plan:                             docs/superpowers/plans/2026-09-29-browser-runtime-release-candidate-clean-consumer.md
+Plan-preparation head:            8f1a560f8c878221a6c1008bf7d6f7db5cd9e420
+Plan-preparation Validate:        #1050 / 36554343680 — 17/17 SUCCESS
+T-803 plan state:                 APPROVED
+T-803 implementation:            NOT STARTED
+Implementation branch:           NOT CREATED
+Planned package:                  @surfacerelay/browser-runtime
+Planned distribution:             root-only ESM / ES2022 / declarations
+Planned artifact:                 npm pack .tgz
+Planned consumer proof:           root import + declarations + Vite bundle + DriverRegistry smoke
+Source package version:            0.0.0-dev / unchanged until implementation
+Source package private flag:       true / retained through M8
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NOT AUTHORIZED
+~~~
+
+Next explicit gate: **T-803 Step 1 — baseline + feature branch only**. Do not begin Step 2 RED public-root API tests automatically.
+
+
+## T-803 Step 1 — baseline + feature branch COMPLETE
+
+~~~text
+Implementation baseline:          5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Baseline branch:                  main
+Baseline Validate:                #1051 / 36562318964 — 17/17 SUCCESS
+Feature branch:                   feat/t-803-browser-runtime-artifact-clean-consumer
+Branch created from baseline:     YES / exact SHA
+Production implementation:       NOT STARTED
+RED public-root API tests:        NOT STARTED
+packages/browser-runtime/src/**:  UNCHANGED
+package.json / build config:      UNCHANGED
+CI changes:                       NONE
+spec/** changes:                  NONE
+conformance/** changes:           NONE
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+T-803 now has an exact green implementation baseline and dedicated feature branch. No production, test, CI, package, build, artifact, consumer, spec, or conformance implementation changed in Step 1.
+
+Next explicit gate: **T-803 Step 2 — RED public-root API tests only**. Do not create src/index.ts, build metadata, artifact tooling, consumer fixtures, or CI work automatically.
+
+
+## T-803 Step 2 — public-root API RED PROVEN
+
+~~~text
+Step 1 tracking head:             a531fbce453841d9d3a9b8fda5d25a189f97921e
+Initial RED test head:            88720b6da4c15e4e3a2f4880de11c8f5ab734c6d
+Authoritative RED test head:      e5cfbb73b12d5fdd0d10307ec8455f3e776ca4aa
+RED runtime test:                 packages/browser-runtime/tests/public-api.test.ts
+RED typecheck fixture:            packages/browser-runtime/tests/public-api.typecheck.ts
+Validate:                         #1055 / 36582905214
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Expected RED cause:               TS2307 — ../src/index.js does not exist
+Unexpected typecheck errors:      NONE
+Vitest runtime snapshot:          COMMITTED / not executed because typecheck failed first
+GREEN root facade:                NOT STARTED
+Build/package metadata:           NOT STARTED
+Artifact tooling:                 NOT STARTED
+Clean consumer / CI:              NOT STARTED
+Existing runtime source files:    UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The first RED run exposed the intended missing-root-facade failure plus two fixture-only implicit-any errors. A test-only correction on the authoritative RED head removed those incidental errors without adding implementation. Validate #1055 then failed only at the missing src/index root boundary; all 16 other repository jobs stayed green.
+
+The runtime export snapshot is committed and discoverable by Vitest, but the existing browser job correctly stops at typecheck before Vitest when the root facade is absent. Step 3 must make the typecheck pass and then run the snapshot through the normal browser test harness.
+
+Next explicit gate: **T-803 Step 3 — GREEN curated root facade only**. Do not begin build metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.
+
+
+## T-803 Step 3 — GREEN curated root facade VERIFIED
+
+~~~text
+RED tracking head:                1276dfb0a2b0ffa99ab14bd60811a2b6cb5ef579
+GREEN implementation head:       85ffb7925a61747ba0c099b4cd27c646cb45233f
+Implementation file:             packages/browser-runtime/src/index.ts
+Implementation diff:             index.ts only
+Typecheck:                       PASS
+Browser-runtime tests:           21 files / 329 tests PASS
+Public runtime export snapshot:  PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+GitHub Validate:                 #1057 / 36589996508 — 17/17 SUCCESS
+HTMX fixture:                    #26 / 36589996536 — SUCCESS
+Existing runtime sources:        UNCHANGED
+package.json / build config:     UNCHANGED
+Artifact tooling:                NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The new root facade exports exactly the approved runtime-value allowlist and the reviewed type closure. The runtime snapshot proves no additional runtime value leaked into the root API. Existing driver/runtime/projection implementation files remain unchanged.
+
+Step 3 does not add build output, package exports metadata, artifact tooling, clean-consumer fixtures, publication authority, or dedicated consumer CI.
+
+Next explicit gate: **T-803 Step 4 — RED build/distribution metadata tests only**. Do not add tsconfig.build.json, package.json build/exports metadata, artifact tooling, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 4 — build/distribution metadata RED PROVEN
+
+~~~text
+Step 3 tracking head:             c8056e22b483f20bdefba55ff95808340a79a619
+RED test head:                    bfc8c522e1c7dd9e7e3ceee57a67ac3dfb7f52da
+RED test file:                    packages/browser-runtime/tests/distribution-contract.test.ts
+Validate:                         #1059 / 36592466741
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             browser
+Browser typecheck:                PASS
+Distribution contract:            4 tests / 1 PASS / 3 expected FAIL
+Full Vitest result:               22 files / 330 PASS / 3 expected FAIL
+Expected missing metadata:        types / root exports / files / build script
+Expected missing config:          tsconfig.build.json
+Expected missing emit seam:       npm run build
+Source version/private/type:      PASS / unchanged
+GREEN build metadata/config:      NOT STARTED
+Artifact tooling:                 NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+Existing runtime sources:        UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The RED contract is isolated to the approved distribution boundary. The source package already satisfies the preserved invariants (@surfacerelay/browser-runtime, 0.0.0-dev, private: true, ESM). The three failures are exactly the missing Step 5 seams: root distribution metadata/build script, tsconfig.build.json, and executable JavaScript/declaration emit.
+
+No package metadata, build config, artifact tooling, consumer fixture, workflow, or existing runtime implementation changed in Step 4.
+
+Next explicit gate: **T-803 Step 5 — GREEN ESM/declaration build metadata only**. Do not begin artifact-contract tests, npm-pack tooling, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 5 — GREEN ESM/declaration build metadata VERIFIED
+
+~~~text
+RED tracking head:                641727380893695403446f8108e8cbf378a52e61
+GREEN implementation head:       71af1a28f792723f9c49be911c10130f78d937c1
+Implementation files:            package.json + tsconfig.build.json only
+Source version:                  0.0.0-dev / unchanged
+Source private flag:             true / unchanged
+Root exports:                    "." only
+Distribution mode:               ESM / ES2022
+Declarations:                    dist/index.d.ts
+CommonJS export:                 NONE
+Source/declaration maps:         NONE
+Build script:                    tsc -p tsconfig.build.json
+Distribution contract:          4/4 PASS
+Browser-runtime tests:           22 files / 333 tests PASS
+Canonical browser conformance:   7 PASS / 0 FAIL / 0 ERROR / 1 NOT_APPLICABLE
+GitHub Validate:                 #1061 / 36609079739 — 17/17 SUCCESS
+package-lock.json:               UNCHANGED
+Committed dist/**:               NONE
+Existing runtime sources:        UNCHANGED
+Artifact tooling:                NOT STARTED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+Step 5 adds only the approved distribution metadata and bounded TypeScript build config. The build contract executes the real TypeScript compiler into an isolated temporary output directory and proves ES module JavaScript plus declarations without source/declaration maps or CommonJS output.
+
+The source package remains private at version 0.0.0-dev. No dependency changed, package-lock.json remained unchanged, no dist output is committed, and no runtime implementation file changed.
+
+Next explicit gate: **T-803 Step 6 — RED artifact-contract tests only**. Do not implement browser release-candidate tooling, npm-pack staging, clean-consumer work, or dedicated CI automatically.
+
+## T-803 Step 6 — browser artifact-contract RED PROVEN
+
+~~~text
+Step 5 tracking head:             1b965c63d814f5519578fb09a2d627e1275446c2
+Permanent RED test head:          1168947dc24a107a447eb21a3c693fb86eb35e60
+Temporary discovery bridge head:  fa8491ba774d68c7e2f3d64c69ed4ddb9588e651
+RED test file:                    scripts/tests/test_browser_release_candidate.py
+Authoritative Validate:           #1064 / 36611234115
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           60 tests / 11 expected ERROR
+Existing release-contract tests:  49 PASS
+Expected RED cause:               scripts.browser_release_candidate missing
+Browser artifact builder:         NOT STARTED
+npm-pack staging/tooling:         NOT STARTED
+Clean consumer:                   NOT STARTED
+Dedicated T-803 CI:               NOT STARTED
+Existing runtime sources:         UNCHANGED
+Package/build metadata:           STEP 5 green / unchanged
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The permanent Step 6 suite encodes exactly the approved browser artifact contract: exact package/version/revision identity, staged-only version injection, private publication blocker retention, release allowlist/exclusions, symlink rejection, root-only exports, tar path/type safety, exact npm-pack file list, T-801 manifest/evidence reuse, and candidate-only README wording.
+
+The existing release-contract discovery glob does not match test_browser_release_candidate.py, so a temporary test-only discovery bridge exposed the suite to authoritative CI. Validate #1064 then proved all 11 new tests fail only at the intentionally missing scripts.browser_release_candidate module while the pre-existing 49 release-contract tests pass. The temporary bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 7 — GREEN browser release-candidate builder/npm-pack only**. Do not begin clean-consumer/isolation work or dedicated T-803 CI automatically.
+
+## T-803 Step 7 — GREEN browser release-candidate builder/npm-pack VERIFIED
+
+~~~text
+RED tracking head:                c80474a50082d8449acdea2d2b50b265a518380f
+GREEN implementation head:       279f4b8758303496e50d5e1d306cdd75f2813e6b
+Implementation file:             scripts/browser_release_candidate.py
+Temporary GREEN bridge head:     2d0e069044ac09d014eb7071450a2027c5485978
+Authoritative Validate:          #1067 / 36631327207 — 17/17 SUCCESS
+release-contract:                60/60 PASS
+New browser artifact tests:      11/11 PASS
+Existing release-contract tests: 49/49 PASS
+Publication guard:               PASS
+Artifact format:                 npm pack .tgz
+npm lifecycle scripts:           ignored during pack
+T-801 manifest/evidence reuse:   PASS
+Source version/private flag:     0.0.0-dev / true / unchanged
+Existing runtime sources:        UNCHANGED
+Package/build metadata:          STEP 5 / unchanged
+Workflow:                        UNCHANGED
+Clean consumer:                  NOT STARTED
+Dedicated T-803 CI:              NOT STARTED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The builder validates the reviewed source manifest, injects only the explicit prerelease version into the staged manifest, retains private: true, stages only package.json + dist JS/declarations + LICENSE + candidate-only README, rejects symlinks/non-regular distribution entries, excludes maps/source/tests/config/lock/node_modules material, runs npm pack --json with lifecycle scripts disabled, validates tar path/type/file-list safety, and writes T-801-compatible content/evidence hashes.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint. The permanent browser artifact test remains outside the existing release-contract discovery glob until later dedicated T-803 CI wiring; no workflow change was made in Step 7.
+
+Next explicit gate: **T-803 Step 8 — RED clean-consumer/isolation tests only**. Do not implement consumer generation/verification, Vite bundle/smoke wiring, or dedicated T-803 CI automatically.
+
+## T-803 Step 8 — clean-consumer/isolation RED PROVEN
+
+~~~text
+Step 7 tracking head:             c3214aec678e6cbafdb0d70c53dce51e4e94829c
+Permanent RED test head:          cb68b44f0afc51b577b2efb0f9e8f574bb155ac5
+Temporary discovery bridge head:  303e1ca0d65df4eff45b2ac41542f4eeee1638ab
+Authoritative Validate:           #1070 / 36640215454
+Validate result:                  16 SUCCESS / 1 expected FAILURE
+Expected failing job:             release-contract
+release-contract total:           67 tests / 12 expected ERROR
+Existing contract tests:          60 PASS
+New consumer test methods:        7 RED
+Missing Step-9 seams:             6
+  build_clean_consumer_npm_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_source
+  validate_clean_consumer_isolation
+  validate_browser_artifact_archive
+  verify_clean_consumer_install
+Permanent main.ts fixture:        NOT ADDED
+Permanent smoke.mjs fixture:      NOT ADDED
+Consumer generator/verifier:      NOT STARTED
+Vite bundle/smoke wiring:         NOT STARTED
+Dedicated T-803 CI:               NOT STARTED
+Existing runtime/artifact code:   UNCHANGED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+Publish/tag/release:              NONE / NOT AUTHORIZED
+~~~
+
+The seven RED methods cover the approved Step 8 boundaries: SurfaceRelay source/file/workspace/link dependency rejection, deep/source import rejection, consumer/source filesystem isolation, source-targeting symlink rejection, missing/wrong tarball identity rejection, installed-package symlink rejection, required root declaration presence, and fail-closed deep-export leakage.
+
+Because several methods use subtests, the seven new methods produce twelve expected error records. Every error is an AttributeError for one of the six intentionally missing Step-9 seams; the pre-existing 60 release-contract tests remain green. No permanent main.ts or smoke.mjs fixture was added before this failure boundary was proven.
+
+The temporary RED discovery bridge is removed in this tracking checkpoint. Workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 9 — GREEN clean-consumer generator/verifier only**. Do not begin permanent consumer fixture execution, Vite bundle/smoke proof, or dedicated T-803 CI beyond what is strictly needed by the approved Step-9 seam implementation.
+
+## T-803 Step 9 — clean-consumer tooling GREEN / execution proof NOT STARTED
+
+~~~text
+RED tracking head:                043b078bd202a1abc98d831950ae0f631d4e3157
+GREEN implementation head:       47bab19c3fe42d883665e237161a0d030c698c6a
+Implementation file:             scripts/browser_release_candidate.py only
+Temporary GREEN bridge head:     48819d5eac4d5cbb077932fa574274f4ab6c803e
+Authoritative Validate:          #1073 / 36649005470 — 17/17 SUCCESS
+release-contract:                67/67 PASS
+New consumer/isolation methods:  7/7 PASS
+Publication guard:               PASS
+Implemented tooling seams:       6/6
+  build_clean_consumer_npm_manifest
+  validate_clean_consumer_manifest
+  validate_clean_consumer_source
+  validate_clean_consumer_isolation
+  validate_browser_artifact_archive
+  verify_clean_consumer_install
+Permanent main.ts fixture:       NOT ADDED
+Permanent smoke.mjs fixture:     NOT ADDED
+Actual npm consumer install:     NOT EXECUTED
+TypeScript consumer typecheck:   NOT EXECUTED
+Vite production bundle:          NOT EXECUTED
+Runtime smoke:                   NOT EXECUTED
+Deep-import runtime check:       tooling guard only / execution proof NOT RUN
+Dedicated T-803 CI:              NOT STARTED
+Existing runtime/artifact code:  unchanged outside browser_release_candidate.py
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The six Step-8 seams are now green. The tooling can build the pinned host-tool manifest, reject persisted SurfaceRelay source/file/workspace/link dependencies, reject deep/source imports, enforce consumer/source filesystem isolation, validate browser artifact identity/root contract, and verify an installed package is physical, exact-version, root-declaration-complete, and root-export-only.
+
+This checkpoint deliberately does not claim the full Step-9 consumer journey. The approved plan still requires a real isolated tarball install followed by root-only typecheck, Vite bundle, side-effect-free smoke, and deep-import rejection execution. Those actions were not needed to satisfy the six proven seams and were not started in this gate.
+
+The temporary GREEN discovery bridge is removed in this tracking checkpoint; workflow discovery remains unchanged.
+
+Next explicit gate: **T-803 Step 9 continuation — isolated consumer execution proof only**. Do not start Step 10 dedicated CI until the real install/typecheck/bundle/smoke/deep-import proof is separately green.
+
+## T-803 Step 9 continuation — isolated consumer execution proof VERIFIED
+
+~~~text
+Prior Step-9 tooling head:       deb08323471c98e054c6cc8eb685f257d453c9ac
+Execution RED contract head:     ca6dcc4ec6267d84cc7e48ed32c1178f2fe93933
+Temporary discovery bridge:     9311fb3bfc4126a919ab1f9c735d41fe56a82478
+Execution implementation head:  ded8716d7ae70e058e34499328ce5aad71012374
+Authoritative Validate:          #1077 / 36705973818 — 17/17 SUCCESS
+release-contract:                68/68 PASS
+Execution integration test:      PASS
+Exact source snapshot:           git archive HEAD
+Source browser build:            npm ci + npm run build — PASS
+Candidate artifact:              real npm pack .tgz
+Isolated npm consumer install:   PASS
+SurfaceRelay dependency saved:   NO
+Installed identity/isolation:    PASS
+Package-root import:             PASS
+TypeScript root-only typecheck:  PASS
+Vite production bundle:          PASS
+DriverRegistry smoke:            PASS
+Smoke marker:                    SurfaceRelay browser-runtime clean-consumer smoke: PASS
+Representative deep import:      REJECTED by exports map
+Permanent main.ts fixture:       ADDED
+Permanent smoke.mjs fixture:     ADDED
+Dedicated T-803 CI:              NOT STARTED
+Workflow:                        UNCHANGED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+Publish/tag/release:             NONE / NOT AUTHORIZED
+~~~
+
+The isolated execution test materializes an exact Git archive snapshot, installs the browser-runtime build tooling inside that snapshot, emits the real distribution, builds the reviewed candidate tarball, creates a fresh consumer outside the repository/source/stage trees, installs pinned TypeScript/Vite host tools and the exact tarball without persisting a SurfaceRelay dependency, verifies the installed package, resolves the package root, typechecks the permanent root-only fixture, produces a Vite browser bundle, executes the side-effect-free DriverRegistry smoke, and proves a representative deep import is blocked by the exports map.
+
+This completes Step 9. The temporary execution discovery bridge is removed in this tracking checkpoint. No dedicated browser-release-consumer workflow job, npm credential, publication command, tag, release, or public version selection was introduced.
+
+## T-803 Step 10 — dedicated browser-release-consumer CI VERIFIED
+
+~~~text
+Prior Step-9 execution head:      ded8716d7ae70e058e34499328ce5aad71012374
+Step-9 tracking head:             c0446a40a6819cf371d5a3ec96b135026ec4c993
+CI implementation head:          66991da7101a773fcce99a17b99dce608080f956
+Workflow file:                   .github/workflows/validate.yml only
+Authoritative Validate:          #1079 / 36842264896 — 18/18 SUCCESS
+New dedicated job:               browser-release-consumer — SUCCESS
+Job shape:                       single / non-matrix
+Checkout credentials:            persist-credentials: false
+Checkout clean gate:             PASS before setup/tooling
+Node / Python:                   22 / 3.12
+Artifact version:                0.0.0-alpha1 / non-public CI prerelease
+Source revision:                 exact git rev-parse HEAD
+Source materialization:          exact git archive HEAD
+Source browser build:            npm ci + npm run build — PASS
+Candidate artifact:              real npm pack .tgz
+Browser tooling tests:           PASS
+Isolated npm consumer install:   PASS
+Package-root import:             PASS
+TypeScript root-only typecheck:  PASS
+Vite production bundle:          PASS
+DriverRegistry smoke:            PASS
+Representative deep import:      REJECTED by exports map
+npm token/auth wiring:           NONE
+npm publish/tag/release:         NONE / NOT AUTHORIZED
+D-026:                           PROPOSED / unchanged
+D-069..D-073:                   PROPOSED / unchanged
+T-804..T-805:                   NOT STARTED
+~~~
+
+Step 10 adds exactly one dedicated CI consumer job and raises Validate from 17 to 18 jobs as planned. The job re-materializes the exact checked-out revision through `git archive HEAD`, rebuilds ESM/declarations inside that snapshot, creates the reviewed non-public `0.0.0-alpha1` candidate tarball, and executes the existing Step-9 isolated consumer proof end to end. It does not add npm authentication, registry credentials, publication commands, tags, releases, public-version selection, runtime behavior, package API expansion, spec changes, or conformance changes.
+
+## T-803 Step 11 — whole-task verification VERIFIED
+
+~~~text
+Whole-task verification head:     0d311d8acb8dc80a82ee62afeca0ffc4ee7ebffa
+Authoritative Validate:           #1081 / 36842525045 — 18/18 SUCCESS
+browser:                          SUCCESS
+browser-release-consumer:         SUCCESS
+release-contract:                 SUCCESS
+contract:                         SUCCESS
+Browser typecheck:                PASS
+Browser runtime tests:            PASS
+Browser build:                    PASS in exact git-archive snapshot
+Browser artifact tooling tests:   PASS
+Release-contract discovery:       PASS
+Publication guardrails:           PASS
+Canonical validate.py:            PASS
+Artifact version:                 0.0.0-alpha1 / exact CI prerelease
+Artifact revision:                exact git rev-parse HEAD
+Package-root import:              PASS
+Consumer TypeScript typecheck:    PASS
+Vite production bundle:           PASS
+DriverRegistry smoke:             PASS
+Representative deep import:       REJECTED by exports map
+Installed package symlink:        REJECTED / physical node_modules package required
+Source/package coupling:          REJECTED
+npm auth/token wiring:            NONE
+Publish/tag/release:              NONE / NOT AUTHORIZED
+D-026:                            PROPOSED / unchanged
+D-069..D-073:                    PROPOSED / unchanged
+T-804..T-805:                    NOT STARTED
+~~~
+
+Step 11 re-verifies the complete T-803 execution surface at one exact revision. The normal browser job proves package typecheck/tests and canonical runtime conformance; the dedicated browser-release-consumer job runs the focused browser release-candidate suite, rebuilds the exact `git archive HEAD` snapshot, creates the candidate tarball, and executes the isolated package-root/typecheck/Vite/smoke/deep-import proof. The release-contract job proves the package-neutral release contract and publication guardrails, while the contract job proves canonical repository validation.
+
+The clean-consumer verifier requires a real non-symlink `node_modules/@surfacerelay/browser-runtime` directory, rejects symlinks inside the installed package, rejects resolution into the source package tree, and validates exact artifact identity before consumer execution. The exact-head CI success therefore closes the Step-11 whole-task verification gate without adding implementation.
+
+## T-803 Step 12 — forbidden-diff / semantic-mutation audit VERIFIED
+
+~~~text
+T-803 baseline:                    5de05ea2498bea186aa6d8d11e1726f6c1c56539
+Final implementation head:         66991da7101a773fcce99a17b99dce608080f956
+Current tracking head before audit: dd1c9938d793f594327e43557d4a5c83017eef0b
+Implementation diff files:         14
+Forbidden implementation paths:    0
+Unexpected runtime-source edits:   0
+Existing browser src files:        16/16 blob-identical to baseline
+New browser src file:              src/index.ts only
+package-lock.json:                 unchanged / blob-identical
+packages/laravel/**:               unchanged
+packages/laravel-mcp/**:           unchanged
+packages/openapi-importer/**:      unchanged
+spec/**:                           unchanged
+conformance/**:                    unchanged
+docs/DECISION-REGISTER.md:         unchanged / blob-identical
+Source package version:            0.0.0-dev
+Source package private:            true
+Root exports:                      "." only
+Publication commands in T-803:     NONE
+Registry auth wiring in workflow:  NONE
+Credential env handling:           NPM_TOKEN/NODE_AUTH_TOKEN stripped from consumer subprocesses
+Git tag refs:                      []
+GitHub Releases:                   []
+D-026:                             PROPOSED / unchanged
+D-069..D-073:                     PROPOSED / unchanged
+T-804..T-805:                     NOT STARTED
+~~~
+
+The baseline-to-final-implementation comparison contains only the bounded T-803 surfaces: the dedicated CI job, T-803 tracking/plan material, browser package distribution metadata, the new curated `src/index.ts` facade, focused public/distribution tests, browser release-candidate tooling/tests, and clean-consumer fixtures. No pre-existing browser runtime implementation file changed.
+
+A direct directory/blob audit confirms every one of the 16 pre-existing `packages/browser-runtime/src/*.ts` files has the same blob SHA at baseline and final implementation head. `package-lock.json` and `docs/DECISION-REGISTER.md` are also blob-identical. The compare contains no Laravel, Laravel-MCP, OpenAPI-importer, `spec/**`, or `conformance/**` path.
+
+The source manifest remains `0.0.0-dev`, `private: true`, ESM, and root-export-only. The changed executable surfaces contain no `npm publish`, npm login/adduser, `git tag`, or GitHub-release command. The only NPM credential identifiers in browser release tooling are explicitly removed from the clean-consumer subprocess environment. Current tag refs and GitHub Releases are both empty.
+
+Step 12 therefore closes with no semantic drift or forbidden mutation. No corrective implementation is required.
+
+Next explicit gate: **T-803 Step 13 — tracking / external-review handoff only**. Do not begin T-804, promote D-026 or D-069..D-073, create tags/releases, publish packages, or select a public SemVer automatically.
+
+## T-803 Step 13 — tracking / external-review handoff READY
+
+Date: 2026-10-02. Branch: `feat/t-803-browser-runtime-artifact-clean-consumer`.
+
+- Baseline: `5de05ea2498bea186aa6d8d11e1726f6c1c56539`.
+- Final implementation head: `66991da7101a773fcce99a17b99dce608080f956`.
+- Pre-handoff verified head: `fd9973d2e9b58755fe8e9088f8e07cf652a09151`.
+- Pre-handoff Validate: [#1085 / 36934575893](https://github.com/kefyusuf/surfacerelay/actions/runs/36934575893) — **18/18 SUCCESS**, live-verified against the exact SHA.
+- CI browser evidence: **22 files / 333 tests PASS** plus typecheck and canonical conformance.
+- CI browser-release-consumer: **19/19 tooling tests PASS**; exact-revision artifact build, isolated root import/declarations/typecheck/Vite bundle/smoke, and deep-import rejection all PASS. Both final smoke/deep-import PASS markers were checked in the job log.
+- Local Windows checks: typecheck, direct `npm.cmd run build`, `scripts/validate.py`, and publication guard **PASS**.
+- Local Windows limitation: browser suite **332 PASS / 1 ERROR** and Python browser artifact suite **8 PASS / 11 ERROR** because subprocess invocation of bare `npm` fails (`ENOENT` / WinError 2). Ubuntu CI proves those paths; Windows tooling portability is not proven. No implementation change was made in this documentation handoff.
+- Changed files in Step 13: `STATUS.md`, `TASKS.md`, `REVIEW_REQUEST.md` only.
+- Scope/semantic audit from Step 12 remains applicable: all 16 existing browser source files, lockfile, canonical spec/conformance, neighboring packages, and decision register remain unchanged.
+
+The existing remote T-803 RED/GREEN commit sequence is retained. A parallel local Step 1–5 checkpoint is preserved separately at `work/t-803-local-green-checkpoint` (`a1de368`); it is not part of this review branch. No force push or unrelated implementation merge occurred.
+
+T-803 is **DONE / REVIEW HANDOFF**, with external review pending and merge not authorized. D-026 and D-069..D-073 remain **PROPOSED**; T-804/T-805 remain **NOT STARTED**. No tag, release, publication, or public version selection occurred.
+
+Next gate: **T-803 external review and finding disposition only**. Do not begin T-804 or merge automatically.
+
+
+## T-803 external-review finding — ACCEPTED / RED NOT STARTED
+
+Date: 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is OPEN, non-draft, and not merged.
+
+- Reviewed head: `34d8cf0dc7e294af6566d24bdeeb4ce9395720bc`.
+- Reviewed-head [Validate / 36971286670](https://github.com/kefyusuf/surfacerelay/actions/runs/36971286670): **18/18 SUCCESS**.
+- CodeRabbit completed the requested full review: **1 actionable Minor**; [bare npm subprocess calls fail on Windows](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4163289925).
+- Finding verified against `_run_npm_pack`, the four npm commands in `execute_clean_consumer_proof`, the distribution emission test, and the integration fixture's source build calls. It matches the previously recorded ENOENT / WinError 2 failures.
+- Accepted bounded scope: portable npm process launch in `scripts/browser_release_candidate.py`, `scripts/tests/test_browser_release_candidate.py`, and `packages/browser-runtime/tests/distribution-contract.test.ts`, plus tracking evidence only.
+- Acceptance: focused RED evidence first; resolve the installed npm entry point on Windows and POSIX; fail clearly when npm is absent; preserve argument boundaries without passing caller-controlled paths through a shell; retain exact archive/consumer evidence and credential stripping; re-run browser and focused tooling checks, canonical validation, publication guard, and exact-head CI.
+- No runtime semantics, root API, package metadata, dependencies, CI matrix, spec, conformance, or decision changes are authorized by this finding.
+- This disposition changes only STATUS, TASKS, and REVIEW_REQUEST. No corrective implementation or RED test was added; the review thread remains open.
+
+Next explicit gate: **focused RED tests for this Minor only**. GREEN implementation and thread resolution follow verified evidence in later gates. T-804, merge, decision promotion, tags/releases, and publication remain outside this gate.
+
+
+## T-803 npm launch finding — RED PROVEN / GREEN NOT STARTED
+
+Five focused `BrowserNpmLaunchContractTest` methods now cover npm path resolution for pack/consumer commands, missing-npm fail-closed behavior for both paths, and a Windows npm.cmd fixture executed via Node's npm CLI with literal arguments and no shell. Arguments include spaces and shell metacharacters. These are process-launch tests; the mocked Windows layout does not claim Windows end-to-end support.
+
+Local focused command: `python -B -m unittest scripts.tests.test_browser_release_candidate.BrowserNpmLaunchContractTest` — **5 tests / 5 expected assertion failures / 0 errors**. Existing production behavior launches bare npm and does not check availability first. No corrective implementation changed. Canonical validation, publication guard, and diff checks pass. The previously verified baseline has 19 browser tooling tests passing in Linux CI; the expected new CI result is 19 PASS / 5 expected FAIL in browser-release-consumer, with the other 17 Validate jobs green.
+
+Docker CLI was not found on PATH or in standard Docker Desktop executable locations. No Docker run or installation is claimed. Linux CI is used for independent RED evidence; Docker remains preferred when an available engine/host is provided.
+
+Changed files: focused Python tests plus STATUS, TASKS, and REVIEW_REQUEST only. No production/browser runtime, API, dependency, workflow, schema, conformance, or decision edits. The external-review finding remains open.
+
+Next explicit gate: **GREEN npm launch implementation for this Minor only**, after the expected Linux CI failures are verified. Do not resolve the review thread, merge, or start T-804 automatically.
+
+
+Linux RED evidence verified at `d4a19c57927e05c1847c47be8a0032771c13895f`: [Validate / 36975704645](https://github.com/kefyusuf/surfacerelay/actions/runs/36975704645) finished **17 SUCCESS / 1 expected FAILURE**. Only `browser-release-consumer` failed. Its job log proves **24 tests / 19 PASS / 5 expected assertion failures / 0 errors**; the isolated real-artifact consumer journey remains green. All five failures are the new npm-launch contracts. RED is independently proven on Linux; next gate remains GREEN implementation only.
+
+## T-803 npm launch finding — GREEN VERIFIED LOCALLY / CI PENDING
+
+The bounded fix resolves npm from the host PATH. POSIX launches the resolved executable; Windows .cmd/.bat shims launch the adjacent npm-cli.js through resolved Node, without a shell. Missing npm, Node, or CLI fails before launching a process. Pack and all four consumer npm commands share this launch path. The integration fixture uses the same launcher; the browser emission test uses the npm-provided CLI path with process.execPath.
+
+Verification on 2026-10-02: Docker Node 22.23.3 / Python 3.12.15, read-only repository mount and temporary filesystem: 25/25 Python artifact/consumer tests PASS, 333/333 browser tests PASS, typecheck/build PASS, canonical validation/publication guard PASS. Windows: 25/25 Python tests including real pack/install/isolated consumer PASS with project-local npm cache and approved process access; 333/333 browser tests and typecheck PASS. The previous Windows bare-npm launch limitation is addressed for these tested paths. This is tooling evidence, not a new supported browser-runtime platform claim.
+
+The five RED tests are GREEN. One additional negative method covers missing Windows Node/CLI prerequisites. Existing archive/consumer isolation, argv boundaries and consumer credential stripping are preserved. No runtime source/API/metadata/dependency/workflow/spec/conformance/decision change. The Dockerfile remains ignored under .tmp; no permanent container infrastructure was added. Docker is available at the user-local Docker Desktop installation, correcting the earlier narrow lookup result.
+
+Changed files: scripts/browser_release_candidate.py, scripts/tests/test_browser_release_candidate.py, packages/browser-runtime/tests/distribution-contract.test.ts, STATUS.md, TASKS.md, REVIEW_REQUEST.md. Exact-head CI remains to be verified after commit. The review thread remains open. Next gate after CI verification: external-review re-check/disposition only; no automatic merge or T-804.
+
+GREEN exact-head evidence: `d70da239434beee09635696c8a1b1489afd0a00a`, [Validate / 36977031979](https://github.com/kefyusuf/surfacerelay/actions/runs/36977031979) — **18/18 SUCCESS**. The browser-release-consumer log proves 25 tests PASS plus clean-consumer smoke and deep-import rejection PASS. Docker and Windows checks above are also green. The npm finding is fixed and verified, but its review thread remains open pending external re-check. Next gate: external-review re-check/disposition only; no merge or T-804.
+
+## T-803 external-review closure — DONE / REVIEW CLOSED
+
+Date: 2026-10-02. PR #21 remains OPEN / non-draft / NOT MERGED. Reviewed pre-closure head: `fa0bafc197dfc5ede0b96bc9fbbabeafe0839fd7`. [Validate / 36977314801](https://github.com/kefyusuf/surfacerelay/actions/runs/36977314801) passed **18/18** jobs at that exact revision.
+
+[CodeRabbit re-check](https://github.com/kefyusuf/surfacerelay/pull/21#discussion_r4164121881) confirms the original Windows npm launch finding is addressed and no issue remains in its covered launch paths. The bot inspected the changed paths and confirmed CI; it did not rerun tests or independently reproduce Windows execution. Docker/Windows execution evidence is recorded above. The single review thread is resolved: **1 total / 0 unresolved**, verified via GitHub GraphQL after the reply.
+
+This closure changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED; T-804/T-805 remain NOT STARTED. No merge, tag, release, publication, or public version selection occurred.
+
+Next explicit gate: **T-803 merge decision only**. External-review closure does not authorize merge or begin T-804 automatically.
+
+## T-803 post-merge closure — DONE / REVIEWED / MERGED / MAIN REVALIDATED
+
+The user explicitly authorized merge on 2026-10-02. [PR #21](https://github.com/kefyusuf/surfacerelay/pull/21) is MERGED as `5ae4562a0b1676858f2c001c29b47eb6a45ef44b`. Post-merge main [Validate / 36985896210](https://github.com/kefyusuf/surfacerelay/actions/runs/36985896210) passed **18/18** jobs at that exact merge commit. Local main canonical validation and publication guard pass; checkout was clean before this tracking update.
+
+Review is closed: 1 thread / 0 unresolved. This post-merge tracking update changes STATUS, TASKS, and REVIEW_REQUEST only. No implementation changes. D-026 / D-069..D-073 remain PROPOSED. T-804/T-805 remain NOT STARTED; no tag/release/publication/version selection occurred.
+
+Next gate: **T-804 implementation-plan preparation only**, on explicit continuation; do not start its implementation automatically.
+
+## T-804 plan preparation — PLAN READY / APPROVAL PENDING
+
+Date: 2026-10-02. Baseline main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290`; [Validate / 36986576898](https://github.com/kefyusuf/surfacerelay/actions/runs/36986576898) **18/18 SUCCESS**, checked live. Branch: `docs/t-804-release-facing-plan`.
+
+Plan: `docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md`. It bounds later work to README, two repository consumer guides, Unreleased changelog, SECURITY, compatibility/versioning policy and release checklist, with no package/runtime/publication changes. It distinguishes dependency constraints from tested environments, fixture-only Laravel policy stages from production security, and Node primitive smoke from real-browser evidence.
+
+GitHub private vulnerability reporting was checked read-only on 2026-10-02: disabled. The plan records a publication blocker; no contact, support promise or setting change was invented. Independent read-only evidence audit agrees with the four Composer install legs, one Laravel ActionBus smoke leg, and root-only browser artifact proof.
+
+Changed paths: the plan, STATUS.md, TASKS.md, REVIEW_REQUEST.md only. Canonical validation, publication guard and diff checks pass. Relative-link/scope audit and exact-head CI are checked for the plan PR. Existing runtime semantics, manifests, schemas, conformance, dependencies, workflows, decisions and source package versions remain unchanged.
+
+Next gate: **T-804 implementation-plan approval only**. No consumer-guide implementation began. T-805 remains NOT STARTED; publication, tags/releases, public version and decision promotion remain outside scope.
+
+## T-804 plan approval — APPROVED / IMPLEMENTATION NOT STARTED
+
+Date: 2026-10-02. The user continued at the plan-approval gate. Plan head `1bafe57b50c2870e3afea1aa3c0fc6a6cfce6141`, [Validate / 37009779269](https://github.com/kefyusuf/surfacerelay/actions/runs/37009779269): **18/18 SUCCESS**, live verified. The plan's bounded documentation scope, acceptance and verification path are approved; independent evidence audit found no material issue.
+
+This approval record changes the plan, STATUS, TASKS and REVIEW_REQUEST only. Canonical validator, publication guard, link/scope audit and diff checks are verified. No consumer guides, runtime/API, metadata, dependency, CI, schema or decision changes. CodeRabbit auto-review was skipped; no external-review completion is claimed. PR #23 remains OPEN / NOT MERGED.
+
+Next gate: **T-804 implementation baseline and feature branch only**. Select a clean approved starting revision before consumer-guide work. T-805, merge and publication remain outside this approval.
+
+## T-804 implementation Step 1 — BASELINE / FEATURE BRANCH READY
+
+Date: 2026-10-02. Clean approved baseline: `543b60e4988e7ac8ed5a89c861e87affa79b5bc3`, [Validate / 37023733891](https://github.com/kefyusuf/surfacerelay/actions/runs/37023733891) **18/18 SUCCESS**, live verified. Created `docs/t-804-release-facing-documentation` from that exact commit. Docker canonical validation and publication guard pass using the existing test image, offline read-only repository mount.
+
+Plan PR #23 remains OPEN / NOT MERGED. The implementation PR is stacked on `docs/t-804-release-facing-plan` so its incremental diff does not duplicate the plan. No plan merge was inferred from continuation. Before eventual main integration, resolve that dependency through an explicitly authorized merge and re-check the target revision/CI; do not rewrite history or merge automatically.
+
+This gate changes the plan and STATUS/TASKS/REVIEW_REQUEST only. No README, consumer guides, CHANGELOG, SECURITY, compatibility/checklist implementation, runtime, manifests, dependencies, CI, schema or decisions changed. Private reporting remains a publication blocker; T-805 remains NOT STARTED.
+
+Next gate: **T-804 Step 2 — bounded Laravel/browser consumer guides and their existing artifact checks**. No guide content was written in Step 1.
+
+## T-804 implementation Step 2 — CONSUMER GUIDES VERIFIED
+
+Verified on 2026-10-03. Added `docs/consumers/laravel.md` and `docs/consumers/browser-runtime.md`; updated the approved plan and three tracking documents. No runtime/API, package metadata, lockfile, workflow, schema, fixture or decision changes.
+
+Both guides' complete shell blocks were extracted and executed in Docker against a clean clone/archive of `a15567c42d8f50ba8d060dcfbf25d76e371f8e11`. Browser: exact local tarball install, root import, shipped declarations/typecheck, Vite bundle, DriverRegistry smoke and representative deep-import rejection PASS. Laravel: exact local ZIP installed through Composer artifact repository, installed identity/autoload and ActionBus smoke PASS with Laravel 13.34.0. Verification hosts: Node 22.23.3 / Python 3.12.15 (`surfacerelay-t803-verify:local`); PHP 8.4.26 / Composer 2.10.3 (`surfacerelay-t804-verify:local`). Repository mount was read-only; all consumer writes were temporary. Temporary Docker/verification files remain ignored under `.tmp`.
+
+Existing Docker suites: browser artifact tooling 25/25 + Laravel tooling 20/20 PASS; browser typecheck/build and 22 files / 333 tests PASS. Canonical validation and publication guard PASS. Relative documentation links PASS. These guide executions test one Laravel smoke leg; the existing CI four-leg installation matrix remains the broader check. Node smoke does not prove real browser/WebMCP interoperability; fixture policy bypasses are not production security wiring. npm reported two moderate development-dependency advisories; dependency remediation is outside this documentation step.
+
+Next gate: **T-804 Step 3 — Unreleased changelog and SECURITY, with read-only reporting-channel recheck**. T-804 remains IN_PROGRESS. PR #24 stays draft and stacked on open PR #23; no merge/publication/tag or decision promotion is authorized by this step. Exact guide-head `3b25d2f1bce2f0147dd51b14a899121197bab0b7` has live-verified Validate [37147835325](https://github.com/kefyusuf/surfacerelay/actions/runs/37147835325): **18/18 SUCCESS**, including all four Laravel installation legs and browser clean consumer. The following tracking-only commit records this result; its CI is checked separately before final handoff.
+
+## T-804 implementation Step 3 — CHANGELOG / SECURITY VERIFIED
+
+Date: 2026-10-04. Clean starting revision `ea846f4174588ad28478f4b30ae0c2dd33a47230` has live-verified Validate [37147988730](https://github.com/kefyusuf/surfacerelay/actions/runs/37147988730): **18/18 SUCCESS**. Added `CHANGELOG.md` (Unreleased implemented readiness work only) and `SECURITY.md` (experimental support, private-reporting gap and existing integration responsibilities). Updated STATUS, TASKS, REVIEW_REQUEST and the approved plan. No source, API, package metadata, dependency, workflow, schema, fixture, ADR or decision changes.
+
+Read-only `GET /repos/kefyusuf/surfacerelay/private-vulnerability-reporting` returned `enabled: false`. No alternative private contact is established; this remains a publication blocker. No settings were changed. SECURITY does not direct sensitive reports to public channels or invent support windows, addresses, disclosure timelines or SLAs. It preserves the existing trust boundaries and marks consumer policy bypasses as fixture-only.
+
+Docker `surfacerelay-t803-verify:local` (Python 3.12.15), offline/read-only mount: canonical validation PASS; publication guard PASS; existing guardrail tests **23/23 PASS**; **20 relative links PASS**. No new executable example or runtime behavior was introduced, so no artificial RED tests or repeated consumer build was added. Full diff/scope review and independent read-only document audit found no material issue; exact-head CI follows push to the existing draft PR #24.
+
+Next gate: **T-804 Step 4 — compatibility/versioning policy and release checklist**. T-804 remains IN_PROGRESS; T-805, plan/implementation merge, settings changes and publication remain outside this step. PR #24 remains stacked on open PR #23.
+
+Step 3 exact implementation head `2945b9da059b017f2db796eb614cb33a21f786f7` passed live-verified [Validate 37158686636](https://github.com/kefyusuf/surfacerelay/actions/runs/37158686636): **18/18 SUCCESS**. This supersedes the pending exact-head CI note above. The following tracking-only commit records this result; its CI is checked separately before final handoff.
+
+## T-804 implementation Step 4 — COMPATIBILITY / CHECKLIST VERIFIED
+
+Date: 2026-10-04. Clean baseline `e1767788ce7641045933fc72955db6a5509817dc` passed live-verified Validate [37158809185](https://github.com/kefyusuf/surfacerelay/actions/runs/37158809185): **18/18 SUCCESS**. Added `docs/VERSIONING-COMPATIBILITY.md` and `docs/RELEASE-CHECKLIST.md`; updated the approved plan and three tracking files. No runtime/API, metadata/dependency, CI, schema/fixture, ADR/decision or settings changes.
+
+The policy separates staged package SemVer from positive integer Action identity, dependency ranges from tested consumption, four Laravel installation legs from one smoke leg, and Node/browser tooling from real-browser interoperability. Future 0.x behavior remains Proposed. The checklist records exact clean revision/version, isolated archived source/stages/consumers, package identities, content/archive SHA-256 evidence, review and separate publication go/no-go. It adds no runner and does not claim integrated T-805 verification, registry ownership, credentials or approval. Private reporting remains a publication blocker per SECURITY; no channel state change is claimed.
+
+Docker `surfacerelay-t803-verify:local` (Python 3.12.15 / Node 22.23.3), read-only repository mount and temporary writes: existing contract/guardrail/Laravel/browser artifact suites **94/94 PASS**, canonical validation and publication guard PASS, **36 relative links PASS**. Existing npm consumer integration ran as part of the tooling suite; no new executable verification behavior was added. Exact new-head CI follows commit/push; complete diff/scope and independent documentation review are checked before handoff.
+
+Next gate: **T-804 Step 5 — README links/positioning and documentation command/claim audit**. T-804 remains IN_PROGRESS. PR #24 is draft, stacked on open PR #23; T-805, merge, tags/releases, publication and decision promotion remain outside this step.
+
+Step 4 exact document head `117bf0ce325241fa812f002735594637c8342d58` passed live-verified [Validate 37161391639](https://github.com/kefyusuf/surfacerelay/actions/runs/37161391639): **18/18 SUCCESS**. Full diff/scope and independent read-only documentation review found no material issue. This supersedes the pending CI/review note above. The following tracking-only commit records the result; its CI is checked separately before final handoff.
