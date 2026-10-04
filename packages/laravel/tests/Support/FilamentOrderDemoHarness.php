@@ -27,6 +27,7 @@ use SurfaceRelay\Laravel\Enums\ContextRequirement;
 use SurfaceRelay\Laravel\Enums\IdempotencyPolicy;
 use SurfaceRelay\Laravel\Enums\OutputContentTrust;
 use SurfaceRelay\Laravel\Enums\OutputSensitivity;
+use SurfaceRelay\Laravel\Filament\Confirmation\FilamentConfirmationBridge;
 use SurfaceRelay\Laravel\Filament\Context\FilamentContextExposure;
 use SurfaceRelay\Laravel\Filament\Invocation\FilamentActionGateway;
 use SurfaceRelay\Laravel\Idempotency\IdempotencyIntentHasher;
@@ -77,6 +78,8 @@ final class FilamentOrderDemoHarness
         Application $app,
         string $actorTenant,
         string $activeTenant,
+        ?ConfirmationService $confirmationService = null,
+        ?FilamentConfirmationBridge $confirmationBridge = null,
     ) {
         $this->actor = new OrderDemoActorContext();
         $this->actor->set(new GenericUser([
@@ -155,7 +158,7 @@ final class FilamentOrderDemoHarness
             },
         );
 
-        $this->confirmationService = new ConfirmationService(
+        $this->confirmationService = $confirmationService ?? new ConfirmationService(
             new FilamentConfirmationMemoryStore(),
             new FilamentConfirmationMutableClock(),
             new FilamentConfirmationSequenceTokenGenerator([
@@ -219,6 +222,7 @@ final class FilamentOrderDemoHarness
                 new OrderDemoActorResolver($this->actor),
                 new OrderDemoTenantResolver($this->tenant),
             ),
+            confirmationBridge: $confirmationBridge,
         );
     }
 

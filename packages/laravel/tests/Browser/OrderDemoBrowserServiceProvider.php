@@ -7,8 +7,14 @@ namespace SurfaceRelay\Laravel\Tests\Browser;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use SurfaceRelay\Laravel\Confirmation\CacheConfirmationStore;
+use SurfaceRelay\Laravel\Confirmation\ConfirmationService;
+use SurfaceRelay\Laravel\Confirmation\RandomConfirmationTokenGenerator;
+use SurfaceRelay\Laravel\Confirmation\SystemConfirmationClock;
+use SurfaceRelay\Laravel\Filament\Confirmation\FilamentConfirmationBridge;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\Order;
 use SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo\OrderDemoPageActions;
 use SurfaceRelay\Laravel\Tests\Support\FilamentOrderDemoHarness;
@@ -31,6 +37,14 @@ final class OrderDemoBrowserServiceProvider extends ServiceProvider
                 app: $app,
                 actorTenant: 'tenant-a',
                 activeTenant: 'tenant-a',
+                // Challenges must survive across Livewire requests: issue,
+                // human approval and agent retry are three separate requests.
+                confirmationService: new ConfirmationService(
+                    new CacheConfirmationStore(Cache::store('file')->getStore()),
+                    new SystemConfirmationClock(),
+                    new RandomConfirmationTokenGenerator(),
+                ),
+                confirmationBridge: new FilamentConfirmationBridge(),
             ),
         );
 
