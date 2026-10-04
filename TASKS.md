@@ -11,6 +11,11 @@ test corrections are verified. Remaining gate:
 external [integration PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) review
 and finding disposition; no next feature is selected. See [STATUS.md](STATUS.md#owner-actions).
 
+T-808 remains open for the D-078 output/control-key collision. See
+[Needs decision](STATUS.md#needs-decision). After the owner selects the wire contract,
+prove arbitrary business `target` values cannot change HTMX dispatch or mask response
+failure; update adapter fixtures, consumer documentation and migration impact together.
+
 ## Done
 
 | Milestone | Tasks |
@@ -28,6 +33,7 @@ and finding disposition; no next feature is selected. See [STATUS.md](STATUS.md#
 | M8 docs | T-804 consumer guides, CHANGELOG, SECURITY, versioning, release checklist, README |
 | T-809 review correction | Sorted challenge/receipt locks; three negative regressions; Docker Laravel 611 tests (2 skipped), canonical validation and independent real-store reproduction pass |
 | T-807b review evidence | Actual receipt absent from public state/Livewire snapshot; protected browser call refused without pulling session receipt; mutation controls, Docker 612 tests (2 skipped) and independent review pass |
+| T-808 review correction | Deferred confirmation classified as unknown outcome; RED first, Docker browser 366 tests/typecheck and real HTMX 9 tests pass; D-078 wire decision remains open |
 | Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed); T-807a live Filament panel proof + selection sync (D-075 proposed); T-807b approved retry on the agent path (D-076 proposed); T-809 distinct confirmation receipt (D-077 proposed); T-808 HTMX business output via `HX-Trigger` (D-078 proposed) |
 
 

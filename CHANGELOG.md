@@ -68,6 +68,10 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Fixed
 
+- An event-based HTMX confirmation veto is reported as `htmx_request_failed`,
+  because the application's callback can still send the request later. It is no
+  longer misreported as `htmx_request_not_sent`; confirmation is never bypassed.
+
 - Cache confirmation approval locks both challenge and receipt addresses in a
   consistent order. Concurrent approvals targeting the same receipt cannot
   overwrite another approval; a failed lock acquisition leaves records unchanged.
@@ -84,6 +88,8 @@ dates. SurfaceRelay remains experimental and unofficial.
   issued request's own response. Absent or malformed declarations resolve
   `undefined`; output is never derived from HTML. `HtmxBrowserRuntime.ajax()`
   now returns `Promise<unknown>` (proposed D-078).
+  Known limitation: a top-level business `target` collides with HTMX event routing;
+  the output envelope decision remains open in [STATUS](STATUS.md#needs-decision).
 - The HTMX driver no longer reports failed requests as success. `htmx.ajax()`
   resolves after HTTP error responses and on paths that never send the request;
   `GlobalHtmxBrowserRuntime.ajax()` now tracks its own request and rejects with

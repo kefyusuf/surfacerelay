@@ -73,6 +73,16 @@ never parses the HTML fragment (D-054). Without that declaration a successful ca
 returns `undefined`. The human path is unaffected — htmx merely fires an unused
 `surfacerelay:result` event.
 
+Known D-078 limitation: HTMX treats a top-level business `target` field as event
+routing. Some otherwise valid objects therefore fail response handling after the
+server writes. A result envelope is proposed in [Needs decision](../../STATUS.md#needs-decision);
+the current wire format is unchanged and these failures must not be hidden.
+
+Event-based `htmx:confirm` hooks can resume an invocation after its original promise
+settles. A vetoed confirmation is an unknown outcome (`htmx_request_failed`), not
+proof that no request can be sent. The fixture's deferred-confirmation test resumes
+the callback explicitly and proves exactly one subsequent server write.
+
 Limits: one flag-enabled Chromium build, the page itself acting as tool caller, and
 no real AI agent or origin-trial token. This is not WebMCP conformance.
 

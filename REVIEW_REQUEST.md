@@ -3,20 +3,27 @@
 Review [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) against main.
 It contains unmerged release documentation/readiness and WebMCP/Filament work.
 
-## Latest correction — T-807b receipt-boundary evidence
+## Latest correction — T-808 deferred confirmation outcome
 
-The privacy test checked the challenge token, which differs from the approved receipt
-after T-809. It now checks the actual usable receipt against public state and the
-same page's real Livewire snapshot before pulling it. A real Livewire browser-call
-test refuses the protected accessor and leaves the session receipt untouched.
+Real HTMX resolves its original promise after a `htmx:confirm` veto, while the
+application can call `issueRequest` later. The runtime previously claimed `not_sent`
+before a delayed server write. It now associates the confirmation event with the
+exact source and values object and conservatively reports `htmx_request_failed`.
+Native confirmation is preserved; foreign confirmation and beforeRequest veto
+retain the existing classification. A negative unit regression proved RED first.
 
-Isolated Docker mutations prove sensitivity: the old privacy assertion accepted an
-injected public receipt leak; the corrected assertion rejects it. Making the accessor
-public also fails the browser-call regression. No production/API change was needed.
-Scoped independent review found no production defect or remaining test-diff issue.
+Docker: 366 browser tests and typecheck pass. Real Chrome standard HTMX fixture:
+9 tests pass, including failure-before-explicit-resume and exactly one later write.
+Independent real-browser review also proves normal result and beforeRequest veto.
+The local full fixture's fixed-4173 origin assertion did not fit the isolated port;
+check the unmodified full fixture on current-head CI. Canonical validation passes.
 
-Focused tests: 8 tests, 24 assertions. Docker full Laravel: 612 tests, 3272 assertions,
-2 skipped. Composer validation, changed PHP syntax and canonical validation pass.
+## Open contract finding — D-078
+
+Real HTMX interprets output `target` as event routing: a valid business object can
+cause onLoadError after the server writes. Do not suppress that error. The proposed
+`value` envelope, alternative field restriction and migration gate are recorded in
+[STATUS](STATUS.md#needs-decision); no new wire contract is implemented yet.
 
 ## Integration focus
 

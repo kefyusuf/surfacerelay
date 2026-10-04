@@ -6,15 +6,12 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
 
 - [Integration PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) contains the
   unmerged T-804–T-809 work. Main contains M0–M7 and T-801–T-803.
-- T-805 source-isolation correction passed local verification and PR checks.
-  Readiness builds from the requested Git archive and freshly compiles browser output;
-  ignored source files and stale checkout distribution are excluded.
-- T-809 receipt-address concurrency correction locks both token addresses in sorted
-  order. Three regressions proved RED first; independent real-store reproduction
-  confirms one winner and an unchanged loser.
-- T-807b receipt-boundary tests now inspect the actual receipt and Livewire snapshot,
-  and reject browser calls to the protected accessor. Isolated leak/public-accessor
-  mutations are rejected; scoped independent review found no production defect.
+- Reviewed corrections pass: T-805 archived-source isolation, T-809 sorted receipt
+  locks, and T-807b receipt secrecy/protected-call evidence. Scoped independent
+  reviews do not replace the full integration review.
+- T-808 review correction treats vetoed HTMX confirmation as an unknown outcome
+  (`htmx_request_failed`), preserving deferred human approval. Docker: 366 browser
+  tests and typecheck pass; real Chrome HTMX fixture: 9 tests pass.
 - Docker Laravel: 612 tests, 3272 assertions (2 skipped); Composer validation,
   changed PHP syntax and canonical validation pass.
 - T-805 evidence: 111 Python tests and two actual artifacts/isolated consumers pass.
@@ -37,3 +34,13 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
   credentials and public-version/publication approval separately.
 - Next agent scope: integration review findings only, then merged-main verification
   after an authorized merge. See [TASKS](TASKS.md) and [review handoff](REVIEW_REQUEST.md).
+
+## Needs decision
+
+- D-078: HTMX interprets business output's top-level `target` as an event destination.
+  Real HTMX 2.0.10 writes successfully then throws for `{target: "archive"}`, `null`
+  or numeric targets. The current arbitrary-object output claim is not qualified.
+  Proposed: wrap business data in `{"surfacerelay:result":{"value":{...}}}` and
+  unwrap `value` in the adapter, with fixtures/docs and unpublished-contract migration.
+  Alternative: explicitly forbid HTMX control keys in business output. The wire
+  contract stays unchanged until this owner decision; do not hide response failures.

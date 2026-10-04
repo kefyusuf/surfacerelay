@@ -31,8 +31,9 @@ export interface HtmxBrowserRuntime {
   requestClass(): string;
   /**
    * Resolves only when the request was actually sent and HTMX reported a successful
-   * response. A request HTMX never sent rejects with `htmx_request_not_sent`; an
-   * unsuccessful HTTP status, transport failure, or response-handling failure rejects
+   * response. A request HTMX never sent rejects with `htmx_request_not_sent`, unless
+   * a confirmation hook could resume it later, which rejects with `htmx_request_failed`.
+   * An unsuccessful HTTP status, transport failure, or response-handling failure rejects
    * with `htmx_request_failed`.
    *
    * On success it resolves with the object the server declared as
@@ -50,8 +51,10 @@ interface HtmxRequestEventSource {
 interface HtmxRequestEventDetail {
   xhr?: unknown;
   successful?: unknown;
+  etc?: { values?: unknown } | null;
 }
 
+const REQUEST_CONFIRMATION_EVENT = 'htmx:confirm';
 const REQUEST_SENT_EVENT = 'htmx:beforeSend';
 const REQUEST_COMPLETED_EVENT = 'htmx:afterRequest';
 const RESPONSE_HANDLING_FAILED_EVENT = 'htmx:onLoadError';
@@ -241,11 +244,29 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
     let sent = false;
     let xhr: unknown = null;
     let completion: HtmxRequestEventDetail | null = null;
+    let confirmation: Event | null = null;
     let failResponseHandling!: (error: HtmxBindingExecutionError) => void;
     const responseHandlingFailed = new Promise<never>((_resolve, reject) => {
       failResponseHandling = reject;
     });
 
+    const onConfirmation = (event: Event): void => {
+      if (
+        confirmation === null
+        && event.target === (events as unknown)
+        && requestEventDetail(event).etc?.values === context.values
+      ) {
+        confirmation = event;
+      }
+    };
+    const unsentOutcome = (): HtmxBindingExecutionError => {
+      // HTMX resolves the original promise after a confirmation veto, but the
+      // application's issueRequest callback may still send it later. Never
+      // describe that unknown outcome as proof that no request can be sent.
+      return confirmation?.defaultPrevented === true
+        ? requestFailed('HTMX confirmation hook may resume the request later.')
+        : requestNotSent();
+    };
     const onSent = (event: Event): void => {
       if (!sent && event.target === (events as unknown)) {
         sent = true;
@@ -262,6 +283,7 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
       }
     };
 
+    events.addEventListener(REQUEST_CONFIRMATION_EVENT, onConfirmation);
     events.addEventListener(REQUEST_SENT_EVENT, onSent);
     events.addEventListener(REQUEST_COMPLETED_EVENT, onCompleted);
     events.addEventListener(RESPONSE_HANDLING_FAILED_EVENT, onResponseHandlingFailed);
@@ -275,15 +297,16 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
       ]);
     } catch (error) {
       if (error instanceof HtmxBindingExecutionError) throw error;
-      if (!sent) throw requestNotSent();
+      if (!sent) throw unsentOutcome();
       throw requestFailed('HTMX request failed before a successful response.');
     } finally {
+      events.removeEventListener(REQUEST_CONFIRMATION_EVENT, onConfirmation);
       events.removeEventListener(REQUEST_SENT_EVENT, onSent);
       events.removeEventListener(REQUEST_COMPLETED_EVENT, onCompleted);
       events.removeEventListener(RESPONSE_HANDLING_FAILED_EVENT, onResponseHandlingFailed);
     }
 
-    if (!sent) throw requestNotSent();
+    if (!sent) throw unsentOutcome();
 
     const completed = completion as HtmxRequestEventDetail | null;
     if (completed?.successful !== true) {

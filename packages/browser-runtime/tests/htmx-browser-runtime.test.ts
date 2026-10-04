@@ -251,6 +251,38 @@ describe('HTMX request outcome boundary', () => {
     await expectAjaxCode(call(), 'htmx_request_not_sent');
   });
 
+  it('does not claim a deferred confirmation can never send the request', async () => {
+    const { ambient, source, call } = setup();
+    ambient.htmx.ajax.mockImplementation((_method, _path, context) => {
+      const event = new CustomEvent('htmx:confirm', {
+        detail: { etc: { values: context.values } },
+        cancelable: true,
+      });
+      source.dispatchEvent(event);
+      // HTMX resolves the original promise when an application vetoes confirmation;
+      // its issueRequest callback may still send the request later.
+      event.preventDefault();
+      return Promise.resolve();
+    });
+
+    await expectAjaxCode(call(), 'htmx_request_failed');
+  });
+
+  it('does not associate another request confirmation veto with this invocation', async () => {
+    const { ambient, source, call } = setup();
+    ambient.htmx.ajax.mockImplementation(() => {
+      const event = new CustomEvent('htmx:confirm', {
+        detail: { etc: { values: { name: 'other-request' } } },
+        cancelable: true,
+      });
+      source.dispatchEvent(event);
+      event.preventDefault();
+      return Promise.resolve();
+    });
+
+    await expectAjaxCode(call(), 'htmx_request_not_sent');
+  });
+
   it('rejects when htmx rejects before sending the request', async () => {
     const { ambient, call } = setup();
     ambient.htmx.ajax.mockImplementation(() => Promise.reject(undefined));
