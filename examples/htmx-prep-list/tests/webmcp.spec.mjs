@@ -141,16 +141,45 @@ test('undeclared input properties fail the tool call closed without sending /ite
   expect(posts).toHaveLength(0);
 });
 
-// KNOWN GAP (T-806): htmx.ajax() resolves on HTTP error responses, so a server-side
-// business rejection (422 here) is reported to the agent as a successful tool call.
-// Expected to fail until the HTMX driver reports request failure; remove test.fail then.
 test('server-side rejection is not reported to the agent as success', async ({ page }) => {
-  test.fail();
-
   const responsePromise = page.waitForResponse((response) => isItemsPost(response.request()));
   const outcome = await invokeAsAgent(page, { name: '' });
   const response = await responsePromise;
 
   expect(response.status()).toBe(422);
   expect(outcome.status).toBe('threw');
+  await expect(page.locator('#items li')).toHaveCount(0);
+});
+
+test('a request HTMX never sends is not reported to the agent as success', async ({ page }) => {
+  const posts = [];
+  page.on('request', (request) => {
+    if (isItemsPost(request)) posts.push(request);
+  });
+  await page.evaluate(() => {
+    document.addEventListener('htmx:beforeRequest', (event) => event.preventDefault(), { once: true });
+  });
+
+  const outcome = await invokeAsAgent(page, { name: 'vetoed' });
+
+  expect(outcome.status).toBe('threw');
+  await page.waitForTimeout(100);
+  expect(posts).toHaveLength(0);
+});
+
+test('the driver rejects a server rejection with htmx_request_failed', async ({ page }) => {
+  const error = await page.evaluate(async () => {
+    try {
+      await globalThis.surfaceRelayFixture.addItem('');
+      return null;
+    } catch (caught) {
+      return { name: caught.name, code: caught.code, message: caught.message };
+    }
+  });
+
+  expect(error).toEqual({
+    name: 'HtmxBindingExecutionError',
+    code: 'htmx_request_failed',
+    message: 'HTMX request completed with unsuccessful HTTP status 422.',
+  });
 });

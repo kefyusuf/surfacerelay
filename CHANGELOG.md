@@ -33,10 +33,19 @@ dates. SurfaceRelay remains experimental and unofficial.
   `prep_list.add_item.v1` tool registers on Chromium's own `document.modelContext`
   (`--enable-blink-features=WebMCP`), is invoked through the browser's
   `executeTool()`, drives the same real HTMX `POST /items`, fails closed for stale
-  bindings and undeclared input, and unregisters when the lease is disposed. See
+  bindings, undeclared input, server rejections and unsent requests, and
+  unregisters when the lease is disposed. See
   [the fixture](examples/htmx-prep-list/README.md#native-webmcp-proof).
 
 ### Fixed
+
+- The HTMX driver no longer reports failed requests as success. `htmx.ajax()`
+  resolves after HTTP error responses and on paths that never send the request;
+  `GlobalHtmxBrowserRuntime.ajax()` now tracks its own request and rejects with
+  `htmx_request_failed` (unsuccessful status, transport or response-handling
+  failure) or `htmx_request_not_sent`. Custom `HtmxBrowserRuntime` implementations
+  must follow the same contract, and sources must support `addEventListener`.
+  Proposed as D-074.
 
 - Browser artifact tooling now resolves npm for the tested POSIX and Windows
   launch paths. Windows command shims run through Node's npm CLI without a shell;

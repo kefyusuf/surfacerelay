@@ -53,6 +53,8 @@ real WebMCP boundary rather than calling the driver directly. It proves:
   stale same-name form state, and persists across reload;
 - a stale binding and undeclared input properties fail the tool call closed without
   sending `/items`;
+- a server rejection (`422`) and a request HTMX never sends (vetoed in
+  `htmx:beforeRequest`) fail the tool call instead of reporting success (D-074);
 - disposing the registration lease unregisters the tool; reload re-registers one tool
   bound to the renewed page binding.
 
@@ -64,10 +66,9 @@ Observed Chromium 153 behavior that differs from the 2026-10-02 WebMCP draft:
   confirmation receipts;
 - the tool result reaches the caller JSON-serialized.
 
-Known gap, pinned with `test.fail()`: `htmx.ajax()` resolves on HTTP error
-responses, so a server rejection (`422`) is reported to the caller as a successful
-tool call, and a successful call returns no business result (`"undefined"`). See
-T-806 in [`TASKS.md`](../../TASKS.md).
+Known gap: a successful call returns no business result (the caller sees
+`"undefined"`), because the driver does not synthesize output from returned HTML
+(D-054). See T-808 in [`TASKS.md`](../../TASKS.md).
 
 Limits: one flag-enabled Chromium build, the page itself acting as tool caller, and
 no real AI agent or origin-trial token. This is not WebMCP conformance.

@@ -6,24 +6,7 @@ one-line entry; full history is in
 
 ## Open
 
-### T-806 — HTMX tool calls report request failure and business result — NEXT
-
-Found by the live WebMCP proof: `htmx.ajax()` resolves on HTTP error responses, so a
-`422` from the server reaches the agent as a successful tool call, and a successful
-call returns `undefined` instead of the Action's output.
-
-- Scope: `HtmxBrowserDriver` / `GlobalHtmxBrowserRuntime` detect request failure
-  (e.g. `htmx:afterRequest` `detail.successful`) and reject; decide how a business
-  result (e.g. `itemId`) is returned without treating "HTML swapped" as success.
-- Contract: a new failure code touches D-026 and the binding-failure fixtures; update
-  schema/fixtures/conformance/decision together (AGENTS rule 13).
-- Acceptance: the `test.fail()` in `examples/htmx-prep-list/tests/webmcp.spec.mjs`
-  passes without the marker; negative tests for 4xx/5xx/network failure; no POST
-  retry; human path unchanged.
-- Verify: `packages/browser-runtime` `npm test` + `npm run typecheck`;
-  `examples/htmx-prep-list` `npm test`; `python scripts/validate.py`.
-
-### T-807 — Live WebMCP demo of the Filament vertical
+### T-807 — Live WebMCP demo of the Filament vertical — NEXT
 
 The flagship story: a user selects three orders in a Filament table, an agent calls a
 consequential refund tool through `document.modelContext`, receives a confirmation
@@ -33,6 +16,18 @@ challenge, and the human confirms in the Filament UI.
   challenge → human confirm → execute, plus caller-supplied `confirmed: true` and
   forged selection rejected; a short screen recording for the README.
 - Depends on: Livewire driver result semantics reviewed the same way as T-806.
+
+### T-808 — Business output for HTMX-backed Actions
+
+After T-806 a successful HTMX tool call proves the server accepted the request but
+returns no output (`itemId`), because D-054 forbids synthesizing output from HTML.
+
+- Needs a decision: an app-owned, opt-in response convention. Candidate: the server
+  emits `HX-Trigger: {"surfacerelay:result": <ActionResult data>}` on the business
+  route and the driver returns that payload, validated against the Action's
+  `outputSchema`; absent payload stays `undefined`.
+- Acceptance: payload only from the exact issued request; schema-invalid payload
+  fails closed; no output from HTML; human path unchanged.
 
 ### T-804 — Release-facing documentation — Step 5 remaining
 
@@ -59,3 +54,4 @@ evidence, hashes, publication go/no-go handoff. Publication itself stays outside
 | M6 HTMX portability | T-601…T-604 |
 | M7 Conformance / bridges | T-701 runner, T-702 adapter guide, T-703 Laravel MCP, T-704 OpenAPI importer |
 | M8 Release readiness | T-801 artifact contract, T-802 Laravel artifact, T-803 browser artifact |
+| Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed) |

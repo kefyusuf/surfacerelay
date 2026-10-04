@@ -25,10 +25,12 @@ Current state only. History lives in git, PRs, and
   `document.modelContext` and is invoked through `executeTool()`
   ([details](examples/htmx-prep-list/README.md#native-webmcp-proof)).
 
+- **New:** HTMX driver reports server rejections and unsent requests as failures
+  instead of success (T-806, D-074 proposed).
+
 ## Known gaps
 
-- **HTMX tool calls report server rejections as success** and return no business
-  result (T-806). Pinned by a `test.fail()` in the live WebMCP proof.
+- HTMX tool calls return no business output on success (T-808).
 - No live WebMCP demo of the Filament/Livewire vertical yet (T-807).
 - Chromium 153 drops `consequentialHint` from `getTools()`; consequential safety must
   keep relying on server-issued confirmation receipts.
@@ -41,9 +43,9 @@ Current state only. History lives in git, PRs, and
 
 ## Decisions
 
-- Accepted through D-068. Proposed: D-026, D-069…D-073
+- Accepted through D-068. Proposed: D-026, D-069…D-074
   ([register](docs/DECISION-REGISTER.md)).
 
 ## Next
 
-T-806 → T-807 → T-804 Step 5 → T-805. See [`TASKS.md`](TASKS.md).
+T-807 → T-808 → T-804 Step 5 → T-805. See [`TASKS.md`](TASKS.md).

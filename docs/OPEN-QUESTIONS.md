@@ -34,7 +34,8 @@ Still open:
 ## HTMX
 
 - Should the first HTMX driver execute an explicit form submission or call an app-owned endpoint descriptor?
-- Which browser events are sufficient to establish completion without pretending HTML swap success equals business success?
+- ~~Which browser events are sufficient to establish completion?~~ Proposed in D-074: the issued request's own `htmx:beforeSend`/`htmx:afterRequest` pair (T-806).
+- How should an HTMX-backed Action return business output (e.g. `itemId`) without synthesizing it from returned HTML (D-054)? See T-808.
 
 ## Conformance
 

@@ -279,7 +279,8 @@ Current HTMX decisions prove a page/source-oriented implementation:
 - D-053 defines an exact rendered source identity and declarative request target;
 - D-054 resolves the exact current source and uses supported `htmx.ajax()` behavior;
 - D-055 fails closed when the exact source is already busy and bounds cancellation to the pre-`htmx.ajax()` frontier;
-- D-056 provides deterministic named Action-input mapping while rejecting ambiguous host mechanisms.
+- D-056 provides deterministic named Action-input mapping while rejecting ambiguous host mechanisms;
+- D-074 (proposed) reports success only when the exact issued request completed successfully, because `htmx.ajax()` also resolves after HTTP errors and on paths that never send.
 
 The HTMX shape intentionally differs from Livewire. Cross-adapter portability therefore lives at the shared tested invariant level, not in a shared universal target schema.
 
