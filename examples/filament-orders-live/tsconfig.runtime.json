@@ -1,0 +1,13 @@
+{
+  "extends": "../../packages/browser-runtime/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "../../packages/browser-runtime/src",
+    "outDir": ".tmp/runtime",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "../../packages/browser-runtime/src/**/*.ts"
+  ]
+}
