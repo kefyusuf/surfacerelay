@@ -6,16 +6,6 @@ one-line entry; full history is in
 
 ## Open
 
-### T-809 — Confirmation challenge id doubles as the receipt — LOW
-
-`ConfirmationService::approveChallenge()` returns the challenge id itself as the
-receipt, and before approval that id sits in the public `#[Locked]` Livewire property
-`surfaceRelayConfirmationChallengeId`, so page script can read it. Exploitation is
-bounded: the scope fingerprint binds actor, tenant, selection, record, input,
-surface and binding id, and exposed page methods never accept receipts. Hardening
-options: issue a distinct receipt token on approval, or keep only a challenge handle
-in public state. Needs negative tests either way.
-
 ### T-808 — Business output for HTMX-backed Actions
 
 After T-806 a successful HTMX tool call proves the server accepted the request but
@@ -48,6 +38,7 @@ evidence, hashes, publication go/no-go handoff. Publication itself stays outside
 | M7 Conformance / bridges | T-701 runner, T-702 adapter guide, T-703 Laravel MCP, T-704 OpenAPI importer |
 | M8 Release readiness | T-801 artifact contract, T-802 Laravel artifact, T-803 browser artifact |
 | M8 docs | T-804 consumer guides, CHANGELOG, SECURITY, versioning, release checklist, README |
-| Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed); T-807a live Filament panel proof + selection sync (D-075 proposed); T-807b approved retry on the agent path (D-076 proposed) |
+| Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed); T-807a live Filament panel proof + selection sync (D-075 proposed); T-807b approved retry on the agent path (D-076 proposed); T-809 distinct confirmation receipt (D-077 proposed) |
+
 
 

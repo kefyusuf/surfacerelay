@@ -8,7 +8,7 @@ Current state only. History lives in git, PRs, and
 - **Main:** `e7d61ef` — M0–M7 and T-801…T-803 merged; main CI green.
 - **Open PR stack (merge in order, owner review):** #23 T-804 plan → #24 T-804 docs →
   #25 native WebMCP proof → #26 tracking cleanup → #27 T-806 → #28 T-804 README →
-  #29 T-807a live Filament proof → T-807b approved retry.
+  #29 T-807a live Filament proof → #30 T-807b approved retry → T-809 distinct receipt.
 - **Release:** nothing published; no public version selected.
 
 ## What works today
@@ -28,20 +28,18 @@ Current state only. History lives in git, PRs, and
   - Real Filament 5 panel ([details](examples/filament-orders-live/README.md)): agent
     hold on the current record; agent refund over the human-visible selection
     (D-075) → Filament confirmation modal → human approves → agent retry refunds
-    exactly once (T-807a/b, D-076).
+    exactly once (T-807a/b, D-076); receipts are distinct from challenge ids (T-809, D-077).
 
 ## Known gaps
 
 - HTMX tool calls return no business output on success (T-808).
-- Challenge id doubles as the receipt and is visible to page script before approval;
-  bounded by the scope fingerprint (T-809, low).
 - Chromium 153 drops `consequentialHint` from `getTools()`; consequential safety must
   keep relying on server-issued confirmation receipts.
 
 ## Needs decision
 
 - T-808: HTMX business-output convention.
-- D-074, D-075, D-076: promote to ACCEPTED or revise.
+- D-074 … D-077: promote to ACCEPTED or revise.
 
 ## Publication blockers
 
@@ -51,9 +49,10 @@ Current state only. History lives in git, PRs, and
 
 ## Decisions
 
-- Accepted through D-068. Proposed: D-026, D-069…D-076
+- Accepted through D-068. Proposed: D-026, D-069…D-077
   ([register](docs/DECISION-REGISTER.md)).
 
 ## Next
 
-T-809 → T-808 (after decision) → T-805. See [`TASKS.md`](TASKS.md).
+T-808 → T-805. See [`TASKS.md`](TASKS.md).
+

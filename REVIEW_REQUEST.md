@@ -1,34 +1,30 @@
-# Review Request — T-807b approved retry on the agent path
+# Review Request — T-809 distinct confirmation receipt
 
-Branch `feat/t-807b-approved-retry`, top of the open stack (#23 → … → #29).
+Branch `fix/t-809-distinct-receipt`, top of the open stack (#23 → … → #30).
 
 ## What changed
 
-- `InteractsWithSurfaceRelayConfirmation` (package `src`): after modal approval the
-  receipt is kept in server-side session state keyed by the approving component's id
-  hash; protected `pullApprovedSurfaceRelayConfirmationReceipt()` returns it once.
-  Presenting a new challenge discards an unused receipt; components without an id
-  keep none. Proposed **D-076**.
-- Order demo fixture: `ListOrders` uses the trait and passes the pulled receipt to the
-  gateway; `refundSelected(reason)` signature unchanged.
-- Browser fixture: file-cache `ConfirmationService` and `FilamentConfirmationBridge`
-  so the real Filament modal opens and approval survives across requests.
+- `ConfirmationService::approveChallenge()` returns a fresh random receipt, never the
+  challenge id. Optional receipt token generator (default random); malformed output or
+  output equal to the challenge fails closed.
+- `ConfirmationStore::approvePending($challengeHash, $receiptHash, ...)`: atomically moves
+  the approvable pending record to the receipt hash. `CacheConfirmationStore` deletes the
+  challenge before writing the receipt (failed write → nothing approvable), refuses an
+  occupied receipt hash, and rejects receipt hash == challenge hash.
+- `InteractsWithSurfaceRelayConfirmation` drops the `receipt === challengeId` assertion.
+- Proposed **D-077**; THREAT-MODEL T11 updated.
 
 ## Review focus
 
-- Session-held receipt vs. D-040/D-051: receipt never a page-method argument, never in
-  public Livewire state, not browser-callable (reflection test).
-- Component-id binding: a different component cannot pull it; scope fingerprint still
-  verified at consumption.
-- T-809 (pre-existing, low): challenge id doubles as the receipt and is visible in the
-  Livewire snapshot before approval.
+- Breaking interface change for custom `ConfirmationStore` implementations (unpublished;
+  CHANGELOG "Changed").
+- Delete-then-write ordering in the cache store: fail closed vs. lost approval.
+- Ten tests encoded `receipt === challengeId`; they now read the real receipt (trust-control
+  tests pull it from the approving page's server state, D-076).
 
 ## Verification
 
-- RED first: 5/6 new PHPUnit tests errored (method missing); 3 browser tests failed
-  (no modal).
-- `packages/laravel`: PHPUnit 602 OK (2 skipped).
-- `examples/filament-orders-live`: 10/10 on Filament 5.9 / Livewire 4.4 / Laravel 13.34 /
-  PHP 8.4 / Chromium 153, including approval → exactly-once retry, selection/input drift,
-  no-approval repeat, forged confirmation fields.
+- RED first: 12 errors / 2 failures in the new service and cache-store tests.
+- `packages/laravel`: PHPUnit 608 OK (2 skipped).
+- `examples/filament-orders-live`: 10/10 live (approval → exactly-once retry unchanged).
 - `scripts/validate.py`.

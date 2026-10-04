@@ -52,6 +52,15 @@ dates. SurfaceRelay remains experimental and unofficial.
   approval → exactly-once retry, selection/input drift, and forged confirmation
   fields.
 
+### Changed
+
+- **Breaking for custom `ConfirmationStore` implementations:** approval now
+  returns a fresh random receipt instead of the challenge id.
+  `approvePending()` gains a `$receiptHash` parameter and must atomically move
+  the approvable pending record to it. `ConfirmationService` accepts an optional
+  receipt token generator. A challenge id seen by a human or page script never
+  becomes receipt authority (proposed D-077).
+
 ### Fixed
 
 - The HTMX driver no longer reports failed requests as success. `htmx.ajax()`
