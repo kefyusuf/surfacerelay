@@ -68,6 +68,10 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Fixed
 
+- Cache confirmation approval locks both challenge and receipt addresses in a
+  consistent order. Concurrent approvals targeting the same receipt cannot
+  overwrite another approval; a failed lock acquisition leaves records unchanged.
+
 - Integrated release readiness now builds from an isolated archive of the requested
   Git revision and freshly rebuilds browser distribution there. Ignored source
   files and stale checkout distribution cannot silently enter the default

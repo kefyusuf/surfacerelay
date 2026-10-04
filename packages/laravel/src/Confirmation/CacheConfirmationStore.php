@@ -11,8 +11,8 @@ use Illuminate\Contracts\Cache\Store;
 /**
  * Laravel cache-backed confirmation authority store.
  *
- * Every read-modify-write/delete mutation occurs while holding one exact
- * per-token distributed lock. The adapter never degrades to an unlocked
+ * Every read-modify-write/delete mutation holds the exact distributed locks
+ * for all affected token addresses. The adapter never degrades to an unlocked
  * sequence. Only scalar arrays from ConfirmationRecord::toArray() are cached.
  */
 final class CacheConfirmationStore implements ConfirmationStore
@@ -59,7 +59,11 @@ final class CacheConfirmationStore implements ConfirmationStore
             throw new \InvalidArgumentException('Confirmation receipt must be addressed separately from its challenge.');
         }
 
-        return $this->withTokenLock($tokenHash, function () use ($tokenHash, $receiptHash, $now, $receiptExpiresAt): bool {
+        // A consistent order also prevents deadlock when token roles are reversed.
+        $hashes = [$tokenHash, $receiptHash];
+        sort($hashes, SORT_STRING);
+
+        return $this->withTokenLock($hashes[0], fn (): bool => $this->withTokenLock($hashes[1], function () use ($tokenHash, $receiptHash, $now, $receiptExpiresAt): bool {
             $key = $this->recordKey($tokenHash);
             $raw = $this->read($key);
             if ($raw === null) {
@@ -93,7 +97,7 @@ final class CacheConfirmationStore implements ConfirmationStore
             $this->delete($key);
             $this->write($receiptKey, $approved->toArray(), $receiptExpiresAt - $now);
             return true;
-        });
+        }));
     }
 
     public function consumeApproved(string $tokenHash, string $expectedScopeFingerprint, int $now): bool

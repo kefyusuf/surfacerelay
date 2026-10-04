@@ -92,6 +92,10 @@ Caller sends `confirmed=true`, supplies a challenge before human approval, forge
 
 **Mitigation (T-401 implemented in the Laravel reference runtime):** confirmation authority is a server-side `pending → approved → consumed/expired` state machine addressed by an opaque 32-byte random bearer token. Only SHA-256 token hashes are stored. Approval cannot rewrite the stored scope. Receipts are short-lived and single-use, and are bound to exact action ID/version, validated input, surface/binding, and relevant trusted actor/tenant/current-record/current-selection/browser-session context. Scope mismatch grants no authority and does not spend an otherwise-valid receipt; successful exact-scope consumption spends it before execution. The production cache adapter requires a shared lock-capable Laravel cache store and fails closed rather than performing an unlocked mutation. Caller input, metadata, `confirmed=true`, pending challenge IDs, and pre-materialized `human_confirmation` entries never grant authority. Approval atomically moves the record from the challenge hash to a fresh random receipt hash (proposed D-077), so a challenge ID that page script or a human has seen never becomes receipt authority, even after approval.
 
+The cache adapter locks both challenge and receipt addresses in a consistent order
+before reading or moving records. Concurrent receipt-address collisions cannot
+overwrite another approval; lock acquisition failure leaves records unchanged.
+
 ### T12 — Replay / double execution
 
 Network retries or agent retries repeat a write/external side effect.
