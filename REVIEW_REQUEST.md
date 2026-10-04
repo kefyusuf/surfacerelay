@@ -1,34 +1,34 @@
-# Review Request — T-807a live Filament + WebMCP proof
+# Review Request — T-807b approved retry on the agent path
 
-Branch `feat/t-807a-filament-live-webmcp`, top of the open stack (#23 → … → #28).
+Branch `feat/t-807b-approved-retry`, top of the open stack (#23 → … → #29).
 
 ## What changed
 
-- `packages/laravel/testbench.yaml` + `tests/Browser/*`: fixture-only real Filament 5
-  panel under `testbench serve`, reusing `FilamentOrderDemoHarness` (actor/tenant fixed
-  to `tenant-a`, no login). A `PAGE_END` render hook emits bindings from the production
-  `LivewireBindingProducer` as inert JSON inside the page component.
-- Fixture tweaks: `OrderResource` gains columns + `->selectable()`; the edit-page stub
-  view is wrapped in `<x-filament-panels::page>`; the harness exposes its registry.
-- `examples/filament-orders-live`: browser glue + Playwright on flag-enabled Chromium,
-  invoking tools through `document.modelContext.executeTool()`.
-- **Finding / D-075 (proposed):** Filament 5 syncs table selection to the server only on
-  `mountAction`; an agent call reached the server with an empty `current_selection`
-  (`required_context_missing`). The glue now pushes the Alpine selection first, as
-  Filament does.
-- New `filament-live` CI workflow.
+- `InteractsWithSurfaceRelayConfirmation` (package `src`): after modal approval the
+  receipt is kept in server-side session state keyed by the approving component's id
+  hash; protected `pullApprovedSurfaceRelayConfirmationReceipt()` returns it once.
+  Presenting a new challenge discards an unused receipt; components without an id
+  keep none. Proposed **D-076**.
+- Order demo fixture: `ListOrders` uses the trait and passes the pulled receipt to the
+  gateway; `refundSelected(reason)` signature unchanged.
+- Browser fixture: file-cache `ConfirmationService` and `FilamentConfirmationBridge`
+  so the real Filament modal opens and approval survives across requests.
 
 ## Review focus
 
-- Is pushing Alpine selection before agent calls the right authority (D-049/D-075)?
-  Server-side per-record, all-or-nothing tenant authorization is unchanged.
-- Fixture provider routes `/__test/*` and runtime file serving: fixture-only, path-pattern bound.
-- T-807b (approved retry) intentionally not implemented; needs a receipt-location decision.
+- Session-held receipt vs. D-040/D-051: receipt never a page-method argument, never in
+  public Livewire state, not browser-callable (reflection test).
+- Component-id binding: a different component cannot pull it; scope fingerprint still
+  verified at consumption.
+- T-809 (pre-existing, low): challenge id doubles as the receipt and is visible in the
+  Livewire snapshot before approval.
 
 ## Verification
 
-- `examples/filament-orders-live`: 5/5 on Filament 5.9 / Livewire 4.4 / Laravel 13.34 /
-  PHP 8.4 / Chromium 153. RED first: refund failed with `required_context_missing`,
-  edit page had no binding (stub view).
-- `packages/laravel`: PHPUnit 595 tests OK (2 skipped, unchanged).
-- `scripts/validate.py`, release guardrails, `test_laravel_release_candidate` 20/20.
+- RED first: 5/6 new PHPUnit tests errored (method missing); 3 browser tests failed
+  (no modal).
+- `packages/laravel`: PHPUnit 602 OK (2 skipped).
+- `examples/filament-orders-live`: 10/10 on Filament 5.9 / Livewire 4.4 / Laravel 13.34 /
+  PHP 8.4 / Chromium 153, including approval → exactly-once retry, selection/input drift,
+  no-approval repeat, forged confirmation fields.
+- `scripts/validate.py`.

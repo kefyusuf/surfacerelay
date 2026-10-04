@@ -8,7 +8,7 @@ Current state only. History lives in git, PRs, and
 - **Main:** `e7d61ef` — M0–M7 and T-801…T-803 merged; main CI green.
 - **Open PR stack (merge in order, owner review):** #23 T-804 plan → #24 T-804 docs →
   #25 native WebMCP proof → #26 tracking cleanup → #27 T-806 → #28 T-804 README →
-  T-807a live Filament proof.
+  #29 T-807a live Filament proof → T-807b approved retry.
 - **Release:** nothing published; no public version selected.
 
 ## What works today
@@ -25,22 +25,23 @@ Current state only. History lives in git, PRs, and
 - Native WebMCP in real Chromium (`document.modelContext`, flag-enabled):
   - HTMX fixture ([details](examples/htmx-prep-list/README.md#native-webmcp-proof));
     server rejections and unsent requests reach the agent as failures (T-806, D-074).
-  - Real Filament 5 panel ([details](examples/filament-orders-live/README.md)):
-    agent hold mutates the exact current record; agent refund over the human-visible
-    selection stops at `confirmation_required` (T-807a, D-075 selection sync).
+  - Real Filament 5 panel ([details](examples/filament-orders-live/README.md)): agent
+    hold on the current record; agent refund over the human-visible selection
+    (D-075) → Filament confirmation modal → human approves → agent retry refunds
+    exactly once (T-807a/b, D-076).
 
 ## Known gaps
 
-- Approved retry on the agent path is blocked on a design decision (T-807b).
 - HTMX tool calls return no business output on success (T-808).
+- Challenge id doubles as the receipt and is visible to page script before approval;
+  bounded by the scope fingerprint (T-809, low).
 - Chromium 153 drops `consequentialHint` from `getTools()`; consequential safety must
   keep relying on server-issued confirmation receipts.
 
 ## Needs decision
 
-- T-807b: where an approved confirmation receipt lives between approval and retry.
 - T-808: HTMX business-output convention.
-- D-074, D-075: promote to ACCEPTED or revise.
+- D-074, D-075, D-076: promote to ACCEPTED or revise.
 
 ## Publication blockers
 
@@ -50,9 +51,9 @@ Current state only. History lives in git, PRs, and
 
 ## Decisions
 
-- Accepted through D-068. Proposed: D-026, D-069…D-075
+- Accepted through D-068. Proposed: D-026, D-069…D-076
   ([register](docs/DECISION-REGISTER.md)).
 
 ## Next
 
-T-807b / T-808 after decisions → T-805. See [`TASKS.md`](TASKS.md).
+T-809 → T-808 (after decision) → T-805. See [`TASKS.md`](TASKS.md).

@@ -44,6 +44,13 @@ dates. SurfaceRelay remains experimental and unofficial.
   selection is pushed to the server before agent calls, as Filament's own
   `mountAction` does (proposed D-075). See
   [the example](examples/filament-orders-live/README.md).
+- `InteractsWithSurfaceRelayConfirmation` keeps a receipt approved in the
+  Filament modal in server-side session state for the approving component, and
+  exposes it only through protected `pullApprovedSurfaceRelayConfirmationReceipt()`,
+  once (proposed D-076). Exposed page methods can now complete an approved retry
+  without ever accepting a receipt argument. The live Filament proof covers
+  approval → exactly-once retry, selection/input drift, and forged confirmation
+  fields.
 
 ### Fixed
 
