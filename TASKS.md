@@ -29,12 +29,6 @@ returns no output (`itemId`), because D-054 forbids synthesizing output from HTM
 - Acceptance: payload only from the exact issued request; schema-invalid payload
   fails closed; no output from HTML; human path unchanged.
 
-### T-804 — Release-facing documentation — Step 5 remaining
-
-Steps 1–4 done (consumer guides, CHANGELOG, SECURITY, versioning, release checklist).
-Step 5: README links/positioning and documentation command/claim audit.
-Plan: [`docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md`](docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md).
-
 ### T-805 — Integrated release-readiness verification
 
 One revision/version input, both candidate artifacts, full regression, clean-consumer
@@ -54,4 +48,6 @@ evidence, hashes, publication go/no-go handoff. Publication itself stays outside
 | M6 HTMX portability | T-601…T-604 |
 | M7 Conformance / bridges | T-701 runner, T-702 adapter guide, T-703 Laravel MCP, T-704 OpenAPI importer |
 | M8 Release readiness | T-801 artifact contract, T-802 Laravel artifact, T-803 browser artifact |
+| M8 docs | T-804 consumer guides, CHANGELOG, SECURITY, versioning, release checklist, README |
 | Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed) |
+

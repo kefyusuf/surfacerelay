@@ -48,4 +48,5 @@ Current state only. History lives in git, PRs, and
 
 ## Next
 
-T-807 → T-808 → T-804 Step 5 → T-805. See [`TASKS.md`](TASKS.md).
+T-807 → T-808 → T-805. See [`TASKS.md`](TASKS.md).
+
