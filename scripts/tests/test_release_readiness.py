@@ -1,10 +1,14 @@
 import hashlib
 import importlib
+import io
 import json
 from pathlib import Path
 import subprocess
 import tempfile
+import tarfile
 import unittest
+from unittest.mock import patch
+import zipfile
 
 
 VERSION = "0.0.0-alpha1"
@@ -52,9 +56,11 @@ class FakeBuilder:
         self.report_revision = report_revision
         self.tamper = tamper
         self.calls: list[dict[str, str]] = []
+        self.source_files: list[str] = []
 
     def __call__(self, *, repo, stage_root, artifact_version, source_revision):
         rc = release_candidate_module()
+        self.source_files = [p.relative_to(repo).as_posix() for p in Path(repo).rglob("*") if p.is_file()]
         self.calls.append({
             "repo": str(repo),
             "stage_root": str(stage_root),
@@ -144,6 +150,129 @@ class ReleaseReadinessTest(unittest.TestCase):
 
         self.assertEqual([], laravel.calls + browser.calls)
         self.assertFalse(self.stage.exists())
+
+    def ignore_files(self, *paths):
+        (self.repo / ".gitignore").write_text("\n".join(paths) + "\n", encoding="utf-8")
+        git(self.repo, "add", ".gitignore")
+        git(self.repo, "commit", "-q", "-m", "ignore generated files")
+        self.revision = git(self.repo, "rev-parse", "HEAD")
+
+    def test_ignored_sensitive_source_is_not_visible_to_builders(self):
+        self.ignore_files("packages/laravel/src/.env")
+        secret = self.repo / "packages/laravel/src/.env"
+        secret.parent.mkdir(parents=True)
+        secret.write_text("private fixture", encoding="utf-8")
+        laravel = FakeBuilder(LARAVEL)
+
+        self.run_readiness(laravel=laravel)
+
+        self.assertNotIn("packages/laravel/src/.env", laravel.source_files)
+        self.assertTrue(secret.is_file())
+
+    def test_ignored_stale_distribution_is_not_visible_to_builders(self):
+        self.ignore_files("packages/browser-runtime/dist/")
+        stale = self.repo / "packages/browser-runtime/dist/index.js"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("stale fixture", encoding="utf-8")
+        browser = FakeBuilder(BROWSER)
+
+        self.run_readiness(browser=browser)
+
+        self.assertNotIn("packages/browser-runtime/dist/index.js", browser.source_files)
+        self.assertEqual("stale fixture", stale.read_text(encoding="utf-8"))
+
+    def test_builders_receive_one_isolated_snapshot_outside_repository_and_stage(self):
+        laravel, browser = FakeBuilder(LARAVEL), FakeBuilder(BROWSER)
+
+        self.run_readiness(laravel, browser)
+
+        source = Path(laravel.calls[0]["repo"])
+        self.assertEqual(source, Path(browser.calls[0]["repo"]))
+        self.assertNotEqual(self.repo.resolve(), source.resolve())
+        self.assertNotIn(self.repo.resolve(), source.resolve().parents)
+        self.assertNotIn(self.stage.resolve(), source.resolve().parents)
+        self.assertIn("tracked.txt", laravel.source_files)
+
+    def test_real_laravel_archive_excludes_ignored_source_secret(self):
+        from scripts.tests.test_laravel_release_candidate import LaravelReleaseCandidateArtifactContractTest
+
+        LaravelReleaseCandidateArtifactContractTest().create_source_tree(Path(self.temporary.name))
+        self.ignore_files("packages/laravel/src/.env")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-q", "-m", "tracked Laravel source")
+        self.revision = git(self.repo, "rev-parse", "HEAD")
+        secret = self.repo / "packages/laravel/src/.env"
+        secret.write_text("private fixture", encoding="utf-8")
+
+        result = self.run_readiness(laravel=readiness_module().build_laravel_release_candidate)
+
+        archive = self.stage / result["packages"][0]["archivePath"]
+        with zipfile.ZipFile(archive) as handle:
+            self.assertNotIn("src/.env", handle.namelist())
+            self.assertIn("src/Runtime/Example.php", handle.namelist())
+        self.assertTrue(secret.is_file())
+
+    def test_default_browser_builder_uses_fresh_distribution_from_archived_source(self):
+        from scripts.tests.test_browser_release_candidate import BrowserReleaseCandidateArtifactContractTest
+
+        BrowserReleaseCandidateArtifactContractTest().create_source_tree(Path(self.temporary.name))
+        self.ignore_files("packages/browser-runtime/dist/", "packages/browser-runtime/node_modules/")
+        git(self.repo, "add", ".")
+        git(self.repo, "commit", "-q", "-m", "tracked browser source")
+        self.revision = git(self.repo, "rev-parse", "HEAD")
+        command_calls = []
+
+        def command(command, *, cwd):
+            command_calls.append((command, cwd))
+            self.assertNotEqual(self.repo / "packages/browser-runtime", cwd)
+            self.assertEqual("export const sourceOnly = true;\n", (cwd / "src/index.ts").read_text())
+            self.assertFalse((cwd / "dist").exists())
+            if command == ["npm", "run", "build"]:
+                (cwd / "dist").mkdir()
+                (cwd / "dist/index.js").write_text("export const fresh = true;\n")
+                (cwd / "dist/index.d.ts").write_text("export declare const fresh: boolean;\n")
+
+        def pack(package, stage):
+            archive = stage / "candidate.tgz"
+            with tarfile.open(archive, "w:gz") as handle:
+                for path in sorted(package.rglob("*")):
+                    if path.is_file():
+                        handle.add(path, arcname="package/" + path.relative_to(package).as_posix())
+            return archive
+
+        with patch("scripts.release_readiness._run_consumer_command", side_effect=command), patch(
+            "scripts.browser_release_candidate._run_npm_pack", side_effect=pack
+        ):
+            result = self.run_readiness(browser=readiness_module().build_browser_release_candidate)
+
+        self.assertEqual([["npm", "ci", "--ignore-scripts"], ["npm", "run", "build"]], [c[0] for c in command_calls])
+        self.assertEqual(command_calls[0][1], command_calls[1][1])
+        self.assertEqual("export const fresh = true;\n", (self.stage / "browser-runtime/package/dist/index.js").read_text())
+        self.assertEqual(self.revision, result["sourceRevision"])
+        self.assertIn("DriverRegistry", (self.repo / "packages/browser-runtime/dist/index.js").read_text())
+
+    def test_browser_build_failure_prevents_readiness_evidence(self):
+        module = readiness_module()
+        with patch("scripts.release_readiness._run_consumer_command", side_effect=module.ReleaseReadinessError("fixture build failed")):
+            with self.assertRaisesRegex(module.ReleaseReadinessError, "fixture build failed"):
+                self.run_readiness(browser=module.build_browser_release_candidate)
+
+        self.assertFalse((self.stage / "readiness-evidence.json").exists())
+
+    def test_source_archive_rejects_links_special_files_and_escaping_paths(self):
+        for name, kind in (("../escape", tarfile.REGTYPE), ("/absolute", tarfile.REGTYPE),
+                           ("C:/escape", tarfile.REGTYPE), ("dir\\escape", tarfile.REGTYPE),
+                           ("link", tarfile.SYMTYPE), ("hard", tarfile.LNKTYPE), ("fifo", tarfile.FIFOTYPE)):
+            with self.subTest(name=name):
+                archive = Path(self.temporary.name) / "unsafe.tar"
+                with tarfile.open(archive, "w") as handle:
+                    member = tarfile.TarInfo(name)
+                    member.type = kind
+                    member.linkname = "../escape"
+                    member.size = 1 if kind == tarfile.REGTYPE else 0
+                    handle.addfile(member, io.BytesIO(b"x") if member.size else None)
+                with self.assertRaises(readiness_module().ReleaseReadinessError):
+                    readiness_module()._extract_source_archive(archive, Path(self.temporary.name) / "source")
 
     def test_revision_mismatch_is_rejected_before_any_build(self):
         laravel = FakeBuilder(LARAVEL)

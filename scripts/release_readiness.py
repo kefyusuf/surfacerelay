@@ -12,11 +12,16 @@ from __future__ import annotations
 from collections.abc import Callable
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import shutil
+import subprocess
+import tarfile
+import tempfile
 
 from scripts.browser_release_candidate import (
     PACKAGE_NAME as BROWSER_PACKAGE_NAME,
     build_browser_release_candidate,
+    _run_consumer_command,
 )
 from scripts.laravel_release_candidate import (
     PACKAGE_NAME as LARAVEL_PACKAGE_NAME,
@@ -51,6 +56,57 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _extract_source_archive(archive: Path, source: Path) -> None:
+    """Extract regular Git archive entries without accepting links or escapes."""
+    with tarfile.open(archive, "r:") as handle:
+        for member in handle.getmembers():
+            relative = PurePosixPath(member.name)
+            if (
+                relative.is_absolute()
+                or ".." in relative.parts
+                or "\\" in member.name
+                or ":" in member.name
+                or not (member.isfile() or member.isdir())
+            ):
+                raise ReleaseReadinessError("source archive contains an unsafe entry")
+            target = resolve_staging_path(source, member.name)
+            if member.isdir():
+                target.mkdir(parents=True, exist_ok=True)
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                content = handle.extractfile(member)
+                if content is None:
+                    raise ReleaseReadinessError("source archive file has no content")
+                with content, target.open("xb") as output:
+                    shutil.copyfileobj(content, output)
+                target.chmod(member.mode & 0o777)
+
+
+def _archive_source(repo: Path | str, revision: str, temporary: Path) -> Path:
+    archive = temporary / "source.tar"
+    source = temporary / "source"
+    source.mkdir()
+    try:
+        subprocess.run(
+            ["git", "-C", str(repo), "archive", "--format=tar", f"--output={archive}", revision],
+            check=True,
+            capture_output=True,
+        )
+        _extract_source_archive(archive, source)
+    except (OSError, subprocess.CalledProcessError, tarfile.TarError) as exc:
+        raise ReleaseReadinessError("could not create an isolated source revision archive") from exc
+    return source
+
+
+def _rebuild_browser_distribution(source: Path) -> None:
+    package = source / "packages" / "browser-runtime"
+    distribution = package / "dist"
+    if distribution.exists():
+        shutil.rmtree(distribution)
+    _run_consumer_command(["npm", "ci", "--ignore-scripts"], cwd=package)
+    _run_consumer_command(["npm", "run", "build"], cwd=package)
 
 
 def _regular_file_under(stage: Path, candidate: str, *, label: str) -> Path:
@@ -158,25 +214,29 @@ def build_release_readiness(
 
     builders = {"laravel": laravel_builder, "browser-runtime": browser_builder}
     packages = []
-    for stage_name, package_name in _CANDIDATES:
-        candidate_stage = resolve_staging_path(stage, stage_name)
-        try:
-            result = builders[stage_name](
-                repo=repo,
-                stage_root=candidate_stage,
-                artifact_version=version,
-                source_revision=revision,
-            )
-        except ReleaseCandidateContractError as exc:
-            raise ReleaseReadinessError(f"{package_name} candidate build failed: {exc}") from exc
+    with tempfile.TemporaryDirectory(prefix="surfacerelay-readiness-") as directory:
+        source = _archive_source(repo, revision, Path(directory))
+        for stage_name, package_name in _CANDIDATES:
+            candidate_stage = resolve_staging_path(stage, stage_name)
+            try:
+                if stage_name == "browser-runtime" and browser_builder is build_browser_release_candidate:
+                    _rebuild_browser_distribution(source)
+                result = builders[stage_name](
+                    repo=source,
+                    stage_root=candidate_stage,
+                    artifact_version=version,
+                    source_revision=revision,
+                )
+            except ReleaseCandidateContractError as exc:
+                raise ReleaseReadinessError(f"{package_name} candidate build failed: {exc}") from exc
 
-        packages.append(_verify_candidate(
-            stage=candidate_stage,
-            result=result,
-            package_name=package_name,
-            version=version,
-            revision=revision,
-        ))
+            packages.append(_verify_candidate(
+                stage=candidate_stage,
+                result=result,
+                package_name=package_name,
+                version=version,
+                revision=revision,
+            ))
 
     readiness = {
         "schemaVersion": 1,
