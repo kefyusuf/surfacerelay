@@ -1,34 +1,34 @@
-# Post-merge Readiness Review Request
+# Alpha Preparation Review Request
 
-Branch: `docs/t-805-merged-main-readiness`.
-[PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) merged after the owner's
-conditional approval, 40 successful reviewed-head checks and no open review threads.
+Branch: `release/t-901-alpha-scope-candidates`.
+Task: T-901, owner-selected `0.1.0-alpha.1` scope freeze and local candidate baseline.
 
-## Change
+## Change and evidence
 
-This documentation-only handoff records [merged-main readiness evidence](docs/reviews/merged-main-readiness.md)
-and closes T-805 integration tracking. No executable code, package metadata,
-schemas, decision statuses or repository settings change.
+[The alpha plan](docs/releases/0.1.0-alpha.1.md) freezes the Laravel/browser pair,
+defines finite T-901–T-904 gates and the next installed-application acceptance
+matrix. README, compatibility and tracking now distinguish selected target from
+publication approval. No executable code, source package metadata or decision
+status changes.
 
-From the exact merge revision, default builders rebuilt both candidates; both
-archives passed isolated clean-consumer proofs. Ignored source and stale dist
-sentinels were excluded and preserved. Docker Python tooling: 158 tests pass;
-canonical validation includes 22 HTMX fixtures. Publication guardrails pass.
-Main CI: 20 successful checks, including Filament 16/16.
-
-The evidence report records revision, runtimes, archive sizes/hashes, manifests,
-local retained evidence location and proof limits. Full logs and candidates were
-saved before the task container/network were removed; pre-existing images remain.
+[Candidate evidence](docs/reviews/alpha-0.1.0-alpha.1-candidates.md) records the
+exact merged baseline, environment, archive/manifest hashes and retained logs.
+Both actual alpha archives passed installed-identity and clean-consumer proofs.
+Docker Python: 158 tests; canonical validation: 22 HTMX fixtures; guardrails pass.
+Sentinel exclusion/preservation and copied hashes passed. Independent source
+review found no blockers. Check this branch's CI before merge.
 
 ## Review boundary
 
-- Confirm the retained evidence and recorded hashes match the tested revision.
-- Local Laravel smoke is PHP 8.4/Laravel 13 with fixture-only policy stages;
-  CI artifact installation covers the four existing matrix legs.
-- Existing runtime qualification limits from [the integration review](docs/reviews/integration-pr-34.md)
-  remain. This is artifact evidence, not production-security approval.
-- Owner Composer lockfiles are preserved and excluded. Check this branch's CI.
+- Candidates belong to the recorded baseline, not a later source revision.
+- The browser candidate remains `private: true`; M8 tooling always reports NO-GO.
+  Its default version-approval blocker does not model the recorded owner selection.
+- Local ActionBus smoke uses pass-through fixture policies; T-902 actual
+  application authentication/tenant/concurrency acceptance is still pending.
+- Private reporting is disabled; registry authority/credentials remain unverified.
+- Owner lockfiles remain excluded. Logs/candidates were retained before task
+  container/network cleanup; pre-existing images and other resources remain.
 
-Publication remains NO-GO. Formal decision promotion, private reporting, registry
-authority/credentials and public-version/publication approval remain separate gates.
-No next feature is selected; the new documentation PR needs separate review/merge.
+Next task: T-902 after this handoff. T-903 prepares publication eligibility through
+reviewed work; T-904 needs explicit final publication authorization. Settings,
+formal decision promotion, tags/releases and registry publication remain gated.

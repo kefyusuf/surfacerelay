@@ -2,7 +2,11 @@
 
 SurfaceRelay is experimental and unofficial. This document separates implemented
 version contracts and executable evidence from a proposed future release policy.
-It does not select a public package version or promise registry availability.
+It does not promise registry availability or authorize publication.
+
+The owner-selected first alpha target is `0.1.0-alpha.1`. Its
+[preparation plan](releases/0.1.0-alpha.1.md) freezes scope and acceptance gates;
+target selection does not authorize publication or promote the proposed policy.
 
 ## Implemented version identities
 
