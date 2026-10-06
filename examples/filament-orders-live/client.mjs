@@ -39,13 +39,23 @@ class FilamentSelectionSyncingDriver {
   constructor(inner, selectionBindings) {
     this.inner = inner;
     this.selectionBindings = selectionBindings;
+    this.pendingComponents = new Set();
   }
 
-  execute(binding, input, context) {
-    if (this.selectionBindings.has(binding)) {
-      syncFilamentTableSelection(binding.target.componentId);
+  async execute(binding, input, context) {
+    const componentId = binding.target.componentId;
+    if (this.pendingComponents.has(componentId)) {
+      throw new Error('A SurfaceRelay invocation is already pending for this Filament component.');
     }
-    return this.inner.execute(binding, input, context);
+    this.pendingComponents.add(componentId);
+    try {
+      if (this.selectionBindings.has(binding)) {
+        syncFilamentTableSelection(componentId);
+      }
+      return await this.inner.execute(binding, input, context);
+    } finally {
+      this.pendingComponents.delete(componentId);
+    }
   }
 }
 

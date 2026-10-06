@@ -19,6 +19,7 @@ It is a fixture, not a starter app. The trusted actor and tenant are fixed to `t
 | Agent adds `confirmed: true` or `confirmationReceipt` | Rejected by the Livewire driver before any request. |
 | Human ticks and unticks, agent calls refund | Fails closed (no trusted selection). |
 | Table missing, ambiguous, foreign-owned or malformed after approval | Retry rejected before a Livewire request; stale server selection cannot execute. |
+| Agent calls overlap on one component with different selections | Second call rejected before sync; first request retains its selection and cannot reuse the older approval. |
 | Agent adds `orderIds: [201, 202]` | Rejected by the Livewire driver before any request. |
 
 ## Selection sync (finding)
@@ -33,8 +34,13 @@ ambiguous, foreign-owned or malformed table state stops before the page method c
 reuse an older server selection. The edit-page current-record action does not
 require a table. This grants no new authority; the server still resolves selected
 records and authorizes every record against the trusted tenant, all-or-nothing.
-Proposed as D-075. Browser proofs use sequential invocations; independent selection
-snapshots for concurrent calls are not qualified by this fixture.
+Proposed as D-075. The wrapper admits one invocation per component until its exact
+inner promise settles. An overlapping invocation, including another binding on
+that component, is rejected before selection writes; it is not queued or retried.
+Different components can proceed independently. Validation and execution failures
+release the guard. This prevents wrapper calls from overwriting each other's
+deferred selection; unrelated human/Livewire calls remain host behavior, and this
+is not a general UI concurrency guarantee.
 
 ## Approved retry (T-807b)
 

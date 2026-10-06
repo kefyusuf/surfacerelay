@@ -32,7 +32,7 @@ start another feature or merge automatically.
 | M8 docs | T-804 consumer guides, CHANGELOG, SECURITY, versioning, release checklist, README |
 | T-809 review correction | Sorted challenge/receipt locks; three negative regressions; Docker Laravel 611 tests (2 skipped), canonical validation and independent real-store reproduction pass |
 | T-807b review evidence | Actual receipt absent from public state/Livewire snapshot; protected browser call refused without pulling session receipt; mutation controls, Docker 612 tests (2 skipped) and independent review pass |
-| T-807a review correction | Missing/ambiguous/foreign/malformed table selection stops before retry; real old-client RED refunded stale order, corrected Chrome + Docker Filament 14 tests, independent 17-case guard matrix and canonical validation pass |
+| T-807a review correction | Table-state guards and component-wide overlap exclusion prevent stale/overwritten selection; real RED before fixes, Chrome + Docker Filament 15 tests, independent guard matrices and canonical validation pass |
 | T-808 review correction | Deferred confirmation remains unknown outcome; owner-approved value envelope isolates business control keys; RED first, Docker browser 398 tests/typecheck, 22 shared schema fixtures, real HTMX 14 tests and independent review pass |
 | Post-M8 WebMCP | native `document.modelContext` proof; T-806 HTMX request-failure reporting (D-074 proposed); T-807a live Filament panel proof + selection sync (D-075 proposed); T-807b approved retry on the agent path (D-076 proposed); T-809 distinct confirmation receipt (D-077 proposed); T-808 HTMX business output via `HX-Trigger` (D-078 proposed) |
 

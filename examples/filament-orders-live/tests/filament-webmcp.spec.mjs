@@ -141,6 +141,63 @@ test('selection drift after approval requires a new confirmation and refunds not
   expect(await refundedIds(request)).toEqual([]);
 });
 
+test('overlapping agent calls cannot replace an in-flight selection with an approved older selection', async ({ page, request }) => {
+  await page.goto('/admin/orders');
+  await waitForSurfaceRelay(page);
+  await recordCheckbox(page, 101).check();
+  await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+  await approveInModal(page);
+
+  const invocationBodies = [];
+  page.on('request', (request) => {
+    if (request.method() === 'POST') invocationBodies.push(JSON.parse(request.postData()));
+  });
+
+  const outcomes = await page.evaluate(async () => {
+    const tool = (await document.modelContext.getTools()).find((tool) => tool.name === 'orders.refund_selected.v1');
+    const tableElement = document.querySelector('[x-data^="filamentTable("]');
+    const table = Alpine.$data(tableElement);
+    const componentId = tableElement.closest('[wire\\:id]').getAttribute('wire:id');
+    const wire = Livewire.find(componentId);
+    let resolveSynced;
+    const synced = new Promise((resolve) => { resolveSynced = resolve; });
+    const unwatch = wire.$watch('selectedTableRecords', () => resolveSynced());
+    const invoke = async () => {
+      try {
+        const result = await document.modelContext.executeTool(tool, JSON.stringify({ reason: 'customer-request' }));
+        return { status: 'returned', value: JSON.parse(result) };
+      } catch {
+        return { status: 'threw' };
+      }
+    };
+    try {
+      table.selectedRecords = new Set(['102']);
+      const first = invoke();
+      await synced;
+      table.selectedRecords = new Set(['101']);
+      const second = invoke();
+      return await Promise.all([first, second]);
+    } finally {
+      unwatch();
+    }
+  });
+
+  expect(outcomes[0]).toEqual({ status: 'returned', value: { status: 'confirmation_required' } });
+  expect(outcomes[1].status).toBe('threw');
+  const invocationComponents = invocationBodies.flatMap((body) => body.components)
+    .filter((component) => component.calls.some((call) => call.method === 'refundSelected'));
+  expect(invocationComponents).toHaveLength(1);
+  expect(invocationComponents[0].updates).toMatchObject({ 'selectedTableRecords.0': '102' });
+  expect(await refundedIds(request)).toEqual([]);
+  let subsequentPosts = 0;
+  page.on('request', (request) => {
+    if (request.method() === 'POST') subsequentPosts++;
+  });
+  await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+  expect(subsequentPosts).toBe(1);
+  expect(await refundedIds(request)).toEqual([]);
+});
+
 for (const state of ['missing', 'ambiguous', 'foreign', 'malformed']) {
   test(`${state} table selection after approval refuses retry before sending the stale selection`, async ({ page, request }) => {
     await page.goto('/admin/orders');
@@ -174,6 +231,15 @@ for (const state of ['missing', 'ambiguous', 'foreign', 'malformed']) {
     expect(retry.status).toBe('threw');
     expect(invocations).toBe(0);
     expect(await refundedIds(request)).toEqual([]);
+    if (state === 'malformed') {
+      await page.evaluate(() => {
+        Alpine.$data(document.querySelector('[x-data^="filamentTable("]')).selectedRecords = new Set(['101']);
+      });
+      const validRetry = await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+      expect(validRetry.status).toBe('returned');
+      expect(validRetry.value).toMatchObject({ refundedCount: 1, orderIds: [101] });
+      expect(await refundedIds(request)).toEqual([101]);
+    }
   });
 }
 
@@ -212,6 +278,8 @@ test('caller-supplied confirmation fields are rejected before reaching the serve
     const outcome = await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request', ...forged });
     expect(outcome.status).toBe('threw');
   }
+  const legitimate = await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+  expect(legitimate).toEqual({ status: 'returned', value: { status: 'confirmation_required' } });
   expect(await refundedIds(request)).toEqual([]);
 });
 
