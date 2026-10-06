@@ -6,18 +6,28 @@ one-line entry; full history is in
 
 ## Open
 
-### T-903 — Publication eligibility preparation — NEXT
+### T-904 — First alpha publication — IN PROGRESS
 
-Scope and gates: follow [the alpha plan](docs/releases/0.1.0-alpha.1.md), review
-applicable decisions/migration notes, security intake and registry authority,
-then prepare reviewed publication metadata/tooling and dry-run evidence.
-Settings, formal decision promotion and T-904 publication require their explicit
-owner authorization. Do not begin automatically after T-902.
+The owner authorized completion of `0.1.0-alpha.1` for Laravel/browser only,
+including integration, final mirror update/tags and public registry writes using
+interactive owner sessions/2FA. Integrate the reviewed preparation stack; freeze
+one final source revision, generate separate final public packages with reviewed
+metadata/README, and verify their hashes, isolated consumers and current-head CI.
+Preserve private candidate builders and their NO-GO behavior. No new runtime scope.
+
+Verification: final artifact negative tests and full Python suite;
+`python scripts/validate.py`, `python scripts/check_release_guardrails.py`;
+strict Composer validation, npm pack inventory, browser root import/typecheck/
+bundle/smoke/deep-import rejection, Laravel installed application acceptance.
+Review final artifacts/source mapping before publishing; then verify exact-version
+registry-installed consumers and retain durable release evidence. Stop on a
+blocking finding or changed scope. Device 2FA ceremonies require owner interaction.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Publication preparation | T-903 metadata/dry-runs, mirror provenance, private intake/decision dispositions and kefyusuf browser/CLI owner authority verified; owner approved interactive 2FA route, deferring unattended scoped-token/OIDC provisioning |
 | Alpha preparation | T-901 scope/candidates verified; T-902 installed Laravel alpha: 11 HTTP tests, Gate mutation, two-process receipt/key races, Python/canonical/guardrails pass; [evidence](docs/reviews/alpha-installed-application.md); publication NO-GO |
 | M0 Contract foundation | schemas, fixtures, validator |
 | M1 / M1.1 Laravel kernel + hardening | ActionBus, policies, tenancy |

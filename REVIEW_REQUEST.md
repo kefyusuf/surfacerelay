@@ -1,32 +1,58 @@
-# Installed Alpha Application Review Request
+# Alpha Preparation and Distribution Mirror Review Request
 
-Branch: `test/t-902-installed-app-acceptance`.
-Task: T-902. Base: `release/t-901-alpha-scope-candidates`, open [PR #36](https://github.com/kefyusuf/surfacerelay/pull/36).
+Branch: `release/t-903-publication-preview`.
+Task: T-903 completion, on [PR #38](https://github.com/kefyusuf/surfacerelay/pull/38), stacked on #37/#36; T-904 publication is the next integration step.
 
 ## Change and evidence
 
-The isolated application installs the actual Laravel alpha ZIP, rather than a
-path package. It uses Laravel session Auth/Eloquent, database tenant membership,
-Gate, package validation/confirmation/idempotency/output stages and durable audit.
-Eleven HTTP tests cover the alpha negative matrix. Independent processes share
-SQLite WAL/file-cache locks; a test-only barrier precedes dispatch and effect
-counts prove receipt/key races do not duplicate execution.
+The local metadata preview tool rechecks both archives and always reports NO-GO.
+Its isolated npm/Composer dry-runs and 11 tests pass; existing Python suite has
+176 tests. Development manifests/private builders and runtime contracts remain
+unchanged.
 
-The Gate-bypass mutation produces the expected denied-actor test failure; the
-restored fixture passes. Independent test review tightened exact rejection
-codes, correlation-specific audit, safe replay output and binding rejection.
-Docker Python 159 tests, canonical validation/22 HTMX fixtures, guardrails,
-fixture PHP syntax and diff checks pass. See [evidence and reproduction](docs/reviews/alpha-installed-application.md).
-The new CI job rebuilds a local alpha from an exact source archive and repeats
-the HTTP acceptance. Check this branch's current-head CI before merge.
+The owner explicitly approved the proposed Laravel distribution mirror approach,
+GitHub private reporting/intake ownership and the disposition table. Private
+reporting was enabled and read back as true. SECURITY.md now documents the private
+channel, owner triage and lack of a response SLA; no synthetic report was sent.
 
-## Review boundary
+D-069–D-074 and D-076–D-078 become Accepted; D-026/D-075 remain Proposed.
+ADR 0013 records the approved distribution boundary without splitting development
+and the distribution-only remote. Current handoff/versioning/changelog are consistent.
+Review the source diff and updated CI before merge.
 
-- No production runtime, public contract, package metadata or decision promotion.
-- Fixture approval, binding controls, observer and barrier are test-only.
-- This proves the fixture HTTP host, not browser UI, native agents, production
-  operation, concurrent session writes or every scope field in isolation.
-- The two owner lockfiles remain excluded. PR #36 must land before this stacked
-  branch can be merged to main. Publication remains NO-GO.
-- T-903/T-904 are future scopes; settings, registry writes, tags and final release
-  still need their applicable owner authorization.
+Local mirror preparation reuses verified two-archive metadata rules and produces
+a root Composer tree plus separate upstream/archive/content mapping evidence.
+Six new tests include a RED/GREEN Windows newline regression; transformed files
+now use UTF-8/LF. Actual alpha archives pass strict Composer validation; CI also
+generates and validates a tree from exact current-head sources. The generator
+does not initialize Git or create remotes; local mapping retains null fields/NO-GO.
+
+The owner separately authorized public `kefyusuf/surfacerelay-laravel` creation and
+the initial untagged push. Its remote commit/tree were fetched and match all 160
+reviewed file hashes; strict root Composer validation passes. See
+[durable source/commit provenance](docs/reviews/laravel-distribution-mirror.json).
+No tags or preparation evidence were pushed to that mirror.
+
+## Limits and remaining gates
+
+[Owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) separates applied
+approvals and verified initial mirror mapping from pending registry authority.
+Chrome confirms Packagist account `kefyusuf` is authenticated; mirror `Check`
+recognizes `surfacerelay/laravel` and offers final Submit, which was not performed.
+With explicit approval, the free public
+`surfacerelay` npm organization exists. After the owner transferred it, Chrome
+verifies `kefyusuf` as sole Owner with 2FA enabled for authorization and publishing.
+The previous isolated CLI session belongs to `yukonit` and must not be used for
+the new publisher. Fresh isolated login and registry whoami/org ls verify
+`kefyusuf` and its Owner role after device security-key authentication.
+No credential contents appear in project evidence. No scoped-token/OIDC claim.
+The mirror contains the T-901 preparation baseline, not final release sources.
+Preview blockers remain conservative defaults and do not query these live settings.
+No package registration/publication, tag, final artifact or merge occurred.
+
+The owner authorized completion of the two-package alpha publication with
+interactive owner sessions/2FA; unattended token/OIDC provisioning is deferred.
+T-903 is complete; 17 focused preparation tests pass. T-904 is active.
+Independent review identifies the need for separate final
+public artifact/consumer verification; preview trees must not be published.
+Both owner Composer lockfiles remain excluded.

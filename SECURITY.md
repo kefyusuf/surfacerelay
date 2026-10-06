@@ -9,21 +9,26 @@ Re-check release status and this policy before adopting a candidate.
 
 ## Reporting a vulnerability
 
-**A private reporting channel is not currently established.** GitHub private
-vulnerability reporting was checked read-only on 2026-10-04 for
-`kefyusuf/surfacerelay` and returned `enabled: false`. This dated observation can
-change; it is not a promise of future channel availability.
+GitHub private vulnerability reporting is enabled for `kefyusuf/surfacerelay`.
+The owner authorized activation on 2026-10-06; the setting was applied and
+rechecked through the GitHub API (`enabled: true`).
+
+Use the repository's [Security advisories page](https://github.com/kefyusuf/surfacerelay/security/advisories)
+and select **Report a vulnerability**. See [GitHub's private reporting instructions](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately).
 
 Do not put sensitive vulnerability details, exploit instructions, credentials,
 customer data, or private logs in public issues, pull requests, or discussions.
-This repository does not designate an alternative private email address, form,
-or disclosure channel. Retain sensitive details privately until a verified
-private channel is established and documented here.
+The repository owner, `kefyusuf`, is responsible for checking this intake and
+coordinating private triage. Reports should identify the affected version and
+provide a minimal reproducer, impact and relevant trust boundary; exclude
+unnecessary credentials or customer data. The owner reviews scope privately,
+coordinates a tested correction with the reporter and decides disclosure timing.
+No response-time SLA or fixed public disclosure deadline is promised.
 
-Establishing and verifying a private intake channel is a **publication blocker**.
-Repository settings, contact ownership and a disclosure process require separate
-authorized work; writing this document does not enable them. No public disclosure
-timeline or coordinated-disclosure commitment is defined yet.
+No alternative private email/form is designated. If the reporting option is
+unavailable, retain details privately; a public issue may request a contact but
+must not contain the vulnerability details. Activation is verified, but no test
+report was submitted and notification delivery has not been independently tested.
 
 ## Application integration responsibilities
 
