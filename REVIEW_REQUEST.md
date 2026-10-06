@@ -1,34 +1,32 @@
-# Alpha Preparation Review Request
+# Installed Alpha Application Review Request
 
-Branch: `release/t-901-alpha-scope-candidates`.
-Task: T-901, owner-selected `0.1.0-alpha.1` scope freeze and local candidate baseline.
+Branch: `test/t-902-installed-app-acceptance`.
+Task: T-902. Base: `release/t-901-alpha-scope-candidates`, open [PR #36](https://github.com/kefyusuf/surfacerelay/pull/36).
 
 ## Change and evidence
 
-[The alpha plan](docs/releases/0.1.0-alpha.1.md) freezes the Laravel/browser pair,
-defines finite T-901–T-904 gates and the next installed-application acceptance
-matrix. README, compatibility and tracking now distinguish selected target from
-publication approval. No executable code, source package metadata or decision
-status changes.
+The isolated application installs the actual Laravel alpha ZIP, rather than a
+path package. It uses Laravel session Auth/Eloquent, database tenant membership,
+Gate, package validation/confirmation/idempotency/output stages and durable audit.
+Eleven HTTP tests cover the alpha negative matrix. Independent processes share
+SQLite WAL/file-cache locks; a test-only barrier precedes dispatch and effect
+counts prove receipt/key races do not duplicate execution.
 
-[Candidate evidence](docs/reviews/alpha-0.1.0-alpha.1-candidates.md) records the
-exact merged baseline, environment, archive/manifest hashes and retained logs.
-Both actual alpha archives passed installed-identity and clean-consumer proofs.
-Docker Python: 158 tests; canonical validation: 22 HTMX fixtures; guardrails pass.
-Sentinel exclusion/preservation and copied hashes passed. Independent source
-review found no blockers. Check this branch's CI before merge.
+The Gate-bypass mutation produces the expected denied-actor test failure; the
+restored fixture passes. Independent test review tightened exact rejection
+codes, correlation-specific audit, safe replay output and binding rejection.
+Docker Python 159 tests, canonical validation/22 HTMX fixtures, guardrails,
+fixture PHP syntax and diff checks pass. See [evidence and reproduction](docs/reviews/alpha-installed-application.md).
+The new CI job rebuilds a local alpha from an exact source archive and repeats
+the HTTP acceptance. Check this branch's current-head CI before merge.
 
 ## Review boundary
 
-- Candidates belong to the recorded baseline, not a later source revision.
-- The browser candidate remains `private: true`; M8 tooling always reports NO-GO.
-  Its default version-approval blocker does not model the recorded owner selection.
-- Local ActionBus smoke uses pass-through fixture policies; T-902 actual
-  application authentication/tenant/concurrency acceptance is still pending.
-- Private reporting is disabled; registry authority/credentials remain unverified.
-- Owner lockfiles remain excluded. Logs/candidates were retained before task
-  container/network cleanup; pre-existing images and other resources remain.
-
-Next task: T-902 after this handoff. T-903 prepares publication eligibility through
-reviewed work; T-904 needs explicit final publication authorization. Settings,
-formal decision promotion, tags/releases and registry publication remain gated.
+- No production runtime, public contract, package metadata or decision promotion.
+- Fixture approval, binding controls, observer and barrier are test-only.
+- This proves the fixture HTTP host, not browser UI, native agents, production
+  operation, concurrent session writes or every scope field in isolation.
+- The two owner lockfiles remain excluded. PR #36 must land before this stacked
+  branch can be merged to main. Publication remains NO-GO.
+- T-903/T-904 are future scopes; settings, registry writes, tags and final release
+  still need their applicable owner authorization.

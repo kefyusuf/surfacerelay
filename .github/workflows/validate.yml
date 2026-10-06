@@ -5,6 +5,60 @@ on:
   pull_request:
 
 jobs:
+  installed-alpha-application:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, sqlite3, zip
+          tools: composer:v2
+          coverage: none
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Verify cleanup after an HTTP server exits
+        run: python -m unittest scripts.tests.test_alpha_application_cleanup -v
+      - name: Build an exact-source local alpha archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          git diff --cached --exit-code
+          mkdir -p "$RUNNER_TEMP/t902-source"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/t902-source"
+          PYTHONPATH="$RUNNER_TEMP/t902-source" python - <<'PY'
+          import os, subprocess
+          from pathlib import Path
+          from scripts.laravel_release_candidate import build_laravel_release_candidate
+          build_laravel_release_candidate(
+              repo=Path(os.environ['RUNNER_TEMP']) / 't902-source',
+              stage_root=Path(os.environ['RUNNER_TEMP']) / 't902-artifact',
+              artifact_version='0.1.0-alpha.1',
+              source_revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip())
+          PY
+      - name: Exercise installed application authorization and shared-store concurrency
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact="$RUNNER_TEMP/t902-artifact/surfacerelay-laravel-0.1.0-alpha.1.zip"
+          python scripts/laravel_alpha_acceptance.py \
+            --artifact "$artifact" --sha256 "$(sha256sum "$artifact" | cut -d ' ' -f 1)" \
+            --source-revision "$(git rev-parse HEAD)" \
+            --consumer "$RUNNER_TEMP/t902-consumer" --evidence "$RUNNER_TEMP/t902-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installed-alpha-application-evidence
+          path: ${{ runner.temp }}/t902-evidence/application-acceptance.json
+          if-no-files-found: warn
+
   contract:
     runs-on: ubuntu-latest
     steps:
