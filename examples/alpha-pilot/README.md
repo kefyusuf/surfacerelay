@@ -10,6 +10,40 @@ trusted execution pipeline; it is not a Livewire/Filament integration proof,
 production application, payment processor or native-agent certification.
 Refunds only insert effects in a disposable SQLite database.
 
+T-905 acceptance is agent-led. The manual steps below are optional reproduction
+instructions, not a requirement for the owner to operate every test.
+
+## Agent-led order checkout and separate 3D simulation
+
+The explicitly registered `pilot.orders.pay` tool accepts only
+`{"method":"test-card"}`. The server resolves the current order, membership,
+payment permission and fixed simulated amount (1999 minor units, TRY). A caller
+cannot supply code, receipt, confirmation flags or payment authority to the tool.
+
+The first call requires confirmation and exposes a separate local 3D page link
+in the order desk. The agent follows that visible link; the page has a code
+field. Disposable `111111` is wrong, `123456` is correct. Three incorrect codes
+fail the flow. Pending flows expire after three minutes. Correct-code verification
+creates no payment; it issues a real runtime confirmation receipt encrypted in
+server-owned storage. The agent returns to the order desk, discovers the fresh
+document-bound tool, and retries. Receipt scope and current authorization are
+rechecked, and the normal installed-package pipeline executes the simulated
+payment. A replay must return the safe completed result without another effect.
+
+Use **Start new simulated checkout** only to deliberately start a separate test
+intent. Ordinary retries preserve the server-owned flow and idempotency key.
+This is exactly-once evidence for a checkout flow; it is not a complete commerce
+domain or a claim that arbitrary new flows cannot pay the same seeded record.
+
+The correct code is deliberately public fixture data, so the agent may enter it
+for these tests. A real bank challenge, real SMS code or real human approval
+cannot be replaced by this simulation. There is no bank/SMS/card integration.
+Expired or failed flow retries reject execution; the tool bridge can present a
+generic invocation error. **Refresh checkout status** reports the safe current
+flow state; an invocation error alone must never be interpreted as payment success.
+
+See [executed acceptance and timing limits](../../docs/reviews/t905-checkout-acceptance.md).
+
 ## Start and stop
 
 From the repository root in PowerShell:
@@ -106,6 +140,7 @@ Inside the running app container:
 
 ```powershell
 & $docker compose -p surfacerelay-t905-pilot -f examples/alpha-pilot/compose.yml exec app python3 tests/pilot_acceptance.py
+& $docker compose -p surfacerelay-t905-pilot -f examples/alpha-pilot/compose.yml exec app python3 tests/checkout_acceptance.py
 & $docker compose -p surfacerelay-t905-pilot -f examples/alpha-pilot/compose.yml exec app node --test tests/pilot_ui.test.mjs
 ```
 
@@ -115,6 +150,8 @@ so session changes cannot hide unauthorized side effects. Node checks use the
 real published runtime with a deterministic DOM/HTTP stub; they are not browser
 or native WebMCP evidence. The CI pilot job uses a separate disposable database
 and a five-second TTL.
+The checkout suite adds twelve real HTTP/state checks, including a real receipt
+expiry wait, two-worker completion replay and a deterministic stale-expiry race.
 
 ## Feedback format
 

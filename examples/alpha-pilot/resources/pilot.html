@@ -35,7 +35,16 @@
     <button id="replay">Repeat last request with the same key</button>
     <p>Repeat must return the same result without adding another effect. Receipts remain in page memory and are never printed in the result panel.</p>
   </section>
-  <section><h2>4. Negative checks</h2>
+  <section><h2>4. Simulated order checkout</h2>
+    <p>Pay the current server-selected order with a disposable test card. No money moves and no bank is connected.</p>
+    <button id="checkout-new">Start new simulated checkout</button>
+    <button id="checkout-retry">Retry / complete payment action</button>
+    <button id="checkout-refresh">Refresh checkout status</button>
+    <pre id="checkout-state">No checkout yet.</pre><pre id="checkout-result">No payment request yet.</pre>
+    <a id="checkout-3d-link" href="/" hidden>Open separate simulated 3D page</a>
+    <p>Open the separate page, test wrong code 111111 or correct code 123456, then return here and retry. Verification alone adds no payment effect.</p>
+  </section>
+  <section><h2>5. Negative checks</h2>
     <button id="forged">Forge actor / tenant / confirmation metadata</button>
     <button id="foreign-order">Try order 201 while in tenant A</button>
     <button id="expire">Expire current binding</button>

@@ -57,22 +57,46 @@ final class AcceptanceRuntime
 
     public static function invoke(array $payload): array
     {
+        return self::dispatch($payload);
+    }
+
+    public static function paymentDefinition(): ActionDefinition
+    {
+        return new ActionDefinition('pilot.orders.pay', 1, 'Pay current order (simulation)',
+            'Start or retry local simulated checkout. Open the separate 3D page to verify test code, then retry this tool. No money moves.',
+            ['type' => 'object', 'properties' => ['method' => ['type' => 'string', 'enum' => ['test-card']]],
+                'required' => ['method'], 'additionalProperties' => false],
+            ActionScope::PageScoped, ActionEffect::ExternalSideEffect, ActionRisk::Consequential,
+            IdempotencyPolicy::RequiredKey, OutputSensitivity::Sensitive, OutputContentTrust::TrustedApplicationData,
+            [ContextRequirement::AuthenticatedActor, ContextRequirement::Tenant, ContextRequirement::CurrentRecord,
+                ContextRequirement::CurrentSelection, ContextRequirement::BrowserSession]);
+    }
+
+    public static function invokePayment(array $serverPayload, string $flowId): array
+    {
+        return self::dispatch($serverPayload, true, $flowId);
+    }
+
+    private static function dispatch(array $payload, bool $payment = false, ?string $flowId = null): array
+    {
         $binding = session('binding');
         $candidate = $payload['bindingId'] ?? ($binding['id'] ?? null);
         abort_unless(is_array($binding) && is_string($candidate) && $candidate === $binding['id']
             && $binding['driver'] === 'acceptance.http' && $binding['session'] === session()->getId()
             && $binding['expires'] > time(), 409);
         $input = $payload['input'] ?? [];
-        abort_unless(is_array($input) && array_diff(array_keys($input), ['reason']) === [], 422);
+        abort_unless(is_array($input) && array_diff(array_keys($input), $payment ? ['method'] : ['reason']) === [], 422);
         abort_unless(!isset($payload['receipt']) || is_string($payload['receipt']), 422);
         abort_unless(!isset($payload['idempotencyKey']) || is_string($payload['idempotencyKey']), 422);
-        $definition = self::definition();
-        $descriptor = new RuntimeBinding($binding['id'], $definition, $binding['driver'],
-            BindingLifecycle::Session, ['endpoint' => '/invoke'], gmdate('Y-m-d\TH:i:s\Z', $binding['expires']));
+        $definition = $payment ? self::paymentDefinition() : self::definition();
+        $descriptor = new RuntimeBinding($binding['id'], $definition, $payment ? 'pilot.checkout.http' : $binding['driver'],
+            BindingLifecycle::Session, ['endpoint' => $payment ? '/checkout/invoke' : '/invoke'],
+            gmdate('Y-m-d\TH:i:s\Z', $binding['expires']));
         $registry = new InMemoryActionRegistry();
         $registry->register($definition);
         $rules = new InMemoryActionValidationRules();
-        $rules->register($definition, ['reason' => ['required', 'string', 'in:customer-request,duplicate-order']]);
+        $rules->register($definition, $payment ? ['method' => ['required', 'string', 'in:test-card']]
+            : ['reason' => ['required', 'string', 'in:customer-request,duplicate-order']]);
         $tenantResolver = new class implements TenantResolver {
             public function resolve(): ?ResolvedTrustedValue
             {
@@ -90,20 +114,35 @@ final class AcceptanceRuntime
         }
         $context = new InvocationContext('acceptance.http', bin2hex(random_bytes(16)), $entries,
             $payload['idempotencyKey'] ?? null, is_array($payload['metadata'] ?? null) ? $payload['metadata'] : []);
-        Gate::define('acceptance.refund', static function (User $user, InvocationContext $context): bool {
+        $ability = $payment ? 'pilot.pay' : 'acceptance.refund';
+        Gate::define($ability, static function (User $user, InvocationContext $context) use ($payment): bool {
             $tenant = $context->require(ContextRequirement::Tenant)->value;
-            if (!DB::table('memberships')->where('user_id', $user->id)->where('tenant_id', $tenant)->where('can_refund', true)->exists()) { return false; }
+            if (!DB::table('memberships')->where('user_id', $user->id)->where('tenant_id', $tenant)
+                ->where($payment ? 'can_pay' : 'can_refund', true)->exists()) { return false; }
             $ids = array_unique([$context->require(ContextRequirement::CurrentRecord)->value,
                 ...$context->require(ContextRequirement::CurrentSelection)->value]);
             return $ids !== [] && DB::table('orders')->where('tenant_id', $tenant)->whereIn('id', $ids)->count() === count($ids);
         });
         $authorization = new InMemoryActionAuthorizationRules();
-        $authorization->register($definition, new LaravelAuthorizationRule('acceptance.refund', static fn ($input, $context) => [$context]));
+        $authorization->register($definition, new LaravelAuthorizationRule($ability, static fn ($input, $context) => [$context]));
         $idempotency = new IdempotencyService(new DatabaseIdempotencyStore(DB::connection()),
             new class implements IdempotencyClock { public function now(): int { return time(); } }, new IdempotencyReplayCodec());
-        $executor = new class implements ActionExecutor {
+        $executor = new class($payment, $flowId) implements ActionExecutor {
+            public function __construct(private bool $payment, private ?string $flowId) {}
             public function execute(ActionDefinition $definition, array $input, InvocationContext $context): mixed
             {
+                if ($this->payment) {
+                    $flow = DB::table('pilot_checkouts')->where('id', $this->flowId)->first();
+                    if ($flow === null) { throw new \RuntimeException('Missing local checkout.'); }
+                    DB::table('pilot_payment_effects')->insert(['checkout_id' => $flow->id,
+                        'actor_id' => $context->require(ContextRequirement::AuthenticatedActor)->value->id,
+                        'tenant_id' => $context->require(ContextRequirement::Tenant)->value,
+                        'order_id' => $context->require(ContextRequirement::CurrentRecord)->value,
+                        'amount_minor' => $flow->amount_minor, 'currency' => 'TRY',
+                        'session_hash' => hash('sha256', session()->getId())]);
+                    return ['orderId' => $flow->record_id, 'paid' => true, 'simulation' => true,
+                        'amountMinor' => $flow->amount_minor, 'currency' => 'TRY', 'secret' => 'LOCAL_PAYMENT_RAW_SECRET'];
+                }
                 usleep(800000);
                 $ids = $context->require(ContextRequirement::CurrentSelection)->value;
                 DB::table('effects')->insert(['actor_id' => $context->require(ContextRequirement::AuthenticatedActor)->value->id,
@@ -113,10 +152,13 @@ final class AcceptanceRuntime
                 return ['orderIds' => $ids, 'refundedCount' => count($ids), 'secret' => 'ACCEPTANCE_RAW_OUTPUT_SECRET'];
             }
         };
-        $redactor = new class implements SensitiveOutputRedactor {
+        $redactor = new class($payment) implements SensitiveOutputRedactor {
+            public function __construct(private bool $payment) {}
             public function redact(ActionDefinition $definition, mixed $rawOutput, OutputPolicyContext $context): OutputRedactionResult
             {
-                return OutputRedactionResult::release(['orderIds' => $rawOutput['orderIds'], 'refundedCount' => $rawOutput['refundedCount']]);
+                return OutputRedactionResult::release($this->payment ? array_intersect_key($rawOutput,
+                    array_flip(['orderId', 'paid', 'simulation', 'amountMinor', 'currency']))
+                    : ['orderIds' => $rawOutput['orderIds'], 'refundedCount' => $rawOutput['refundedCount']]);
             }
         };
         $bus = new ActionBus($registry, new StructuredActionPipelineAuditor(new AuditEventFactory(new SystemAuditClock()),
@@ -128,7 +170,7 @@ final class AcceptanceRuntime
                 new ActionExecutionStage($executor, $idempotency), new OutputPolicyStage($redactor),
             ]);
         $outcome = $bus->dispatch(new ActionCall($definition->id, 1, $input, $context, $descriptor->bindingId, $payload['receipt'] ?? null));
-        if ($outcome->halt?->confirmation !== null) {
+        if (!$payment && $outcome->halt?->confirmation !== null) {
             $challengeId = $outcome->halt->confirmation->challengeId;
             session()->put('challenges.' . $challengeId, self::approvalOwner());
             session()->put('challenge_reviews.' . $challengeId, [

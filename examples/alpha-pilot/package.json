@@ -2,7 +2,7 @@
   "name": "surfacerelay-alpha-pilot",
   "private": true,
   "type": "module",
-  "scripts": { "build": "esbuild resources/pilot.js --bundle --format=esm --outfile=public/assets/pilot.js" },
+  "scripts": { "build": "esbuild resources/pilot.js resources/checkout-3d.js --bundle --format=esm --outdir=public/assets" },
   "dependencies": { "@surfacerelay/browser-runtime": "0.1.0-alpha.1" },
   "devDependencies": { "esbuild": "0.25.12" }
 }

@@ -6,6 +6,7 @@ composer install --no-dev --no-interaction --prefer-dist --no-progress
 npm ci --no-audit --no-fund
 npm run build
 php setup.php
+php checkout_setup.php
 php -S 0.0.0.0:8001 -t public public/router.php &
 secondary=$!
 trap 'kill "$secondary" 2>/dev/null || true' EXIT INT TERM

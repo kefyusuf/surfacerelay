@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\AcceptanceRuntime;
+use App\{AcceptanceRuntime, CheckoutRuntime};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Auth, DB, Route};
 
@@ -39,7 +39,7 @@ Route::get('/session', function () {
 Route::post('/login', function (Request $request) {
     abort_unless(Auth::attempt($request->only('email', 'password')), 401);
     $request->session()->regenerate();
-    $request->session()->forget(['audit_ids', 'challenges', 'challenge_reviews']);
+    $request->session()->forget(['audit_ids', 'challenges', 'challenge_reviews', 'checkout_id']);
     session()->put('binding.session', session()->getId());
     session()->put(['tenant' => 'tenant-a', 'record' => 101, 'selection' => [101]]);
     return ['actorId' => Auth::id(), 'csrfToken' => csrf_token()];
@@ -65,6 +65,34 @@ Route::post('/context', function (Request $request) {
     return ['recordId' => $record, 'selection' => session('selection')];
 });
 Route::post('/invoke', fn (Request $request) => AcceptanceRuntime::invoke($request->all()));
+Route::post('/checkout/invoke', fn (Request $request) => CheckoutRuntime::invoke($request->all()));
+Route::get('/checkout/status', fn () => CheckoutRuntime::status());
+Route::post('/checkout/reset', function () { CheckoutRuntime::reset(); return ['status' => 'none']; });
+Route::get('/checkout/surface', function () {
+    $tenant = AcceptanceRuntime::tenant();
+    abort_unless(Auth::check() && $tenant !== null && DB::table('memberships')->where('user_id', Auth::id())
+        ->where('tenant_id', $tenant)->where('can_pay', true)->exists(), 403);
+    $binding = session('binding');
+    abort_unless(is_array($binding) && $binding['driver'] === 'acceptance.http'
+        && $binding['session'] === session()->getId() && $binding['expires'] > time(), 409);
+    $definition = array_map(static fn ($value) => $value instanceof BackedEnum ? $value->value : $value,
+        get_object_vars(AcceptanceRuntime::paymentDefinition()));
+    $definition['contextRequirements'] = array_map(static fn ($requirement) => $requirement->value, $definition['contextRequirements']);
+    return ['definition' => $definition, 'binding' => ['bindingId' => $binding['id'],
+        'action' => ['id' => 'pilot.orders.pay', 'version' => 1], 'driver' => 'pilot.checkout.http',
+        'lifecycle' => 'session', 'target' => ['endpoint' => '/checkout/invoke'],
+        'expiresAt' => gmdate('Y-m-d\TH:i:s\Z', $binding['expires'])]];
+});
+Route::get('/3d/{id}', function (string $id) {
+    CheckoutRuntime::page($id);
+    return response()->file(base_path('resources/checkout-3d.html'));
+})->where('id', '[a-f0-9]{32}');
+Route::post('/3d/{id}/verify', function (Request $request, string $id) {
+    abort_unless(array_keys($request->all()) === ['code'], 422);
+    $result = CheckoutRuntime::verify($id, $request->input('code'));
+    $status = $result['httpStatus']; unset($result['httpStatus']);
+    return response()->json($result, $status);
+})->where('id', '[a-f0-9]{32}');
 Route::post('/review', function (Request $request) {
     $challenge = $request->input('challengeId');
     abort_unless(Auth::check() && is_string($challenge)

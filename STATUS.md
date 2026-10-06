@@ -27,14 +27,18 @@ Current state only; history is in Git, PRs and the archive.
 
 This is an experimental prerelease, without stable API, production-security or
 support-SLA guarantees. Native-browser/real-agent qualification limits remain.
-T-905 is ready for owner manual acceptance: the registry-installed Docker pilot
-is running at `http://127.0.0.1:4185/` in the Codex in-app browser. Docker checks:
-19 HTTP tests, 4 Node DOM-wiring regressions, browser build, strict Composer,
-PHP syntax and canonical/22 HTMX fixtures pass. Independent static review has
-no remaining blocker. Native in-app WebMCP calls prove confirmation-required,
-approved execution, idempotent replay and changed-selection reconfirmation.
-The pilot uses an app-owned HTTP adapter; Livewire/Filament consumer qualification
-remains separate. Owner feedback and current PR CI are pending. User Composer
-lockfiles and pre-existing Docker resources are preserved. The pilot stack stays
-running for manual tests; [guide and shutdown](examples/alpha-pilot/README.md).
+T-905 local acceptance is complete; [draft PR #41](https://github.com/kefyusuf/surfacerelay/pull/41)
+integration review and updated-head CI remain pending. The registry-installed
+Docker pilot runs at `http://127.0.0.1:4185/`. Agent-led native in-app WebMCP
+calls prove separate simulated 3D navigation, wrong/correct code, completion
+and replay with one effect. Docker verification passes 12 checkout HTTP tests,
+19 preserved HTTP tests, 6 Node DOM-wiring tests, build, strict Composer,
+PHP syntax and canonical/22 HTMX fixtures. Independent static review has no
+remaining blocker. TDD covers missing routes and a stale expiry observer race.
+This app-owned HTTP pilot does not qualify real bank 3DS or Livewire/Filament
+consumers. Single timing samples do not establish performance guarantees.
+Owner manual testing is optional. User Composer locks and pre-existing Docker
+resources are preserved; the pilot stays running for further experiments.
+See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
+[guide and shutdown](examples/alpha-pilot/README.md).
 See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).

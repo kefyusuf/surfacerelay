@@ -1,7 +1,7 @@
 import { DriverRegistry, WebMcpRegistrationLifecycle, resolveDocumentModelContext } from '@surfacerelay/browser-runtime';
 
 const element = (id) => document.getElementById(id);
-let csrf = '', session = {}, candidate = null, lease = null, pending = null, busy = false;
+let csrf = '', session = {}, candidate = null, checkoutCandidate = null, lease = null, pending = null, busy = false;
 const nativeContext = resolveDocumentModelContext(document);
 const registry = new DriverRegistry();
 const currentBinding = () => candidate?.binding ?? {bindingId: session.bindingId,
@@ -63,7 +63,7 @@ registry.register('acceptance.http', { execute: (binding, input, context) => {
 } });
 
 async function refresh() {
-  lease?.dispose(); lease = null; candidate = null;
+  lease?.dispose(); lease = null; candidate = null; checkoutCandidate = null;
   session = await api('/session');
   const { csrfToken: _csrf, bindingId: _binding, ...visible } = session;
   element('session').textContent = safe(visible);
@@ -76,17 +76,37 @@ async function refresh() {
       label.append(checkbox, document.createTextNode(` Order ${order.id} · ${order.tenant_id}`)); list.append(label);
     }
     try { candidate = await api('/surface'); } catch { /* Discovery denial does not bypass invocation authorization. */ }
+    try { checkoutCandidate = await api('/checkout/surface'); } catch { /* Payment discovery stays explicit. */ }
   } else list.textContent = 'Sign in to list tenant-scoped orders.';
   if (!nativeContext) element('native').textContent = 'Native WebMCP unavailable. Human HTTP tests remain available.';
-  else if (!candidate) element('native').textContent = 'Native WebMCP available; no authorized active tool in this session.';
+  else if (!candidate && !checkoutCandidate) element('native').textContent = 'Native WebMCP available; no authorized active tool in this session.';
   else {
     try {
-      lease = await new WebMcpRegistrationLifecycle(nativeContext, registry).register([candidate]);
-      element('native').textContent = 'Native WebMCP tool registered: acceptance.orders.refund.v1. Agent invocation still requires server authorization and human approval.';
+      lease = await new WebMcpRegistrationLifecycle(nativeContext, registry).register([candidate, checkoutCandidate].filter(Boolean));
+      element('native').textContent = 'Native WebMCP tools registered for authorized refund / simulated checkout. Invocation still requires server authorization and human verification.';
     } catch { element('native').textContent = 'Native WebMCP registration failed. Human HTTP tests remain available.'; }
   }
   await showEvidence();
+  await checkoutStatus();
 }
+async function checkoutStatus() {
+  const link = element('checkout-3d-link'); link.hidden = true;
+  if (!session.actorId) { element('checkout-state').textContent = 'Sign in to start checkout.'; return; }
+  try {
+    const state = await api('/checkout/status'); element('checkout-state').textContent = safe(state);
+    if (state.nextPageUrl && /^\/3d\/[a-f0-9]{32}$/.test(state.nextPageUrl)) {
+      link.href = state.nextPageUrl; link.hidden = false;
+    }
+  } catch (error) { element('checkout-state').textContent = error.message; }
+}
+registry.register('pilot.checkout.http', {execute: async (binding, input, context) => {
+  if (!binding || typeof binding.bindingId !== 'string' || binding.driver !== 'pilot.checkout.http'
+      || binding.target.endpoint !== '/checkout/invoke') throw new Error('Unsupported checkout binding.');
+  const result = await api('/checkout/invoke', {bindingId: binding.bindingId, input}, context.signal);
+  element('checkout-result').textContent = safe(result);
+  await checkoutStatus();
+  return result;
+} });
 function click(id, action) {
   element(id).addEventListener('click', async () => {
     const button = element(id); button.disabled = true;
@@ -97,6 +117,16 @@ function click(id, action) {
 click('login', async () => { await api('/login', { email: `${element('actor').value}@example.test`, password: element('password').value }); pending = null; showResult({status: 'signed_in'}); await refresh(); });
 click('logout', async () => { await api('/logout', {}); pending = null; showResult({status: 'signed_out'}); await refresh(); });
 click('refresh', refresh);
+const checkoutBinding = () => checkoutCandidate?.binding ?? {bindingId: session.bindingId,
+  driver: 'pilot.checkout.http', target: {endpoint: '/checkout/invoke'}};
+click('checkout-new', async () => {
+  await api('/checkout/reset', {});
+  await registry.requireDriver('pilot.checkout.http').execute(checkoutBinding(), {method: 'test-card'}, {});
+});
+click('checkout-retry', async () => {
+  await registry.requireDriver('pilot.checkout.http').execute(checkoutBinding(), {method: 'test-card'}, {});
+});
+click('checkout-refresh', checkoutStatus);
 click('switch-tenant', async () => { await api('/tenant', { tenantId: element('tenant').value }); await refresh(); });
 click('selection', async () => {
   const ids = [...document.querySelectorAll('#orders input:checked')].map((node) => Number(node.value));

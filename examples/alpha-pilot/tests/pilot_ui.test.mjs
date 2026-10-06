@@ -34,6 +34,18 @@ async function harness() {
       outputSensitivity: 'sensitive', outputContentTrust: 'trusted_application_data', contextRequirements: []},
       binding: {bindingId, action: {id: 'acceptance.orders.refund', version: 1}, driver: 'acceptance.http',
         lifecycle: 'session', target: {endpoint: '/invoke'}}};
+    else if (path === '/checkout/surface') body = {definition: {id: 'pilot.orders.pay', version: 1,
+      title: 'Simulated payment', description: 'Local only', inputSchema: {type: 'object'}, scope: 'page_scoped',
+      effect: 'external_side_effect', risk: 'consequential', idempotency: 'required_key',
+      outputSensitivity: 'sensitive', outputContentTrust: 'trusted_application_data', contextRequirements: []},
+      binding: {bindingId, action: {id: 'pilot.orders.pay', version: 1}, driver: 'pilot.checkout.http',
+        lifecycle: 'session', target: {endpoint: '/checkout/invoke'}}};
+    else if (path === '/checkout/status') body = {status: 'pending', nextPageUrl: '/3d/' + 'a'.repeat(32)};
+    else if (path === '/checkout/invoke') {
+      if (payload.bindingId !== bindingId) { status = 409; body = {error: 'request_rejected'}; }
+      else body = {status: 'confirmation_required', correlationId: 'checkout-correlation',
+        confirmation: {challengeId: 'opaque-checkout-challenge'}};
+    }
     else if (path === '/evidence') body = {effects: [], audits: []};
     else if (path === '/login') { bindingId = 'binding-replacement'; body = {csrfToken: 'csrf'}; }
     else if (path === '/approve') body = {receipt: 'opaque-receipt-secret'};
@@ -65,7 +77,7 @@ test('captured native handle cannot silently retarget a replacement binding', as
   const app = await harness();
   const original = app.tools[0];
   await app.click('login');
-  assert.equal(app.tools.length, 2);
+  assert.equal(app.tools.filter(tool => tool.name === 'acceptance.orders.refund.v1').length, 2);
   await assert.rejects(original.execute({reason: 'customer-request'}, {signal: new AbortController().signal}), /409/);
   assert.equal(app.requests.filter(row => row.path === '/invoke').at(-1).payload.bindingId, 'binding-original');
 });
@@ -106,4 +118,24 @@ test('failed new-challenge review disables approval instead of retaining an old 
   assert.equal(app.node('confirmation').hidden, true);
   await app.click('approve');
   assert.equal(app.requests.filter(row => row.path === '/approve').length, 0);
+});
+
+test('payment tool keeps flow metadata outside canonical result and shows an explicit 3D link', async () => {
+  const app = await harness();
+  const tool = app.tools.find(item => item.name === 'pilot.orders.pay.v1');
+  assert.ok(tool);
+  const result = await tool.execute({method: 'test-card'}, {signal: new AbortController().signal});
+  assert.equal(result.status, 'confirmation_required');
+  assert.equal(result.nextPageUrl, undefined);
+  assert.equal(result.receipt, undefined);
+  assert.equal(app.node('checkout-3d-link').href, '/3d/' + 'a'.repeat(32));
+  assert.equal(app.node('checkout-3d-link').hidden, false);
+});
+
+test('captured payment tool cannot retarget the replacement binding', async () => {
+  const app = await harness();
+  const original = app.tools.find(item => item.name === 'pilot.orders.pay.v1');
+  await app.click('login');
+  await assert.rejects(original.execute({method: 'test-card'}, {signal: new AbortController().signal}), /409/);
+  assert.equal(app.requests.filter(row => row.path === '/checkout/invoke').at(-1).payload.bindingId, 'binding-original');
 });

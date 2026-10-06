@@ -44,6 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           php setup.php
+          php checkout_setup.php
           php -S 127.0.0.1:8000 -t public public/router.php > /tmp/pilot-primary.log 2>&1 &
           primary=$!
           php -S 127.0.0.1:8001 -t public public/router.php > /tmp/pilot-secondary.log 2>&1 &
@@ -54,6 +55,7 @@ jobs:
             sleep 1
           done
           PILOT_DATABASE="$PWD/database/acceptance.sqlite" python3 tests/pilot_acceptance.py
+          PILOT_DATABASE="$PWD/database/acceptance.sqlite" python3 tests/checkout_acceptance.py
 
   publication-metadata-preview:
     runs-on: ubuntu-latest
