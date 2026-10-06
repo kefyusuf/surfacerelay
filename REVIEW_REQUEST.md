@@ -1,30 +1,23 @@
-# First Alpha Publication Review Request
+# Alpha Publication Receipt Review
 
-Branch: `release/t-904-alpha-publication`. Task: T-904.
-Preparation PRs #36/#37/#38 are merged; T-903 is complete.
+Branch: `docs/t-904-alpha-publication-receipts`. Task: T-904 completion.
 
-## Change
+The owner-authorized `0.1.0-alpha.1` release is published on npm and Packagist.
+This documentation change records exact source/tag/mirror provenance, actual
+registry tarball hash, installed consumer results and explicit alpha installation.
+Runtime files, development manifests and private builders/NO-GO guards are unchanged.
 
-Separate offline final packaging re-verifies both private candidates, preserves
-their runtime/license bytes and prepares final alpha README/public metadata.
-The Laravel VCS root omits a version field. The npm tarball uses the exact alpha
-version, public access, explicit npm registry and `alpha` dist-tag. Evidence stays
-outside package contents. Existing private builders and NO-GO tools are unchanged.
+Verification: 187 Python tests, canonical/22 HTMX fixtures, strict Composer and
+guardrails; independent artifact review found no blocker. Tooling PR #39 passed
+41/41 checks and final source main passed 20/20 before publication. Final local,
+tagged-mirror and Packagist Laravel consumers pass 11 HTTP/race tests and detect
+the authorization mutation. The npm registry consumer matches all reviewed bytes
+and passes import/typecheck/bundle/smoke/deep-import rejection.
 
-The public browser validator checks archive hash, safe entries, exact metadata
-and every file's bytes; its installed verifier rejects source aliases, links and
-byte drift. Negative tests cover identity/content/metadata/path/output failures.
-CI now verifies the public tarball in an isolated fixture consumer: root import,
-declarations/typecheck, Vite bundle, DriverRegistry smoke and deep-import rejection.
+npm's first publication added `latest` alongside `alpha`; its removal returned
+HTTP 400. Both aliases currently point to the same experimental alpha; documents
+require the explicit version or `alpha`. No stable-release claim is introduced.
 
-## Authority and limits
-
-The owner authorized completion of the two-package `0.1.0-alpha.1` publication
-with interactive owner/2FA checks. Both registry identities and npm scope Owner
-are verified; unattended token/OIDC provisioning is deferred, not claimed.
-
-Final main-source rebuild, hashes, installed consumers, source/mirror/tag mapping
-and exact-head CI must pass before registry writes. Then verify registry-installed
-consumers. No new runtime/API contract or compatibility/support claim is added.
-User Composer lockfiles remain untracked and excluded from release inputs.
-See [the publication record](docs/releases/0.1.0-alpha.1-publication.md).
+Review [durable receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) and
+[release details](docs/releases/0.1.0-alpha.1-publication.md).
+Both user Composer lockfiles remain excluded. No next implementation task is selected.
