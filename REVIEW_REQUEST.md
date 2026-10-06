@@ -1,7 +1,7 @@
 # Alpha Preparation and Distribution Mirror Review Request
 
 Branch: `release/t-903-publication-preview`.
-Task: T-903, on [PR #38](https://github.com/kefyusuf/surfacerelay/pull/38), stacked on #37/#36.
+Task: T-903 completion, on [PR #38](https://github.com/kefyusuf/surfacerelay/pull/38), stacked on #37/#36; T-904 publication is the next integration step.
 
 ## Change and evidence
 
@@ -43,15 +43,16 @@ With explicit approval, the free public
 `surfacerelay` npm organization exists. After the owner transferred it, Chrome
 verifies `kefyusuf` as sole Owner with 2FA enabled for authorization and publishing.
 The previous isolated CLI session belongs to `yukonit` and must not be used for
-the new publisher; `kefyusuf` CLI authentication/authority remain pending.
+the new publisher. Fresh isolated login and registry whoami/org ls verify
+`kefyusuf` and its Owner role after device security-key authentication.
 No credential contents appear in project evidence. No scoped-token/OIDC claim.
 The mirror contains the T-901 preparation baseline, not final release sources.
 Preview blockers remain conservative defaults and do not query these live settings.
 No package registration/publication, tag, final artifact or merge occurred.
 
-T-903 remains open for owner disposition of the alpha plan's scoped-credential
-requirement: proposed first release uses interactive owner sessions/2FA, with
-no unattended token/OIDC provisioning. Independent gate review identifies this
-wording/disposition as the remaining preparation decision. T-904 has not started.
-No automatic merge/publication.
+The owner authorized completion of the two-package alpha publication with
+interactive owner sessions/2FA; unattended token/OIDC provisioning is deferred.
+T-903 is complete; 17 focused preparation tests pass. T-904 is active.
+Independent review identifies the need for separate final
+public artifact/consumer verification; preview trees must not be published.
 Both owner Composer lockfiles remain excluded.
