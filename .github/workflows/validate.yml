@@ -27,7 +27,7 @@ jobs:
           tools: composer:v2
           coverage: none
       - run: python -m pip install -r requirements-dev.txt
-      - run: python -m unittest scripts.tests.test_release_publication_preview scripts.tests.test_laravel_distribution_preview -v
+      - run: python -m unittest scripts.tests.test_release_publication_preview scripts.tests.test_laravel_distribution_preview scripts.tests.test_alpha_publication_artifact -v
       - name: Build local candidates from exact archived sources
         shell: bash
         run: |
@@ -64,6 +64,44 @@ jobs:
             --version 0.1.0-alpha.1 --source-revision "$(git rev-parse HEAD)"
           composer --no-plugins --no-scripts validate --strict --no-check-lock "$RUNNER_TEMP/t903-mirror/package/composer.json"
           python scripts/check_release_guardrails.py
+      - name: Verify separate final public packages and isolated browser consumer
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          from scripts.alpha_publication_artifact import build_alpha_publication_artifacts, verify_public_browser_install
+          from scripts.browser_release_candidate import create_clean_consumer_workspace, _run_consumer_command
+          root = Path(os.environ['RUNNER_TEMP'])
+          revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          output = root / 't904-public-packages'
+          evidence = build_alpha_publication_artifacts(candidate_root=root / 't903-candidates',
+              output_root=output, version='0.1.0-alpha.1', revision=revision)
+          subprocess.run(['composer', '--no-plugins', '--no-scripts', 'validate', '--strict',
+              '--no-check-lock', str(output / 'laravel/composer.json')], check=True)
+          consumer = root / 't904-browser-consumer'
+          source = root / 't903-source'
+          create_clean_consumer_workspace(consumer_root=consumer,
+              fixture_root=source / 'scripts/fixtures/browser-clean-consumer',
+              package_source_root=source / 'packages/browser-runtime')
+          archive = output / evidence['browserArchive']['filename']
+          _run_consumer_command(['npm', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false'], cwd=consumer)
+          _run_consumer_command(['npm', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-save', '--package-lock=false', str(archive)], cwd=consumer)
+          verify_public_browser_install(consumer_root=consumer, version='0.1.0-alpha.1', revision=revision,
+              expected_manifest=evidence['content']['browser-runtime'], package_source_root=source / 'packages/browser-runtime')
+          for command in (['node', '--input-type=module', '--eval', "await import('@surfacerelay/browser-runtime');"],
+              ['npm', 'exec', '--offline', '--', 'tsc', '-p', 'tsconfig.json'],
+              ['npm', 'exec', '--offline', '--', 'vite', 'build']):
+              _run_consumer_command(command, cwd=consumer)
+          smoke = _run_consumer_command(['node', 'smoke.mjs'], cwd=consumer)
+          assert smoke.stdout.strip() == 'SurfaceRelay browser-runtime clean-consumer smoke: PASS'
+          deep = _run_consumer_command(['node', '--input-type=module', '--eval',
+              "await import('@surfacerelay/browser-runtime/dist/driver-registry.js');"], cwd=consumer, allow_failure=True)
+          assert deep.returncode != 0 and 'ERR_PACKAGE_PATH_NOT_EXPORTED' in deep.stdout + deep.stderr
+          (output / 'public-consumer-evidence.json').write_text(json.dumps({'sourceRevision': revision,
+              'version': '0.1.0-alpha.1', 'rootImport': True, 'typecheck': True, 'bundle': True,
+              'smoke': True, 'deepImportRejected': True, 'registryWrites': False}, indent=2) + '\n')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: publication-metadata-preview-evidence
@@ -71,6 +109,8 @@ jobs:
             ${{ runner.temp }}/t903-preview/preview-evidence.json
             ${{ runner.temp }}/t903-preview/dry-run-evidence.json
             ${{ runner.temp }}/t903-mirror/mapping-evidence.json
+            ${{ runner.temp }}/t904-public-packages/publication-artifact-evidence.json
+            ${{ runner.temp }}/t904-public-packages/public-consumer-evidence.json
 
   installed-alpha-application:
     runs-on: ubuntu-latest
