@@ -15,15 +15,19 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
   SECURITY.md assigns owner triage; notification delivery is not independently tested.
 - D-069–D-074 and D-076–D-078 are Accepted. D-026/D-075 remain Proposed.
   ADR 0013 preserves the development monorepo as authoritative.
-- Existing tooling evidence: 170 Python tests, 11 application HTTP tests and
-  exact-source dry-runs. This approval change affects documentation/settings only;
-  check updated current-head CI before merge. Owner lockfiles are preserved.
+- Local mirror tooling generates a root-manifest tree from verified two-package
+  archives; mapping records upstream/archive/content hashes, with no remote/commit.
+  UTF-8/LF output is deterministic across host newline defaults.
+- Tooling evidence: 176 Python tests, canonical/22 HTMX fixtures, guardrails and
+  strict Composer validation pass. CI repeats exact-source tree generation.
+  Owner lockfiles are preserved; check current-head CI before merge.
 - See [the current handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md).
 
 ## Remaining gates
 
-- The remote mirror owner/name, creation/push handoff and exact source-to-mirror
-  mapping are not implemented. Approach approval alone does not create a repository.
+- Proposed mirror: `kefyusuf/surfacerelay-laravel` (public, distribution-only).
+  Concrete remote creation/initial push approval and mirror commit mapping remain
+  open. Local tree evidence does not prove a remote repository exists.
 - npm identity did not authenticate; both registry authorities/credentials remain
   unverified. Public package endpoints returning 404 do not prove namespace rights.
 - Local preview blocker strings are conservative defaults, not live gate status.

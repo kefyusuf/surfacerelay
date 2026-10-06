@@ -81,12 +81,12 @@ def create_publication_preview(*, candidate_root: Path, preview_root: Path, vers
             metadata["publishConfig"] = {"registry": "https://registry.npmjs.org/", "access": "public", "tag": "alpha"}
             metadata["repository"] = {"type": "git", "url": "https://github.com/kefyusuf/surfacerelay.git",
                                       "directory": "packages/browser-runtime"}
-        path.write_text(json.dumps(metadata, indent=2) + "\n")
-        (preview_root / kind / "README.md").write_text(
+        path.write_bytes((json.dumps(metadata, indent=2) + "\n").encode("utf-8"))
+        (preview_root / kind / "README.md").write_bytes((
             f"# SurfaceRelay {kind}\n\nExperimental, unofficial runtime.\n\n"
             f"Publication metadata preview for {version}, source {revision}; not a registry release.\n"
             "Local packing and manifest validation do not prove registry authority or security support.\n"
-            "See https://github.com/kefyusuf/surfacerelay for implemented behavior and release status.\n")
+            "See https://github.com/kefyusuf/surfacerelay for implemented behavior and release status.\n").encode("utf-8"))
     record = {"schemaVersion": 1, "version": version, "sourceRevision": revision,
         "purpose": "metadata-review-only", "candidates": {kind: proof for kind, (_, proof) in packages.items()},
         "previewContent": {kind: build_content_manifest(preview_root / kind, proof["packageName"], version, revision)

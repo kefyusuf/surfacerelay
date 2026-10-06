@@ -27,7 +27,7 @@ jobs:
           tools: composer:v2
           coverage: none
       - run: python -m pip install -r requirements-dev.txt
-      - run: python -m unittest scripts.tests.test_release_publication_preview -v
+      - run: python -m unittest scripts.tests.test_release_publication_preview scripts.tests.test_laravel_distribution_preview -v
       - name: Build local candidates from exact archived sources
         shell: bash
         run: |
@@ -58,6 +58,11 @@ jobs:
             --candidate-root "$RUNNER_TEMP/t903-candidates" \
             --preview-root "$RUNNER_TEMP/t903-preview" \
             --version 0.1.0-alpha.1 --source-revision "$(git rev-parse HEAD)"
+          python scripts/laravel_distribution_preview.py \
+            --candidate-root "$RUNNER_TEMP/t903-candidates" \
+            --output-root "$RUNNER_TEMP/t903-mirror" \
+            --version 0.1.0-alpha.1 --source-revision "$(git rev-parse HEAD)"
+          composer --no-plugins --no-scripts validate --strict --no-check-lock "$RUNNER_TEMP/t903-mirror/package/composer.json"
           python scripts/check_release_guardrails.py
       - uses: actions/upload-artifact@v4
         with:
@@ -65,6 +70,7 @@ jobs:
           path: |
             ${{ runner.temp }}/t903-preview/preview-evidence.json
             ${{ runner.temp }}/t903-preview/dry-run-evidence.json
+            ${{ runner.temp }}/t903-mirror/mapping-evidence.json
 
   installed-alpha-application:
     runs-on: ubuntu-latest

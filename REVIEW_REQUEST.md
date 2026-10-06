@@ -7,7 +7,7 @@ Task: T-903, on [PR #38](https://github.com/kefyusuf/surfacerelay/pull/38), stac
 
 The local metadata preview tool rechecks both archives and always reports NO-GO.
 Its isolated npm/Composer dry-runs and 11 tests pass; existing Python suite has
-170 tests. Development manifests/private builders and runtime contracts remain
+176 tests. Development manifests/private builders and runtime contracts remain
 unchanged.
 
 The owner explicitly approved the proposed Laravel distribution mirror approach,
@@ -20,10 +20,18 @@ ADR 0013 records the approved distribution boundary without splitting developmen
 or creating a remote mirror. Current handoff/versioning/changelog are consistent.
 Review the source diff and updated CI before merge.
 
+Local mirror preparation reuses verified two-archive metadata rules and produces
+a root Composer tree plus separate upstream/archive/content mapping evidence.
+Six new tests include a RED/GREEN Windows newline regression; transformed files
+now use UTF-8/LF. Actual alpha archives pass strict Composer validation; CI also
+generates and validates a tree from exact current-head sources. No Git init,
+remote, commit or tag is created; mapping leaves remote/commit null and NO-GO.
+
 ## Limits and remaining gates
 
 [Owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) separates applied
-approvals from pending mirror identity/mapping and secure registry authority.
+approvals from pending concrete mirror creation/commit mapping and registry authority.
+Proposed remote identity is `kefyusuf/surfacerelay-laravel`, subject to owner approval.
 Preview blockers remain conservative defaults and do not query these live settings.
 No registry write, tag, final artifact or remote mirror creation/push occurred.
 

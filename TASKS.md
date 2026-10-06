@@ -15,6 +15,7 @@ Settings, formal decision promotion and T-904 publication require their explicit
 owner authorization. Do not begin automatically after T-902.
 
 Verification: `python -m unittest scripts.tests.test_release_publication_preview -v`,
+`python -m unittest scripts.tests.test_laravel_distribution_preview -v`,
 credential-free `npm pack --dry-run --json --ignore-scripts`, strict Composer
 manifest validation, `python scripts/validate.py` and publication guardrails.
 Preview changes only disposable staged metadata; no registry write. The owner has
@@ -24,7 +25,8 @@ Preparation: preview/dry-run tool and current external checks are implemented;
 [owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) records channel,
 security intake, registry authority and formal disposition gates. Private reporting
 is enabled, owner triage is documented and approved decisions are Accepted.
-Distribution implementation/remote identity and secure registry authority remain
+Reproducible local distribution trees and source/archive/content mapping are
+implemented. Remote identity/creation, mirror commit mapping and secure registry authority remain
 open; do not mark T-903 done or begin T-904.
 
 ## Done
