@@ -41,10 +41,16 @@ Chrome confirms Packagist account `kefyusuf` is authenticated; mirror `Check`
 recognizes `surfacerelay/laravel` and offers final Submit, which was not performed.
 With explicit approval, the free public
 `surfacerelay` npm organization is created; Chrome verifies `yukonit` as Owner and
-one member with 2FA enabled. Secure CLI/CI publication authentication remains open.
+one member with 2FA enabled. Isolated npm web CLI login completed; authenticated
+whoami/org ls verify yukonit and scope Owner. Config is outside the repository;
+no credential contents appear in project evidence. No scoped-token/OIDC claim.
 The mirror contains the T-901 preparation baseline, not final release sources.
 Preview blockers remain conservative defaults and do not query these live settings.
 No package registration/publication, tag, final artifact or merge occurred.
 
-T-903 remains open; T-904 has not started. No automatic merge/publication.
+T-903 remains open for owner disposition of the alpha plan's scoped-credential
+requirement: proposed first release uses interactive owner sessions/2FA, with
+no unattended token/OIDC provisioning. Independent gate review identifies this
+wording/disposition as the remaining preparation decision. T-904 has not started.
+No automatic merge/publication.
 Both owner Composer lockfiles remain excluded.

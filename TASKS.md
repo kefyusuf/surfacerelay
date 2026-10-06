@@ -29,8 +29,10 @@ Reproducible local distribution trees and source/archive/content mapping are
 implemented. The authorized public mirror and untagged initial commit are verified
 against all 160 generated hashes; durable provenance records the source/commit
 mapping. The owner-approved free npm organization exists; yukonit Owner role and
-scope ownership are verified. Secure executable publication authentication and
-Packagist new-package authority remain open; do not mark T-903 done or begin T-904.
+scope ownership are verified. Isolated npm CLI identity/owner probes also pass;
+Packagist's authenticated mirror Check recognizes the package and offers Submit.
+The alpha plan's scoped-credential requirement needs explicit disposition for
+the proposed interactive first-release route. Do not mark T-903 done or begin T-904.
 
 ## Done
 

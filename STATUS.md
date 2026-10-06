@@ -36,12 +36,20 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
   final Submit; no package registration or namespace reservation has occurred.
 - With owner approval, the free public `surfacerelay` npm organization is created.
   Chrome verifies `yukonit` as Owner; the sole member has 2FA enabled.
-  Scope ownership is verified; secure CLI/CI publication authentication remains open.
-  Browser login alone does not establish executable publication credentials.
+  Isolated npm web CLI login completed; registry `whoami` verifies `yukonit` and
+  `org ls surfacerelay` verifies its owner role. Config is outside the repository.
+  No granular/scope-restricted token or automated CI publisher is claimed.
 - Local preview blocker strings are conservative defaults, not live gate status.
   No final publication artifacts or registry-installed consumers are claimed.
 - Browser/native/UI and concurrent-session-write qualification limits remain.
   No support SLA or production deployment guarantee is introduced.
+
+## Needs decision
+
+The alpha plan requires scoped credentials. Proposed first-publication route:
+interactive owner sessions with 2FA and identity/authority rechecks, without
+unattended token/OIDC provisioning. Owner approval must explicitly disposition
+that requirement before T-903 closes; the verified CLI session is not a scoped token.
 
 T-903 remains open; T-904 is not started. Merge, further mirror updates,
 tags/releases and registry publication require their applicable authorization.
