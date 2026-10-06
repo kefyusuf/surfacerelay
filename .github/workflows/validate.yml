@@ -23,6 +23,8 @@ jobs:
           tools: composer:v2
           coverage: none
       - run: python -m pip install -r requirements-dev.txt
+      - name: Verify cleanup after an HTTP server exits
+        run: python -m unittest scripts.tests.test_alpha_application_cleanup -v
       - name: Build an exact-source local alpha archive
         shell: bash
         run: |
