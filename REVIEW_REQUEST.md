@@ -37,13 +37,14 @@ No tags or preparation evidence were pushed to that mirror.
 
 [Owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) separates applied
 approvals and verified initial mirror mapping from pending registry authority.
-Chrome confirms Packagist account `kefyusuf` is authenticated with owned packages;
-new package authority remains unverified. Chrome npm account `yukonit` is also
-authenticated, with no organizations; the free `surfacerelay` organization form
-is prepared but not submitted, awaiting owner approval. CLI/publish rights remain open.
+Chrome confirms Packagist account `kefyusuf` is authenticated; mirror `Check`
+recognizes `surfacerelay/laravel` and offers final Submit, which was not performed.
+With explicit approval, the free public
+`surfacerelay` npm organization is created; Chrome verifies `yukonit` as Owner and
+one member with 2FA enabled. Secure CLI/CI publication authentication remains open.
 The mirror contains the T-901 preparation baseline, not final release sources.
 Preview blockers remain conservative defaults and do not query these live settings.
-No registry write, tag, final artifact or merge occurred.
+No package registration/publication, tag, final artifact or merge occurred.
 
 T-903 remains open; T-904 has not started. No automatic merge/publication.
 Both owner Composer lockfiles remain excluded.

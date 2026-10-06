@@ -28,7 +28,9 @@ is enabled, owner triage is documented and approved decisions are Accepted.
 Reproducible local distribution trees and source/archive/content mapping are
 implemented. The authorized public mirror and untagged initial commit are verified
 against all 160 generated hashes; durable provenance records the source/commit
-mapping. Secure registry authority remains open; do not mark T-903 done or begin T-904.
+mapping. The owner-approved free npm organization exists; yukonit Owner role and
+scope ownership are verified. Secure executable publication authentication and
+Packagist new-package authority remain open; do not mark T-903 done or begin T-904.
 
 ## Done
 
