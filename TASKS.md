@@ -6,29 +6,16 @@ one-line entry; full history is in
 
 ## Open
 
-### T-904 — First alpha publication — IN PROGRESS
-
-The owner authorized completion of `0.1.0-alpha.1` for Laravel/browser only,
-including integration, final mirror update/tags and public registry writes using
-interactive owner sessions/2FA. Integrate the reviewed preparation stack; freeze
-one final source revision, generate separate final public packages with reviewed
-metadata/README, and verify their hashes, isolated consumers and current-head CI.
-Preserve private candidate builders and their NO-GO behavior. No new runtime scope.
-
-Verification: final artifact negative tests and full Python suite;
-`python scripts/validate.py`, `python scripts/check_release_guardrails.py`;
-strict Composer validation, npm pack inventory, browser root import/typecheck/
-bundle/smoke/deep-import rejection, Laravel installed application acceptance.
-Review final artifacts/source mapping before publishing; then verify exact-version
-registry-installed consumers and retain durable release evidence. Stop on a
-blocking finding or changed scope. Device 2FA ceremonies require owner interaction.
+No active implementation task. The first two-package alpha is published and
+registry-installed consumers are verified; choose a bounded next task separately.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| First alpha publication | T-904 `0.1.0-alpha.1` published on npm/Packagist; exact source/tag/mirror/hash provenance, 187 Python tests and local/tagged/registry consumers verified; [receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) |
 | Publication preparation | T-903 metadata/dry-runs, mirror provenance, private intake/decision dispositions and kefyusuf browser/CLI owner authority verified; owner approved interactive 2FA route, deferring unattended scoped-token/OIDC provisioning |
-| Alpha preparation | T-901 scope/candidates verified; T-902 installed Laravel alpha: 11 HTTP tests, Gate mutation, two-process receipt/key races, Python/canonical/guardrails pass; [evidence](docs/reviews/alpha-installed-application.md); publication NO-GO |
+| Alpha preparation | T-901 scope/candidates and T-902 installed Laravel HTTP/authorization/shared-store races verified; [preparation evidence](docs/reviews/alpha-installed-application.md); final publication recorded under T-904 |
 | M0 Contract foundation | schemas, fixtures, validator |
 | M1 / M1.1 Laravel kernel + hardening | ActionBus, policies, tenancy |
 | M2 Livewire binding | binding producer, exposure |

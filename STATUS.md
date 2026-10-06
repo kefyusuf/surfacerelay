@@ -2,33 +2,30 @@
 
 Current state only; history is in Git, PRs and the archive.
 
-## Current work
+## Current release
 
-- T-901–T-903 are complete. Preparation PRs #36/#37/#38 are merged; each was
-  checked against its reviewed head and successful CI before integration.
-- T-904 is active on `release/t-904-alpha-publication`. The owner authorized the
-  two-package `0.1.0-alpha.1` publication, necessary integration/mirror/tags and
-  registry writes using interactive owner sessions with 2FA.
-- Chrome and isolated npm CLI identity/owner probes verify `kefyusuf` and
-  `surfacerelay` scope ownership. Packagist authenticates as `kefyusuf` and its
-  mirror Check recognizes `surfacerelay/laravel`; final Submit is still pending.
-- Unattended scoped-token/OIDC provisioning is deferred for the first alpha.
-  Credentials stay outside the repository; the old `yukonit` CLI session must
-  not be used for publication.
-- Private vulnerability reporting is enabled and rechecked; SECURITY.md assigns
-  owner triage. D-069–D-074/D-076–D-078 are Accepted; D-026/D-075 stay Proposed.
-- Separate final public packaging is under verification. Existing private
-  builders/readiness/preview tools remain unchanged and retain their NO-GO.
-- The public Laravel mirror still contains the verified initial preparation
-  tree, with no tags. Final source/content/tag mapping remains a T-904 gate.
+- `0.1.0-alpha.1` is published for [Laravel](https://packagist.org/packages/surfacerelay/laravel)
+  and [browser runtime](https://www.npmjs.com/package/@surfacerelay/browser-runtime).
+  T-901–T-904 are complete; preparation/tooling PRs #36–#39 are merged.
+- Both packages come from the exact `v0.1.0-alpha.1` source tag. The Laravel
+  distribution mirror's matching tag/commit and all 160 file hashes are verified.
+- npm's downloaded tarball matches the reviewed SHA-256 and 39-file manifest.
+  Its `alpha` tag points to the release. npm also added `latest` and rejected
+  removing it with HTTP 400; use the explicit alpha version/tag.
+- Fresh registry consumers pass browser import/typecheck/bundle/smoke/deep-import
+  rejection and Laravel's 11 HTTP tests, authorization mutation and two-process
+  confirmation/idempotency races. Tagged-mirror and local artifact checks pass too.
+- Verification before publication: 187 Python tests, canonical/22 HTMX fixtures,
+  strict Composer, guardrails, independent review, tooling PR 41/41 and final
+  main-source CI 20/20. See [durable receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json).
+- Owner `kefyusuf` used interactive 2FA. Unattended token/OIDC provisioning is
+  deferred; private source builders/readiness/preview guards stay unchanged.
+- Private security intake is enabled. D-069–D-074/D-076–D-078 are Accepted;
+  D-026/D-075 remain Proposed.
 
-## Remaining gates
+## Limits and next work
 
-Review final public package bytes/metadata, integrate the final tooling PR with
-successful CI, freeze one final main revision, rebuild both artifacts and verify
-isolated installed consumers. Only then update/tag the mirror and publish the
-authorized alpha. Verify exact registry-installed consumers afterward.
-
-No package has been published. Browser/native UI, production and support-SLA
-qualification limits remain; user Composer lockfiles are preserved.
-See [the publication record](docs/releases/0.1.0-alpha.1-publication.md).
+This is an experimental prerelease, without stable API, production-security or
+support-SLA guarantees. Native-browser/real-agent qualification limits remain.
+No next implementation task is selected. User Composer lockfiles are preserved.
+See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).

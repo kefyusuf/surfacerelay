@@ -25,6 +25,8 @@ consistent with the approved two-package alpha source.
 - The owner authorized `kefyusuf/surfacerelay-laravel` as a public distribution-only
   mirror and its initial untagged push. Remote content and source/commit mapping
   are verified in [provenance](../reviews/laravel-distribution-mirror.json).
-  No tag or Packagist submission exists; this is a preparation baseline.
-- Final source/tag mapping, registry authority, artifact/consumer verification
-  and explicit publication authorization remain T-903/T-904 gates.
+  That record is the initial preparation baseline. The final `v0.1.0-alpha.1`
+  mirror/tag is published through Packagist, with exact installed bytes verified
+  in [the release receipt](../reviews/alpha-0.1.0-alpha.1-publication.json).
+- T-903/T-904 gates are complete for this owner-authorized experimental alpha;
+  future releases require fresh verification.

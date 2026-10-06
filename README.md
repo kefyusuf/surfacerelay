@@ -78,7 +78,14 @@ Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANC
 
 ## Using the artifacts
 
-Nothing is published to Packagist or npm. The first experimental target is `0.1.0-alpha.1`; see the [preparation plan](docs/releases/0.1.0-alpha.1.md) for scope and publication gates. The two local release-candidate artifacts can be built and installed:
+The first experimental release, `0.1.0-alpha.1`, is published on [Packagist](https://packagist.org/packages/surfacerelay/laravel) and [npm](https://www.npmjs.com/package/@surfacerelay/browser-runtime). Install the explicit alpha version:
+
+```sh
+composer require surfacerelay/laravel:0.1.0-alpha.1
+npm install @surfacerelay/browser-runtime@0.1.0-alpha.1
+```
+
+See [release details](docs/releases/0.1.0-alpha.1-publication.md) for verified registry consumers, provenance and experimental limits. npm's `alpha` and registry-added `latest` aliases currently point to this prerelease; neither implies stable API support. Local private release candidates can also be built and installed:
 
 - [Laravel artifact consumer guide](docs/consumers/laravel.md) — Composer ZIP from a local artifact repository.
 - [Browser runtime consumer guide](docs/consumers/browser-runtime.md) — npm tarball, root ESM import only.

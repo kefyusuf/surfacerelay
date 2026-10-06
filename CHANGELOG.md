@@ -6,6 +6,15 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ## Unreleased
 
+No pending release entries.
+
+## 0.1.0-alpha.1 — 2026-10-06
+
+Published `surfacerelay/laravel` and `@surfacerelay/browser-runtime`; exact registry
+consumers and source/tag/hash provenance are verified in
+[the release record](docs/releases/0.1.0-alpha.1-publication.md). APIs remain
+experimental. MCP/OpenAPI packages are not part of this release.
+
 ### Added
 
 - Separate offline final alpha package generation and public-browser archive/

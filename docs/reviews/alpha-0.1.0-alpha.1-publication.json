@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "status": "published-and-registry-consumers-verified",
+  "version": "0.1.0-alpha.1",
+  "publishedDate": "2026-10-06",
+  "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+  "upstreamRepository": "https://github.com/kefyusuf/surfacerelay",
+  "sourceTag": "v0.1.0-alpha.1",
+  "mirror": {
+    "repository": "https://github.com/kefyusuf/surfacerelay-laravel",
+    "commit": "8447f17efe4e7b3373075fc758738c26053a21ca",
+    "tree": "394caf7502a55c07015522f98604d040aebcef18",
+    "tag": "v0.1.0-alpha.1",
+    "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+    "verifiedFiles": 160
+  },
+  "registry": {
+    "version": "0.1.0-alpha.1",
+    "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+    "npm": {
+      "name": "@surfacerelay/browser-runtime",
+      "version": "0.1.0-alpha.1",
+      "distTags": {
+        "latest": "0.1.0-alpha.1",
+        "alpha": "0.1.0-alpha.1"
+      },
+      "archiveSha256": "702698d63a315047ce15f44b2ff2b0ac23dbcccf8fee09fdcf6087345aaaa559",
+      "shasum": "b58a74f17b426c96c94ba54f37906ce32638cec6",
+      "integrity": "sha512-23ekjN02ANM890KQRKNo7rFbli/tSOVzADu9besh7Cj0jLPws1waOFf4H6pobDP6GptmJOxOQI+3YkFJs2zpeA==",
+      "tarball": "https://registry.npmjs.org/@surfacerelay/browser-runtime/-/browser-runtime-0.1.0-alpha.1.tgz",
+      "published": "2026-10-06T12:10:07.333Z"
+    },
+    "packagist": {
+      "name": "surfacerelay/laravel",
+      "version": "v0.1.0-alpha.1",
+      "sourceReference": "8447f17efe4e7b3373075fc758738c26053a21ca"
+    }
+  },
+  "packages": {
+    "browser-runtime": {
+      "name": "@surfacerelay/browser-runtime",
+      "files": 39,
+      "contentManifestSha256": "3902626c48332c06fec1a97f27b1e6c124eac226cfa99a5d61e8e35bb9bdac9c",
+      "privateCandidateArchiveSha256": "707f140d5b1aaae8d34b7eeb3c0f51b2055b59674f622157f3ca5a7c54e37c80"
+    },
+    "laravel": {
+      "name": "surfacerelay/laravel",
+      "files": 160,
+      "contentManifestSha256": "4de90059e4cbdd0dd36597e0929ab9d0e3d95ff004f698f8a0b5915549f8b9b8",
+      "privateCandidateArchiveSha256": "ed7e38b9512413799a5a8e1666b59d3c11a62fd51ef1f57ed598964f09903b2f"
+    }
+  },
+  "verification": {
+    "pythonTests": 187,
+    "newArtifactTests": 11,
+    "canonicalHtmxFixtures": 22,
+    "toolingPrChecks": 41,
+    "finalMainChecksBeforePublication": 20,
+    "localBrowser": {
+      "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+      "version": "0.1.0-alpha.1",
+      "rootImport": true,
+      "typecheck": true,
+      "bundle": true,
+      "smoke": true,
+      "deepImportRejected": true,
+      "runtimeFilesPreserved": true,
+      "registryWrites": false
+    },
+    "localLaravel": {
+      "version": "0.1.0-alpha.1",
+      "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+      "archiveSha256": "ed7e38b9512413799a5a8e1666b59d3c11a62fd51ef1f57ed598964f09903b2f",
+      "installed": {
+        "laravel/framework": "v13.34.0",
+        "surfacerelay/laravel": "0.1.0-alpha.1"
+      },
+      "testsRun": 11,
+      "failures": 0,
+      "errors": 0,
+      "effects": 5,
+      "audits": 44,
+      "authorizationMutationDetected": true,
+      "testNames": [
+        "test_actor_and_tenant_switch_receipt_scope",
+        "test_approval_session_csrf_and_login_boundaries",
+        "test_authenticated_effect_output_and_audit",
+        "test_binding_unknown_expired_unsupported_and_missing",
+        "test_concurrent_key_with_different_receipts",
+        "test_concurrent_receipt_with_different_keys",
+        "test_guest_denied_actor_and_forged_authority",
+        "test_idempotency_replay_conflict_and_current_authorization",
+        "test_input_record_selection_and_session_receipt_scope",
+        "test_receipt_expiry_and_single_use",
+        "test_required_key_and_invalid_input"
+      ],
+      "fixtureSha256": "bbd70faf0ad1e44284ca7e6d8f11efdf7415c5e3ebc5a719c6225e523c9f78f8",
+      "testSuiteSha256": "349d9bec0d9e0ca96b52cf3bc7958559c9b8e7815654515e72f1bdea2b668ca3",
+      "idempotencyStates": [
+        "completed"
+      ],
+      "php": "8.4.26",
+      "store": "SQLite WAL + file-cache locks",
+      "workers": 2,
+      "scope": "fixture HTTP host; no UI, native-agent or production claim"
+    },
+    "taggedMirrorLaravel": {
+      "version": "0.1.0-alpha.1",
+      "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+      "mirrorCommit": "8447f17efe4e7b3373075fc758738c26053a21ca",
+      "channel": "vcs",
+      "installedLaravel": "v0.1.0-alpha.1",
+      "laravelFilesMatch": true,
+      "authorizationMutationDetected": true,
+      "testsRun": 11,
+      "failures": 0,
+      "errors": 0,
+      "workers": 2,
+      "browserRegistryConsumer": false,
+      "scope": "fixture HTTP application, no production claim"
+    },
+    "registryConsumers": {
+      "version": "0.1.0-alpha.1",
+      "sourceRevision": "97bffa909bb97437c9266afae3b263d503572e57",
+      "mirrorCommit": "8447f17efe4e7b3373075fc758738c26053a21ca",
+      "channel": "registry",
+      "installedLaravel": "v0.1.0-alpha.1",
+      "laravelFilesMatch": true,
+      "authorizationMutationDetected": true,
+      "testsRun": 11,
+      "failures": 0,
+      "errors": 0,
+      "workers": 2,
+      "browserRegistryConsumer": true,
+      "scope": "fixture HTTP application, no production claim"
+    }
+  },
+  "limits": [
+    "experimental-prerelease-only",
+    "no-production-security-or-support-SLA",
+    "no-general-native-WebMCP-or-real-agent-certification",
+    "unattended-token-OIDC-provisioning-deferred",
+    "npm-added-latest-on-first-publish-and-refused-removal-with-HTTP-400"
+  ],
+  "review": "Independent static artifact review found no blocking finding; actual consumers were executed separately."
+}
