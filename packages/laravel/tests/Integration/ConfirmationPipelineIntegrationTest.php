@@ -111,7 +111,8 @@ final class ConfirmationPipelineIntegrationTest extends TestCase
         self::assertStringNotContainsString($scope, $pendingJson);
 
         $receipt = $harness->service->approveChallenge($challenge->challengeId);
-        self::assertSame($challenge->challengeId, $receipt);
+        self::assertIsString($receipt);
+        self::assertNotSame($challenge->challengeId, $receipt, 'The challenge id must never be the receipt (D-077).');
 
         $second = $harness->bus->dispatch($harness->call(
             receipt: $receipt,
@@ -456,14 +457,19 @@ final class ConfirmationIntegrationStore implements ConfirmationStore
         return true;
     }
 
-    public function approvePending(string $tokenHash, int $now, int $receiptExpiresAt): bool
+    public function approvePending(string $tokenHash, string $receiptHash, int $now, int $receiptExpiresAt): bool
     {
         $record = $this->records[$tokenHash] ?? null;
         if ($record === null || $record->state !== ConfirmationRecordState::Pending || $now >= $record->challengeExpiresAt) {
             return false;
         }
 
-        $this->records[$tokenHash] = new ConfirmationRecord(
+        if (isset($this->records[$receiptHash])) {
+            return false;
+        }
+
+        unset($this->records[$tokenHash]);
+        $this->records[$receiptHash] = new ConfirmationRecord(
             state: ConfirmationRecordState::Approved,
             scopeFingerprint: $record->scopeFingerprint,
             summary: $record->summary,

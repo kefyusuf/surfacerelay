@@ -34,6 +34,59 @@ The fixture also proves:
 - runtime static serving rejects nested/traversal paths;
 - item content is HTML-escaped in partial and full-page rendering.
 
+## Native WebMCP proof
+
+`client.mjs` calls `resolveDocumentModelContext()`. When the browser exposes
+`document.modelContext`, the page registers `prep_list.add_item.v1` through
+`WebMcpRegistrationLifecycle` and the same `HtmxBrowserDriver`; otherwise it registers
+nothing and the human/driver paths behave exactly as before.
+
+`tests/webmcp.spec.mjs` runs in a separate Playwright project, `chromium-webmcp`,
+launched with `--enable-blink-features=WebMCP` (verified on Chromium 153 headless
+shell). The test plays the agent by calling the browser's own
+`document.modelContext.getTools()` and `executeTool()`, so invocation crosses the
+real WebMCP boundary rather than calling the driver directly. It proves:
+
+- exactly one tool is registered, with name, title, description, input schema and
+  annotations projected from the Action Definition;
+- a tool call produces the same real HTMX `POST /items` as a human click, overrides
+  stale same-name form state, and persists across reload;
+- a stale binding and undeclared input properties fail the tool call closed without
+  sending `/items`;
+- a server rejection (`422`) and a request HTMX never sends (vetoed in
+  `htmx:beforeRequest`) fail the tool call instead of reporting success (D-074);
+- disposing the registration lease unregisters the tool; reload re-registers one tool
+  bound to the renewed page binding.
+
+Observed Chromium 153 behavior that differs from the 2026-10-02 WebMCP draft:
+
+- `executeTool()` accepts the input as a JSON string, not an object;
+- `consequentialHint` is accepted at registration but not returned by `getTools()`,
+  so agents cannot rely on it — consequential safety stays with server-issued
+  confirmation receipts;
+- the tool result reaches the caller JSON-serialized.
+
+Business output (D-078): `POST /items` declares the Action output explicitly with
+`HX-Trigger: {"surfacerelay:result": {"value": {"itemId": "1"}}}`, so the tool call returns
+`{"itemId": "1"}`. The runtime reads it from the issued request's own response; it
+never parses the HTML fragment (D-054). Without that declaration a successful call
+returns `undefined`. The human path is unaffected — htmx merely fires an unused
+`surfacerelay:result` event.
+
+The result envelope contains only `value`, a JSON object. Business fields such as
+`target`, `value` and `elt` belong inside that object and remain data. This replaces
+the unpublished plain-object declaration; update the server and runtime together.
+Declarations outside the exact envelope return `undefined`; unsuccessful requests
+still fail. See [migration guidance](../../docs/consumers/browser-runtime.md#htmx-result-envelope).
+
+Event-based `htmx:confirm` hooks can resume an invocation after its original promise
+settles. A vetoed confirmation is an unknown outcome (`htmx_request_failed`), not
+proof that no request can be sent. The fixture's deferred-confirmation test resumes
+the callback explicitly and proves exactly one subsequent server write.
+
+Limits: one flag-enabled Chromium build, the page itself acting as tool caller, and
+no real AI agent or origin-trial token. This is not WebMCP conformance.
+
 ## Test-only surface
 
 The only test-only server endpoint is:
@@ -44,7 +97,7 @@ POST /__test/reset
 
 It only clears in-memory fixture state. It is not a second business mutation path.
 
-The browser test bridge exposes only delegation to the production `HtmxBrowserDriver.execute()` path plus a DOM-only source-replacement helper. It does not call `fetch`, XHR, or `htmx.ajax()` directly and does not mutate server state.
+The browser test bridge exposes only delegation to the production `HtmxBrowserDriver.execute()` path, a DOM-only source-replacement helper, and disposal of the page's own WebMCP registration lease. It does not call `fetch`, XHR, or `htmx.ajax()` directly and does not mutate server state.
 
 ## Run locally
 

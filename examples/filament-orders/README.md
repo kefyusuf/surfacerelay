@@ -132,6 +132,8 @@ tenantId
 
 The exact approved retry is therefore proven separately at the production gateway seam in `FilamentMultiTenantOrderOperationsDemoTest`: challenge issuance → approval → explicit retry with the opaque receipt → one execution → completed replay, including tenant/selection/filter drift and non-spending mismatch behavior.
 
+Since T-807b the page method also completes the loop without changing its signature: after modal approval the receipt is kept server-side for the approving component and pulled by the page's own retry (proposed D-076). The real-browser proof is in [`../filament-orders-live`](../filament-orders-live/README.md#approved-retry-t-807b).
+
 ## Idempotency
 
 `orders.refund_selected` uses the existing required-key idempotency pipeline.
@@ -163,7 +165,7 @@ ListOrders::refundSelected(reason)
 
 Page methods delegate through `OrderDemoPageActions`; they contain no direct Eloquent mutation, `ActionBus`, or `ActionCall` shortcut. The non-consequential hold method is executed through the same page-method → gateway → ActionBus → executor seam.
 
-The Testbench fixture does not configure a full Filament panel container. Therefore method execution boots the Filament page directly instead of rendering it through `Livewire::test()`. Binding production itself is tested with the production Livewire binding producer. A full application may add panel-level browser/render coverage without changing this authority model.
+The Testbench fixture does not configure a full Filament panel container. Therefore method execution boots the Filament page directly instead of rendering it through `Livewire::test()`. Binding production itself is tested with the production Livewire binding producer. Panel-level real-browser coverage, including native WebMCP invocation, lives in [`../filament-orders-live`](../filament-orders-live/README.md) without changing this authority model.
 
 ## Durable audit secrecy
 

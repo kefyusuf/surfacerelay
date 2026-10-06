@@ -37,8 +37,11 @@ final readonly class OrderDemoPageActions
     }
 
     /** @return array{status: string}|array<string, mixed> */
-    public function refundSelected(ListOrders $page, string $reason): array
-    {
+    public function refundSelected(
+        ListOrders $page,
+        string $reason,
+        ?string $approvedConfirmationReceipt = null,
+    ): array {
         $outcome = $this->gateway->dispatch(
             page: $page,
             actionId: 'orders.refund_selected',
@@ -47,6 +50,7 @@ final readonly class OrderDemoPageActions
             surface: 'filament',
             correlationId: 'order-demo-livewire-refund',
             bindingId: 'order-demo-livewire-refund-binding',
+            confirmationReceipt: $approvedConfirmationReceipt,
             idempotencyKey: $this->refundIdempotencyKey,
             contextExposure: FilamentContextExposure::activeFilters(),
         );

@@ -29,8 +29,37 @@ export interface HtmxBrowserRuntime {
   findSources(sourceId: string): readonly HtmxSourceElement[];
   currentLocation(): HtmxLocationSnapshot;
   requestClass(): string;
-  ajax(method: HtmxAjaxMethod, path: string, context: HtmxAjaxContext): Promise<void>;
+  /**
+   * Resolves only when the request was actually sent and HTMX reported a successful
+   * response. A request HTMX never sent rejects with `htmx_request_not_sent`, unless
+   * a confirmation hook could resume it later, which rejects with `htmx_request_failed`.
+   * An unsuccessful HTTP status, transport failure, or response-handling failure rejects
+   * with `htmx_request_failed`.
+   *
+   * On success it resolves with the object the server declared as
+   * `surfacerelay:result.value` in that response's `HX-Trigger` JSON header, or
+   * `undefined` when none is declared (D-078). Output is never derived from HTML.
+   */
+  ajax(method: HtmxAjaxMethod, path: string, context: HtmxAjaxContext): Promise<unknown>;
 }
+
+interface HtmxRequestEventSource {
+  addEventListener(type: string, listener: (event: Event) => void): void;
+  removeEventListener(type: string, listener: (event: Event) => void): void;
+}
+
+interface HtmxRequestEventDetail {
+  xhr?: unknown;
+  successful?: unknown;
+  etc?: { values?: unknown } | null;
+}
+
+const REQUEST_CONFIRMATION_EVENT = 'htmx:confirm';
+const REQUEST_SENT_EVENT = 'htmx:beforeSend';
+const REQUEST_COMPLETED_EVENT = 'htmx:afterRequest';
+const RESPONSE_HANDLING_FAILED_EVENT = 'htmx:onLoadError';
+const RESULT_TRIGGER_HEADER = 'HX-Trigger';
+const RESULT_TRIGGER_NAME = 'surfacerelay:result';
 
 interface HtmxGlobalLike {
   version?: unknown;
@@ -65,6 +94,75 @@ function runtimeError(
 
 function defaultAmbientRoot(): HtmxAmbientRoot {
   return globalThis as unknown as HtmxAmbientRoot;
+}
+
+function requireRequestEventSource(source: HtmxSourceElement): HtmxRequestEventSource {
+  const candidate = source as Partial<HtmxRequestEventSource>;
+  if (
+    typeof candidate.addEventListener !== 'function'
+    || typeof candidate.removeEventListener !== 'function'
+  ) {
+    throw runtimeError(
+      'htmx_runtime_unsupported',
+      'HTMX source cannot observe request events.',
+    );
+  }
+  return candidate as HtmxRequestEventSource;
+}
+
+function requestEventDetail(event: Event): HtmxRequestEventDetail {
+  const detail: unknown = (event as CustomEvent<unknown>).detail;
+  return typeof detail === 'object' && detail !== null ? detail : {};
+}
+
+function httpStatusOf(xhr: unknown): number | null {
+  const status = (xhr as { status?: unknown } | null)?.status;
+  return typeof status === 'number' ? status : null;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+// The request already succeeded server-side, so an absent or malformed result
+// yields `undefined` rather than an error that would invite a duplicate retry.
+function declaredResultOf(xhr: unknown): Record<string, unknown> | undefined {
+  const getResponseHeader = (xhr as { getResponseHeader?: unknown } | null)?.getResponseHeader;
+  if (typeof getResponseHeader !== 'function') return undefined;
+
+  let header: unknown;
+  try {
+    header = getResponseHeader.call(xhr, RESULT_TRIGGER_HEADER);
+  } catch {
+    return undefined;
+  }
+  if (typeof header !== 'string' || !header.trimStart().startsWith('{')) return undefined;
+
+  let triggers: unknown;
+  try {
+    triggers = JSON.parse(header);
+  } catch {
+    return undefined;
+  }
+  if (!isPlainObject(triggers)) return undefined;
+
+  const result = triggers[RESULT_TRIGGER_NAME];
+  if (!isPlainObject(result) || Object.keys(result).length !== 1
+    || !Object.prototype.hasOwnProperty.call(result, 'value')) return undefined;
+  return isPlainObject(result.value) ? result.value : undefined;
+}
+
+function requestNotSent(): HtmxBindingExecutionError {
+  return new HtmxBindingExecutionError(
+    'htmx_request_not_sent',
+    'HTMX settled without sending the request.',
+  );
+}
+
+function requestFailed(message: string): HtmxBindingExecutionError {
+  return new HtmxBindingExecutionError('htmx_request_failed', message);
 }
 
 export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
@@ -127,9 +225,10 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
     method: HtmxAjaxMethod,
     path: string,
     context: HtmxAjaxContext,
-  ): Promise<void> {
+  ): Promise<unknown> {
     this.assertSupported();
     const htmx = this.requireHtmx();
+    const events = requireRequestEventSource(context.source);
     const ajax = htmx.ajax as (
       verb: HtmxAjaxMethod,
       requestPath: string,
@@ -139,10 +238,89 @@ export class GlobalHtmxBrowserRuntime implements HtmxBrowserRuntime {
       },
     ) => Promise<void>;
 
-    return ajax.call(htmx, method, path, {
-      source: context.source,
-      values: context.values,
+    // htmx.ajax() resolves after HTTP error responses and on several paths that never
+    // send the request, so its promise alone cannot prove success. The issued request
+    // is identified by the xhr in its own beforeSend event on this exact source.
+    // Once sent, failures never downgrade to "not sent": that would invite a retry of a
+    // request the server may already have applied.
+    let sent = false;
+    let xhr: unknown = null;
+    let completion: HtmxRequestEventDetail | null = null;
+    let confirmation: Event | null = null;
+    let failResponseHandling!: (error: HtmxBindingExecutionError) => void;
+    const responseHandlingFailed = new Promise<never>((_resolve, reject) => {
+      failResponseHandling = reject;
     });
+
+    const onConfirmation = (event: Event): void => {
+      if (
+        confirmation === null
+        && event.target === (events as unknown)
+        && requestEventDetail(event).etc?.values === context.values
+      ) {
+        confirmation = event;
+      }
+    };
+    const unsentOutcome = (): HtmxBindingExecutionError => {
+      // HTMX resolves the original promise after a confirmation veto, but the
+      // application's issueRequest callback may still send it later. Never
+      // describe that unknown outcome as proof that no request can be sent.
+      return confirmation?.defaultPrevented === true
+        ? requestFailed('HTMX confirmation hook may resume the request later.')
+        : requestNotSent();
+    };
+    const onSent = (event: Event): void => {
+      if (!sent && event.target === (events as unknown)) {
+        sent = true;
+        xhr = requestEventDetail(event).xhr ?? null;
+      }
+    };
+    const onCompleted = (event: Event): void => {
+      const detail = requestEventDetail(event);
+      if (xhr !== null && detail.xhr === xhr) completion = detail;
+    };
+    const onResponseHandlingFailed = (event: Event): void => {
+      if (xhr !== null && requestEventDetail(event).xhr === xhr) {
+        failResponseHandling(requestFailed('HTMX failed while handling the response.'));
+      }
+    };
+
+    events.addEventListener(REQUEST_CONFIRMATION_EVENT, onConfirmation);
+    events.addEventListener(REQUEST_SENT_EVENT, onSent);
+    events.addEventListener(REQUEST_COMPLETED_EVENT, onCompleted);
+    events.addEventListener(RESPONSE_HANDLING_FAILED_EVENT, onResponseHandlingFailed);
+    try {
+      await Promise.race([
+        ajax.call(htmx, method, path, {
+          source: context.source,
+          values: context.values,
+        }),
+        responseHandlingFailed,
+      ]);
+    } catch (error) {
+      if (error instanceof HtmxBindingExecutionError) throw error;
+      if (!sent) throw unsentOutcome();
+      throw requestFailed('HTMX request failed before a successful response.');
+    } finally {
+      events.removeEventListener(REQUEST_CONFIRMATION_EVENT, onConfirmation);
+      events.removeEventListener(REQUEST_SENT_EVENT, onSent);
+      events.removeEventListener(REQUEST_COMPLETED_EVENT, onCompleted);
+      events.removeEventListener(RESPONSE_HANDLING_FAILED_EVENT, onResponseHandlingFailed);
+    }
+
+    if (!sent) throw unsentOutcome();
+
+    const completed = completion as HtmxRequestEventDetail | null;
+    if (completed?.successful !== true) {
+      const status = httpStatusOf(xhr);
+      throw requestFailed(
+        status === null
+          ? 'HTMX request did not complete successfully.'
+          : `HTMX request completed with unsuccessful HTTP status ${status}.`,
+      );
+    }
+
+    return declaredResultOf(xhr);
   }
 
   private requireHtmx(): HtmxGlobalLike {

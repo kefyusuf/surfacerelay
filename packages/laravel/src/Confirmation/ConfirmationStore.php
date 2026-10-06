@@ -9,7 +9,13 @@ interface ConfirmationStore
 {
     public function createPending(string $tokenHash, ConfirmationRecord $record, int $ttlSeconds): bool;
 
-    public function approvePending(string $tokenHash, int $now, int $receiptExpiresAt): bool;
+    /**
+     * Atomically moves an approvable pending record from the challenge hash to a
+     * fresh receipt hash, so the challenge id never becomes receipt authority.
+     * Returns false without mutation when the challenge is not approvable or the
+     * receipt hash is already occupied.
+     */
+    public function approvePending(string $tokenHash, string $receiptHash, int $now, int $receiptExpiresAt): bool;
 
     public function consumeApproved(string $tokenHash, string $expectedScopeFingerprint, int $now): bool;
 }

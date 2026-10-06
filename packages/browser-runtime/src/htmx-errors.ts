@@ -6,7 +6,9 @@ export type HtmxBindingExecutionErrorCode =
   | 'htmx_runtime_unavailable'
   | 'htmx_runtime_unsupported'
   | 'htmx_source_unsupported'
-  | 'htmx_source_busy';
+  | 'htmx_source_busy'
+  | 'htmx_request_not_sent'
+  | 'htmx_request_failed';
 
 export class HtmxBindingExecutionError extends Error {
   constructor(

@@ -18,6 +18,8 @@ trait InteractsWithSurfaceRelayConfirmation
 
     private const string RETRY_NOTIFICATION_TITLE = 'Confirmation is no longer approvable. Retry the original operation.';
 
+    private const string APPROVED_RECEIPT_SESSION_PREFIX = 'surfacerelay.filament.confirmation.approved.';
+
     #[Locked]
     public ?string $surfaceRelayConfirmationChallengeId = null;
 
@@ -87,6 +89,8 @@ trait InteractsWithSurfaceRelayConfirmation
             throw InvalidFilamentConfirmationBridge::presentationConflict();
         }
 
+        $this->forgetApprovedSurfaceRelayConfirmationReceipt();
+
         $this->surfaceRelayConfirmationChallengeId = $challenge->challengeId;
         $this->surfaceRelayConfirmationSummary = $challenge->summary;
         $this->surfaceRelayConfirmationExpiresAt = $challenge->expiresAt;
@@ -142,10 +146,6 @@ trait InteractsWithSurfaceRelayConfirmation
 
         $this->clearSurfaceRelayConfirmation();
 
-        if ($receipt !== null && $receipt !== $challengeId) {
-            throw InvalidFilamentConfirmationBridge::presentationFailed();
-        }
-
         if ($receipt === null) {
             Notification::make()
                 ->warning()
@@ -155,10 +155,59 @@ trait InteractsWithSurfaceRelayConfirmation
             return;
         }
 
+        $this->rememberApprovedSurfaceRelayConfirmationReceipt($receipt);
+
         Notification::make()
             ->success()
             ->title(self::APPROVED_NOTIFICATION_TITLE)
             ->send();
+    }
+
+    /**
+     * Removes and returns the receipt this exact component approved. The
+     * receipt lives only in server-side session state, never in public
+     * component state, and is not Livewire-callable; the page's own retry
+     * passes it to the gateway, which still verifies the exact scope. Session
+     * pull is not an atomic concurrency guard; store consumption governs reuse.
+     */
+    protected function pullApprovedSurfaceRelayConfirmationReceipt(): ?string
+    {
+        $key = $this->approvedSurfaceRelayConfirmationReceiptKey();
+        if ($key === null) {
+            return null;
+        }
+
+        $receipt = session()->pull($key);
+
+        return is_string($receipt) ? $receipt : null;
+    }
+
+    // Without a component identity a receipt cannot be bound to the approving
+    // page, so none is kept and no retry capability exists.
+    private function rememberApprovedSurfaceRelayConfirmationReceipt(string $receipt): void
+    {
+        $key = $this->approvedSurfaceRelayConfirmationReceiptKey();
+        if ($key !== null) {
+            session()->put($key, $receipt);
+        }
+    }
+
+    private function forgetApprovedSurfaceRelayConfirmationReceipt(): void
+    {
+        $key = $this->approvedSurfaceRelayConfirmationReceiptKey();
+        if ($key !== null) {
+            session()->forget($key);
+        }
+    }
+
+    private function approvedSurfaceRelayConfirmationReceiptKey(): ?string
+    {
+        $componentId = $this->getId();
+        if (!is_string($componentId) || $componentId === '') {
+            return null;
+        }
+
+        return self::APPROVED_RECEIPT_SESSION_PREFIX . hash('sha256', $componentId);
     }
 
     private function mountSurfaceRelayConfirmationAction(): void

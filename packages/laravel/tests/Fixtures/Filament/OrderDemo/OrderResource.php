@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Tests\Fixtures\Filament\OrderDemo;
 
 use Filament\Resources\Resource;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +30,13 @@ final class OrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([])
+            ->columns([
+                TextColumn::make('id'),
+                TextColumn::make('status'),
+                IconColumn::make('held')->boolean(),
+                IconColumn::make('refunded')->boolean(),
+            ])
+            ->selectable()
             ->filters([
                 SelectFilter::make('status')
                     ->options([

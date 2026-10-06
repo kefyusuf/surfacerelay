@@ -1,0 +1,78 @@
+# Filament Orders — Live WebMCP Proof (T-807a/b)
+
+Real-browser evidence for the [Filament order operations reference](../filament-orders/README.md): a real Filament 5 panel served by `testbench serve`, real Livewire 4, the SurfaceRelay browser runtime, and Chromium's native `document.modelContext`.
+
+It is a fixture, not a starter app. The trusted actor and tenant are fixed to `tenant-a` by the existing `FilamentOrderDemoHarness`; the panel has no login.
+
+## What it proves
+
+`tests/filament-webmcp.spec.mjs` plays the agent through the browser's own `getTools()` / `executeTool()`:
+
+| Scenario | Result |
+| --- | --- |
+| Orders table | Only `tenant-a` rows (101–103) are rendered; one tool `orders.refund_selected.v1` is registered from the server-issued Livewire binding. |
+| Edit page, `orders.hold_current.v1` | Holds exactly the trusted current record (101) end to end and returns `{orderId: 101, held: true}`. |
+| Human ticks 101 + 102, agent calls refund | Stops at `{status: "confirmation_required"}`; the real Filament confirmation modal opens; nothing is refunded. |
+| Human clicks **Approve**, agent retries | Refunds exactly 101 and 102 once (`{refundedCount: 2, orderIds: [101, 102]}`); a further call needs a new confirmation. |
+| Selection or input changes after approval | New confirmation required; nothing is refunded. |
+| Another HTTP session replays the approved component's valid snapshot | Livewire accepts the request but requires confirmation; nothing is refunded, and the owner's retry still succeeds. |
+| Agent repeats the call without approval | Never refunds. |
+| Agent adds `confirmed: true` or `confirmationReceipt` | Rejected by the Livewire driver before any request. |
+| Human ticks and unticks, agent calls refund | Fails closed (no trusted selection). |
+| Table missing, ambiguous, foreign-owned or malformed after approval | Retry rejected before a Livewire request; stale server selection cannot execute. |
+| Agent calls overlap on one component with different selections | Second call rejected before sync; first request retains its selection and cannot reuse the older approval. |
+| Agent adds `orderIds: [201, 202]` | Rejected by the Livewire driver before any request. |
+
+## Selection sync (finding)
+
+Filament 5 keeps table selection in Alpine and pushes it to the server only when a table action is mounted (`filament/tables` `table.js`, `mountAction`). An agent calling the page method directly therefore reached the server with an **empty** `current_selection` (`required_context_missing` in the audit trail) even though the human saw two rows selected — and could, in principle, reach it with a stale one.
+
+`client.mjs` wraps the Livewire driver for bindings whose server-issued definition
+requires `current_selection`. It resolves exactly one table owned by that component,
+validates the tracking flag and both string-key Sets before writing any state, then
+pushes all three fields to `$wire` as Filament's own `mountAction` does. Missing,
+ambiguous, foreign-owned or malformed table state stops before the page method can
+reuse an older server selection. The edit-page current-record action does not
+require a table. This grants no new authority; the server still resolves selected
+records and authorizes every record against the trusted tenant, all-or-nothing.
+Proposed as D-075. The wrapper admits one invocation per component until its exact
+inner promise settles. An overlapping invocation, including another binding on
+that component, is rejected before selection writes; it is not queued or retried.
+Different components can proceed independently. Validation and execution failures
+release the guard. This prevents wrapper calls from overwriting each other's
+deferred selection; unrelated human/Livewire calls remain host behavior, and this
+is not a general UI concurrency guarantee.
+
+## Approved retry (T-807b)
+
+`ListOrders::refundSelected(reason)` still accepts only business input; the opaque receipt is never a page-method argument (D-040/D-051). When the human approves in the modal, `InteractsWithSurfaceRelayConfirmation` keeps the receipt in server-side session state keyed by the approving component, and only the page's own protected `pullApprovedSurfaceRelayConfirmationReceipt()` removes it from that session and hands it to the gateway on retry. It never appears in public Livewire state and is not browser-callable. The confirmation stage still consumes it only for the exact scope (actor, tenant, selection, input, surface, binding). Proposed as D-076.
+
+The HTTP isolation test sends the owner's valid signed component snapshot with
+another session's CSRF token and cookies. It requires a successful Livewire
+response containing `confirmation_required`, zero refunds, then a successful
+owner retry. A temporary shared-cache receipt-storage mutation refunded order
+101 through the other session and failed the test. This proves session transport
+isolation with fixture-fixed identity; it does not qualify authentication changes
+or concurrent session writes. Session pull is not an atomic concurrency guard;
+the confirmation store's atomic scope-checked consumption governs receipt reuse.
+
+Issue, approval and retry are three Livewire requests, so the fixture uses a file-cache `ConfirmationService` instead of the harness's in-memory one.
+
+## Run locally
+
+Requires PHP 8.3+ with `pdo_sqlite` and `intl`, Composer, and Node 22.
+
+```bash
+cd packages/laravel
+composer update
+cd ../../examples/filament-orders-live
+npm ci
+npx playwright install chromium
+npm test
+```
+
+Set `PHP_BINARY` if `php` is not on `PATH`. The Playwright web server runs `testbench workbench:build`, `filament:assets` and `testbench serve` on `127.0.0.1:4180` from `packages/laravel` (see `testbench.yaml`). Runtime JavaScript is compiled into `.tmp/runtime` and served by the fixture provider in `packages/laravel/tests/Browser`.
+
+## Limits
+
+One flag-enabled Chromium build, the page acting as tool caller, no real AI agent, fixture-fixed actor/tenant, a per-request in-memory idempotency store, and a fixed fixture binding id in the gateway call. Not WebMCP conformance and not production setup.

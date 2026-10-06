@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://surfacerelay.dev/adapters/htmx/result-envelope.schema.json",
+  "title": "SurfaceRelay HTMX Result Declaration (Unpublished)",
+  "type": "object",
+  "required": ["surfacerelay:result"],
+  "properties": {
+    "surfacerelay:result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"type": "object"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

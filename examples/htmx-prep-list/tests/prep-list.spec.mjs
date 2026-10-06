@@ -34,6 +34,7 @@ test('boots real HTMX 2.0.10 with one exact server-issued page binding', async (
     };
   }, { bindingSelector, sourceSelector });
 
+  expect(await page.evaluate(() => globalThis.surfaceRelayFixture.webMcpAvailable)).toBe(false);
   expect(snapshot.htmxVersion).toBe('2.0.10');
   expect(snapshot.sourceCount).toBe(1);
   expect(snapshot.binding.driver).toBe('htmx');
@@ -108,6 +109,60 @@ test('human and SurfaceRelay execution converge on the same real HTMX request pa
   expect(normalizedRequestSignature(agentRequest)).toEqual(
     normalizedRequestSignature(humanRequest),
   );
+});
+
+for (const target of ['archive', null, 42, '#items', { nested: true }]) {
+  test(`business target ${JSON.stringify(target)} remains data through real HTMX`, async ({ page }) => {
+    const value = { itemId: '1', target, value: { nested: 'business' }, elt: 'business' };
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.route('**/items', async (route) => {
+      const response = await route.fetch();
+      await route.fulfill({ response, headers: {
+        ...response.headers(),
+        'hx-trigger': JSON.stringify({ 'surfacerelay:result': { value } }),
+      } });
+    });
+    const result = await page.evaluate(() => globalThis.surfaceRelayFixture.addItem('target-data'));
+    expect(result).toEqual(value);
+    await expect(page.locator('#items li')).toHaveText('target-data');
+    await page.reload();
+    await expect(page.locator('#items li')).toHaveText('target-data');
+    expect(errors).toEqual([]);
+  });
+}
+
+test('deferred confirmation is an unknown outcome even when the request sends later', async ({ page }) => {
+  let itemRequests = 0;
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === '/items') itemRequests += 1;
+  });
+
+  const result = await page.evaluate(async (selector) => {
+    const source = document.querySelector(selector);
+    source.addEventListener('htmx:confirm', (event) => {
+      event.preventDefault();
+      globalThis.resumeDeferredConfirmationForTest = () => event.detail.issueRequest(true);
+    }, { once: true });
+    try {
+      await globalThis.surfaceRelayFixture.addItem('deferred-item');
+      return { resolved: true };
+    } catch (error) {
+      return { resolved: false, code: error?.code };
+    }
+  }, sourceSelector);
+
+  expect(result).toEqual({ resolved: false, code: 'htmx_request_failed' });
+  expect(itemRequests).toBe(0);
+
+  await page.evaluate(async () => {
+    await globalThis.resumeDeferredConfirmationForTest();
+    delete globalThis.resumeDeferredConfirmationForTest;
+  });
+  await expect(page.locator('#items li')).toHaveText('deferred-item');
+  expect(itemRequests).toBe(1);
+  await page.reload();
+  await expect(page.locator('#items li')).toHaveText('deferred-item');
 });
 
 test('full page reload renews sourceId and bindingId together', async ({ page }) => {

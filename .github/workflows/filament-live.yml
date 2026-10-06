@@ -1,0 +1,61 @@
+name: filament-live
+
+on:
+  push:
+    paths:
+      - 'examples/filament-orders-live/**'
+      - 'packages/laravel/src/**'
+      - 'packages/laravel/tests/Browser/**'
+      - 'packages/laravel/tests/Fixtures/**'
+      - 'packages/laravel/tests/Support/FilamentOrderDemoHarness.php'
+      - 'packages/laravel/testbench.yaml'
+      - 'packages/laravel/composer.json'
+      - 'packages/browser-runtime/src/**'
+      - '.github/workflows/filament-live.yml'
+  pull_request:
+    paths:
+      - 'examples/filament-orders-live/**'
+      - 'packages/laravel/src/**'
+      - 'packages/laravel/tests/Browser/**'
+      - 'packages/laravel/tests/Fixtures/**'
+      - 'packages/laravel/tests/Support/FilamentOrderDemoHarness.php'
+      - 'packages/laravel/testbench.yaml'
+      - 'packages/laravel/composer.json'
+      - 'packages/browser-runtime/src/**'
+      - '.github/workflows/filament-live.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  filament-live:
+    runs-on: ubuntu-latest
+    env:
+      COMPOSER_NO_INTERACTION: 1
+      COMPOSER_NO_AUDIT: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: examples/filament-orders-live/package-lock.json
+      - name: Install Laravel package dev dependencies
+        working-directory: packages/laravel
+        run: composer update --prefer-dist --no-progress
+      - name: Install fixture dependencies
+        working-directory: examples/filament-orders-live
+        run: npm ci
+      - name: Install Chromium
+        working-directory: examples/filament-orders-live
+        run: npx playwright install --with-deps chromium
+      - name: Run real Filament + WebMCP proof
+        working-directory: examples/filament-orders-live
+        run: npm test

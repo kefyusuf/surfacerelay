@@ -18,6 +18,7 @@ use SurfaceRelay\Laravel\Confirmation\CorruptConfirmationRecord;
 final class CacheConfirmationStoreTest extends TestCase
 {
     private const string HASH = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    private const string RECEIPT_HASH = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
     public function test_cache_store_types_exist(): void
     {
@@ -58,13 +59,13 @@ final class CacheConfirmationStoreTest extends TestCase
         $store = new LockingCacheStore();
         $adapter = new CacheConfirmationStore($store);
 
-        self::assertFalse($adapter->approvePending(self::HASH, 120, 240));
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
         $this->assertMutationWasInsideExactTokenLock($store, null);
 
         $store->seedRaw(self::HASH, ['corrupt' => true]);
         $store->resetLog();
         try {
-            $adapter->approvePending(self::HASH, 120, 240);
+            $adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240);
             self::fail('Expected corrupt record to fail closed.');
         } catch (CorruptConfirmationRecord $exception) {
             self::assertStringNotContainsString(self::HASH, $exception->getMessage());
@@ -82,7 +83,7 @@ final class CacheConfirmationStoreTest extends TestCase
         );
         $store->seedRaw(self::HASH, $approved->toArray());
         $store->resetLog();
-        self::assertFalse($adapter->approvePending(self::HASH, 130, 260));
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 130, 260));
         self::assertSame(0, $store->putCalls, 'Repeat approval must not rewrite or extend an approved record.');
         self::assertSame(220, $store->rawRecord(self::HASH)['receiptExpiresAt']);
 
@@ -95,7 +96,7 @@ final class CacheConfirmationStoreTest extends TestCase
         );
         $store->seedRaw(self::HASH, $expired->toArray());
         $store->resetLog();
-        self::assertFalse($adapter->approvePending(self::HASH, 120, 240), 'Expiry equality is invalid.');
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240), 'Expiry equality is invalid.');
         self::assertSame(0, $store->putCalls);
     }
 
@@ -106,12 +107,142 @@ final class CacheConfirmationStoreTest extends TestCase
         $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
         $adapter = new CacheConfirmationStore($store);
 
-        self::assertTrue($adapter->approvePending(self::HASH, 120, 240));
-        $saved = $store->rawRecord(self::HASH);
+        self::assertTrue($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
+        self::assertNull($store->rawRecord(self::HASH), 'The challenge must stop addressing the approved record.');
+        $saved = $store->rawRecord(self::RECEIPT_HASH);
         self::assertSame('approved', $saved['state']);
         self::assertSame(240, $saved['receiptExpiresAt']);
         self::assertSame(120, $store->lastPutSeconds);
         $this->assertMutationWasInsideExactTokenLock($store, 'put');
+        self::assertLessThan(
+            array_search('put', $store->operations, true),
+            array_search('forget', $store->operations, true),
+            'The challenge is removed before the receipt is written, so a failed write fails closed.',
+        );
+    }
+
+    public function test_approve_pending_refuses_an_occupied_receipt_address_without_mutation(): void
+    {
+        $this->requireTypes();
+        $store = new LockingCacheStore();
+        $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
+        $store->seedRaw(self::RECEIPT_HASH, $this->pendingRecord()->toArray());
+        $adapter = new CacheConfirmationStore($store);
+        $store->resetLog();
+
+        self::assertFalse($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
+        self::assertSame(0, $store->putCalls);
+        self::assertSame(0, $store->forgetCalls);
+        self::assertSame('pending', $store->rawRecord(self::HASH)['state']);
+    }
+
+    public function test_approve_pending_rejects_a_receipt_address_equal_to_the_challenge(): void
+    {
+        $this->requireTypes();
+        $store = new LockingCacheStore();
+        $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
+        $adapter = new CacheConfirmationStore($store);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $adapter->approvePending(self::HASH, self::HASH, 120, 240);
+    }
+
+    public function test_competing_approvals_cannot_overwrite_the_same_receipt(): void
+    {
+        $store = new LockingCacheStore();
+        $losingHash = str_repeat('c', 64);
+        $winner = $this->pendingRecord();
+        $loser = new ConfirmationRecord(
+            state: ConfirmationRecordState::Pending,
+            scopeFingerprint: str_repeat('d', 64),
+            summary: 'Approve another refund',
+            issuedAt: 100,
+            challengeExpiresAt: 400,
+        );
+        $store->seedRaw(self::HASH, $winner->toArray());
+        $store->seedRaw($losingHash, $loser->toArray());
+        $adapter = new CacheConfirmationStore($store);
+        $competingApproval = null;
+        $store->afterGet = static function (string $key) use ($store, $adapter, $losingHash, &$competingApproval): void {
+            if ($key !== 'surfacerelay:confirmation:record:' . self::RECEIPT_HASH) {
+                return;
+            }
+            $store->afterGet = null;
+            try {
+                $competingApproval = $adapter->approvePending($losingHash, self::RECEIPT_HASH, 120, 240);
+            } catch (ConfirmationStoreUnavailable) {
+                $competingApproval = false;
+            }
+        };
+
+        self::assertTrue($adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240));
+        self::assertFalse($competingApproval, 'A competing approval must not claim the occupied receipt.');
+        self::assertSame($winner->scopeFingerprint, $store->rawRecord(self::RECEIPT_HASH)['scopeFingerprint']);
+        self::assertSame($loser->toArray(), $store->rawRecord($losingHash));
+        self::assertFalse($adapter->approvePending($losingHash, self::RECEIPT_HASH, 120, 240));
+        self::assertSame($winner->scopeFingerprint, $store->rawRecord(self::RECEIPT_HASH)['scopeFingerprint']);
+        self::assertSame($loser->toArray(), $store->rawRecord($losingHash));
+        self::assertSame(1, $store->putCalls, 'Only the winning approval may write a receipt.');
+        self::assertSame(1, $store->forgetCalls, 'Only the winning challenge may be deleted.');
+    }
+
+    public function test_approval_locks_both_addresses_in_the_same_order_when_the_roles_are_reversed(): void
+    {
+        foreach ([[self::HASH, self::RECEIPT_HASH], [self::RECEIPT_HASH, self::HASH]] as [$challengeHash, $receiptHash]) {
+            $store = new LockingCacheStore();
+            $store->seedRaw($challengeHash, $this->pendingRecord()->toArray());
+            $adapter = new CacheConfirmationStore($store);
+
+            self::assertTrue($adapter->approvePending($challengeHash, $receiptHash, 120, 240));
+            self::assertSame([
+                'lock:surfacerelay:confirmation:lock:' . self::HASH,
+                'lock:surfacerelay:confirmation:lock:' . self::RECEIPT_HASH,
+            ], array_values(array_filter($store->operations, static fn (string $operation): bool => str_starts_with($operation, 'lock:'))));
+            self::assertSame(1, $store->locksByName['surfacerelay:confirmation:lock:' . self::HASH]->releaseCalls);
+            self::assertSame(1, $store->locksByName['surfacerelay:confirmation:lock:' . self::RECEIPT_HASH]->releaseCalls);
+        }
+    }
+
+    public function test_second_approval_lock_failure_releases_the_first_without_cache_access(): void
+    {
+        $store = new LockingCacheStore();
+        $pending = $this->pendingRecord()->toArray();
+        $store->seedRaw(self::HASH, $pending);
+        $store->unavailableLockNames = ['surfacerelay:confirmation:lock:' . self::RECEIPT_HASH];
+        $adapter = new CacheConfirmationStore($store);
+
+        try {
+            $adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240);
+            self::fail('Both approval locks must be acquired before cache access.');
+        } catch (ConfirmationStoreUnavailable) {
+        }
+
+        self::assertSame(0, $store->getCalls);
+        self::assertSame(0, $store->putCalls);
+        self::assertSame(0, $store->forgetCalls);
+        self::assertSame($pending, $store->rawRecord(self::HASH));
+        self::assertNull($store->rawRecord(self::RECEIPT_HASH));
+        self::assertSame(1, $store->locksByName['surfacerelay:confirmation:lock:' . self::HASH]->releaseCalls);
+        self::assertSame(0, $store->locksByName['surfacerelay:confirmation:lock:' . self::RECEIPT_HASH]->releaseCalls);
+        self::assertSame([], $store->heldLocks);
+    }
+
+    public function test_failed_receipt_write_leaves_no_approvable_challenge(): void
+    {
+        $this->requireTypes();
+        $store = new LockingCacheStore();
+        $store->seedRaw(self::HASH, $this->pendingRecord()->toArray());
+        $store->putSucceeds = false;
+        $adapter = new CacheConfirmationStore($store);
+
+        try {
+            $adapter->approvePending(self::HASH, self::RECEIPT_HASH, 120, 240);
+            self::fail('Expected a failed receipt write to fail closed.');
+        } catch (ConfirmationStoreUnavailable) {
+        }
+
+        self::assertNull($store->rawRecord(self::HASH));
+        self::assertNull($store->rawRecord(self::RECEIPT_HASH));
     }
 
     public function test_consume_is_locked_scope_mismatch_does_not_spend_and_exact_scope_deletes_before_success(): void
@@ -266,12 +397,23 @@ final class LockingCacheStore implements Store, LockProvider
     public mixed $lastPutValue = null;
     public ?int $lastPutSeconds = null;
     public ?TestCacheLock $lastLock = null;
+    public ?\Closure $afterGet = null;
+    /** @var list<string> */
+    public array $unavailableLockNames = [];
+    /** @var array<string, TestCacheLock> */
+    public array $locksByName = [];
+    /** @var array<string, bool> */
+    public array $heldLocks = [];
 
     public function get($key)
     {
         $this->getCalls++;
         $this->operations[] = 'get';
-        return $this->values[$key] ?? null;
+        $value = $this->values[$key] ?? null;
+        if ($this->afterGet !== null) {
+            ($this->afterGet)($key);
+        }
+        return $value;
     }
 
     public function many(array $keys)
@@ -320,12 +462,17 @@ final class LockingCacheStore implements Store, LockProvider
     public function lock($name, $seconds = 0, $owner = null)
     {
         $this->operations[] = 'lock:' . $name;
-        return $this->lastLock = new TestCacheLock($this->operations, $this->lockCanAcquire);
+        return $this->lastLock = $this->locksByName[$name] = new TestCacheLock(
+            $this->operations,
+            $this->lockCanAcquire && !in_array($name, $this->unavailableLockNames, true),
+            $this->heldLocks,
+            $name,
+        );
     }
 
     public function restoreLock($name, $owner)
     {
-        return new TestCacheLock($this->operations, $this->lockCanAcquire);
+        return new TestCacheLock($this->operations, $this->lockCanAcquire, $this->heldLocks, $name);
     }
 
     /** @param array<string, mixed> $raw */
@@ -360,19 +507,23 @@ final class TestCacheLock implements Lock
 
     /** @var list<string> */
     private array $operations;
+    /** @var array<string, bool> */
+    private array $heldLocks;
 
     /** @param list<string> $operations */
-    public function __construct(array &$operations, private readonly bool $canAcquire)
+    public function __construct(array &$operations, private readonly bool $canAcquire, array &$heldLocks, private readonly string $name)
     {
         $this->operations = &$operations;
+        $this->heldLocks = &$heldLocks;
     }
 
     public function get($callback = null)
     {
         $this->operations[] = 'lock.get';
-        if (!$this->canAcquire) {
+        if (!$this->canAcquire || isset($this->heldLocks[$this->name])) {
             return false;
         }
+        $this->heldLocks[$this->name] = true;
         if ($callback !== null) {
             try {
                 return $callback();
@@ -386,9 +537,10 @@ final class TestCacheLock implements Lock
     public function block($seconds, $callback = null)
     {
         $this->operations[] = 'lock.block:' . $seconds;
-        if (!$this->canAcquire) {
+        if (!$this->canAcquire || isset($this->heldLocks[$this->name])) {
             throw new LockTimeoutException();
         }
+        $this->heldLocks[$this->name] = true;
         if ($callback !== null) {
             try {
                 return $callback();
@@ -402,6 +554,7 @@ final class TestCacheLock implements Lock
     public function release()
     {
         $this->releaseCalls++;
+        unset($this->heldLocks[$this->name]);
         $this->operations[] = 'lock.release';
         return true;
     }

@@ -595,6 +595,7 @@ final class InMemoryMcpConfirmationStore implements ConfirmationStore
 
     public function approvePending(
         string $tokenHash,
+        string $receiptHash,
         int $now,
         int $receiptExpiresAt,
     ): bool {
@@ -604,11 +605,13 @@ final class InMemoryMcpConfirmationStore implements ConfirmationStore
             $record === null
             || $record->state !== ConfirmationRecordState::Pending
             || $now >= $record->challengeExpiresAt
+            || isset($this->records[$receiptHash])
         ) {
             return false;
         }
 
-        $this->records[$tokenHash] = new ConfirmationRecord(
+        unset($this->records[$tokenHash]);
+        $this->records[$receiptHash] = new ConfirmationRecord(
             state: ConfirmationRecordState::Approved,
             scopeFingerprint: $record->scopeFingerprint,
             summary: $record->summary,

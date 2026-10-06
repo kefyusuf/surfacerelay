@@ -31,6 +31,14 @@ Current targets are:
 
 ## Related browser evidence
 
+T-808's adapter-specific [HTMX result schema](packages/browser-runtime/conformance/htmx-result-envelope.schema.json)
+and [22 fixtures](packages/browser-runtime/conformance/htmx-result-envelope.fixtures.json)
+are checked by `python scripts/validate.py` and the actual HTMX runtime unit tests.
+Real HTMX 2.0.10 browser regressions verify nested business `target`, `value` and
+`elt` fields without dispatch collisions and with persisted server writes. These
+checks qualify only the experimental D-078 result envelope; they do not expand
+the canonical T-701 scenario set or certify general HTMX/WebMCP interoperability.
+
 T-701 does not replace the broader browser-runtime regression layers:
 
 - **T-604** owns the shared package-level BindingDriver conformance suite: 11 cases for Livewire and the same 11 cases for HTMX. That suite includes malformed target/input and cancellation behavior that is intentionally not promoted into the T-701 canonical runtime registry.

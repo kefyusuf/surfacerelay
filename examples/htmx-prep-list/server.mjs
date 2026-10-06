@@ -86,6 +86,7 @@ function renderPage() {
     </form>
     <ul id="items">${items}</ul>
   </main>
+  <script type="application/json" id="surfacerelay-action">${jsonForHtmlScript(definition)}</script>
   <script type="application/json" id="surfacerelay-binding">${jsonForHtmlScript(binding)}</script>
   <script src="/vendor/htmx.min.js"></script>
   <script type="module" src="/client.mjs"></script>
@@ -93,11 +94,12 @@ function renderPage() {
 </html>`;
 }
 
-function sendText(response, status, contentType, body) {
+function sendText(response, status, contentType, body, extraHeaders = {}) {
   response.writeHead(status, {
     'content-type': contentType,
     'content-length': Buffer.byteLength(body),
     'cache-control': 'no-store',
+    ...extraHeaders,
   });
   response.end(body);
 }
@@ -174,7 +176,10 @@ async function handleItemsPost(request, response) {
   const item = { id: state.nextItemId, name: names[0] };
   state.nextItemId += 1;
   state.items.push(item);
-  sendText(response, 201, 'text/html; charset=utf-8', renderItem(item));
+  // D-078: declare the Action output explicitly; agents never parse the HTML fragment.
+  sendText(response, 201, 'text/html; charset=utf-8', renderItem(item), {
+    'hx-trigger': JSON.stringify({ 'surfacerelay:result': { value: { itemId: String(item.id) } } }),
+  });
 }
 
 function rejectWrongMethod(response, pathname, method) {

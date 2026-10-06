@@ -15,6 +15,8 @@ except ImportError:
 
 FORMAT_CHECKER = FormatChecker()
 
+from htmx_result_contract import validate_htmx_result_contract
+
 schema_dir = ROOT / 'spec' / '0.1'
 schema_files = {
     'action-definition': schema_dir / 'action-definition.schema.json',
@@ -198,6 +200,8 @@ for entry in entries:
         continue
     e = matched[0]
     print(f"OK fixture (invalid as intended, {e.validator} at {instance_path_str(e)}): {entry['path']}")
+
+failures += validate_htmx_result_contract(ROOT)
 
 if failures:
     print(f'SurfaceRelay starter validation FAILED with {failures} failure(s).')

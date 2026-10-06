@@ -74,6 +74,17 @@ The first reference runtime is Laravel. Livewire is the first runtime binding an
 
 This repository is a **research-backed implementation starter**. The schemas under `spec/0.1/` are provisional. Do not market them as a public standard until two materially different bindings implement them and the conformance scenarios have proven useful.
 
+Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANCE.md`](CONFORMANCE.md)). Native WebMCP evidence is limited to one flag-enabled Chromium build driving the HTMX fixture through `document.modelContext` ([details](examples/htmx-prep-list/README.md#native-webmcp-proof)); it is not WebMCP conformance and no real AI agent is involved. Current state and open work: [`STATUS.md`](STATUS.md), [`TASKS.md`](TASKS.md).
+
+## Using the artifacts
+
+Nothing is published to Packagist or npm, and no public version has been selected. The two release-candidate artifacts can be built and installed locally:
+
+- [Laravel artifact consumer guide](docs/consumers/laravel.md) — Composer ZIP from a local artifact repository.
+- [Browser runtime consumer guide](docs/consumers/browser-runtime.md) — npm tarball, root ESM import only.
+- [Versioning and compatibility](docs/VERSIONING-COMPATIBILITY.md) — tested matrix versus manifest constraints.
+- [Release checklist](docs/RELEASE-CHECKLIST.md), [changelog](CHANGELOG.md), [security policy](SECURITY.md).
+
 ## Development
 
 Start with:
@@ -90,7 +101,26 @@ Start with:
 Run:
 
 ```bash
+python -m pip install -r requirements-dev.txt
 python scripts/validate.py
+```
+
+For browser runtime changes:
+
+```bash
+cd packages/browser-runtime
+npm ci
+npm run typecheck
+npm test
+```
+
+For the real-browser HTMX fixture, including the native WebMCP proof:
+
+```bash
+cd examples/htmx-prep-list
+npm ci
+npx playwright install chromium
+npm test
 ```
 
 For Laravel kernel changes:
