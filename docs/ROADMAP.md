@@ -53,11 +53,12 @@ two-package `0.1.0-alpha.1` release. See [current status](../STATUS.md) and
 
 ## Post-publication pilot
 
-T-905 prepares a standalone registry-installed Docker application for local
-manual browser acceptance. The first pilot uses an app-owned HTTP driver to
-exercise the common trust pipeline. Livewire/Filament consumer integration and
-real native-agent qualification remain separate future tasks; no further
-release is selected automatically.
+T-905 delivered a standalone registry-installed Docker application with agent-led
+native in-app acceptance and separate simulated 3D checkout through an app-owned
+HTTP driver. T-906 adds a registry-installed real Livewire consumer with bounded
+native-agent and signed HTTP authority/lifecycle evidence. Filament qualification,
+general native interoperability and production readiness remain separate tasks;
+no further release is selected automatically.
 
 ## Release gates
 
