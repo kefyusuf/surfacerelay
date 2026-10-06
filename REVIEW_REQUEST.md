@@ -1,23 +1,33 @@
-# Alpha Publication Receipt Review
+# Registry-installed Agent Checkout Pilot Review
 
-Branch: `docs/t-904-alpha-publication-receipts`. Task: T-904 completion.
+Branch: `feat/t-905-docker-browser-pilot`. Task: T-905.
+[PR #41](https://github.com/kefyusuf/surfacerelay/pull/41), ready for owner-authorized merge after final-head CI.
 
-The owner-authorized `0.1.0-alpha.1` release is published on npm and Packagist.
-This documentation change records exact source/tag/mirror provenance, actual
-registry tarball hash, installed consumer results and explicit alpha installation.
-Runtime files, development manifests and private builders/NO-GO guards are unchanged.
+The loopback Docker application installs exact published Laravel/browser-runtime
+alpha packages. It exposes tenant-scoped simulated refund and order payment
+through an app-owned HTTP driver. A separate simulated 3D page validates fixture
+codes, stores an encrypted runtime confirmation receipt server-side, then lets
+the native agent tool complete and replay one payment effect per checkout flow.
+No core/public contract changes, real payment provider or package publication.
 
-Verification: 187 Python tests, canonical/22 HTMX fixtures, strict Composer and
-guardrails; independent artifact review found no blocker. Tooling PR #39 passed
-41/41 checks and final source main passed 20/20 before publication. Final local,
-tagged-mirror and Packagist Laravel consumers pass 11 HTTP/race tests and detect
-the authorization mutation. The npm registry consumer matches all reviewed bytes
-and passes import/typecheck/bundle/smoke/deep-import rejection.
+Review discovery/invocation authorization, exact binding/session/tenant scope,
+code attempt limits, flow and receipt expiry, receipt confidentiality, two-worker
+replay and the conditional stale-expiry observer fix. Caller code/receipt/flags
+cannot authorize payment. Verification alone creates no effect; failed/expired
+flows cannot complete. Canonical results remain separate from app-owned status.
 
-npm's first publication added `latest` alongside `alpha`; its removal returned
-HTTP 400. Both aliases currently point to the same experimental alpha; documents
-require the explicit version or `alpha`. No stable-release claim is introduced.
+Verification: Docker 12 checkout and 19 preserved HTTP tests, 6 Node DOM-wiring
+tests, PHP syntax, build, strict Composer and canonical/22 HTMX fixtures pass.
+Missing-route tests and the expiry race were observed RED before fixes.
+Independent static review has no remaining blocker. Actual Codex in-app native
+WebMCP proves wrong/correct code on the separate page, completion and replay;
+SQLite verifies one effect. See [executed evidence](docs/reviews/t905-checkout-acceptance.md).
 
-Review [durable receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) and
-[release details](docs/releases/0.1.0-alpha.1-publication.md).
-Both user Composer lockfiles remain excluded. No next implementation task is selected.
+Node tests use deterministic DOM/HTTP stubs; native evidence covers this pilot,
+not general certification or real bank 3DS. Single HTTP/native timing samples
+measure different layers and provide no performance guarantee. Implementation CI
+passed; final tracking-head CI must pass before merge. CodeRabbit skips automatic
+review for this repository and Qodo reviews are paused; neither is review approval.
+Independent static review has no remaining blocker; owner manual testing is optional.
+The `surfacerelay-t905-pilot` stack stays running for further experiments.
+No new image/volume/worktree; existing Docker resources and user locks preserved.

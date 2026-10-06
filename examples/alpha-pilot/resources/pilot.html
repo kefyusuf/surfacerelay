@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SurfaceRelay alpha pilot</title>
+  <link rel="stylesheet" href="/assets/pilot.css">
+  <script type="module" src="/assets/pilot.js"></script>
+</head>
+<body>
+<main>
+  <header><span class="tag">0.1.0-alpha.1 · LOCAL TEST ONLY</span><h1>SurfaceRelay order desk</h1>
+  <p>Two published packages. One server-authorized action. All refunds are simulated; no payment service is connected.</p></header>
+  <p id="boot" role="status">Loading published browser runtime…</p>
+  <section><h2>1. Sign in</h2>
+    <label>Seeded user <select id="actor"><option value="owner">Owner · tenants A/B · refund allowed</option><option value="peer">Peer · tenant A · refund allowed</option><option value="denied">Denied · tenant A · refund forbidden</option></select></label>
+    <label>Password <input id="password" type="password" value="acceptance-password" autocomplete="off"></label>
+    <button id="login">Sign in</button><button id="logout">Sign out</button>
+    <p>Disposable account password: <code>acceptance-password</code>. This page supplies it for the three seeded accounts.</p>
+    <pre id="session">Not signed in</pre>
+  </section>
+  <section><h2>2. Choose tenant and orders</h2>
+    <label>Tenant <select id="tenant"><option value="tenant-a">Tenant A</option><option value="tenant-b">Tenant B</option></select></label>
+    <button id="switch-tenant">Switch tenant</button><button id="refresh">Refresh</button>
+    <div id="orders">Sign in to list tenant-scoped orders.</div>
+    <button id="selection">Apply selected orders</button>
+    <p>The server validates membership and every selected order before storing the current context.</p>
+  </section>
+  <section><h2>3. Simulate a refund</h2>
+    <label>Reason <select id="reason"><option value="customer-request">Customer request</option><option value="duplicate-order">Duplicate order</option></select></label>
+    <button id="request">New refund request</button>
+    <div id="confirmation" hidden><p id="confirmation-summary"></p>
+      <button id="approve">Approve in this browser</button><button id="execute">Execute approved request</button>
+      <p>A receipt expires after 60 seconds by default. Approval alone creates no refund.</p>
+    </div>
+    <button id="replay">Repeat last request with the same key</button>
+    <p>Repeat must return the same result without adding another effect. Receipts remain in page memory and are never printed in the result panel.</p>
+  </section>
+  <section><h2>4. Simulated order checkout</h2>
+    <p>Pay the current server-selected order with a disposable test card. No money moves and no bank is connected.</p>
+    <button id="checkout-new">Start new simulated checkout</button>
+    <button id="checkout-retry">Retry / complete payment action</button>
+    <button id="checkout-refresh">Refresh checkout status</button>
+    <pre id="checkout-state">No checkout yet.</pre><pre id="checkout-result">No payment request yet.</pre>
+    <a id="checkout-3d-link" href="/" hidden>Open separate simulated 3D page</a>
+    <p>Open the separate page, test wrong code 111111 or correct code 123456, then return here and retry. Verification alone adds no payment effect.</p>
+  </section>
+  <section><h2>5. Negative checks</h2>
+    <button id="forged">Forge actor / tenant / confirmation metadata</button>
+    <button id="foreign-order">Try order 201 while in tenant A</button>
+    <button id="expire">Expire current binding</button>
+    <button id="unsupported">Set unsupported binding driver</button>
+    <p>After breaking a binding, sign out and sign in to issue a fresh session binding. Use the Denied account for forged-authority checks.</p>
+  </section>
+  <section><h2>Results</h2><pre id="result" role="status">No request yet.</pre>
+    <h3>Effects in this session</h3><pre id="effects">[]</pre>
+    <p id="native">Checking native document.modelContext support…</p>
+    <p>This app uses an app-owned HTTP driver, not the Livewire or Filament adapter. Native WebMCP is optional and must be tested separately with a compatible browser and agent.</p>
+  </section>
+</main>
+</body>
+</html>

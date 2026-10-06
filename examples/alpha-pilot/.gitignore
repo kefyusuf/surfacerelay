@@ -1,0 +1,6 @@
+/bootstrap/cache/*.php
+/database/*.sqlite*
+/storage/
+/public/assets/pilot.js
+/public/assets/checkout-3d.js
+__pycache__/
