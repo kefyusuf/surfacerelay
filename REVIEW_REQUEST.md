@@ -1,6 +1,7 @@
 # Registry-installed Livewire Consumer Review
 
-Branch: `feat/t-906-registry-livewire-pilot`. Task: T-906, local acceptance verified.
+Task: T-906, acceptance complete. [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42)
+is owner-approved for integration after final-head CI passes.
 
 The selected scope is a standalone loopback Docker Laravel/Livewire application
 using the exact published alpha packages. A tenant-scoped consequential order
@@ -20,8 +21,8 @@ record/tenant changes, tool removal on revocation and stale handles after remoun
 SQL proves one effect for the tested order-102 intent. A displayed-challenge
 approval race was observed RED, fixed with exact shown/stored challenge matching
 and verified GREEN. Independent static review has no remaining blocker.
-See [executed evidence](docs/reviews/t906-livewire-acceptance.md). Updated-head CI
-and PR integration remain separate from local/native proof.
+See [executed evidence](docs/reviews/t906-livewire-acceptance.md). Final-head CI
+must pass before integration; merge-commit CI remains separate from local/native proof.
 
 No Filament integration, public contract/core change, new package publication or
 production qualification is selected. Owner manual testing is optional. Preserve

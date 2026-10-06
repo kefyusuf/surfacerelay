@@ -43,7 +43,8 @@ T-906 local acceptance is verified: real Livewire 4.4.7/Laravel 13.35.0 consumer
 using exact registry alpha packages, 15 signed HTTP checks, native in-app agent
 approval/completion/replay and SQL one-effect proof. A stale displayed-challenge
 approval race was fixed with observed RED/GREEN; independent review has no
-remaining blocker. Final PR integration/CI is pending. Its task-owned Docker
+remaining blocker. Acceptance is complete; [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42)
+is approved by the owner for integration after final-head CI passes. Its task-owned Docker
 container/network were removed after verification; T-905 is preserved. Filament remains
 outside this task. No next task, additional release or production gate is selected.
 See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and

@@ -6,32 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-### T-906 — Registry-installed Livewire consumer pilot (Local acceptance verified; PR integration pending)
-
-- Scope: Standalone Docker Laravel/Livewire application, exact published alpha
-  packages from registries, authenticated tenant-scoped current-order action.
-  No Filament expansion, bank integration, contract change or package publication.
-- Acceptance: Native Codex in-app agent invokes an actual mounted Livewire
-  component using its exact server-issued binding; consequential execution
-  requires a runtime-issued receipt. Old component/binding, changed current
-  record, revoked permission and caller-supplied authority fail closed.
-- Verification: Test-first negative checks against real Livewire HTTP requests,
-  installed-package tests/build, native in-app tool proof, PHP syntax, strict
-  Composer, canonical validation and independent diff review. Document limits
-  and scoped Docker shutdown; preserve the T-905 pilot and user lockfiles.
-- Likely files: `examples/alpha-livewire-pilot/`, CI pilot job, current tracking
-  and `docs/reviews/t906-livewire-acceptance.md`.
-- Current evidence: 15 real signed HTTP checks pass; actual in-app native agent
-  approval/completion/replay, record/tenant change and stale-handle tests pass.
-  SQL proves approval has no effect and completion/replay creates one effect
-  for the tested intent. Displayed-challenge race fixed with observed RED/GREEN;
-  independent static review has no remaining blocker. Build, syntax, strict
-  Composer and canonical validation pass. No next task is active.
+No task is active. Select the next bounded consumer qualification separately.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Registry-installed Livewire consumer | T-906 real mounted consumer accepted; 15 signed HTTP checks, native agent/SQL one-effect proof, required validation and independent review pass; [evidence](docs/reviews/t906-livewire-acceptance.md), [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42) |
 | Registry-installed browser pilot | T-905 local Docker/native-agent refund and separate simulated 3D checkout accepted; 31 HTTP and 6 DOM-wiring tests, required validation and independent review pass; [evidence](docs/reviews/t905-checkout-acceptance.md), [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41) |
 | First alpha publication | T-904 `0.1.0-alpha.1` published on npm/Packagist; exact source/tag/mirror/hash provenance, 187 Python tests and local/tagged/registry consumers verified; [receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) |
 | Publication preparation | T-903 metadata/dry-runs, mirror provenance, private intake/decision dispositions and kefyusuf browser/CLI owner authority verified; owner approved interactive 2FA route, deferring unattended scoped-token/OIDC provisioning |
