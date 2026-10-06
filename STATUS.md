@@ -4,34 +4,34 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 
 ## Current work
 
-- Main includes merged T-804–T-809 and the reviewed integration handoff.
-- T-901 alpha scope/candidates are verified on open [PR #36](https://github.com/kefyusuf/surfacerelay/pull/36).
-  The owner selected `0.1.0-alpha.1`; publication remains NO-GO.
-- T-902 installed-application acceptance passes: 11 actual HTTP tests against
-  the installed Laravel alpha archive, real authentication/membership/Gate,
-  shared confirmation locks, SQLite idempotency/audit and output redaction.
-- A temporary Gate bypass fails the denied-actor test; restoring the real
-  policy passes. Two independent HTTP processes rendezvous before dispatch;
-  receipt/key races each produce exactly one database effect.
-- Docker Python tooling: 159 tests pass; canonical validation covers 22 HTMX
-  fixtures; publication guardrails, fixture PHP syntax and diff checks pass.
-  See [installed-application evidence](docs/reviews/alpha-installed-application.md).
-- Branch `test/t-902-installed-app-acceptance` is stacked on PR #36. Its added
-  CI job rebuilds an exact-source alpha archive and repeats the application tests.
-  Check current-head CI before merge. Both owner Composer lockfiles are preserved.
+- Main includes T-804–T-809. Preparation [PR #36](https://github.com/kefyusuf/surfacerelay/pull/36)
+  and installed-application [PR #37](https://github.com/kefyusuf/surfacerelay/pull/37) remain open.
+- T-901 two-package alpha candidates and T-902 installed Laravel application
+  acceptance are verified. The owner selected `0.1.0-alpha.1`; publication is NO-GO.
+- T-903 is active on `release/t-903-publication-preview`, stacked on PR #37.
+  Separate proposed metadata is derived from both reverified actual archives;
+  offline npm dry-run inventory and strict explicit Composer validation pass.
+- Source manifests/private builders remain unchanged. The preview grants no
+  publication authority and always records NO-GO. No final artifacts or registry
+  consumer qualification are claimed.
+- Docker Python: 170 tests pass, including 11 preview tests. Existing T-902:
+  11 HTTP tests, mutation control and two-process receipt/key races pass.
+  Current-head CI must pass before merge. Owner lockfiles remain preserved.
+- See [the concrete preparation handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md).
 
-## Remaining gates and limits
+## Needs decision / open gates
 
-- The application fixture qualifies the Laravel HTTP host boundary. Browser
-  installation evidence remains T-901; no new UI/native-agent certification,
-  concurrent session-write safety or production deployment is claimed.
-- Unrelated UI/Livewire concurrency, reentrant HTMX host hooks and back/forward
-  cache restoration remain unqualified. Native WebMCP uses page callers and
-  flag-enabled Chromium; server confirmation remains authoritative.
-- The browser candidate stays private; fixed-NO-GO tooling needs a reviewed
-  publication path. D-026 and D-069–D-078 remain Proposed.
-- Private reporting, registry authority/credentials and final publication
-  authorization remain owner gates. See [the alpha plan](docs/releases/0.1.0-alpha.1.md).
+- Public Packagist needs a package-root VCS manifest. The Laravel manifest is
+  inside the development monorepo. Recommended proposal: a distribution-only
+  mirror while keeping this repository authoritative; owner/channel choice pending.
+- Private vulnerability reporting is disabled, rechecked read-only. GitHub admin
+  rights do not authorize enabling it; intake ownership/process remains pending.
+- Both public package endpoints return 404; this does not prove namespace ownership.
+  npm identity did not authenticate; both registry authorities/credentials unverified.
+- D-026 and D-069–D-078 stay Proposed. Review the handoff's disposition table;
+  settings and formal promotions need explicit owner authorization.
+- Browser/native/UI qualification limits remain as recorded in T-901/T-902.
+  No production deployment or concurrent-session-write guarantee is added.
 
-Next task: T-903 publication eligibility preparation, after this handoff and an
-explicit continuation request. Do not begin it automatically, merge or publish.
+T-903 is not complete while these gates are open. T-904 is not started. Do not
+merge, create mirrors, change settings, promote decisions, tag or publish automatically.

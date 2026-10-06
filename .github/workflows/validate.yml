@@ -5,6 +5,65 @@ on:
   pull_request:
 
 jobs:
+  publication-metadata-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m unittest scripts.tests.test_release_publication_preview -v
+      - name: Build local candidates from exact archived sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          git diff --cached --exit-code
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then exit 1; fi
+          mkdir -p "$RUNNER_TEMP/t903-source"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/t903-source"
+          python - <<'PY'
+          import os, subprocess
+          from pathlib import Path
+          from scripts.release_readiness import _rebuild_browser_distribution
+          from scripts.browser_release_candidate import build_browser_release_candidate
+          from scripts.laravel_release_candidate import build_laravel_release_candidate
+          root = Path(os.environ['RUNNER_TEMP'])
+          source = root / 't903-source'
+          revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          _rebuild_browser_distribution(source)
+          for kind, builder in (('laravel', build_laravel_release_candidate), ('browser-runtime', build_browser_release_candidate)):
+              builder(repo=source, stage_root=root / 't903-candidates' / kind,
+                      artifact_version='0.1.0-alpha.1', source_revision=revision)
+          PY
+      - name: Review proposed metadata using local dry-run only
+        shell: bash
+        run: |
+          python scripts/release_publication_preview.py \
+            --candidate-root "$RUNNER_TEMP/t903-candidates" \
+            --preview-root "$RUNNER_TEMP/t903-preview" \
+            --version 0.1.0-alpha.1 --source-revision "$(git rev-parse HEAD)"
+          python scripts/check_release_guardrails.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: publication-metadata-preview-evidence
+          path: |
+            ${{ runner.temp }}/t903-preview/preview-evidence.json
+            ${{ runner.temp }}/t903-preview/dry-run-evidence.json
+
   installed-alpha-application:
     runs-on: ubuntu-latest
     permissions:

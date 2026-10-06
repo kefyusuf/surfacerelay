@@ -54,7 +54,7 @@ consumer evidence. Under this proposed policy:
 - Prereleases may change before public release approval.
 
 This proposal applies to package API changes. It does not replace positive integer
-Action versions or promote D-026/D-069..D-073, which remain Proposed. A synchronized
+Action versions or promote D-026/D-069..D-078, which remain Proposed. A synchronized
 release train, independently supported package streams, support windows and public
 compatibility guarantees are not established here. Other monorepo packages are not
 part of the first two-artifact candidate scope.

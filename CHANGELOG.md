@@ -8,6 +8,11 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Added
 
+- Credential-free publication metadata previews from reverified alpha archives,
+  with offline npm packing inventory and explicit Composer manifest validation.
+  These disposable proposals always report NO-GO; existing private candidate
+  builders are unchanged. See [the preparation handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md).
+
 - Shared release-candidate contracts for explicit staged package versions, source
   revisions, isolated staging, content manifests and archive SHA-256 evidence.
   Source manifests remain development metadata. See

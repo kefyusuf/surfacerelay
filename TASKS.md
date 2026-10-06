@@ -6,13 +6,23 @@ one-line entry; full history is in
 
 ## Open
 
-### T-903 — Publication eligibility preparation — NEXT
+### T-903 — Publication eligibility preparation — IN PROGRESS
 
 Scope and gates: follow [the alpha plan](docs/releases/0.1.0-alpha.1.md), review
 applicable decisions/migration notes, security intake and registry authority,
 then prepare reviewed publication metadata/tooling and dry-run evidence.
 Settings, formal decision promotion and T-904 publication require their explicit
 owner authorization. Do not begin automatically after T-902.
+
+Verification: `python -m unittest scripts.tests.test_release_publication_preview -v`,
+credential-free `npm pack --dry-run --json --ignore-scripts`, strict Composer
+manifest validation, `python scripts/validate.py` and publication guardrails.
+Preview changes only disposable staged metadata; no registry write or promotion.
+
+Preparation: preview/dry-run tool and current external checks are implemented;
+[owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) records channel,
+security intake, registry authority and formal disposition gates. These gates are
+still open; do not mark T-903 done or begin T-904.
 
 ## Done
 

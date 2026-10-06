@@ -1,32 +1,36 @@
-# Installed Alpha Application Review Request
+# Publication Metadata Preview Review Request
 
-Branch: `test/t-902-installed-app-acceptance`.
-Task: T-902. Base: `release/t-901-alpha-scope-candidates`, open [PR #36](https://github.com/kefyusuf/surfacerelay/pull/36).
+Branch: `release/t-903-publication-preview`.
+Task: T-903 preparation; gates remain open. Base: `test/t-902-installed-app-acceptance`,
+[PR #37](https://github.com/kefyusuf/surfacerelay/pull/37), itself stacked on PR #36.
 
 ## Change and evidence
 
-The isolated application installs the actual Laravel alpha ZIP, rather than a
-path package. It uses Laravel session Auth/Eloquent, database tenant membership,
-Gate, package validation/confirmation/idempotency/output stages and durable audit.
-Eleven HTTP tests cover the alpha negative matrix. Independent processes share
-SQLite WAL/file-cache locks; a test-only barrier precedes dispatch and effect
-counts prove receipt/key races do not duplicate execution.
+A separate local preview tool verifies both actual candidate identities, source/
+version, archive/manifest hashes and every archived file before generating proposed
+staged npm/Composer metadata. Existing private builders and source metadata are
+unchanged. Offline npm dry-run checks the exact proposed inventory; Composer
+validates an explicit manifest with plugins/scripts disabled in a fresh environment.
+The tool always reports NO-GO; no settings, credential injection, tags or registry
+write commands are added.
 
-The Gate-bypass mutation produces the expected denied-actor test failure; the
-restored fixture passes. Independent test review tightened exact rejection
-codes, correlation-specific audit, safe replay output and binding rejection.
-Docker Python 159 tests, canonical validation/22 HTMX fixtures, guardrails,
-fixture PHP syntax and diff checks pass. See [evidence and reproduction](docs/reviews/alpha-installed-application.md).
-The new CI job rebuilds a local alpha from an exact source archive and repeats
-the HTTP acceptance. Check this branch's current-head CI before merge.
+Eleven TDD preview tests pass, including tamper, mismatched source, destination
+preservation, preview drift, invalid inventory, command failure and ambient
+Composer override/credential isolation. Full Python: 170 tests pass. Actual
+Docker dry-runs pass on both T-901 archives. The added CI job rebuilds local
+candidates from exact archived sources and repeats these checks.
 
-## Review boundary
+Independent review found an ambient COMPOSER false-proof path; explicit targeting,
+environment isolation and a regression test fix it. Review the full diff and
+current-head CI before merge.
 
-- No production runtime, public contract, package metadata or decision promotion.
-- Fixture approval, binding controls, observer and barrier are test-only.
-- This proves the fixture HTTP host, not browser UI, native agents, production
-  operation, concurrent session writes or every scope field in isolation.
-- The two owner lockfiles remain excluded. PR #36 must land before this stacked
-  branch can be merged to main. Publication remains NO-GO.
-- T-903/T-904 are future scopes; settings, registry writes, tags and final release
-  still need their applicable owner authorization.
+## Owner handoff and limits
+
+[Concrete proposals and gates](docs/releases/0.1.0-alpha.1-publication-handoff.md):
+Packagist channel/mirror choice, disabled private intake, unverified registry
+authority and pending formal decision dispositions. A public endpoint 404 is not
+ownership or reservation. No publication contract/channel is implemented.
+
+T-903 cannot close yet. T-904 is not started; no automatic merge/publication.
+The two owner lockfiles remain excluded. Development monorepo, runtime packages,
+contracts and Proposed decision statuses remain unchanged.

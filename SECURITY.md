@@ -10,7 +10,7 @@ Re-check release status and this policy before adopting a candidate.
 ## Reporting a vulnerability
 
 **A private reporting channel is not currently established.** GitHub private
-vulnerability reporting was checked read-only on 2026-10-04 for
+vulnerability reporting was checked read-only on 2026-10-06 for
 `kefyusuf/surfacerelay` and returned `enabled: false`. This dated observation can
 change; it is not a promise of future channel availability.
 
