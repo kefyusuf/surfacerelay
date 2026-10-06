@@ -1,37 +1,34 @@
-# Integration Review Request
+# Post-merge Readiness Review Request
 
-Review [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) against main.
-It contains unmerged T-804–T-809 documentation, readiness and browser/runtime work.
+Branch: `docs/t-805-merged-main-readiness`.
+[PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) merged after the owner's
+conditional approval, 40 successful reviewed-head checks and no open review threads.
 
-## Integration review handoff
+## Change
 
-The full integrated source diff has now received three independent agent reviews:
-Laravel/Filament, browser/HTMX/WebMCP, and readiness/CI. No new actionable
-production defect was established. [Coverage and finding disposition](docs/reviews/integration-pr-34.md)
-records the reviewed revision, evidence and limits. This does not claim human
-PR approval or authorize merge/publication.
+This documentation-only handoff records [merged-main readiness evidence](docs/reviews/merged-main-readiness.md)
+and closes T-805 integration tracking. No executable code, package metadata,
+schemas, decision statuses or repository settings change.
 
-Latest changes correct claims about session pull versus atomic receipt
-consumption, current/history tracking and implemented readiness orchestration.
-Only documentation and a PHP comment change; executable contracts are unchanged.
+From the exact merge revision, default builders rebuilt both candidates; both
+archives passed isolated clean-consumer proofs. Ignored source and stale dist
+sentinels were excluded and preserved. Docker Python tooling: 158 tests pass;
+canonical validation includes 22 HTMX fixtures. Publication guardrails pass.
+Main CI: 20 successful checks, including Filament 16/16.
 
-Docker Python tooling: 158 tests pass; canonical validation includes 22 HTMX
-fixtures. Publication guardrails, changed PHP syntax and relative links pass.
-Reviewed-source CI had all five workflows successful, including both Filament
-16/16 runs. Check current-head CI before approval.
+The evidence report records revision, runtimes, archive sizes/hashes, manifests,
+local retained evidence location and proof limits. Full logs and candidates were
+saved before the task container/network were removed; pre-existing images remain.
 
-## Migration and review boundaries
+## Review boundary
 
-- Custom ConfirmationStore implementations must migrate the unpublished
-  `approvePending` signature and distinct-receipt atomic handoff (D-077).
-- HTMX producers and runtimes must migrate together to the exact
-  `surfacerelay:result.value` envelope. No legacy fallback; old output containing
-  only an object-valued `value` is ambiguous. See [migration guidance](docs/consumers/browser-runtime.md#htmx-result-envelope).
-- Fixed fixture identity, concurrent session writes, unrelated UI concurrency,
-  reentrant HTMX hooks and back/forward-cache restoration remain unqualified.
-- Native WebMCP proof is bounded flag-enabled page-caller evidence. Corrected
-  artifact readiness is pre-merge and must be repeated on merged main.
-- User Composer lockfiles are excluded. Decisions remain Proposed; publication NO-GO.
+- Confirm the retained evidence and recorded hashes match the tested revision.
+- Local Laravel smoke is PHP 8.4/Laravel 13 with fixture-only policy stages;
+  CI artifact installation covers the four existing matrix legs.
+- Existing runtime qualification limits from [the integration review](docs/reviews/integration-pr-34.md)
+  remain. This is artifact evidence, not production-security approval.
+- Owner Composer lockfiles are preserved and excluded. Check this branch's CI.
 
-Next gate: human PR review/disposition and explicit merge authorization. Decision
-promotion, settings changes, public version and publication remain separate gates.
+Publication remains NO-GO. Formal decision promotion, private reporting, registry
+authority/credentials and public-version/publication approval remain separate gates.
+No next feature is selected; the new documentation PR needs separate review/merge.

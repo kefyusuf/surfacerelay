@@ -6,6 +6,15 @@ independently re-verified, with one aggregate `readiness-evidence.json`. It is a
 function like the existing builders, not a CLI, and it never publishes, tags or selects
 a public version (D-073).
 
+## Latest merged-main evidence
+
+The owner-authorized merge of [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34)
+has been re-verified with both default builders and both isolated consumers.
+[The evidence report](reviews/merged-main-readiness.md) records the exact merged
+revision, environment, archive/manifest hashes and retained logs. Docker tooling
+passed 158 tests; main CI passed 20 checks. Publication remains NO-GO. The older
+records below are historical evidence, not the current readiness gate.
+
 ## What it checks
 
 1. The checkout is exactly the requested 40-character revision with no tracked or
@@ -78,7 +87,7 @@ This verifies the correction before merge; it does not replace merged-main evide
 
 ## Before any publication decision
 
-- Re-run on the merged `main` revision after the open PR stack lands; this record is
-  pre-merge evidence, and archives are not claimed byte-identical across platforms.
+- Review the latest merged-main evidence and re-run if the candidate source
+  revision changes. Archives are not claimed byte-identical across platforms.
 - Ubuntu CI keeps the four Laravel install legs and the browser consumer job per artifact.
 - The owner resolves the listed blockers and gives explicit authorization (D-073).
