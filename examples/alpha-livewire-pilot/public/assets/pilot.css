@@ -1,0 +1,3 @@
+body {font-family: system-ui,sans-serif; margin:0; background:#edf3f7; color:#14384c} main {max-width:1000px;margin:auto;padding:32px 20px}
+section {background:white; padding:24px; margin:18px 0; border-radius:12px; border:1px solid #cadbe4} button,input,select {font:inherit;padding:9px;margin:5px;border:1px solid #9db4c1;border-radius:6px}
+button {background:#e5f2ee;cursor:pointer} pre {white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f5f8;padding:14px} .tag{font-size:.8rem;font-weight:bold;color:#076e5c} aside{border-left:4px solid #ccaa24;padding-left:14px} p{line-height:1.5}

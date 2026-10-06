@@ -1,0 +1,8 @@
+{
+  "name": "surfacerelay-alpha-livewire-pilot",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "esbuild resources/pilot.js --bundle --format=esm --outfile=public/assets/pilot.js"},
+  "dependencies": {"@surfacerelay/browser-runtime": "0.1.0-alpha.1"},
+  "devDependencies": {"esbuild": "0.25.12"}
+}

@@ -1,0 +1,19 @@
+services:
+  app:
+    image: ${SURFACERELAY_PILOT_IMAGE:-surfacerelay-t807a-live:local}
+    working_dir: /tmp/pilot
+    command: ["sh", "/source/start.sh"]
+    ports:
+      - "127.0.0.1:${SURFACERELAY_LIVEWIRE_PORT:-4186}:8000"
+    volumes:
+      - .:/source:ro
+    tmpfs:
+      - /tmp:exec,size=2g
+    environment:
+      PILOT_CONFIRMATION_TTL: "60"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:8000/session') === false ? 1 : 0);"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s

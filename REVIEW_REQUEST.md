@@ -1,33 +1,30 @@
-# Registry-installed Agent Checkout Pilot Review
+# Registry-installed Livewire Consumer Review
 
-Branch: `feat/t-905-docker-browser-pilot`. Task: T-905.
-[PR #41](https://github.com/kefyusuf/surfacerelay/pull/41), ready for owner-authorized merge after final-head CI.
+Task: T-906, acceptance complete. [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42)
+is owner-approved for integration after final-head CI passes.
 
-The loopback Docker application installs exact published Laravel/browser-runtime
-alpha packages. It exposes tenant-scoped simulated refund and order payment
-through an app-owned HTTP driver. A separate simulated 3D page validates fixture
-codes, stores an encrypted runtime confirmation receipt server-side, then lets
-the native agent tool complete and replay one payment effect per checkout flow.
-No core/public contract changes, real payment provider or package publication.
+The selected scope is a standalone loopback Docker Laravel/Livewire application
+using the exact published alpha packages. A tenant-scoped consequential order
+action must run through a real mounted Livewire component, server-issued binding,
+published browser driver and installed ActionBus trust pipeline. T-905/PR #41 is
+merged and its merge-commit main CI passed; its app-owned HTTP proof remains separate.
 
-Review discovery/invocation authorization, exact binding/session/tenant scope,
-code attempt limits, flow and receipt expiry, receipt confidentiality, two-worker
-replay and the conditional stale-expiry observer fix. Caller code/receipt/flags
-cannot authorize payment. Verification alone creates no effect; failed/expired
-flows cannot complete. Canonical results remain separate from app-owned status.
+Review signed stale-component replay, exact binding/session/tenant/current-record
+scope, discovery versus invocation authorization, permission revocation, runtime
+receipt confidentiality, approval-only behavior and server-side idempotency.
+Livewire locked public properties must not be mistaken for current server authority.
 
-Verification: Docker 12 checkout and 19 preserved HTTP tests, 6 Node DOM-wiring
-tests, PHP syntax, build, strict Composer and canonical/22 HTMX fixtures pass.
-Missing-route tests and the expiry race were observed RED before fixes.
-Independent static review has no remaining blocker. Actual Codex in-app native
-WebMCP proves wrong/correct code on the separate page, completion and replay;
-SQLite verifies one effect. See [executed evidence](docs/reviews/t905-checkout-acceptance.md).
+Verification passes: 15 real signed Livewire HTTP checks, browser build, PHP
+syntax, strict Composer, startup shell syntax and canonical/22 HTMX fixtures.
+Actual native Codex in-app calls prove approval-only behavior, completion/replay,
+record/tenant changes, tool removal on revocation and stale handles after remount.
+SQL proves one effect for the tested order-102 intent. A displayed-challenge
+approval race was observed RED, fixed with exact shown/stored challenge matching
+and verified GREEN. Independent static review has no remaining blocker.
+See [executed evidence](docs/reviews/t906-livewire-acceptance.md). Final-head CI
+must pass before integration; merge-commit CI remains separate from local/native proof.
 
-Node tests use deterministic DOM/HTTP stubs; native evidence covers this pilot,
-not general certification or real bank 3DS. Single HTTP/native timing samples
-measure different layers and provide no performance guarantee. Implementation CI
-passed; final tracking-head CI must pass before merge. CodeRabbit skips automatic
-review for this repository and Qodo reviews are paused; neither is review approval.
-Independent static review has no remaining blocker; owner manual testing is optional.
-The `surfacerelay-t905-pilot` stack stays running for further experiments.
-No new image/volume/worktree; existing Docker resources and user locks preserved.
+No Filament integration, public contract/core change, new package publication or
+production qualification is selected. Owner manual testing is optional. Preserve
+the existing T-905 stack and user Composer locks. The scoped T-906 container/network
+were removed after verification; no new image, volume or worktree was created.
