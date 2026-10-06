@@ -164,10 +164,11 @@ trait InteractsWithSurfaceRelayConfirmation
     }
 
     /**
-     * Returns the receipt this exact component approved, at most once. The
+     * Removes and returns the receipt this exact component approved. The
      * receipt lives only in server-side session state, never in public
      * component state, and is not Livewire-callable; the page's own retry
-     * passes it to the gateway, which still verifies the exact scope.
+     * passes it to the gateway, which still verifies the exact scope. Session
+     * pull is not an atomic concurrency guard; store consumption governs reuse.
      */
     protected function pullApprovedSurfaceRelayConfirmationReceipt(): ?string
     {

@@ -61,8 +61,10 @@ aggregate evidence are implemented by [release readiness](RELEASE-READINESS.md)
   claims and unintended package/contract changes. Complete external review and
   finding disposition; record unresolved risks rather than treating green CI as
   release approval.
-- [ ] Update STATUS, TASKS and REVIEW_REQUEST with exact revisions, verification
-  results, environment limits, archive evidence locations and the next gate.
+- [ ] Update STATUS, TASKS and REVIEW_REQUEST with current verification results,
+  environment limits, evidence links and the next gate. Keep exact revisions,
+  hashes and historical run details in artifact evidence or review reports,
+  rather than growing present-state tracking files.
   The [changelog](../CHANGELOG.md) remains Unreleased until separately authorized
   release work. The [version policy](VERSIONING-COMPATIBILITY.md) separates current
   contracts from proposed future commitments.

@@ -6,14 +6,11 @@ one-line entry; full history is in
 
 ## Open
 
-T-805 source isolation, T-809 receipt-address concurrency, T-807b receipt-boundary
-and T-807a selection fail-closed corrections are verified. Remaining gate:
-external [integration PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) review
-and finding disposition; no next feature is selected. See [STATUS.md](STATUS.md#owner-actions).
-
-T-808's owner-approved D-078 envelope correction is verified. The next scope is
-remaining full integration review and cross-contract findings; do not
-start another feature or merge automatically.
+T-805 full integration agent source review and claim disposition are complete;
+no new actionable production defect was found. See [review coverage](docs/reviews/integration-pr-34.md).
+Remaining gate: human [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34)
+review/disposition and explicit merge authorization, followed by merged-main
+readiness. No next feature is selected; do not merge automatically.
 
 ## Done
 
@@ -28,7 +25,7 @@ start another feature or merge automatically.
 | M6 HTMX portability | T-601…T-604 |
 | M7 Conformance / bridges | T-701 runner, T-702 adapter guide, T-703 Laravel MCP, T-704 OpenAPI importer |
 | M8 Release readiness | T-801 artifact contract, T-802 Laravel artifact, T-803 browser artifact |
-| M8 readiness | T-805 integrated verification and exact archived-source correction; tests and Docker consumer proofs pass; integration review pending |
+| M8 readiness | T-805 source-isolated artifact/consumer proofs and full integration agent review pass; claim corrections and Docker Python 158 tests verified; human PR approval and merged-main readiness remain open |
 | M8 docs | T-804 consumer guides, CHANGELOG, SECURITY, versioning, release checklist, README |
 | T-809 review correction | Sorted challenge/receipt locks; three negative regressions; Docker Laravel 611 tests (2 skipped), canonical validation and independent real-store reproduction pass |
 | T-807b review evidence | Receipt secrecy/protected-call controls and cross-session signed-snapshot replay preserve owner retry; storage mutation fails, restored Chrome + Docker 16 tests and scoped review pass; existing Laravel 612 tests (2 skipped) |

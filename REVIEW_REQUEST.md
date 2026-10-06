@@ -1,47 +1,37 @@
 # Integration Review Request
 
 Review [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) against main.
-It contains unmerged release documentation/readiness and WebMCP/Filament work.
+It contains unmerged T-804–T-809 documentation, readiness and browser/runtime work.
 
-## Latest evidence — T-807b HTTP session isolation
+## Integration review handoff
 
-No production defect was found in the scoped receipt-boundary review. The new
-negative browser test replays the approving component's valid signed snapshot
-using another HTTP session's cookies and CSRF token. Livewire accepts the request
-but returns `confirmation_required`; nothing is refunded. The original owner's
-retry still refunds exactly the approved order.
+The full integrated source diff has now received three independent agent reviews:
+Laravel/Filament, browser/HTMX/WebMCP, and readiness/CI. No new actionable
+production defect was established. [Coverage and finding disposition](docs/reviews/integration-pr-34.md)
+records the reviewed revision, evidence and limits. This does not claim human
+PR approval or authorize merge/publication.
 
-Replacing session receipt storage with a shared file cache only inside the
-temporary container caused this test to fail: the other session refunded 101.
-The original source was restored; Chrome + isolated Docker Filament: 16 tests
-pass. Canonical validation and changed JS syntax pass. No production code or
-public contract changes are included in this evidence increment.
+Latest changes correct claims about session pull versus atomic receipt
+consumption, current/history tracking and implemented readiness orchestration.
+Only documentation and a PHP comment change; executable contracts are unchanged.
 
-The fixture has a fixed actor/tenant; authentication changes and concurrent
-session writes are not qualified. Session pull is not an atomic concurrency
-guard; the confirmation store's scope-checked atomic consumption governs reuse.
-Scoped review does not close full integration review. Check current-head CI.
+Docker Python tooling: 158 tests pass; canonical validation includes 22 HTMX
+fixtures. Publication guardrails, changed PHP syntax and relative links pass.
+Reviewed-source CI had all five workflows successful, including both Filament
+16/16 runs. Check current-head CI before approval.
 
-## Existing migration impact — D-078
+## Migration and review boundaries
 
-Update servers and runtimes together for this unpublished wire-format change.
-No legacy fallback exists; declarations outside the exact envelope return undefined.
-Old output with only an object-valued `value` is structurally indistinguishable;
-inventory producers. See [migration guidance](docs/consumers/browser-runtime.md#htmx-result-envelope).
-Neutral core schemas and the returned business-object shape remain unchanged.
+- Custom ConfirmationStore implementations must migrate the unpublished
+  `approvePending` signature and distinct-receipt atomic handoff (D-077).
+- HTMX producers and runtimes must migrate together to the exact
+  `surfacerelay:result.value` envelope. No legacy fallback; old output containing
+  only an object-valued `value` is ambiguous. See [migration guidance](docs/consumers/browser-runtime.md#htmx-result-envelope).
+- Fixed fixture identity, concurrent session writes, unrelated UI concurrency,
+  reentrant HTMX hooks and back/forward-cache restoration remain unqualified.
+- Native WebMCP proof is bounded flag-enabled page-caller evidence. Corrected
+  artifact readiness is pre-merge and must be repeated on merged main.
+- User Composer lockfiles are excluded. Decisions remain Proposed; publication NO-GO.
 
-## Integration focus
-
-- T-805 source isolation and isolated artifact consumers passed local verification
-  and CI. T-809 sorted dual-lock correction passed independent real-store review.
-  Review cross-contract behavior across the full integration diff. Selection proofs
-  reject wrapper overlap; unrelated UI/Livewire concurrency is not qualified.
-- Scoped correction reviews do not close the full external integration review.
-- Node/fixture and flag-enabled browser proofs are bounded; they are not general
-  WebMCP certification or production-security approval.
-- Readiness evidence remains pre-merge. Public API of the readiness function and core
-  runtime contracts are unchanged by this correction; publication always stays NO-GO.
-- User Composer lockfiles are excluded. Check the latest PR CI before approval.
-
-Next gate: external integration review/finding disposition. Merge, decision promotion,
-settings changes and publication need explicit authorization.
+Next gate: human PR review/disposition and explicit merge authorization. Decision
+promotion, settings changes, public version and publication remain separate gates.

@@ -51,11 +51,13 @@ dates. SurfaceRelay remains experimental and unofficial.
   [the example](examples/filament-orders-live/README.md).
 - `InteractsWithSurfaceRelayConfirmation` keeps a receipt approved in the
   Filament modal in server-side session state for the approving component, and
-  exposes it only through protected `pullApprovedSurfaceRelayConfirmationReceipt()`,
-  once (proposed D-076). Exposed page methods can now complete an approved retry
+  exposes it only through protected `pullApprovedSurfaceRelayConfirmationReceipt()`
+  by removing it from the session on retry (proposed D-076). Exposed page methods
+  can complete an approved retry
   without ever accepting a receipt argument. The live Filament proof covers
   approval → exactly-once retry, selection/input drift, and forged confirmation
-  fields.
+  fields. Session pull is not an atomic concurrency guard; the confirmation
+  store's scope-checked atomic consumption governs single-use authority.
 
 ### Changed
 

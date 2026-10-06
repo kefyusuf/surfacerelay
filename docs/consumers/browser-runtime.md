@@ -162,5 +162,6 @@ and persistence with business control-like fields.
 
 The repository tooling suite is `python -m unittest scripts.tests.test_browser_release_candidate`.
 The [approved documentation plan](../superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md)
-records the broader release gates. Publication and integrated two-artifact
-orchestration remain separate work.
+records the broader release gates. Implemented same-revision/two-artifact
+orchestration is documented in [release readiness](../RELEASE-READINESS.md).
+Publication remains a separate authorization gate.

@@ -32,7 +32,8 @@ matrix. Its source-tree PHP/framework suites are separate from clean artifact
 consumption; do not treat those suites as artifact support promises. The
 [Laravel guide](consumers/laravel.md) and
 [browser guide](consumers/browser-runtime.md) describe the bounded proofs.
-Exact historical revisions and results are recorded in [STATUS](../STATUS.md).
+Current results and remaining gates are recorded in [STATUS](../STATUS.md).
+Historical evidence is retained in Git, PRs and [the archive](archive/STATUS-through-2026-10-04.md).
 
 An archive content manifest records sorted file paths, sizes and SHA-256 hashes;
 artifact evidence records identity and archive SHA-256. These are evidence for a
