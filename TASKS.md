@@ -6,26 +6,19 @@ one-line entry; full history is in
 
 ## Open
 
-### T-902 — Installed-application alpha acceptance — NEXT
+### T-903 — Publication eligibility preparation — NEXT
 
-Scope: use the installed alpha candidates in a separate Laravel application with
-real authentication/tenant resolution and actual policy/store wiring. Implement
-the negative acceptance matrix in [the alpha plan](docs/releases/0.1.0-alpha.1.md).
-
-Acceptance: actor/tenant switch, receipt expiry/replay and concurrent receipt/key
-attempts fail closed without duplicate effects; output/audit and binding lifecycle
-remain safe. Retain installed versions, policy wiring and exact-source evidence.
-
-Verification: executable application-level positive/negative tests and real shared
-store concurrency evidence; canonical validation and full diff review. Pin commands
-before implementation. Do not substitute the existing pass-through consumer smoke.
-T-903/T-904 remain future tasks; no publication or settings changes are authorized.
+Scope and gates: follow [the alpha plan](docs/releases/0.1.0-alpha.1.md), review
+applicable decisions/migration notes, security intake and registry authority,
+then prepare reviewed publication metadata/tooling and dry-run evidence.
+Settings, formal decision promotion and T-904 publication require their explicit
+owner authorization. Do not begin automatically after T-902.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
-| Alpha preparation | T-901 owner-selected 0.1.0-alpha.1/two-package scope frozen; exact-source local artifacts/both consumers, Docker Python 158 tests and independent review pass; publication NO-GO |
+| Alpha preparation | T-901 scope/candidates verified; T-902 installed Laravel alpha: 11 HTTP tests, Gate mutation, two-process receipt/key races, Python/canonical/guardrails pass; [evidence](docs/reviews/alpha-installed-application.md); publication NO-GO |
 | M0 Contract foundation | schemas, fixtures, validator |
 | M1 / M1.1 Laravel kernel + hardening | ActionBus, policies, tenancy |
 | M2 Livewire binding | binding producer, exposure |
