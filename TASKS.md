@@ -6,36 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-### T-905 — Registry-installed Docker browser pilot (Local acceptance complete; PR integration pending)
-
-- Scope: A standalone local Laravel application using both published exact
-  `0.1.0-alpha.1` packages, browser UI and isolated Docker orchestration. No core
-  contract changes, new package publication or production qualification.
-- Acceptance: Localhost port serves a usable pilot; registry dependencies have
-  no monorepo path coupling; trusted authentication/tenant, confirmation and
-  idempotency paths have meaningful negative checks; the agent executes the
-  native in-app browser flow. Manual browser instructions are optional support.
-  General native-agent qualification remains separate from this pilot evidence.
-- Owner-directed extension: Agent-led simulated order payment with a separate
-  3D code page, wrong/correct code, retry, expiry and attempt-limit checks. Code
-  validation issues a real runtime confirmation receipt; caller flags/code do
-  not authorize tool execution. No bank, card data or real payment integration.
-- Verification: Pilot acceptance checks, PHP syntax, browser build, HTTP smoke,
-  `python scripts/validate.py`, full diff review. Keep only the pilot resources
-  needed for further pilot experiments and document their shutdown.
-- Current evidence: 12 checkout and 19 preserved HTTP tests, 6 Node DOM-wiring
-  checks and required validation pass. Native Codex in-app WebMCP proves wrong
-  then correct code on a separate page, completion/replay and one persisted
-  effect; refund/changed-selection checks also pass. Test-first missing routes
-  and review-found expiry race were RED before fixes. Independent static review
-  has no remaining blocker. Updated-head PR CI/review is pending; owner manual
-  testing is optional. [Acceptance evidence](docs/reviews/t905-checkout-acceptance.md),
-  [run/test guide](examples/alpha-pilot/README.md).
+None selected. Define the next consumer qualification task before implementation.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Registry-installed browser pilot | T-905 local Docker/native-agent refund and separate simulated 3D checkout accepted; 31 HTTP and 6 DOM-wiring tests, required validation and independent review pass; [evidence](docs/reviews/t905-checkout-acceptance.md), [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41) |
 | First alpha publication | T-904 `0.1.0-alpha.1` published on npm/Packagist; exact source/tag/mirror/hash provenance, 187 Python tests and local/tagged/registry consumers verified; [receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) |
 | Publication preparation | T-903 metadata/dry-runs, mirror provenance, private intake/decision dispositions and kefyusuf browser/CLI owner authority verified; owner approved interactive 2FA route, deferring unattended scoped-token/OIDC provisioning |
 | Alpha preparation | T-901 scope/candidates and T-902 installed Laravel HTTP/authorization/shared-store races verified; [preparation evidence](docs/reviews/alpha-installed-application.md); final publication recorded under T-904 |

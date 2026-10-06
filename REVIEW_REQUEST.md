@@ -1,7 +1,7 @@
 # Registry-installed Agent Checkout Pilot Review
 
 Branch: `feat/t-905-docker-browser-pilot`. Task: T-905.
-[Draft PR #41](https://github.com/kefyusuf/surfacerelay/pull/41).
+[PR #41](https://github.com/kefyusuf/surfacerelay/pull/41), ready for owner-authorized merge after final-head CI.
 
 The loopback Docker application installs exact published Laravel/browser-runtime
 alpha packages. It exposes tenant-scoped simulated refund and order payment
@@ -25,7 +25,9 @@ SQLite verifies one effect. See [executed evidence](docs/reviews/t905-checkout-a
 
 Node tests use deterministic DOM/HTTP stubs; native evidence covers this pilot,
 not general certification or real bank 3DS. Single HTTP/native timing samples
-measure different layers and provide no performance guarantee. Updated-head CI
-and integration review remain pending; owner manual testing is optional.
+measure different layers and provide no performance guarantee. Implementation CI
+passed; final tracking-head CI must pass before merge. CodeRabbit skips automatic
+review for this repository and Qodo reviews are paused; neither is review approval.
+Independent static review has no remaining blocker; owner manual testing is optional.
 The `surfacerelay-t905-pilot` stack stays running for further experiments.
 No new image/volume/worktree; existing Docker resources and user locks preserved.

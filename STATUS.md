@@ -27,8 +27,8 @@ Current state only; history is in Git, PRs and the archive.
 
 This is an experimental prerelease, without stable API, production-security or
 support-SLA guarantees. Native-browser/real-agent qualification limits remain.
-T-905 local acceptance is complete; [draft PR #41](https://github.com/kefyusuf/surfacerelay/pull/41)
-integration review and updated-head CI remain pending. The registry-installed
+T-905 implementation and acceptance are complete; [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41)
+is ready for the owner-authorized merge, subject to final-head CI. The registry-installed
 Docker pilot runs at `http://127.0.0.1:4185/`. Agent-led native in-app WebMCP
 calls prove separate simulated 3D navigation, wrong/correct code, completion
 and replay with one effect. Docker verification passes 12 checkout HTTP tests,
@@ -39,6 +39,8 @@ This app-owned HTTP pilot does not qualify real bank 3DS or Livewire/Filament
 consumers. Single timing samples do not establish performance guarantees.
 Owner manual testing is optional. User Composer locks and pre-existing Docker
 resources are preserved; the pilot stays running for further experiments.
+No next task is active. The next candidate is registry-installed Livewire or
+Filament consumer qualification; its scope must be defined before implementation.
 See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
 [guide and shutdown](examples/alpha-pilot/README.md).
 See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).
