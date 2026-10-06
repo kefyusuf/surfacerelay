@@ -141,6 +141,47 @@ test('selection drift after approval requires a new confirmation and refunds not
   expect(await refundedIds(request)).toEqual([]);
 });
 
+test('another HTTP session cannot use an approved component snapshot or spend its owner receipt', async ({ page, browser, request }) => {
+  await page.goto('/admin/orders');
+  await waitForSurfaceRelay(page);
+  await recordCheckbox(page, 101).check();
+  await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+  await approveInModal(page);
+  const snapshot = await page.evaluate(() => {
+    const root = document.querySelector('[data-surfacerelay-bindings]').closest('[wire\\:id]');
+    return JSON.stringify(Livewire.find(root.getAttribute('wire:id')).__instance.snapshot);
+  });
+
+  const outsider = await browser.newContext();
+  try {
+    const outsiderPage = await outsider.newPage();
+    await outsiderPage.goto(new URL('/admin/orders', page.url()).href);
+    await waitForSurfaceRelay(outsiderPage);
+    const transport = await outsiderPage.evaluate(() => ({
+      token: document.querySelector('meta[name="csrf-token"]').content,
+      uri: document.querySelector('script[data-update-uri]').getAttribute('data-update-uri'),
+    }));
+    const response = await outsider.request.post(new URL(transport.uri, page.url()).href, {
+      headers: { 'X-Livewire': '' },
+      data: {
+        _token: transport.token,
+        components: [{ snapshot, updates: {}, calls: [{ method: 'refundSelected', params: ['customer-request'] }] }],
+      },
+    });
+    expect(response.status()).toBe(200);
+    const result = await response.json();
+    expect(result.components[0].effects.returns).toEqual([{ status: 'confirmation_required' }]);
+    expect(await refundedIds(request)).toEqual([]);
+  } finally {
+    await outsider.close();
+  }
+
+  const ownerRetry = await invokeAsAgent(page, 'orders.refund_selected.v1', { reason: 'customer-request' });
+  expect(ownerRetry.status).toBe('returned');
+  expect(ownerRetry.value).toMatchObject({ refundedCount: 1, orderIds: [101] });
+  expect(await refundedIds(request)).toEqual([101]);
+});
+
 test('overlapping agent calls cannot replace an in-flight selection with an approved older selection', async ({ page, request }) => {
   await page.goto('/admin/orders');
   await waitForSurfaceRelay(page);

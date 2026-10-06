@@ -9,9 +9,13 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
 - Reviewed corrections pass: T-805 archived-source isolation, T-809 sorted receipt
   locks, T-807b receipt secrecy/protected-call evidence and T-807a selection guard.
   Scoped independent reviews do not replace the full integration review.
+- T-807b HTTP proof accepts a signed component snapshot in another session but
+  requires confirmation, refunds nothing and preserves the owner's retry. A
+  shared-cache storage mutation fails this test; restored Chrome + Docker: 16 pass.
+  No production defect was found in this scoped review.
 - T-807a rejects missing, ambiguous, foreign-owned or malformed table selection
   before retry. Old-client real-browser RED refunded a stale selected order;
-  Chrome + Docker Filament: 15 tests pass, including overlapping calls. An old-client
+  Chrome + Docker Filament includes overlapping calls. An old-client
   RED returned order 101 for a call selecting 102; component-wide exclusion now
   preserves the first request and rejects overlap before state writes. Independent
   exclusion matrix: 9 scenarios pass. Canonical validation passes.
@@ -30,6 +34,8 @@ Current state only; history is in git, PRs and [the archive](docs/archive/STATUS
 
 - Full external integration review and cross-contract finding disposition remain
   open. Wrapper overlap is rejected; unrelated UI/Livewire concurrency is not qualified.
+  Fixture-fixed identity does not qualify authentication changes or concurrent
+  session writes; atomic receipt consumption remains the execution authority.
 - Native WebMCP evidence uses flag-enabled Chromium and page callers, not a real agent.
   Chromium drops `consequentialHint`; server confirmation receipts remain required.
 - Corrected readiness evidence is pre-merge; repeat it on merged main.

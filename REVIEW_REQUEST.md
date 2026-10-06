@@ -3,23 +3,24 @@
 Review [PR #34](https://github.com/kefyusuf/surfacerelay/pull/34) against main.
 It contains unmerged release documentation/readiness and WebMCP/Filament work.
 
-## Latest correction — T-807a overlapping selection calls
+## Latest evidence — T-807b HTTP session isolation
 
-Livewire batches matching calls and reads deferred updates when sending. Real
-Chrome + Docker RED returned an approved refund of order 101 to a first call that
-selected 102, after a second call restored 101 before the batch was sent.
+No production defect was found in the scoped receipt-boundary review. The new
+negative browser test replays the approving component's valid signed snapshot
+using another HTTP session's cookies and CSRF token. Livewire accepts the request
+but returns `confirmation_required`; nothing is refunded. The original owner's
+retry still refunds exactly the approved order.
 
-The example wrapper now rejects a second invocation on the same component before
-sync, until the exact inner promise settles. It never queues or retries calls;
-failures release the guard. Different components remain independent. Existing
-table-state guards and current-record edit behavior are preserved.
+Replacing session receipt storage with a shared file cache only inside the
+temporary container caused this test to fail: the other session refunded 101.
+The original source was restored; Chrome + isolated Docker Filament: 16 tests
+pass. Canonical validation and changed JS syntax pass. No production code or
+public contract changes are included in this evidence increment.
 
-Corrected real Chrome + isolated Docker Filament: 15 tests pass. The overlap test
-checks one refund call carrying the 102 selection, zero refunds, rejected overlap
-and a subsequent POST after release. Validation/inner failure release also passes.
-Independent exclusion matrix: 9 scenarios pass. Canonical validation/syntax pass.
-The fixture uses PHP intl and Linux-extracted sources, avoiding Windows mount delays.
-Check current-head CI; scoped review does not close full integration review.
+The fixture has a fixed actor/tenant; authentication changes and concurrent
+session writes are not qualified. Session pull is not an atomic concurrency
+guard; the confirmation store's scope-checked atomic consumption governs reuse.
+Scoped review does not close full integration review. Check current-head CI.
 
 ## Existing migration impact — D-078
 

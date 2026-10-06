@@ -15,6 +15,7 @@ It is a fixture, not a starter app. The trusted actor and tenant are fixed to `t
 | Human ticks 101 + 102, agent calls refund | Stops at `{status: "confirmation_required"}`; the real Filament confirmation modal opens; nothing is refunded. |
 | Human clicks **Approve**, agent retries | Refunds exactly 101 and 102 once (`{refundedCount: 2, orderIds: [101, 102]}`); a further call needs a new confirmation. |
 | Selection or input changes after approval | New confirmation required; nothing is refunded. |
+| Another HTTP session replays the approved component's valid snapshot | Livewire accepts the request but requires confirmation; nothing is refunded, and the owner's retry still succeeds. |
 | Agent repeats the call without approval | Never refunds. |
 | Agent adds `confirmed: true` or `confirmationReceipt` | Rejected by the Livewire driver before any request. |
 | Human ticks and unticks, agent calls refund | Fails closed (no trusted selection). |
@@ -44,7 +45,16 @@ is not a general UI concurrency guarantee.
 
 ## Approved retry (T-807b)
 
-`ListOrders::refundSelected(reason)` still accepts only business input; the opaque receipt is never a page-method argument (D-040/D-051). When the human approves in the modal, `InteractsWithSurfaceRelayConfirmation` keeps the receipt in server-side session state keyed by the approving component, and only the page's own protected `pullApprovedSurfaceRelayConfirmationReceipt()` hands it to the gateway on the next call, once. It never appears in public Livewire state and is not browser-callable. The confirmation stage still consumes it only for the exact scope (actor, tenant, selection, input, surface, binding). Proposed as D-076.
+`ListOrders::refundSelected(reason)` still accepts only business input; the opaque receipt is never a page-method argument (D-040/D-051). When the human approves in the modal, `InteractsWithSurfaceRelayConfirmation` keeps the receipt in server-side session state keyed by the approving component, and only the page's own protected `pullApprovedSurfaceRelayConfirmationReceipt()` removes it from that session and hands it to the gateway on retry. It never appears in public Livewire state and is not browser-callable. The confirmation stage still consumes it only for the exact scope (actor, tenant, selection, input, surface, binding). Proposed as D-076.
+
+The HTTP isolation test sends the owner's valid signed component snapshot with
+another session's CSRF token and cookies. It requires a successful Livewire
+response containing `confirmation_required`, zero refunds, then a successful
+owner retry. A temporary shared-cache receipt-storage mutation refunded order
+101 through the other session and failed the test. This proves session transport
+isolation with fixture-fixed identity; it does not qualify authentication changes
+or concurrent session writes. Session pull is not an atomic concurrency guard;
+the confirmation store's atomic scope-checked consumption governs receipt reuse.
 
 Issue, approval and retry are three Livewire requests, so the fixture uses a file-cache `ConfirmationService` instead of the harness's in-memory one.
 
