@@ -31,8 +31,10 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 
 - The initial mirror contains the T-901 preparation baseline, not final release
   sources. No tags exist; final source/tag/consumer proof remains a later gate.
-- npm identity did not authenticate; both registry authorities/credentials remain
-  unverified. Public package endpoints returning 404 do not prove namespace rights.
+- Chrome Packagist session authenticates as `kefyusuf`; existing owned packages
+  are visible. New `surfacerelay/laravel` namespace/publication authority is unverified.
+- npm CLI did not authenticate and Chrome shows its sign-in form. Scope/publish
+  authority remains unverified; public 404 responses do not prove namespace rights.
 - Local preview blocker strings are conservative defaults, not live gate status.
   No final publication artifacts or registry-installed consumers are claimed.
 - Browser/native/UI and concurrent-session-write qualification limits remain.

@@ -37,6 +37,8 @@ No tags or preparation evidence were pushed to that mirror.
 
 [Owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) separates applied
 approvals and verified initial mirror mapping from pending registry authority.
+Chrome confirms Packagist account `kefyusuf` is authenticated with owned packages;
+new package authority remains unverified. npm is still at sign-in.
 The mirror contains the T-901 preparation baseline, not final release sources.
 Preview blockers remain conservative defaults and do not query these live settings.
 No registry write, tag, final artifact or merge occurred.
