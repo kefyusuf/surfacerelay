@@ -29,8 +29,8 @@ dates. SurfaceRelay remains experimental and unofficial.
 - Laravel and browser artifact consumer documentation that separates local
   installation from registry publication, fixture policy stages from production
   security wiring, and Node tooling evidence from real-browser interoperability.
-- A [security policy](SECURITY.md) recording experimental support status and the
-  private vulnerability-reporting channel gap.
+- A [security policy](SECURITY.md) recording experimental support status,
+  owner-authorized private vulnerability reporting and private triage responsibility.
 - Integrated release-readiness verification: `build_release_readiness()` builds
   both candidates from one clean revision and prerelease version, re-verifies
   identity and archive/manifest hashes, and writes `readiness-evidence.json` with
@@ -57,7 +57,7 @@ dates. SurfaceRelay remains experimental and unofficial.
 - `InteractsWithSurfaceRelayConfirmation` keeps a receipt approved in the
   Filament modal in server-side session state for the approving component, and
   exposes it only through protected `pullApprovedSurfaceRelayConfirmationReceipt()`
-  by removing it from the session on retry (proposed D-076). Exposed page methods
+  by removing it from the session on retry (D-076). Exposed page methods
   can complete an approved retry
   without ever accepting a receipt argument. The live Filament proof covers
   approval → exactly-once retry, selection/input drift, and forged confirmation
@@ -71,7 +71,7 @@ dates. SurfaceRelay remains experimental and unofficial.
   `approvePending()` gains a `$receiptHash` parameter and must atomically move
   the approvable pending record to it. `ConfirmationService` accepts an optional
   receipt token generator. A challenge id seen by a human or page script never
-  becomes receipt authority (proposed D-077).
+  becomes receipt authority (D-077).
 
 ### Fixed
 
@@ -94,7 +94,7 @@ dates. SurfaceRelay remains experimental and unofficial.
   `GlobalHtmxBrowserRuntime.ajax()` resolves with the business `value`, read from the
   issued request's own response. Absent or malformed declarations resolve
   `undefined`; output is never derived from HTML. `HtmxBrowserRuntime.ajax()`
-  now returns `Promise<unknown>` (proposed D-078).
+  now returns `Promise<unknown>` (D-078).
   The exact envelope isolates business `target`, `value` and `elt` from HTMX
   event routing. This changes the unpublished wire format: update the server and
   runtime together; declarations outside the exact envelope resolve `undefined`. See
@@ -105,7 +105,7 @@ dates. SurfaceRelay remains experimental and unofficial.
   `htmx_request_failed` (unsuccessful status, transport or response-handling
   failure) or `htmx_request_not_sent`. Custom `HtmxBrowserRuntime` implementations
   must follow the same contract, and sources must support `addEventListener`.
-  Proposed as D-074.
+  Accepted as D-074 with owner approval for the alpha.
 
 - Browser artifact tooling now resolves npm for the tested POSIX and Windows
   launch paths. Windows command shims run through Node's npm CLI without a shell;

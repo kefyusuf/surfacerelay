@@ -54,14 +54,16 @@ consumer evidence. Under this proposed policy:
 - Prereleases may change before public release approval.
 
 This proposal applies to package API changes. It does not replace positive integer
-Action versions or promote D-026/D-069..D-078, which remain Proposed. A synchronized
-release train, independently supported package streams, support windows and public
-compatibility guarantees are not established here. Other monorepo packages are not
-part of the first two-artifact candidate scope.
+Action versions. The owner separately approved D-069–D-074 and D-076–D-078 for the
+alpha; D-026/D-075 remain Proposed. The accepted decisions establish a coordinated
+first-candidate identity, not independent support streams, support windows or a
+general public compatibility guarantee. Other monorepo packages remain outside
+the first two-artifact candidate scope; this future 0.x policy remains Proposed.
 
 ## Release boundary
 
 Use the [release checklist](RELEASE-CHECKLIST.md) to review exact candidate evidence.
-The [security policy](../SECURITY.md) records the private-reporting gap, which
-remains a publication blocker. Integrated same-revision/two-artifact verification
+The [security policy](../SECURITY.md) records enabled private reporting and owner
+triage. Registry authority, distribution implementation and final authorization
+remain publication gates. Integrated same-revision/two-artifact verification
 belongs to T-805; publication, tags and releases require separate approval.
