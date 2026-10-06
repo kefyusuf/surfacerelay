@@ -33,8 +33,10 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
   sources. No tags exist; final source/tag/consumer proof remains a later gate.
 - Chrome Packagist session authenticates as `kefyusuf`; existing owned packages
   are visible. New `surfacerelay/laravel` namespace/publication authority is unverified.
-- npm CLI did not authenticate and Chrome account access remains unauthenticated. Scope/publish
-  authority remains unverified; public 404 responses do not prove namespace rights.
+- Chrome npm session authenticates as `yukonit`; its organization list is empty.
+  The free public `surfacerelay` organization form is prepared, not submitted.
+  Organization creation requires owner approval; scope/publish authority and CLI
+  authentication remain unverified. Public 404 responses do not prove namespace rights.
 - Local preview blocker strings are conservative defaults, not live gate status.
   No final publication artifacts or registry-installed consumers are claimed.
 - Browser/native/UI and concurrent-session-write qualification limits remain.
