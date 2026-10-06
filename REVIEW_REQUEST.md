@@ -1,58 +1,30 @@
-# Alpha Preparation and Distribution Mirror Review Request
+# First Alpha Publication Review Request
 
-Branch: `release/t-903-publication-preview`.
-Task: T-903 completion, on [PR #38](https://github.com/kefyusuf/surfacerelay/pull/38), stacked on #37/#36; T-904 publication is the next integration step.
+Branch: `release/t-904-alpha-publication`. Task: T-904.
+Preparation PRs #36/#37/#38 are merged; T-903 is complete.
 
-## Change and evidence
+## Change
 
-The local metadata preview tool rechecks both archives and always reports NO-GO.
-Its isolated npm/Composer dry-runs and 11 tests pass; existing Python suite has
-176 tests. Development manifests/private builders and runtime contracts remain
-unchanged.
+Separate offline final packaging re-verifies both private candidates, preserves
+their runtime/license bytes and prepares final alpha README/public metadata.
+The Laravel VCS root omits a version field. The npm tarball uses the exact alpha
+version, public access, explicit npm registry and `alpha` dist-tag. Evidence stays
+outside package contents. Existing private builders and NO-GO tools are unchanged.
 
-The owner explicitly approved the proposed Laravel distribution mirror approach,
-GitHub private reporting/intake ownership and the disposition table. Private
-reporting was enabled and read back as true. SECURITY.md now documents the private
-channel, owner triage and lack of a response SLA; no synthetic report was sent.
+The public browser validator checks archive hash, safe entries, exact metadata
+and every file's bytes; its installed verifier rejects source aliases, links and
+byte drift. Negative tests cover identity/content/metadata/path/output failures.
+CI now verifies the public tarball in an isolated fixture consumer: root import,
+declarations/typecheck, Vite bundle, DriverRegistry smoke and deep-import rejection.
 
-D-069–D-074 and D-076–D-078 become Accepted; D-026/D-075 remain Proposed.
-ADR 0013 records the approved distribution boundary without splitting development
-and the distribution-only remote. Current handoff/versioning/changelog are consistent.
-Review the source diff and updated CI before merge.
+## Authority and limits
 
-Local mirror preparation reuses verified two-archive metadata rules and produces
-a root Composer tree plus separate upstream/archive/content mapping evidence.
-Six new tests include a RED/GREEN Windows newline regression; transformed files
-now use UTF-8/LF. Actual alpha archives pass strict Composer validation; CI also
-generates and validates a tree from exact current-head sources. The generator
-does not initialize Git or create remotes; local mapping retains null fields/NO-GO.
+The owner authorized completion of the two-package `0.1.0-alpha.1` publication
+with interactive owner/2FA checks. Both registry identities and npm scope Owner
+are verified; unattended token/OIDC provisioning is deferred, not claimed.
 
-The owner separately authorized public `kefyusuf/surfacerelay-laravel` creation and
-the initial untagged push. Its remote commit/tree were fetched and match all 160
-reviewed file hashes; strict root Composer validation passes. See
-[durable source/commit provenance](docs/reviews/laravel-distribution-mirror.json).
-No tags or preparation evidence were pushed to that mirror.
-
-## Limits and remaining gates
-
-[Owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) separates applied
-approvals and verified initial mirror mapping from pending registry authority.
-Chrome confirms Packagist account `kefyusuf` is authenticated; mirror `Check`
-recognizes `surfacerelay/laravel` and offers final Submit, which was not performed.
-With explicit approval, the free public
-`surfacerelay` npm organization exists. After the owner transferred it, Chrome
-verifies `kefyusuf` as sole Owner with 2FA enabled for authorization and publishing.
-The previous isolated CLI session belongs to `yukonit` and must not be used for
-the new publisher. Fresh isolated login and registry whoami/org ls verify
-`kefyusuf` and its Owner role after device security-key authentication.
-No credential contents appear in project evidence. No scoped-token/OIDC claim.
-The mirror contains the T-901 preparation baseline, not final release sources.
-Preview blockers remain conservative defaults and do not query these live settings.
-No package registration/publication, tag, final artifact or merge occurred.
-
-The owner authorized completion of the two-package alpha publication with
-interactive owner sessions/2FA; unattended token/OIDC provisioning is deferred.
-T-903 is complete; 17 focused preparation tests pass. T-904 is active.
-Independent review identifies the need for separate final
-public artifact/consumer verification; preview trees must not be published.
-Both owner Composer lockfiles remain excluded.
+Final main-source rebuild, hashes, installed consumers, source/mirror/tag mapping
+and exact-head CI must pass before registry writes. Then verify registry-installed
+consumers. No new runtime/API contract or compatibility/support claim is added.
+User Composer lockfiles remain untracked and excluded from release inputs.
+See [the publication record](docs/releases/0.1.0-alpha.1-publication.md).

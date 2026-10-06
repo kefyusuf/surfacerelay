@@ -8,6 +8,11 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Added
 
+- Separate offline final alpha package generation and public-browser archive/
+  installed-byte verification. Existing private candidate builders remain unchanged;
+  publication authority is independent of tooling. CI exercises the final public
+  tarball in an isolated import/typecheck/bundle/smoke consumer.
+
 - Credential-free publication metadata previews from reverified alpha archives,
   with offline npm packing inventory and explicit Composer manifest validation.
   These disposable proposals always report NO-GO; existing private candidate
