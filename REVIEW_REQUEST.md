@@ -40,10 +40,11 @@ approvals and verified initial mirror mapping from pending registry authority.
 Chrome confirms Packagist account `kefyusuf` is authenticated; mirror `Check`
 recognizes `surfacerelay/laravel` and offers final Submit, which was not performed.
 With explicit approval, the free public
-`surfacerelay` npm organization is created; Chrome verifies `yukonit` as Owner and
-one member with 2FA enabled. Isolated npm web CLI login completed; authenticated
-whoami/org ls verify yukonit and scope Owner. Config is outside the repository;
-no credential contents appear in project evidence. No scoped-token/OIDC claim.
+`surfacerelay` npm organization exists. After the owner transferred it, Chrome
+verifies `kefyusuf` as sole Owner with 2FA enabled for authorization and publishing.
+The previous isolated CLI session belongs to `yukonit` and must not be used for
+the new publisher; `kefyusuf` CLI authentication/authority remain pending.
+No credential contents appear in project evidence. No scoped-token/OIDC claim.
 The mirror contains the T-901 preparation baseline, not final release sources.
 Preview blockers remain conservative defaults and do not query these live settings.
 No package registration/publication, tag, final artifact or merge occurred.

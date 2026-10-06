@@ -35,9 +35,10 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
   are visible. Its mirror preflight recognizes `surfacerelay/laravel` and offers
   final Submit; no package registration or namespace reservation has occurred.
 - With owner approval, the free public `surfacerelay` npm organization is created.
-  Chrome verifies `yukonit` as Owner; the sole member has 2FA enabled.
-  Isolated npm web CLI login completed; registry `whoami` verifies `yukonit` and
-  `org ls surfacerelay` verifies its owner role. Config is outside the repository.
+  After the owner transferred it, Chrome verifies `kefyusuf` as the sole Owner,
+  with 2FA enabled for authorization and publishing. The previous isolated CLI
+  session belongs to `yukonit` and must not be used for the new publisher.
+  CLI authentication and identity/authority probes for `kefyusuf` remain pending.
   No granular/scope-restricted token or automated CI publisher is claimed.
 - Local preview blocker strings are conservative defaults, not live gate status.
   No final publication artifacts or registry-installed consumers are claimed.
@@ -49,7 +50,7 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 The alpha plan requires scoped credentials. Proposed first-publication route:
 interactive owner sessions with 2FA and identity/authority rechecks, without
 unattended token/OIDC provisioning. Owner approval must explicitly disposition
-that requirement before T-903 closes; the verified CLI session is not a scoped token.
+that requirement before T-903 closes; web login does not prove a scoped token.
 
 T-903 remains open; T-904 is not started. Merge, further mirror updates,
 tags/releases and registry publication require their applicable authorization.
