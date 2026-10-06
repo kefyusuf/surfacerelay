@@ -1,0 +1,10 @@
+:root { font-family: system-ui, sans-serif; color: #173044; background: #eef3f7; }
+body { margin: 0; } main { max-width: 1000px; margin: auto; padding: 32px 20px; }
+header { padding: 12px 0 24px; } h1 { font-size: 2.4rem; margin: 12px 0; } h2 { margin-top: 0; }
+.tag { color: #006759; font-weight: 700; font-size: .8rem; letter-spacing: .08em; }
+section { background: white; border: 1px solid #cddae2; border-radius: 14px; padding: 24px; margin: 18px 0; }
+button, select { font: inherit; border: 1px solid #a0b2bf; border-radius: 7px; padding: 10px 12px; margin: 5px; }
+button { background: #e5f2ef; cursor: pointer; } button:disabled { opacity: .55; cursor: wait; }
+label { display: inline-block; } #orders label { display: block; margin: 10px 0; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f2f6f9; padding: 15px; border-radius: 8px; }
+p { line-height: 1.6; } #confirmation { border-left: 4px solid #cb9718; padding-left: 16px; margin: 14px 0; }

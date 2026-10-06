@@ -6,8 +6,23 @@ one-line entry; full history is in
 
 ## Open
 
-No active implementation task. The first two-package alpha is published and
-registry-installed consumers are verified; choose a bounded next task separately.
+### T-905 — Registry-installed Docker browser pilot (Awaiting manual acceptance)
+
+- Scope: A standalone local Laravel application using both published exact
+  `0.1.0-alpha.1` packages, browser UI and isolated Docker orchestration. No core
+  contract changes, new package publication or production qualification.
+- Acceptance: Localhost port serves a usable pilot; registry dependencies have
+  no monorepo path coupling; trusted authentication/tenant, confirmation and
+  idempotency paths have meaningful negative checks; manual browser instructions
+  explain expected outcomes and feedback. Native-agent qualification remains
+  separate from HTTP/browser-runtime evidence.
+- Verification: Pilot acceptance checks, PHP syntax, browser build, HTTP smoke,
+  `python scripts/validate.py`, full diff review. Keep only the pilot resources
+  needed for the owner's pending manual tests and document their shutdown.
+- Current evidence: 19 HTTP tests and 4 Node DOM-wiring checks pass; native
+  Codex in-app WebMCP invocation/approval/replay/changed-selection checks pass.
+  Local port serves HTML/JS/CSS; independent review has no remaining blocker.
+  Owner manual results and PR CI remain pending. [Run/test guide](examples/alpha-pilot/README.md).
 
 ## Done
 

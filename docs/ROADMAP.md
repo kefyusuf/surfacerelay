@@ -46,11 +46,24 @@ Status: **complete / merged / main-revalidated**. T-701 through T-704 are comple
 
 Outcome candidate: clean downstream consumers install reviewed release-candidate artifacts for the first supported package set without monorepo path/dev-main coupling and reproduce bounded compatibility evidence.
 
-Status: **T-801 and T-802 complete / reviewed / merged / main-revalidated**. PR #20 merged as `f7d86c76ccc15dc21b63cf868ad75d559607f730`; post-merge Validate #1048 passed 17/17 jobs. T-803 through T-805 have not started. Publication is explicitly outside M8 and requires a separate later go/no-go gate.
+Status: **complete**. T-801 through T-805 and subsequent bounded review
+corrections are complete. T-901 through T-904 qualified and published the first
+two-package `0.1.0-alpha.1` release. See [current status](../STATUS.md) and
+[publication evidence](releases/0.1.0-alpha.1-publication.md).
+
+## Post-publication pilot
+
+T-905 prepares a standalone registry-installed Docker application for local
+manual browser acceptance. The first pilot uses an app-owned HTTP driver to
+exercise the common trust pipeline. Livewire/Filament consumer integration and
+real native-agent qualification remain separate future tasks; no further
+release is selected automatically.
 
 ## Release gates
 
-The release labels below are historical readiness checkpoints; none was published. They do not select the first public SurfaceRelay version. Under the proposed M8 design, the exact first public SemVer is chosen only by a later Publication Go/No-Go gate after clean-consumer evidence.
+The labels below are historical readiness checkpoints, not published versions.
+The actual first public version is `0.1.0-alpha.1`. Future release/support gates
+require separately selected scope and fresh consumer evidence.
 
 ### 0.1.0-alpha
 

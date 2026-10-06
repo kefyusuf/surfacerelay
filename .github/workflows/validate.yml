@@ -5,6 +5,56 @@ on:
   pull_request:
 
 jobs:
+  alpha-pilot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PILOT_CONFIRMATION_TTL: '5'
+      PYTHONDONTWRITEBYTECODE: '1'
+    defaults:
+      run:
+        working-directory: examples/alpha-pilot
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite
+          coverage: none
+      - name: Install published packages from registry locks
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --no-progress
+          composer validate --strict
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Verify UI wiring with published browser runtime
+        run: node --test tests/pilot_ui.test.mjs
+      - name: Verify real HTTP authorization, approval and concurrent replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          php setup.php
+          php -S 127.0.0.1:8000 -t public public/router.php > /tmp/pilot-primary.log 2>&1 &
+          primary=$!
+          php -S 127.0.0.1:8001 -t public public/router.php > /tmp/pilot-secondary.log 2>&1 &
+          secondary=$!
+          trap 'kill "$primary" "$secondary" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/session > /dev/null && curl --fail --silent http://127.0.0.1:8001/session > /dev/null; then break; fi
+            sleep 1
+          done
+          PILOT_DATABASE="$PWD/database/acceptance.sqlite" python3 tests/pilot_acceptance.py
+
   publication-metadata-preview:
     runs-on: ubuntu-latest
     permissions:

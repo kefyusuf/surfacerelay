@@ -1,0 +1,5 @@
+/bootstrap/cache/*.php
+/database/*.sqlite*
+/storage/
+/public/assets/pilot.js
+__pycache__/

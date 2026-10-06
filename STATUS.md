@@ -27,5 +27,14 @@ Current state only; history is in Git, PRs and the archive.
 
 This is an experimental prerelease, without stable API, production-security or
 support-SLA guarantees. Native-browser/real-agent qualification limits remain.
-No next implementation task is selected. User Composer lockfiles are preserved.
+T-905 is ready for owner manual acceptance: the registry-installed Docker pilot
+is running at `http://127.0.0.1:4185/` in the Codex in-app browser. Docker checks:
+19 HTTP tests, 4 Node DOM-wiring regressions, browser build, strict Composer,
+PHP syntax and canonical/22 HTMX fixtures pass. Independent static review has
+no remaining blocker. Native in-app WebMCP calls prove confirmation-required,
+approved execution, idempotent replay and changed-selection reconfirmation.
+The pilot uses an app-owned HTTP adapter; Livewire/Filament consumer qualification
+remains separate. Owner feedback and current PR CI are pending. User Composer
+lockfiles and pre-existing Docker resources are preserved. The pilot stack stays
+running for manual tests; [guide and shutdown](examples/alpha-pilot/README.md).
 See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).

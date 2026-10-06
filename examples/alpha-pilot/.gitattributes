@@ -1,0 +1,2 @@
+*.sh text eol=lf
+resources/*.js text eol=lf
