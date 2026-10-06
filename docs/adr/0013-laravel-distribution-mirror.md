@@ -22,7 +22,9 @@ consistent with the approved two-package alpha source.
 - Root Composer metadata uses VCS tags for versions; local artifact metadata is
   a separate consumer-proof format.
 - Preserve license, package paths, autoload/provider semantics and migration files.
-- Mirror owner/name and creation/push authorization still require a concrete
-  repository handoff. No remote mirror, tag or Packagist submission exists yet.
+- The owner authorized `kefyusuf/surfacerelay-laravel` as a public distribution-only
+  mirror and its initial untagged push. Remote content and source/commit mapping
+  are verified in [provenance](../reviews/laravel-distribution-mirror.json).
+  No tag or Packagist submission exists; this is a preparation baseline.
 - Final source/tag mapping, registry authority, artifact/consumer verification
   and explicit publication authorization remain T-903/T-904 gates.

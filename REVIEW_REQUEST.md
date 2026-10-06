@@ -1,4 +1,4 @@
-# Alpha Preparation and Owner Approval Review Request
+# Alpha Preparation and Distribution Mirror Review Request
 
 Branch: `release/t-903-publication-preview`.
 Task: T-903, on [PR #38](https://github.com/kefyusuf/surfacerelay/pull/38), stacked on #37/#36.
@@ -17,23 +17,29 @@ channel, owner triage and lack of a response SLA; no synthetic report was sent.
 
 D-069–D-074 and D-076–D-078 become Accepted; D-026/D-075 remain Proposed.
 ADR 0013 records the approved distribution boundary without splitting development
-or creating a remote mirror. Current handoff/versioning/changelog are consistent.
+and the distribution-only remote. Current handoff/versioning/changelog are consistent.
 Review the source diff and updated CI before merge.
 
 Local mirror preparation reuses verified two-archive metadata rules and produces
 a root Composer tree plus separate upstream/archive/content mapping evidence.
 Six new tests include a RED/GREEN Windows newline regression; transformed files
 now use UTF-8/LF. Actual alpha archives pass strict Composer validation; CI also
-generates and validates a tree from exact current-head sources. No Git init,
-remote, commit or tag is created; mapping leaves remote/commit null and NO-GO.
+generates and validates a tree from exact current-head sources. The generator
+does not initialize Git or create remotes; local mapping retains null fields/NO-GO.
+
+The owner separately authorized public `kefyusuf/surfacerelay-laravel` creation and
+the initial untagged push. Its remote commit/tree were fetched and match all 160
+reviewed file hashes; strict root Composer validation passes. See
+[durable source/commit provenance](docs/reviews/laravel-distribution-mirror.json).
+No tags or preparation evidence were pushed to that mirror.
 
 ## Limits and remaining gates
 
 [Owner handoff](docs/releases/0.1.0-alpha.1-publication-handoff.md) separates applied
-approvals from pending concrete mirror creation/commit mapping and registry authority.
-Proposed remote identity is `kefyusuf/surfacerelay-laravel`, subject to owner approval.
+approvals and verified initial mirror mapping from pending registry authority.
+The mirror contains the T-901 preparation baseline, not final release sources.
 Preview blockers remain conservative defaults and do not query these live settings.
-No registry write, tag, final artifact or remote mirror creation/push occurred.
+No registry write, tag, final artifact or merge occurred.
 
 T-903 remains open; T-904 has not started. No automatic merge/publication.
 Both owner Composer lockfiles remain excluded.

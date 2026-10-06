@@ -26,8 +26,9 @@ Preparation: preview/dry-run tool and current external checks are implemented;
 security intake, registry authority and formal disposition gates. Private reporting
 is enabled, owner triage is documented and approved decisions are Accepted.
 Reproducible local distribution trees and source/archive/content mapping are
-implemented. Remote identity/creation, mirror commit mapping and secure registry authority remain
-open; do not mark T-903 done or begin T-904.
+implemented. The authorized public mirror and untagged initial commit are verified
+against all 160 generated hashes; durable provenance records the source/commit
+mapping. Secure registry authority remains open; do not mark T-903 done or begin T-904.
 
 ## Done
 

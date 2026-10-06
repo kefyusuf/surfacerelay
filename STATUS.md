@@ -16,8 +16,12 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 - D-069–D-074 and D-076–D-078 are Accepted. D-026/D-075 remain Proposed.
   ADR 0013 preserves the development monorepo as authoritative.
 - Local mirror tooling generates a root-manifest tree from verified two-package
-  archives; mapping records upstream/archive/content hashes, with no remote/commit.
+  archives; local previews retain null remote/commit and NO-GO.
   UTF-8/LF output is deterministic across host newline defaults.
+- The owner authorized concrete mirror creation and the initial untagged push.
+  [Laravel distribution mirror](https://github.com/kefyusuf/surfacerelay-laravel)
+  is public; its remote tree matches all 160 approved file hashes. See
+  [source/commit provenance](docs/reviews/laravel-distribution-mirror.json).
 - Tooling evidence: 176 Python tests, canonical/22 HTMX fixtures, guardrails and
   strict Composer validation pass. CI repeats exact-source tree generation.
   Owner lockfiles are preserved; check current-head CI before merge.
@@ -25,9 +29,8 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 
 ## Remaining gates
 
-- Proposed mirror: `kefyusuf/surfacerelay-laravel` (public, distribution-only).
-  Concrete remote creation/initial push approval and mirror commit mapping remain
-  open. Local tree evidence does not prove a remote repository exists.
+- The initial mirror contains the T-901 preparation baseline, not final release
+  sources. No tags exist; final source/tag/consumer proof remains a later gate.
 - npm identity did not authenticate; both registry authorities/credentials remain
   unverified. Public package endpoints returning 404 do not prove namespace rights.
 - Local preview blocker strings are conservative defaults, not live gate status.
@@ -35,5 +38,5 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 - Browser/native/UI and concurrent-session-write qualification limits remain.
   No support SLA or production deployment guarantee is introduced.
 
-T-903 remains open; T-904 is not started. Merge, remote mirror creation/push,
-tags/releases and registry publication require their applicable explicit authorization.
+T-903 remains open; T-904 is not started. Merge, further mirror updates,
+tags/releases and registry publication require their applicable authorization.
