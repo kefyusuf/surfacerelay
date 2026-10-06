@@ -78,7 +78,7 @@ Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANC
 
 ## Using the artifacts
 
-Nothing is published to Packagist or npm, and no public version has been selected. The two release-candidate artifacts can be built and installed locally:
+Nothing is published to Packagist or npm. The first experimental target is `0.1.0-alpha.1`; see the [preparation plan](docs/releases/0.1.0-alpha.1.md) for scope and publication gates. The two local release-candidate artifacts can be built and installed:
 
 - [Laravel artifact consumer guide](docs/consumers/laravel.md) — Composer ZIP from a local artifact repository.
 - [Browser runtime consumer guide](docs/consumers/browser-runtime.md) — npm tarball, root ESM import only.

@@ -15,24 +15,28 @@ Current state only; history is in Git, PRs and [the archive](docs/archive/STATUS
 - Existing runtime evidence: browser 398 tests/typecheck; Laravel 612 tests,
   3272 assertions (2 skipped); Chrome + Docker Filament 16 tests; real HTMX 14 tests.
   T-805 corrected artifacts and both isolated consumers now pass on merged main;
-  see [post-merge evidence](docs/reviews/merged-main-readiness.md). Main CI: 20 successful checks.
+  see [post-merge evidence](docs/reviews/merged-main-readiness.md). Latest main Validate: 18 successful checks.
 - T-807a table-state/overlap guards, T-807b receipt secrecy and HTTP session
   isolation, T-809 sorted receipt locks and T-808 result envelope remain verified.
-- Both user Composer lockfiles are preserved and excluded. No public version
-  is selected; publication remains NO-GO.
+- Both user Composer lockfiles are preserved and excluded. The owner selected
+  `0.1.0-alpha.1` for preparation; publication remains NO-GO.
 
 ## Remaining gates and limits
 
-- The current documentation branch records merged-main evidence and closes the
-  integration gate. It changes no executable code; review this handoff separately.
+- PR #35 is merged. T-901 scope freeze and local alpha candidates are verified;
+  see [the preparation plan](docs/releases/0.1.0-alpha.1.md) and
+  [candidate evidence](docs/reviews/alpha-0.1.0-alpha.1-candidates.md). Both consumers
+  and Docker Python 158 tests pass at the recorded baseline.
+- Private local-candidate metadata and fixed-NO-GO tooling need a reviewed
+  publication path in T-903; these alpha archives are preparation evidence.
 - Fixture-fixed identity does not qualify authentication changes or concurrent
   session writes. Unrelated UI/Livewire concurrency, reentrant HTMX host hooks
   and back/forward-cache restoration remain unqualified, not demonstrated defects.
 - Native WebMCP uses flag-enabled Chromium and page callers, not a real agent;
   Chromium drops `consequentialHint`. Server confirmation remains authoritative.
 - D-026 and D-069–D-078 remain Proposed; accepted decisions end at D-068.
-- Private reporting, registry authority/credentials and public-version/publication
-  approval remain separate owner gates.
+- Private reporting, registry authority/credentials and final publication approval
+  remain separate owner gates.
 
-Next scope: review the post-merge evidence handoff, then select an explicit next
-task. No new feature or publication work is selected. See [TASKS](TASKS.md).
+Next scope after this handoff: T-902 installed-application acceptance. Do not begin
+it automatically or publish. See [TASKS](TASKS.md).
