@@ -1,0 +1,101 @@
+{
+  "sourceRevision": "803dc1e0046444984d9e8968502e2149df525cc5",
+  "version": "0.1.0-alpha.2",
+  "registryInstall": false,
+  "browserArchiveSha256": "547a6e97d6ee497f6d0bf73fc641ea07e727b3df796d80779742e51f66dc8577",
+  "laravelCandidateSha256": "621080a4e253e7bee58cf24b7730f1eadf6d1a3cb115405de1c344148bbb5720",
+  "observations": {
+    "loss": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "execution_failed",
+        "outcome": "unknown",
+        "error": {
+          "code": "execution_failed",
+          "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+        }
+      }
+    },
+    "stale": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "execution_failed",
+        "outcome": "unknown",
+        "error": {
+          "code": "execution_failed",
+          "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+        }
+      }
+    },
+    "replay": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "returned",
+        "output": {
+          "kind": "value",
+          "value": {
+            "status": "succeeded",
+            "data": {
+              "orderIds": [
+                102
+              ],
+              "affectedCount": 1
+            }
+          }
+        }
+      }
+    },
+    "afterapproval": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "returned",
+        "output": {
+          "kind": "value",
+          "value": {
+            "status": "succeeded",
+            "data": {
+              "orderIds": [
+                101,
+                102
+              ],
+              "affectedCount": 2
+            }
+          }
+        }
+      }
+    }
+  },
+  "sql": {
+    "beforeLoss": 1,
+    "afterLoss": 2,
+    "afterStale": 2,
+    "afterExplicitReplay": 2,
+    "faultConsumed": true,
+    "invocationEffectsBefore": 1,
+    "effectsAfter": 2,
+    "droppedAt": 1791386957,
+    "effects": [
+      {
+        "id": 1,
+        "tenant": "tenant-a",
+        "orderIds": [
+          101,
+          102
+        ],
+        "action": "pilot.filament.orders.refund"
+      },
+      {
+        "id": 2,
+        "tenant": "tenant-a",
+        "orderIds": [
+          102
+        ],
+        "action": "pilot.filament.orders.hold"
+      }
+    ]
+  }
+}

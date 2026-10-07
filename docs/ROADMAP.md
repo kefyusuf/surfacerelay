@@ -64,9 +64,10 @@ access remains outside that accepted scope. T-908 Phase 0 proves the current
 native rejection channel loses even safe Error text. A representation decision
   was accepted as explicit opt-in uniform projection output; implementation and
   local Docker/native consumer acceptance are complete in [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44).
-  Unknown-outcome safeguards remain required; merge and publication are separate.
+  PR #44 is merged and main CI passed. Unknown-outcome safeguards remain required.
 General native interoperability and production readiness remain
-separate; no further release is selected automatically.
+separate. The owner selected coordinated `0.1.0-alpha.2` preparation/publication
+under T-909; see the [release gates](releases/0.1.0-alpha.2.md).
 
 ## Release gates
 

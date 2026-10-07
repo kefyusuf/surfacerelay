@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+env:
+  ALPHA_RELEASE_VERSION: '0.1.0-alpha.2'
+
 jobs:
   filament-http-consumer:
     runs-on: ubuntu-latest
@@ -228,7 +231,7 @@ jobs:
           _rebuild_browser_distribution(source)
           for kind, builder in (('laravel', build_laravel_release_candidate), ('browser-runtime', build_browser_release_candidate)):
               builder(repo=source, stage_root=root / 't903-candidates' / kind,
-                      artifact_version='0.1.0-alpha.1', source_revision=revision)
+                      artifact_version=os.environ['ALPHA_RELEASE_VERSION'], source_revision=revision)
           PY
       - name: Review proposed metadata using local dry-run only
         shell: bash
@@ -236,11 +239,11 @@ jobs:
           python scripts/release_publication_preview.py \
             --candidate-root "$RUNNER_TEMP/t903-candidates" \
             --preview-root "$RUNNER_TEMP/t903-preview" \
-            --version 0.1.0-alpha.1 --source-revision "$(git rev-parse HEAD)"
+            --version "$ALPHA_RELEASE_VERSION" --source-revision "$(git rev-parse HEAD)"
           python scripts/laravel_distribution_preview.py \
             --candidate-root "$RUNNER_TEMP/t903-candidates" \
             --output-root "$RUNNER_TEMP/t903-mirror" \
-            --version 0.1.0-alpha.1 --source-revision "$(git rev-parse HEAD)"
+            --version "$ALPHA_RELEASE_VERSION" --source-revision "$(git rev-parse HEAD)"
           composer --no-plugins --no-scripts validate --strict --no-check-lock "$RUNNER_TEMP/t903-mirror/package/composer.json"
           python scripts/check_release_guardrails.py
       - name: Verify separate final public packages and isolated browser consumer
@@ -255,7 +258,7 @@ jobs:
           revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
           output = root / 't904-public-packages'
           evidence = build_alpha_publication_artifacts(candidate_root=root / 't903-candidates',
-              output_root=output, version='0.1.0-alpha.1', revision=revision)
+              output_root=output, version=os.environ['ALPHA_RELEASE_VERSION'], revision=revision)
           subprocess.run(['composer', '--no-plugins', '--no-scripts', 'validate', '--strict',
               '--no-check-lock', str(output / 'laravel/composer.json')], check=True)
           consumer = root / 't904-browser-consumer'
@@ -266,7 +269,7 @@ jobs:
           archive = output / evidence['browserArchive']['filename']
           _run_consumer_command(['npm', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false'], cwd=consumer)
           _run_consumer_command(['npm', 'install', '--ignore-scripts', '--no-audit', '--no-fund', '--no-save', '--package-lock=false', str(archive)], cwd=consumer)
-          verify_public_browser_install(consumer_root=consumer, version='0.1.0-alpha.1', revision=revision,
+          verify_public_browser_install(consumer_root=consumer, version=os.environ['ALPHA_RELEASE_VERSION'], revision=revision,
               expected_manifest=evidence['content']['browser-runtime'], package_source_root=source / 'packages/browser-runtime')
           for command in (['node', '--input-type=module', '--eval', "await import('@surfacerelay/browser-runtime');"],
               ['npm', 'exec', '--offline', '--', 'tsc', '-p', 'tsconfig.json'],
@@ -278,7 +281,7 @@ jobs:
               "await import('@surfacerelay/browser-runtime/dist/driver-registry.js');"], cwd=consumer, allow_failure=True)
           assert deep.returncode != 0 and 'ERR_PACKAGE_PATH_NOT_EXPORTED' in deep.stdout + deep.stderr
           (output / 'public-consumer-evidence.json').write_text(json.dumps({'sourceRevision': revision,
-              'version': '0.1.0-alpha.1', 'rootImport': True, 'typecheck': True, 'bundle': True,
+              'version': os.environ['ALPHA_RELEASE_VERSION'], 'rootImport': True, 'typecheck': True, 'bundle': True,
               'smoke': True, 'deepImportRejected': True, 'registryWrites': False}, indent=2) + '\n')
           PY
       - uses: actions/upload-artifact@v4
@@ -326,17 +329,17 @@ jobs:
           build_laravel_release_candidate(
               repo=Path(os.environ['RUNNER_TEMP']) / 't902-source',
               stage_root=Path(os.environ['RUNNER_TEMP']) / 't902-artifact',
-              artifact_version='0.1.0-alpha.1',
+              artifact_version=os.environ['ALPHA_RELEASE_VERSION'],
               source_revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip())
           PY
       - name: Exercise installed application authorization and shared-store concurrency
         shell: bash
         run: |
           set -euo pipefail
-          artifact="$RUNNER_TEMP/t902-artifact/surfacerelay-laravel-0.1.0-alpha.1.zip"
+          artifact="$RUNNER_TEMP/t902-artifact/surfacerelay-laravel-${ALPHA_RELEASE_VERSION}.zip"
           python scripts/laravel_alpha_acceptance.py \
             --artifact "$artifact" --sha256 "$(sha256sum "$artifact" | cut -d ' ' -f 1)" \
-            --source-revision "$(git rev-parse HEAD)" \
+            --source-revision "$(git rev-parse HEAD)" --version "$ALPHA_RELEASE_VERSION" \
             --consumer "$RUNNER_TEMP/t902-consumer" --evidence "$RUNNER_TEMP/t902-evidence"
       - uses: actions/upload-artifact@v4
         if: always()
