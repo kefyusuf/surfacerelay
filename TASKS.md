@@ -6,12 +6,14 @@ one-line entry; full history is in
 
 ## Open
 
-No task is active. Select the next bounded consumer qualification separately.
+None selected. T-907 used the owner-authorized native Chrome alternative;
+Codex in-app loopback access remains an environment limitation, outside the accepted Chrome scope.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Registry-installed Filament consumer | T-907 accepted through owner-authorized Chrome native tools and SQL proof; 23 HTTP checks, 3 generator tests, canonical validation and independent source/evidence review pass; scoped demo/stack/volumes/tabs removed; [evidence](docs/reviews/t907-filament-acceptance.md), [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) |
 | Registry-installed Livewire consumer | T-906 real mounted consumer accepted; 15 signed HTTP checks, native agent/SQL one-effect proof, required validation and independent review pass; [evidence](docs/reviews/t906-livewire-acceptance.md), [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42) |
 | Registry-installed browser pilot | T-905 local Docker/native-agent refund and separate simulated 3D checkout accepted; 31 HTTP and 6 DOM-wiring tests, required validation and independent review pass; [evidence](docs/reviews/t905-checkout-acceptance.md), [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41) |
 | First alpha publication | T-904 `0.1.0-alpha.1` published on npm/Packagist; exact source/tag/mirror/hash provenance, 187 Python tests and local/tagged/registry consumers verified; [receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) |

@@ -1,0 +1,18 @@
+<?php
+namespace App;
+use Filament\Resources\Resource;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+final class OrderResource extends Resource {
+    protected static ?string $model = Order::class;
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder {
+        return parent::getEloquentQuery()->where('tenant_id', FilamentGateway::tenant());
+    }
+    public static function table(Table $table): Table {
+        return $table->columns([TextColumn::make('id'), TextColumn::make('tenant_id')])->selectable();
+    }
+    public static function form(Schema $schema): Schema { return $schema->components([TextInput::make('id')->disabled(), TextInput::make('tenant_id')->disabled()]); }
+    public static function getPages(): array { return ['index' => ListOrders::route('/'), 'edit' => EditOrder::route('/{record}/edit')]; }
+}

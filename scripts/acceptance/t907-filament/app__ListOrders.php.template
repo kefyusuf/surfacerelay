@@ -1,0 +1,21 @@
+<?php
+namespace App;
+use SurfaceRelay\Laravel\Livewire\Attributes\ExposeAction;
+final class ListOrders extends \Filament\Resources\Pages\ListRecords {
+    use HasBinding, \SurfaceRelay\Laravel\Filament\Confirmation\InteractsWithSurfaceRelayConfirmation;
+    protected static string $resource = OrderResource::class;
+    public function mount(): void { parent::mount(); $this->createBinding(); }
+    protected function resolveSurfaceRelayConfirmationService(): \SurfaceRelay\Laravel\Confirmation\ConfirmationService { return $this->checkedConfirmationService(); }
+    #[ExposeAction('pilot.filament.orders.refund',1)]
+    public function refundSelected(string $reason): array {
+        abort_unless(func_num_args()===1,422);
+        // Filament filters missing/foreign keys; reject partial caller selection.
+        $ids=$this->selectedTableRecords;
+        abort_unless(!$this->isTrackingDeselectedTableRecords && is_array($ids)
+            && count(array_filter($ids,static fn($id)=>is_string($id)&&ctype_digit($id)))===count($ids),422);
+        abort_unless(\Illuminate\Support\Facades\DB::table('orders')->where('tenant_id',FilamentGateway::tenant())
+            ->whereIn('id',$ids)->count()===count(array_unique($ids)),403);
+        return \Illuminate\Support\Facades\Cache::store('file')->lock('filament-'.$this->bindingId,15)->block(5,
+            fn()=>FilamentGateway::invoke($this,$reason,$this->pullApprovedSurfaceRelayConfirmationReceipt()));
+    }
+}
