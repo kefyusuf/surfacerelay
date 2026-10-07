@@ -50,6 +50,10 @@ Fixture login is `owner@example.test` / `acceptance-password`. The panel is loca
 only. Confirmation receipts default to five seconds for bounded HTTP testing.
 For a later native run, set `PILOT_CONFIRMATION_TTL=60` on the server process;
 expiry HTTP tests require the same value in their environment.
-Native Codex in-app acceptance remains a separate gate; a passing HTTP job does
-not prove native tool discovery, Alpine synchronization or browser lifecycle.
+Native acceptance was completed using the owner-authorized Chrome alternative,
+through official Chrome DevTools MCP discovery/invocation tools in an isolated
+profile restricted to local port 4187. In-app loopback access remains an unresolved
+environment limit. Passing HTTP tests alone do not prove native discovery,
+Alpine synchronization or browser lifecycle. See the evidence for the native
+matrix, SQL effect boundaries and the temporary CSRF-protected tenant test form.
 See [executed evidence](../../../docs/reviews/t907-filament-acceptance.md).

@@ -1,7 +1,8 @@
 # Temporary Registry-installed Filament Acceptance Review
 
-Task: T-907, HTTP verified / native blocked.
+Task: T-907, locally accepted through the owner-authorized Chrome alternative.
 Branch: `feat/t-907-temporary-filament-acceptance`.
+[PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) remains unmerged.
 
 The selected scope is a temporary loopback Docker Filament application inside
 the repository using exact published alpha packages. Current record and selected
@@ -23,13 +24,21 @@ has one effect. Independent static review has no remaining blocker. See
 
 Real Filament form login now sets the default demo tenant after checking membership;
 anonymous redirects, JSON rejection and nonmember logout are tested.
-Native browser control initializes after restart, but Codex in-app loopback
-navigation is BLOCKED by `ERR_BLOCKED_BY_CLIENT`. No native proof
-is inferred from HTTP checks. The task stays open for real browser discovery,
-Alpine selection synchronization and lifecycle evidence. CI is a separate HTTP gate.
+The active agent used official Chrome DevTools MCP native discovery/invocation
+with real UI selection and visible approval. SQL proves exactly two native effects:
+selected 101+102 and edit102. Approval alone, replay, changed intent/selection,
+revoked permission, tenant switching, stale pages and expired receipt add no effect.
+Independent source/evidence review has no blocker; native calls were not separately
+replayed by the reviewer. Stale HTTP failures appear as native Error with empty
+errorText; console HTTP statuses and SQL establish rejection. Fresh-document
+discovery is separate from the unchanged registry of an already open document.
+Codex in-app loopback still fails with `ERR_BLOCKED_BY_CLIENT`; Chrome results
+do not qualify that surface. CI for the updated head is a separate gate.
 
 No public contract/core change, package publication, production qualification or
 automatic merge is selected. D-075 remains proposed app/example glue. The
-temporary demo and Compose file were removed, along with the owned container/network.
+temporary demo, test control/helper and Compose file were removed, along with the
+owned container/network, two task volumes and seven test browser tabs.
 Reproducible recipe/locks/tests remain. Existing Docker image, unrelated resources
-and user lockfiles are preserved; no new image, volume or worktree was created.
+and user lockfiles are preserved; no new image or worktree was created. The local
+Chrome connection is version-pinned with an isolated profile and port 4187 allowlist.

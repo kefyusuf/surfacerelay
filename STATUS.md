@@ -52,12 +52,18 @@ outside T-906. T-907 HTTP acceptance passes: exact registry Filament 5.10.0 cons
 canonical validation. Mixed-selection and superseded-modal regressions were
 observed RED and fixed in the consumer; independent review has no blocker.
 Real Filament form login now establishes a membership-checked demo tenant;
-anonymous and nonmember requests are covered. Native browser control initializes
-after the app restart, but local demo navigation is BLOCKED by `ERR_BLOCKED_BY_CLIENT`;
-HTTP results do not establish native discovery, Alpine sync or browser lifecycle.
-T-907 remains open. The temporary demo, Compose file and owned container/network
-were removed; reproducible recipe, locks and tests remain. No additional release,
-production gate or automatic merge is selected.
+anonymous and nonmember requests are covered. T-907 acceptance is complete through
+the owner-authorized Chrome alternative: native discovery, UI selection 101+102,
+approval-only behavior, exact edit102, replay, changed selection, permission
+revocation/fresh discovery, tenant switch, stale pages and receipt expiry all have
+agent/SQL evidence. Native operations added exactly two effects; rejected and
+approval-only steps added none. Fresh Docker 23 HTTP checks, 3 generator safety
+tests and canonical validation pass; independent source/evidence review has no
+blocker. Codex in-app loopback access still fails with `ERR_BLOCKED_BY_CLIENT` and
+is not qualified by Chrome results. [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43)
+remains unmerged. Demo, helper, Compose file, owned app/network, two task volumes
+and seven test tabs were removed. Existing image, unrelated resources and user
+lockfiles are preserved. No additional task, release or automatic merge is selected.
 See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
 [guide and shutdown](examples/alpha-pilot/README.md).
 See [Livewire evidence](docs/reviews/t906-livewire-acceptance.md) and

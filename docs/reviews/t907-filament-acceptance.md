@@ -47,25 +47,59 @@ locks and executable acceptance checks remain under
   generator checks are included in the `filament-http-consumer` CI job. CI success
   is a separate result and cannot close the native gate.
 
-## Native browser gate
+## Native Chrome acceptance
 
-After the Codex app restart, browser control initializes and a temporary blank
-tab can be created and closed. The previous trusted Node initialization failure
-is no longer reproduced. Native acceptance remains BLOCKED: navigation to the
-running demo on port 4187 returns `net::ERR_BLOCKED_BY_CLIENT`, including the
-nonredirecting `/session` route via both `127.0.0.1` and `localhost`. Independent
-host HTTP access to `/session` returns 200. No cause or browser repair is inferred.
+The owner authorized Chrome as the alternative native acceptance surface and
+approved the official Chrome DevTools MCP connection. The project-local connection
+pins version 1.10.1, launches an isolated headless profile with WebMCP enabled and
+allows only localhost/127.0.0.1 port 4187. Arbitrary evaluation and telemetry are
+disabled. The active agent used `list_webmcp_tools` and `execute_webmcp_tool`, not
+page-local discovery or a JavaScript invocation substitute. The Codex in-app
+loopback `ERR_BLOCKED_BY_CLIENT` remains a separate unresolved environment limit;
+these results do not establish in-app browser qualification.
 
-The continuation also reproduced missing `/admin/login` (404), incorrect anonymous
-panel exception handling (500), and an empty tenant after actual signed Filament
-form authentication. The consumer now uses real Filament login with its own
-middleware, preserves Laravel's normal AuthenticationException handling and checks
-membership before setting the default demo tenant. Missing membership logs out and
-invalidates the session. All 23 HTTP checks pass, including actual form login,
-authorized discovery, anonymous redirects/401 and nonmember rejection; all three
-generator safety checks and canonical/22 HTMX fixtures pass. PHP syntax passes.
-No Chrome fallback is used. HTTP checks cannot qualify browser-side Alpine
-selection synchronization, native tool discovery or agent-driven execution.
+Fresh Docker installation/build and strict Composer validation passed. All 23
+mounted HTTP checks passed in 89.665 seconds with receipt TTL 60; three generator
+safety tests and canonical validation including 22 HTMX fixtures passed.
+Real Filament form login established the membership-checked tenant. Browser
+discovery exposed `pilot.filament.orders.refund.v1` on the list and
+`pilot.filament.orders.hold.v1` on the edit page.
+
+The SQL ledger had six effects from HTTP verification before native operations.
+Each native boundary was checked against the same ledger:
+
+| Native scenario | Observed result | Total effects |
+| --- | --- | --- |
+| UI selects 101+102; native refund | `confirmation_required`, visible modal | 6 |
+| Click visible Approve | No business effect | 6 |
+| Native approved retry | `succeeded`, exact orderIds 101+102 | 7 |
+| Native replay | Same result, no duplicate effect | 7 |
+| Change reason after completed intent | `idempotency_conflict` | 7 |
+| New list page, invoke old page | Native error; browser console HTTP 409 | 7 |
+| Fresh list approval, deselect 102 before retry | Fresh `confirmation_required` | 7 |
+| Edit 102, visible approval, native retry | `succeeded`, exact orderIds 102 | 8 |
+| Open edit 101, invoke old edit 102 | Native error; browser console HTTP 409 | 8 |
+| Approve edit 101, revoke membership permission, retry | `authorization_denied` | 8 |
+| Fresh document while permission revoked | No native tools discovered | 8 |
+| Restore permission, approve fresh edit 101, switch tenant B | Old native call fails; browser console HTTP 404; fresh list shows only 201 | 8 |
+| Approve fresh tenant B selection; wait beyond receipt TTL 60 seconds; retry | Fresh `confirmation_required`, no execution | 8 |
+
+Permission revocation/restoration was a controlled mutation of the disposable
+membership row. Tenant switching used a temporary authenticated HTML form with
+Laravel CSRF protection posting to the fixture's existing membership-checked
+`/tenant` endpoint. It did not issue a new binding before the old call was tested.
+That test-only route is removed with the generated demo. No production tenant UI
+or extra published API was added. The expiry retry occurred more than 60 seconds
+after visible approval and returned a distinct challenge without an effect.
+
+The browser adapter reports stale HTTP failures as native `Error` with an empty
+errorText. Console HTTP status and SQL checks supply the rejection evidence; no
+structured core rejection is inferred for these transport failures. Discovery on
+an already open document is not automatically refreshed after permission changes.
+Fresh-document discovery and invocation authorization were verified separately.
+Blocked external-font requests appear in the console under the local allowlist;
+local panel assets and native operation are functional. No performance guarantee
+is inferred from these calls.
 
 ## Limits and cleanup
 
@@ -73,12 +107,13 @@ Explicit checkbox selection only; tracking all records is outside this demo.
 D-075 stays proposed app/example glue. There is no public contract change,
 Filament production qualification, release or automatic merge authorization.
 The pre-existing image is reused; unrelated Docker resources and user lockfiles
-remain untouched. Scoped cleanup verified: the generated demo, temporary Compose
-file, `surfacerelay-t907-filament-app-1` and its project network were removed.
-Baseline, clean-consumer and final-contract containers used `--rm` and are gone.
-No new image, volume or worktree was created. The prior T-905 container was not
-running in the fresh inventory and was not restarted. User package lockfiles remain.
-The continuation's `surfacerelay-t907-native` stack, generated demo, temporary
-Compose file and browser tab were also removed; its ephemeral verification
-containers are gone. The reused image and unrelated runner fleet remain.
+remain untouched. Native verification uses the task-owned
+`surfacerelay-t907-native` stack with temporary vendor/node_modules volumes.
+Cleanup verified: the app container, network and both volumes were removed with
+`docker compose -p surfacerelay-t907-native down --volumes --remove-orphans`.
+The marker-owned generated demo, test helper, temporary Compose file and seven
+test browser tabs were removed. The isolated connection retains only its original
+blank tab. Generator/contract containers used `--rm` and are gone. Independent
+source/evidence review found no blocker; it did not repeat the native calls.
+No new image or worktree was created. The prior T-905 stack was not restarted.
 Concurrency, crash recovery and production correctness are not qualified here.

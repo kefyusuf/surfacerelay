@@ -6,31 +6,14 @@ one-line entry; full history is in
 
 ## Open
 
-### T-907 — Temporary registry-installed Filament acceptance (HTTP verified; native blocked)
-
-- Scope: A real Filament panel in a temporary demo inside `.tmp/t907-filament-demo/`,
-  using exact published alpha packages and the existing Filament trust pipeline.
-- Acceptance: Agent-led native Codex in-app calls prove current record and multiple
-  selected records, approval-only behavior, bounded idempotency, permission/tenant
-  changes and stale page authority rejection. Include negative tests.
-- Verification: Test-first real mounted HTTP checks, registry install/build,
-  canonical validation, independent review and native browser/SQL effect evidence.
-- Cleanup: Remove the temporary demo and task-owned Docker stack after testing;
-  retain reproducible test assets and evidence, preserve T-905 and user lockfiles.
-- Likely files: `scripts/acceptance/t907-filament/`, temporary demo, acceptance
-  evidence and current tracking. No publication, merge or next task is selected.
-- Current evidence: Fresh locked install, 23 HTTP checks, 3 generator safety
-  checks and required validation pass; mixed-selection and superseded
-  modal failures were observed RED and fixed in the consumer. Native Codex in-app
-  control initializes after restart, but loopback demo navigation fails with
-  `ERR_BLOCKED_BY_CLIENT`; acceptance remains incomplete. Real form login sets a
-  membership-checked demo tenant; anonymous/nonmember rejection is tested.
-- Cleanup verified: temporary demo/Compose file and owned container/network removed.
+None selected. T-907 used the owner-authorized native Chrome alternative;
+Codex in-app loopback access remains an environment limitation. PR #43 is unmerged.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Registry-installed Filament consumer | T-907 accepted through owner-authorized Chrome native tools and SQL proof; 23 HTTP checks, 3 generator tests, canonical validation and independent source/evidence review pass; scoped demo/stack/volumes/tabs removed; [evidence](docs/reviews/t907-filament-acceptance.md), [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) |
 | Registry-installed Livewire consumer | T-906 real mounted consumer accepted; 15 signed HTTP checks, native agent/SQL one-effect proof, required validation and independent review pass; [evidence](docs/reviews/t906-livewire-acceptance.md), [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42) |
 | Registry-installed browser pilot | T-905 local Docker/native-agent refund and separate simulated 3D checkout accepted; 31 HTTP and 6 DOM-wiring tests, required validation and independent review pass; [evidence](docs/reviews/t905-checkout-acceptance.md), [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41) |
 | First alpha publication | T-904 `0.1.0-alpha.1` published on npm/Packagist; exact source/tag/mirror/hash provenance, 187 Python tests and local/tagged/registry consumers verified; [receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json) |
