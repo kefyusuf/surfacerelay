@@ -149,7 +149,7 @@ def verify_public_browser_install(*, consumer_root: Path, version: str, revision
 def _readme(kind: str, version: str, revision: str) -> bytes:
     return (f"# SurfaceRelay {kind}\n\nExperimental alpha {version}; unofficial reference runtime.\n\n"
             f"Source revision: {revision}. Package versions are independent of Action versions.\n\n"
-            "This first alpha contains only surfacerelay/laravel and @surfacerelay/browser-runtime.\n"
+            "This alpha release contains only surfacerelay/laravel and @surfacerelay/browser-runtime.\n"
             "APIs may change. No production-security guarantee, support SLA or general native WebMCP certification is provided.\n"
             "Server authorization, tenant context, confirmation, idempotency and output policy remain authoritative.\n"
             "See https://github.com/kefyusuf/surfacerelay for integration, security and migration guidance.\n"

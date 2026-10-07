@@ -8,6 +8,10 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ### Added
 
+- Coordinated `0.1.0-alpha.2` preparation exercises final artifact and installed
+  application CI with an explicit release version. Public package documentation
+  supports follow-up alpha releases. This preparation does not publish registries.
+
 - Explicit opt-in WebMCP execution envelope (`resultMode: 'envelope'`) with safe
   fixed failure guidance, conservative unknown outcomes, pre-dispatch cancellation
   and distinct undefined output. Default registration and direct driver behavior

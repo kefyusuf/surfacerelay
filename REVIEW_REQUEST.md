@@ -1,26 +1,19 @@
-# T-908 Opt-in Native Execution Result Review
+# T-909 Coordinated Alpha.2 Review
 
-Task: T-908. [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44).
-Owner approved the explicit opt-in uniform envelope under D-079 after eight
-native rejection forms lost all error text.
+Task: T-909. Branch: feat/t-909-alpha2-release. Owner approved preparation,
+publication and fresh registry verification for the existing two-package set.
 
-Review the registration boundary, public types, adapter schema/41 fixtures,
-migration guidance and disposable candidate Filament fault/control fixture.
-Default output/rejection identity and direct drivers remain compatible.
-Opt-in application results stay nested; driver failures use fixed safe text and
-unknown outcome without reading hostile objects or exported error classes.
-Only callback pre-abort reports no driver dispatch. No automatic recovery.
+Review bounded README follow-up-alpha RED/GREEN, version-parameterized existing
+CI release/installed-application jobs, current tracking and the [scope/gates](docs/releases/0.1.0-alpha.2.md).
+No runtime/contract/API or dependency change; source manifests stay development-only.
+Private candidate/readiness/preview guards retain their existing NO-GO semantics.
 
-Docker verification passes: 447 browser tests, typecheck/build, 193 Python tests,
-canonical/22 HTMX/41 envelope fixtures, 23 existing + 7 new Filament HTTP tests,
-5 generator and 4 CLI tests. Clean artifact consumer controls and the committed
-source CI-helper equivalent pass. [Native/SQL evidence](docs/reviews/t908-native-acceptance.md)
-covers stale list/edit, denied permission, tenant change, receipt expiry and
-committed effect with response loss; explicit replay keeps one effect.
+Baseline 11 artifact tests passed; new follow-up-alpha regression failed on the
+incorrect first-alpha README claim, then 12 tests passed after the smallest fix.
+Final public artifacts, Docker clean consumers/Laravel shared-store/native proof,
+independent review, exact-head CI, registry identities and mirror/tag mapping
+remain pending. No alpha.2 registry write or tag is claimed.
 
-Independent source/evidence review has no remaining blocker without native replay.
-The fault requires this dispatch's ledger boundary and exact new effect identity;
-bundled effect then singleton replay is a negative regression. Serial single-worker
-simulation is not concurrency or real-payment proof. Final-head hosted CI remains
-a separate PR gate. Owned demo/stack/volumes/tabs/helpers are removed; user locks
-and existing resources are preserved. Merge/publication need separate authority.
+Default host npm session is not authenticated; complete owner device verification
+without exposing tokens/PINs. Preserve existing images/resources and user locks.
+Publication must use the exact reviewed tarball and final Laravel mirror tree.

@@ -6,13 +6,19 @@ one-line entry; full history is in
 
 ## Open
 
-No new implementation task is selected. T-908 awaits final PR CI/review and an owner-authorized merge; publication is separate.
+### T-909 — Coordinated 0.1.0-alpha.2 release
+
+- Scope: Publish the existing Laravel/browser package set from one exact reviewed revision, adding T-908's opt-in execution envelope; retain development source metadata and all private builder guards. No new adapter/API or MCP/OpenAPI promotion.
+- Acceptance: Final artefact identity/hash/manifest and clean-consumer proof for both packages; exact-source CI/review; verified Laravel mirror/tag mapping; npm alpha tag and registry-installed consumers; bounded Chrome/SQL envelope acceptance. No false stable/production claims or secret disclosure.
+- Verification: Publication tooling TDD if required, canonical/guardrails and relevant regressions; Docker final browser consumer, Laravel HTTP/shared-store acceptance, real Filament/native candidate and registry tests. Registry writes follow successful gates and the owner's approved continuation.
+- Plan: [Release scope and gates](docs/releases/0.1.0-alpha.2.md).
+- Current state: Preparation selected. Existing tooling supports the version; CI still exercises alpha.1 and public README incorrectly calls every version the first alpha. Host npm session is unavailable; interactive identity/device verification is pending. No alpha.2 tag or publication yet.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
-| Native WebMCP error behavior | T-908 opt-in envelope accepted under D-079; Docker runtime/schema/consumer checks and real Chrome/SQL response-loss, stale/authorization/tenant/expiry controls pass; [evidence](docs/reviews/t908-native-acceptance.md), [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44); final PR CI/review is a separate gate |
+| Native WebMCP error behavior | T-908 accepted under D-079; Docker/native/SQL checks and independent review pass; [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44) merged and main CI passed; [evidence](docs/reviews/t908-native-acceptance.md) |
 | Registry-installed Filament consumer | T-907 accepted through owner-authorized Chrome native tools and SQL proof; 23 HTTP checks, 3 generator tests, canonical validation and independent source/evidence review pass; scoped demo/stack/volumes/tabs removed; [evidence](docs/reviews/t907-filament-acceptance.md), [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) |
 | Registry-installed Livewire consumer | T-906 real mounted consumer accepted; 15 signed HTTP checks, native agent/SQL one-effect proof, required validation and independent review pass; [evidence](docs/reviews/t906-livewire-acceptance.md), [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42) |
 | Registry-installed browser pilot | T-905 local Docker/native-agent refund and separate simulated 3D checkout accepted; 31 HTTP and 6 DOM-wiring tests, required validation and independent review pass; [evidence](docs/reviews/t905-checkout-acceptance.md), [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41) |
