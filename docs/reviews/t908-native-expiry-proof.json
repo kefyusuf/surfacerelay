@@ -1,0 +1,84 @@
+{
+  "artifact": {
+    "archiveFilename": "surfacerelay-browser-runtime-0.0.0-t908.1.tgz",
+    "archiveSha256": "47b9bff261e365e0e962ddcf95803414ca01f92d7d1b641a3e953f733aac0139",
+    "archiveSize": 19675,
+    "artifactVersion": "0.0.0-t908.1",
+    "contentManifestSha256": "9432b0fd80677052556f6d997f8cd47cba278ecf01eca3e5b2379b7f23df196a",
+    "packageName": "@surfacerelay/browser-runtime",
+    "schemaVersion": 1,
+    "sourceRevision": "4e797bc7a7be322ce5cdc342e3ef08ebece8ecbe"
+  },
+  "runtimeManifestComparison": {
+    "distFiles": 36,
+    "allDistHashesEqualToOriginalCandidate": true
+  },
+  "fixture": {
+    "isolatedContext": "t908-expiry-proof",
+    "port": 4187,
+    "receiptTtlSeconds": 30,
+    "recordId": 102,
+    "tenantId": "tenant-a"
+  },
+  "before": {
+    "observedAt": "2026-10-07T14:38:10Z",
+    "receiptPresent": false,
+    "recordId": 102,
+    "tenantId": "tenant-a",
+    "effects": 0,
+    "receiptTtlSeconds": 30
+  },
+  "confirmationRequest": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"97dd6631459b0586e8663c8a578a1ac7\",\n        \"confirmation\": {\n          \"challengeId\": \"byBzzAUdpc-lxb2jRzBWkd8z-vivZ9G267Vrkwc9wmw\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T14:43:21Z\"\n        }\n      }\n    }\n  }\n}"
+      }
+    ]
+  },
+  "successfulUiApproval": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Successfully clicked on the element\n## Latest page snapshot\nuid=21_0 RootWebArea \"Edit Order - SurfaceRelay installed alpha acceptance\" url=\"http://127.0.0.1:4187/admin/orders/102/edit\"\n  uid=21_1 link \"Skip to content\" url=\"http://127.0.0.1:4187/admin/orders/102/edit#fi-main-content\"\n    uid=21_2 StaticText \"Skip to content\"\n  uid=21_3 navigation \"Topbar\"\n    uid=21_4 link \"SurfaceRelay installed alpha acceptance\" url=\"http://127.0.0.1:4187/admin\"\n      uid=21_5 StaticText \"SurfaceRelay installed alpha acceptance\"\n    uid=21_6 button \"User menu\" expandable haspopup=\"menu\"\n  uid=21_7 navigation \"Sidebar navigation\"\n    uid=21_8 link \"Orders\" url=\"http://127.0.0.1:4187/admin/orders\"\n      uid=21_9 StaticText \"Orders\"\n  uid=21_10 main\n    uid=21_11 navigation \"Breadcrumb\"\n      uid=21_12 link \"Orders\" url=\"http://127.0.0.1:4187/admin/orders\"\n        uid=21_13 StaticText \"Orders\"\n      uid=21_14 StaticText \"Edit\"\n    uid=21_15 heading \"Edit Order\" level=\"1\"\n    uid=21_16 form\n      uid=21_17 StaticText \"Id\"\n      uid=21_18 textbox \"Id\" disableable disabled value=\"102\"\n      uid=21_19 StaticText \"Tenant id\"\n      uid=21_20 textbox \"Tenant id\" disableable disabled value=\"tenant-a\"\n      uid=21_21 button \"Save changes\"\n      uid=21_22 button \"Cancel\"\n  uid=21_30 status live=\"polite\" relevant=\"additions text\"\n    uid=22_0 heading \"Confirmation approved. Retry the original operation.\" level=\"3\"\n    uid=22_1 button \"Close notification\" description=\"Close notification\"\n"
+      }
+    ]
+  },
+  "approvedCacheObservation": {
+    "observedAt": "2026-10-07T14:41:00Z",
+    "legacyUnusedReceiptColumnPresent": false,
+    "approvedCacheRecords": [
+      {
+        "receiptExpiresAt": 1791383963
+      }
+    ],
+    "recordId": 102,
+    "tenantId": "tenant-a",
+    "effects": 0,
+    "receiptTtlSeconds": 30
+  },
+  "retryAfterReceiptExpiry": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"b5846a7506e7b3ad2bfa6c6c308bc3d3\",\n        \"confirmation\": {\n          \"challengeId\": \"i6TMI2T-gfWNwwlZiHF65H5U_KzwnIL_8D5C8-1et2I\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T14:46:11Z\"\n        }\n      }\n    }\n  }\n}"
+      }
+    ]
+  },
+  "afterRetry": {
+    "observedAt": "2026-10-07T14:41:21Z",
+    "legacyUnusedReceiptColumnPresent": false,
+    "approvedCacheRecords": [],
+    "recordId": 102,
+    "tenantId": "tenant-a",
+    "effects": 0,
+    "receiptTtlSeconds": 30
+  },
+  "proofNotes": [
+    "Successful UI notification explicitly says confirmation approved; retry original operation.",
+    "Read only approved state and receiptExpiresAt from the marker-owned file cache; no receipt/hash/cache filename or credentials retained.",
+    "The legacy receipt_ciphertext SQL column is unused by this Filament bridge and is not receipt evidence.",
+    "Approved cache record existed before native retry, was already expired, and original challenge was still unexpired. Native retry requested a new challenge; SQL remained zero effects.",
+    "Original native sequence four effects and this separate fresh sequence zero effects are different disposable databases."
+  ]
+}

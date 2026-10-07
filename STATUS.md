@@ -33,7 +33,7 @@ separate gate on the PR.
 
 T-905/T-906/T-907 acceptance is complete and PRs #41–#43 are merged.
 Their recipes remain available; no task demo is running. T-908 demo/candidate,
-two containers, one network, two volumes, eight native test tabs and owned helpers
+three containers, one network, two volumes, ten native test tabs and owned helpers
 were removed. Existing image/resources and user Composer locks are preserved.
 
 ## Needs decision and limits

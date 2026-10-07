@@ -42,6 +42,17 @@ arm failed because the local CLI called the time module; its following invocatio
 is labeled a normal completion control, never fault evidence. Observed CLI RED
 (three failures) was fixed with `time.time()` and four CLI tests now pass.
 
+A separate clean native rerun closes the receipt-issuance evidence gap from the
+initial sequence. [Receipt expiry proof](t908-native-expiry-proof.json) includes
+the actual successful UI approval notification, configured 30-second receipt TTL,
+an approved file-cache record's expiry time, timestamped before/after observations
+and the native renewed challenge. The original challenge was still unexpired;
+the approved receipt was expired before retry. The separate SQL ledger stayed
+zero throughout. No receipt value/hash/cache filename is retained. The legacy
+SQL receipt column is unused by this Filament bridge and is not approval evidence.
+This rerun uses a candidate from the later committed source; all 36 shipped
+dist file hashes match the original qualified runtime candidate.
+
 ## Verification and limits
 
 - Registered callback RED/GREEN; 49 envelope tests and 447 browser tests pass,
