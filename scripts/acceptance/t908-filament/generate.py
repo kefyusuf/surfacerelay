@@ -67,6 +67,8 @@ def generate():
     setup = replace_once(setup_path.read_text(), 'echo "Installed application fixture initialized.\\n";',
         (HERE / 'setup-fault.php.template').read_text() + '\necho "Installed application fixture initialized.\\n";')
     setup_path.write_text(setup)
+    routes_path = DEST / 'routes/web.php'
+    routes_path.write_text(routes_path.read_text() + (HERE / 'tenant-control.php.template').read_text())
 
 
 if __name__ == '__main__':

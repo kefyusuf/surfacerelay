@@ -1,0 +1,12 @@
+
+// Disposable native-test UI only. POST uses the existing membership-checked
+// tenant route and ordinary session CSRF protection; no authority is minted here.
+Route::get('/t908/tenant-control', function () {
+    abort_unless(Auth::check(), 403);
+    return '<!doctype html><title>T-908 tenant control</title>'
+        . '<form method="post" action="/tenant">'
+        . '<input type="hidden" name="_token" value="' . e(csrf_token()) . '">'
+        . '<label>Tenant <select name="tenantId"><option value="tenant-a">tenant-a</option>'
+        . '<option value="tenant-b">tenant-b</option></select></label>'
+        . '<button type="submit">Switch tenant</button></form>';
+});

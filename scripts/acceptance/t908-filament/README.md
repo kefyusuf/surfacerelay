@@ -124,6 +124,12 @@ confirmation-required, permission denial, stale list/edit, tenant change and
 expired receipt controls from T-907, with core results nested in the uniform
 envelope. Outer native `Completed` alone does not prove application success.
 
+The disposable `/t908/tenant-control` form enables native UI tenant switching.
+It submits to the existing CSRF-protected, membership-checked `/tenant` route.
+Keep an old mounted tab open, switch to tenant-b through the form, then invoke
+the old native tool and verify rejection with no effect. A fresh tenant-b page
+must display its own records. This form is acceptance scaffolding only.
+
 ## Cleanup
 
 Close only task-created browser pages. Stop/remove only the task-named Compose

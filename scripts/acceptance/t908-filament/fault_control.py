@@ -25,7 +25,7 @@ def main():
         if args.operation == 'arm':
             descriptor = json.loads(row['descriptor'])
             method = descriptor['target']['method']
-            if not row['active'] or row['expires_at'] <= time() or method not in ['holdCurrent', 'refundSelected']:
+            if not row['active'] or row['expires_at'] <= time.time() or method not in ['holdCurrent', 'refundSelected']:
                 parser.error('Refusing stale or unsupported binding')
             count = connection.execute('select count(*) from effects').fetchone()[0]
             connection.execute('insert into t908_response_faults (binding_id,component_id,method,reason,armed,effects_before) values (?,?,?,?,1,?)',

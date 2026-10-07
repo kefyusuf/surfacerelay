@@ -17,6 +17,25 @@ class ResponseLossAcceptance(unittest.TestCase):
     pending = baseline.FilamentAcceptance.pending
     approve = baseline.FilamentAcceptance.approve
 
+    def test_tenant_control_requires_authentication(self):
+        anonymous = baseline.Browser()
+        self.assertEqual(anonymous.request('/t908/tenant-control')[0], 403)
+        self.assertEqual(self.effects(), self.before)
+
+    def test_tenant_control_uses_existing_csrf_and_membership_checks(self):
+        status, body = self.browser.request('/t908/tenant-control')
+        self.assertEqual(status, 200)
+        self.assertIn('action="/tenant"', body)
+        self.assertIn('name="_token"', body)
+        self.assertEqual(self.browser.request('/tenant', {'tenantId': 'nonmember'})[0], 403)
+        csrf = self.browser.csrf
+        try:
+            self.browser.csrf = 'invalid-csrf'
+            self.assertEqual(self.browser.request('/tenant', {'tenantId': 'tenant-b'})[0], 419)
+        finally:
+            self.browser.csrf = csrf
+        self.assertEqual(self.effects(), self.before)
+
     def arm(self, method='refundSelected', reason='customer-request'):
         snapshot = json.loads(self.browser.snapshot)
         self.binding = snapshot['data']['bindingId']

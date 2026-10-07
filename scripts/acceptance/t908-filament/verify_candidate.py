@@ -60,6 +60,7 @@ def main():
     stage_owned = False
     try:
         run(sys.executable, str(HERE / 'test_generator.py'))
+        run(sys.executable, str(HERE / 'test_fault_control.py'))
         run('npm', 'ci', '--no-audit', '--no-fund', cwd=ROOT / 'packages/browser-runtime')
         run('npm', 'run', 'build', cwd=ROOT / 'packages/browser-runtime')
         # Builder requires an empty stage. We create it exclusively and record
