@@ -66,8 +66,9 @@ native rejection channel loses even safe Error text. A representation decision
   local Docker/native consumer acceptance are complete in [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44).
   PR #44 is merged and main CI passed. Unknown-outcome safeguards remain required.
 General native interoperability and production readiness remain
-separate. The owner selected coordinated `0.1.0-alpha.2` preparation/publication
-under T-909; see the [release gates](releases/0.1.0-alpha.2.md).
+separate. T-909 published coordinated `0.1.0-alpha.2`; actual registry-installed
+and native/SQL controls pass. See the [release record](releases/0.1.0-alpha.2-publication.md).
+No next development scope is selected.
 
 ## Release gates
 

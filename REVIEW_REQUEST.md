@@ -1,24 +1,23 @@
-# T-909 Coordinated Alpha.2 Review
+# T-909 Alpha.2 Publication Record Review
 
-Task: T-909. Branch: feat/t-909-alpha2-release. Owner approved preparation,
-publication and fresh registry verification for the existing two-package set.
+Branch: docs/t-909-alpha2-publication-record. Documentation/evidence only.
+Preparation PR #45 is merged; both alpha.2 packages and source/mirror tags exist.
+Review current tracking, explicit-version installation/migration guidance and
+the [release record](docs/releases/0.1.0-alpha.2-publication.md).
 
-Review bounded README follow-up-alpha RED/GREEN, version-parameterized existing
-CI release/installed-application jobs, current tracking and the [scope/gates](docs/releases/0.1.0-alpha.2.md).
-No runtime/contract/API or dependency change; source manifests stay development-only.
-Private candidate/readiness/preview guards retain their existing NO-GO semantics.
+The receipt maps frozen source, final npm tarball, all 199 manifest entries,
+Laravel mirror commit/tags and actual registry-installed consumers. npm alpha
+is alpha.2; latest remains alpha.1. No stable promotion or new package/API.
+Fresh Docker npm import/types/bundle/smoke/deep-import and 11 Laravel HTTP/race
+checks pass; authorization mutation was detected. Registry Filament installed
+bytes match both final manifests. Fresh native invalid-input, UI approval,
+post-commit response loss, stale binding and explicit replay controls pass;
+the SQL ledger retains one effect. Sanitized native/SQL evidence is retained.
 
-Baseline 11 artifact tests passed; new follow-up-alpha regression failed on the
-incorrect first-alpha README claim, then 12 tests passed after the smallest fix.
-194 Python regressions, canonical fixtures/guardrails, Docker public npm checks
-and 11 Laravel installed HTTP/shared-store checks pass; mutation control detects
-the deliberately removed authorization. Fresh Chrome/SQL local alpha.2 checks
-pass for approval, response loss, explicit replay and stale binding. See
-[preparation evidence](docs/reviews/alpha-0.1.0-alpha.2-preparation.md) for provenance
-and limits. Independent source review found no blocker. PR CI, final merged-source
-rebuild, registry identities and mirror/tag mapping remain pending.
-No alpha.2 registry write or tag is claimed.
-
-Default host npm session is not authenticated; complete owner device verification
-without exposing tokens/PINs. Preserve existing images/resources and user locks.
-Publication must use the exact reviewed tarball and final Laravel mirror tree.
+Canonical/22 HTMX/41 envelope fixtures and private release guardrails pass.
+194 Python tests and independent preparation/final-byte reviews passed before
+publication. Independent receipt review and live registry/tag readback found no
+blocker; the reviewer did not replay native calls. Hosted CI is separate.
+Native controls are serial simulated effects, not production or broad concurrency
+qualification. No secrets, receipts, challenge identifiers or credentials retained.
+All owned test resources are removed; existing images and user locks are preserved.
