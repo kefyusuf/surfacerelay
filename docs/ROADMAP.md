@@ -56,9 +56,11 @@ two-package `0.1.0-alpha.1` release. See [current status](../STATUS.md) and
 T-905 delivered a standalone registry-installed Docker application with agent-led
 native in-app acceptance and separate simulated 3D checkout through an app-owned
 HTTP driver. T-906 adds a registry-installed real Livewire consumer with bounded
-native-agent and signed HTTP authority/lifecycle evidence. Filament qualification,
-general native interoperability and production readiness remain separate tasks;
-no further release is selected automatically.
+native-agent and signed HTTP authority/lifecycle evidence. T-907 adds a disposable
+registry-installed Filament consumer with signed HTTP authority/confirmation proof;
+its generated demo is removed after verification. Filament native-agent acceptance
+is pending an in-app browser environment repair. General native interoperability
+and production readiness remain separate; no further release is selected automatically.
 
 ## Release gates
 

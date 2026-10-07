@@ -29,7 +29,8 @@ This is an experimental prerelease, without stable API, production-security or
 support-SLA guarantees. Native-browser/real-agent qualification limits remain.
 T-905 implementation and acceptance are complete; [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41)
 is merged; merge-commit main CI passed. The registry-installed
-Docker pilot runs at `http://127.0.0.1:4185/`. Agent-led native in-app WebMCP
+Docker pilot recipe uses `http://127.0.0.1:4185/`; it is not running in the current
+Docker inventory. Agent-led native in-app WebMCP
 calls prove separate simulated 3D navigation, wrong/correct code, completion
 and replay with one effect. Docker verification passes 12 checkout HTTP tests,
 19 preserved HTTP tests, 6 Node DOM-wiring tests, build, strict Composer,
@@ -38,17 +39,27 @@ remaining blocker. TDD covers missing routes and a stale expiry observer race.
 This app-owned HTTP pilot does not qualify real bank 3DS or Livewire/Filament
 consumers. Single timing samples do not establish performance guarantees.
 Owner manual testing is optional. User Composer locks and pre-existing Docker
-resources are preserved; the pilot stays running for further experiments.
+resources are preserved; its startup recipe remains available for experiments.
 T-906 local acceptance is verified: real Livewire 4.4.7/Laravel 13.35.0 consumer
 using exact registry alpha packages, 15 signed HTTP checks, native in-app agent
 approval/completion/replay and SQL one-effect proof. A stale displayed-challenge
 approval race was fixed with observed RED/GREEN; independent review has no
 remaining blocker. Acceptance is complete; [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42)
-is approved by the owner for integration after final-head CI passes. Its task-owned Docker
+is merged; merge-commit main CI passed. Its task-owned Docker
 container/network were removed after verification; T-905 is preserved. Filament remains
-outside this task. No next task, additional release or production gate is selected.
+outside T-906. T-907 HTTP acceptance passes: exact registry Filament 5.10.0 consumer,
+20 signed HTTP tests, 3 generator safety tests, fresh locked install/build and
+canonical validation. Mixed-selection and superseded-modal regressions were
+observed RED and fixed in the consumer; independent review has no blocker.
+Native Codex in-app acceptance is BLOCKED by trusted Node initialization failure;
+HTTP results do not establish native discovery, Alpine sync or browser lifecycle.
+T-907 remains open. The temporary demo, Compose file and owned container/network
+were removed; reproducible recipe, locks and tests remain. No additional release,
+production gate or automatic merge is selected.
 See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
 [guide and shutdown](examples/alpha-pilot/README.md).
 See [Livewire evidence](docs/reviews/t906-livewire-acceptance.md) and
 [Livewire startup recipe](examples/alpha-livewire-pilot/README.md).
+See [Filament evidence](docs/reviews/t907-filament-acceptance.md) and
+[disposable recipe](scripts/acceptance/t907-filament/README.md).
 See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).

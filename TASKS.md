@@ -6,7 +6,24 @@ one-line entry; full history is in
 
 ## Open
 
-No task is active. Select the next bounded consumer qualification separately.
+### T-907 — Temporary registry-installed Filament acceptance (HTTP verified; native blocked)
+
+- Scope: A real Filament panel in a temporary demo inside `.tmp/t907-filament-demo/`,
+  using exact published alpha packages and the existing Filament trust pipeline.
+- Acceptance: Agent-led native Codex in-app calls prove current record and multiple
+  selected records, approval-only behavior, bounded idempotency, permission/tenant
+  changes and stale page authority rejection. Include negative tests.
+- Verification: Test-first real mounted HTTP checks, registry install/build,
+  canonical validation, independent review and native browser/SQL effect evidence.
+- Cleanup: Remove the temporary demo and task-owned Docker stack after testing;
+  retain reproducible test assets and evidence, preserve T-905 and user lockfiles.
+- Likely files: `scripts/acceptance/t907-filament/`, temporary demo, acceptance
+  evidence and current tracking. No publication, merge or next task is selected.
+- Current evidence: Fresh locked install, 20 signed HTTP checks, 3 generator safety
+  checks and required validation pass; mixed-selection and superseded
+  modal failures were observed RED and fixed in the consumer. Native Codex in-app
+  initialization fails before browser control; acceptance remains incomplete.
+- Cleanup verified: temporary demo/Compose file and owned container/network removed.
 
 ## Done
 

@@ -1,0 +1,39 @@
+<?php
+namespace App;
+use Illuminate\Support\Facades\{Auth, DB};
+use Livewire\Attributes\Locked;
+use SurfaceRelay\Laravel\Registry\InMemoryActionRegistry;
+use SurfaceRelay\Laravel\Livewire\Binding\LivewireBindingProducer;
+use SurfaceRelay\Laravel\Livewire\Exposure\LivewireActionExposureReader;
+use SurfaceRelay\Laravel\Livewire\Identity\MethodLivewireComponentIdentityResolver;
+use SurfaceRelay\Laravel\Binding\RandomBindingIdGenerator;
+trait HasBinding {
+    #[Locked] public string $bindingId = '';
+    protected function createBinding(): void {
+        $registry = new InMemoryActionRegistry(); $registry->register(FilamentGateway::definition($this instanceof EditOrder));
+        $binding = (new LivewireBindingProducer(new LivewireActionExposureReader($registry), new MethodLivewireComponentIdentityResolver(), new RandomBindingIdGenerator()))->forComponent($this)[0];
+        $descriptor = $binding->toArray(); $descriptor['expiresAt'] = gmdate('Y-m-d\TH:i:s\Z', time()+3600);
+        $old = session('active_binding');
+        if (is_string($old)) DB::table('pilot_livewire_bindings')->where('binding_id', $old)->update(['active'=>false]);
+        $this->bindingId = $binding->bindingId;
+        DB::table('pilot_livewire_bindings')->insert(['binding_id'=>$binding->bindingId, 'component_id'=>$this->getId(), 'session_hash'=>hash('sha256',session()->getId()), 'actor_id'=>Auth::id(), 'tenant_id'=>FilamentGateway::tenant(), 'record_id'=>$this instanceof EditOrder ? $this->getRecord()->getKey() : 101, 'active'=>true, 'descriptor'=>json_encode($descriptor,JSON_THROW_ON_ERROR), 'expires_at'=>time()+3600, 'idempotency_key'=>'filament-'.bin2hex(random_bytes(16))]);
+        session()->put('active_binding',$binding->bindingId);
+    }
+    public function hydrate(): void { FilamentGateway::active($this); }
+    protected function checkedConfirmationService(): \SurfaceRelay\Laravel\Confirmation\ConfirmationService {
+        $row=FilamentGateway::active($this);
+        abort_unless(is_string($this->surfaceRelayConfirmationChallengeId)
+            && $this->surfaceRelayConfirmationChallengeId===$row->challenge_id,409);
+        abort_unless(DB::table('memberships')->where('user_id',Auth::id())->where('tenant_id',$row->tenant_id)->where('can_hold',true)->exists(),403);
+        return FilamentGateway::confirmation();
+    }
+    public function bindingScript(): string {
+        $row = FilamentGateway::active($this);
+        if (!DB::table('memberships')->where('user_id',Auth::id())->where('tenant_id',$row->tenant_id)->where('can_hold',true)->exists()) {
+            return '<script type="application/json" data-surfacerelay-bindings>[]</script>';
+        }
+        $definition = array_map(static fn($v)=>$v instanceof \BackedEnum ? $v->value : $v, get_object_vars(FilamentGateway::definition($this instanceof EditOrder)));
+        $definition['contextRequirements'] = array_map(static fn($v)=>$v->value,$definition['contextRequirements']);
+        return '<script type="application/json" data-surfacerelay-bindings>'.json_encode([['definition'=>$definition,'binding'=>json_decode($row->descriptor,true)]],JSON_HEX_TAG|JSON_HEX_AMP|JSON_THROW_ON_ERROR).'</script>';
+    }
+}

@@ -1,0 +1,15 @@
+<?php
+namespace App;
+use SurfaceRelay\Laravel\Livewire\Attributes\ExposeAction;
+final class EditOrder extends \Filament\Resources\Pages\EditRecord {
+    use HasBinding, \SurfaceRelay\Laravel\Filament\Confirmation\InteractsWithSurfaceRelayConfirmation;
+    protected static string $resource = OrderResource::class;
+    public function mount(int|string $record): void { parent::mount($record); $this->createBinding(); }
+    protected function resolveSurfaceRelayConfirmationService(): \SurfaceRelay\Laravel\Confirmation\ConfirmationService { return $this->checkedConfirmationService(); }
+    #[ExposeAction('pilot.filament.orders.hold',1)]
+    public function holdCurrent(string $reason): array {
+        abort_unless(func_num_args()===1,422);
+        return \Illuminate\Support\Facades\Cache::store('file')->lock('filament-'.$this->bindingId,15)->block(5,
+            fn()=>FilamentGateway::invoke($this,$reason,$this->pullApprovedSurfaceRelayConfirmationReceipt()));
+    }
+}

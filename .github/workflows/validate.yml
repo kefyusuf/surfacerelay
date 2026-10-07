@@ -5,6 +5,59 @@ on:
   pull_request:
 
 jobs:
+  filament-http-consumer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PILOT_CONFIRMATION_TTL: '5'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite, intl
+          coverage: none
+      - name: Generate disposable registry-installed Filament consumer
+        run: |
+          python3 scripts/acceptance/t907-filament/test_generator.py
+          python3 scripts/acceptance/t907-filament/generate.py
+      - name: Verify real signed Filament requests and remove demo
+        shell: bash
+        run: |
+          set -euo pipefail
+          demo="$GITHUB_WORKSPACE/.tmp/t907-filament-demo"
+          server=''
+          cleanup() {
+            if [ -n "$server" ]; then kill "$server" 2>/dev/null || true; fi
+            rm -rf -- "$demo"
+          }
+          trap cleanup EXIT
+          cd "$demo"
+          composer install --no-dev --no-interaction --prefer-dist --no-progress
+          composer validate --strict
+          npm ci --no-audit --no-fund
+          npm run build
+          php setup.php
+          php "$GITHUB_WORKSPACE/scripts/acceptance/t907-filament/command.php" filament:assets
+          php -S 127.0.0.1:8000 -t public public/router.php > /tmp/filament-consumer.log 2>&1 &
+          server=$!
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/session > /dev/null; then break; fi
+            sleep 1
+          done
+          PILOT_DATABASE="$demo/database/acceptance.sqlite" python3 "$GITHUB_WORKSPACE/scripts/acceptance/t907-filament/filament_acceptance.py"
+
   alpha-livewire-pilot:
     runs-on: ubuntu-latest
     permissions:
