@@ -6,8 +6,14 @@ one-line entry; full history is in
 
 ## Open
 
-None selected. T-907 used the owner-authorized native Chrome alternative;
-Codex in-app loopback access remains an environment limitation, outside the accepted Chrome scope.
+### T-908 — Native WebMCP error behavior (implementation and acceptance)
+
+- Scope: Owner-approved explicit opt-in uniform WebMCP execution envelope; preserve default/direct-driver compatibility, nested server results and unknown-outcome safeguards.
+- Acceptance: Opt-in native failures have safe nonempty presentation; successful/core values remain unchanged inside returned output. Default mode retains exact behavior. No raw error leak, invented authority or automatic retry. Real Chrome/SQL tests include effect-then-response-loss uncertainty.
+- Verification: Native characterization before representation choice, TDD at the registered callback seam, driver/cancellation compatibility, clean artifact consumer, Docker Filament/native SQL acceptance, canonical validation and independent review.
+- Decision: D-079 Accepted by owner; opt-in surface cancellation changes presentation only at proven callback pre-abort, while default cancellation reason identity and post-dispatch natural completion remain compatible.
+- Plan: [Detailed scope and execution sequence](docs/plans/2026-10-07-t908-native-webmcp-error-behavior.md).
+- Current state: Native characterization and implementation RED/GREEN observed; schema/41 fixtures and negative controls pass locally in Docker. Exact candidate/real Filament native/SQL acceptance and final CI pending. [Baseline evidence](docs/reviews/t908-native-characterization.md). No PR, merge or publication yet.
 
 ## Done
 

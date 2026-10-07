@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>T-908 native rejection characterization</title>
+<h1>T-908 native rejection characterization</h1>
+<p>Local synthetic fixture. No application writes, credentials or external requests.</p>
+<p id="state">Registering tools.</p>
+<script type="module">
+const context = document.modelContext;
+const cases = {
+  object: () => Promise.reject({ code: 'synthetic_failure', message: 'Harmless object text.' }),
+  string: () => Promise.reject('Harmless primitive text.'),
+  number: () => Promise.reject(7),
+  null: () => Promise.reject(null),
+  undefined: () => Promise.reject(undefined),
+  error: () => Promise.reject(new Error('SurfaceRelay execution failed. Outcome unknown; do not retry automatically.')),
+  sync_error: () => { throw new Error('SurfaceRelay execution failed. Outcome unknown; do not retry automatically.'); },
+  abort: () => Promise.reject(new DOMException('Execution cancelled before dispatch.', 'AbortError')),
+  server_result: () => ({ status: 'rejected', error: { code: 'authorization_denied' }, correlationId: 'synthetic-correlation' }),
+  returned_undefined: () => undefined,
+  returned_null: () => null,
+  business_envelope: () => ({ kind: 'surfacerelay.webmcp.execution.v1', status: 'execution_failed', business: true }),
+};
+if (!context) {
+  document.querySelector('#state').textContent = 'Native document.modelContext unavailable.';
+} else {
+  for (const [name, execute] of Object.entries(cases)) {
+    await context.registerTool({
+      name: `t908_${name}`,
+      description: `Synthetic T-908 ${name} behavior. Does not modify application state.`,
+      inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+      execute,
+    });
+  }
+  document.querySelector('#state').textContent = `${Object.keys(cases).length} synthetic native tools registered.`;
+}
+</script>
+</html>

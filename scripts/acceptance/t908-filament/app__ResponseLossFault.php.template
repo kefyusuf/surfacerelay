@@ -1,0 +1,59 @@
+<?php
+declare(strict_types=1);
+namespace App;
+
+use Illuminate\Support\Facades\{Auth, DB};
+
+/** Disposable acceptance only: discard one exact successful action response. */
+final class ResponseLossFault
+{
+    public static function effectBoundary(): array
+    {
+        $ledger = DB::table('effects')->selectRaw('COUNT(*) AS effect_count, COALESCE(MAX(id), 0) AS last_id')->first();
+        return ['count' => (int) $ledger->effect_count, 'lastId' => (int) $ledger->last_id];
+    }
+
+    public static function afterResult(ListOrders|EditOrder $component, string $reason, array $result, array $before): void
+    {
+        if (($result['status'] ?? null) !== 'succeeded') return;
+        $method = $component instanceof EditOrder ? 'holdCurrent' : 'refundSelected';
+        $request = request();
+        // Refuse bundled work: dropping its HTTP response would affect another call.
+        if (!$request->isMethod('POST') || $request->path() !== 'livewire/update') return;
+        $components = $request->input('components');
+        if (!is_array($components) || count($components) !== 1) return;
+        $entry = array_values($components)[0];
+        if (!is_array($entry) || !is_string($entry['snapshot'] ?? null)) return;
+        $snapshot = json_decode($entry['snapshot'], true);
+        $calls = $entry['calls'] ?? null;
+        if (($snapshot['memo']['id'] ?? null) !== $component->getId()
+            || !is_array($calls) || count($calls) !== 1) return;
+        $call = array_values($calls)[0];
+        if (!is_array($call) || ($call['method'] ?? null) !== $method
+            || ($call['params'] ?? null) !== [$reason]) return;
+        $drop = DB::transaction(function () use ($component, $method, $reason, $result, $before): bool {
+            $fault = DB::table('t908_response_faults')->where('binding_id', $component->bindingId)
+                ->where('component_id', $component->getId())->where('method', $method)
+                ->where('reason', $reason)->where('armed', true)->first();
+            if ($fault === null) return false;
+            $after = DB::table('effects')->count();
+            // The boundary is captured immediately before this dispatch, not at
+            // arm time. Prior bundled effects cannot make a later replay qualify.
+            if ($after !== $before['count'] + 1) return false;
+            $effects = DB::table('effects')->where('id', '>', $before['lastId'])->get();
+            if ($effects->count() !== 1) return false;
+            $effect = $effects->first();
+            if ($effect->t908_binding_id !== $component->bindingId
+                || $effect->t908_action_id !== FilamentGateway::definition($component instanceof EditOrder)->id
+                || (int) $effect->actor_id !== (int) Auth::id()
+                || $effect->tenant_id !== FilamentGateway::tenant()
+                || $effect->reason !== $reason
+                || json_decode($effect->order_ids, true) !== ($result['data']['orderIds'] ?? null)) return false;
+            return DB::table('t908_response_faults')->where('binding_id', $fault->binding_id)
+                ->where('armed', true)->update(['armed' => false, 'effects_after' => $after,
+                    'invocation_effects_before' => $before['count'],
+                    'dropped_at' => time()]) === 1;
+        });
+        if ($drop) abort(503, 'T908_DEMO_ONLY_RESPONSE_DISCARDED');
+    }
+}

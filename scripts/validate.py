@@ -16,6 +16,7 @@ except ImportError:
 FORMAT_CHECKER = FormatChecker()
 
 from htmx_result_contract import validate_htmx_result_contract
+from webmcp_result_contract import validate_webmcp_result_contract
 
 schema_dir = ROOT / 'spec' / '0.1'
 schema_files = {
@@ -202,6 +203,7 @@ for entry in entries:
     print(f"OK fixture (invalid as intended, {e.validator} at {instance_path_str(e)}): {entry['path']}")
 
 failures += validate_htmx_result_contract(ROOT)
+failures += validate_webmcp_result_contract(ROOT)
 
 if failures:
     print(f'SurfaceRelay starter validation FAILED with {failures} failure(s).')

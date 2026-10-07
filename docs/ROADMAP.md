@@ -59,8 +59,13 @@ HTTP driver. T-906 adds a registry-installed real Livewire consumer with bounded
 native-agent and signed HTTP authority/lifecycle evidence. T-907 adds a disposable
 registry-installed Filament consumer with signed HTTP authority/confirmation proof;
 its generated demo is removed after verification. Filament native-agent acceptance
-is pending an in-app browser environment repair. General native interoperability
-and production readiness remain separate; no further release is selected automatically.
+is complete through the owner-authorized Chrome alternative. In-app loopback
+access remains outside that accepted scope. T-908 Phase 0 proves the current
+native rejection channel loses even safe Error text. A representation decision
+was accepted as explicit opt-in uniform projection output; implementation and
+real-consumer acceptance are underway. Unknown-outcome safeguards remain required.
+General native interoperability and production readiness remain
+separate; no further release is selected automatically.
 
 ## Release gates
 

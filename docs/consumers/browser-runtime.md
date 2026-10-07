@@ -21,6 +21,48 @@ every operating system. Native WebMCP evidence is separate and narrower: the
 through Chromium's own `document.modelContext` behind a feature flag. Separate Windows npm launch checks cover tested tooling
 paths; this POSIX recipe is not a Windows shell recipe.
 
+## Opt-in native execution results (Unreleased)
+
+The default registration contract is unchanged: resolved driver values and
+rejected values retain their existing behavior. To make execution failures
+readable in native clients that discard rejection text, explicitly select:
+
+```ts
+const lifecycle = new WebMcpRegistrationLifecycle(modelContext, drivers, {
+  resultMode: 'envelope',
+});
+```
+
+Every invocation in this mode returns the projection-only
+`WebMcpExecutionResult` union (`kind: 'surfacerelay.webmcp.execution.v1'`):
+
+| Surface status | Meaning |
+| --- | --- |
+| `returned` | The driver returned. `output.kind: 'value'` carries the original value; `output.kind: 'undefined'` denotes absent output, distinct from null. Inspect the nested application result: `returned` is not business success. |
+| `execution_failed` | Fixed safe error guidance, `outcome: 'unknown'`. No raw error data, server correlation or inferred HTTP/domain code is supplied. Verify application state before considering a retry. |
+| `cancelled` | The callback observed an already-aborted signal before resolving/invoking its driver. `outcome: 'not_dispatched'` refers only to this callback's driver dispatch, not a claim that no earlier operation exists. |
+
+Chrome may report outer `Completed` for **all** these arms because the callback
+resolved. Read the surface status before the nested server Action Result.
+Successful business objects resembling the surface envelope stay inside
+`output.value`; do not recursively reinterpret them. Core authorization,
+confirmation, idempotency and correlation remain server-owned. Drivers still
+apply their output policy; the envelope does not redact successful values.
+
+Only errors from invocation are normalized. Registration validation/rollback
+and direct driver consumers retain their contracts. A cancellation after driver
+initiation preserves its natural completion; if it rejects, outcome stays unknown.
+The adapter never retries, remounts, changes keys, retargets or claims rollback.
+Unsupported result modes fail closed. Mode choice is captured at construction.
+
+Migration is explicit: leave existing registrations unchanged, or opt in and
+update consumers to inspect the outer discriminant and nested application result.
+JSON-compatible application values and explicit undefined are covered by the
+[adapter schema/fixtures](../../packages/browser-runtime/conformance/webmcp-execution-result.schema.json).
+This feature is not in the published alpha.1 tarball; test an exact locally built
+candidate before adoption. It does not fix Chrome's native rejection text channel
+or qualify the Codex in-app browser.
+
 ## Build an exact candidate
 
 The builder is an existing Python function, not a command-line interface.

@@ -41,6 +41,8 @@ import {
   type WebMcpModelContext,
   type WebMcpRegisterToolOptions,
   type WebMcpRegistrationLease,
+  type WebMcpRegistrationOptions,
+  type WebMcpExecutionResult,
   type WebMcpTool,
   type WebMcpToolExecuteOptions,
 } from '../src/index.js';
@@ -59,6 +61,16 @@ registry.register('test', driver);
 const livewireDriver: BindingDriver = new LivewireBrowserDriver(livewireRuntime, clock);
 const htmxDriver: BindingDriver = new HtmxBrowserDriver(htmxRuntime, clock);
 const lifecycle = new WebMcpRegistrationLifecycle(modelContext, registry);
+const resultOptions: WebMcpRegistrationOptions = { resultMode: 'envelope' };
+const envelopeLifecycle = new WebMcpRegistrationLifecycle(modelContext, registry, resultOptions);
+declare const executionResult: WebMcpExecutionResult;
+if (executionResult.status === 'returned' && executionResult.output.kind === 'value') {
+  const value: unknown = executionResult.output.value;
+  void value;
+}
+// @ts-expect-error Unsupported result modes must not be admitted by the public API.
+new WebMcpRegistrationLifecycle(modelContext, registry, { resultMode: 'automatic_retry' });
+void envelopeLifecycle;
 
 const htmxOptions: CreateHtmxBindingTargetOptions = {
   sourceId: 'public-api-source',

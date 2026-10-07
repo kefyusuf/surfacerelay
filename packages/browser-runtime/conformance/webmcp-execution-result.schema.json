@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://surfacerelay.dev/adapters/webmcp/execution-result.schema.json",
+  "title": "SurfaceRelay Opt-in WebMCP Execution Result (Unpublished)",
+  "oneOf": [
+    {"$ref": "#/$defs/returned"},
+    {"$ref": "#/$defs/executionFailed"},
+    {"$ref": "#/$defs/cancelled"}
+  ],
+  "$defs": {
+    "output": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {"kind": {"const": "value"}, "value": {}}
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {"kind": {"const": "undefined"}}
+        }
+      ]
+    },
+    "returned": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "status", "output"],
+      "properties": {
+        "kind": {"const": "surfacerelay.webmcp.execution.v1"},
+        "status": {"const": "returned"},
+        "output": {"$ref": "#/$defs/output"}
+      }
+    },
+    "executionFailed": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "status", "outcome", "error"],
+      "properties": {
+        "kind": {"const": "surfacerelay.webmcp.execution.v1"},
+        "status": {"const": "execution_failed"},
+        "outcome": {"const": "unknown"},
+        "error": {
+          "type": "object", "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": {"const": "execution_failed"},
+            "message": {"const": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."}
+          }
+        }
+      }
+    },
+    "cancelled": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "status", "outcome", "error"],
+      "properties": {
+        "kind": {"const": "surfacerelay.webmcp.execution.v1"},
+        "status": {"const": "cancelled"},
+        "outcome": {"const": "not_dispatched"},
+        "error": {
+          "type": "object", "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": {"const": "execution_cancelled"},
+            "message": {"const": "Execution was cancelled before driver dispatch."}
+          }
+        }
+      }
+    }
+  }
+}

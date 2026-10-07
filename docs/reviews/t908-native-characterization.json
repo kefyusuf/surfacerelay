@@ -1,0 +1,90 @@
+{
+  "task": "T-908",
+  "phase": "0-native-characterization",
+  "browser": "Chrome 154.0.8037.98",
+  "client": "chrome-devtools-mcp 1.10.1",
+  "target": "http://127.0.0.1:4187/",
+  "surface": "native execute_webmcp_tool",
+  "configuration": "Isolated headless profile; WebMCP enabled; loopback allowlist; JavaScript evaluation disabled.",
+  "fixture": "scripts/acceptance/t908-native-errors/index.html",
+  "baseline": {
+    "files": 5,
+    "tests": 32,
+    "result": "passed",
+    "canonical": "passed",
+    "htmxFixtures": "22/22 passed"
+  },
+  "cases": [
+    {
+      "name": "object",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "string",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "number",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "null",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "undefined",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "error",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "sync_error",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "abort",
+      "native": {
+        "status": "Error",
+        "errorText": ""
+      }
+    },
+    {
+      "name": "server_result",
+      "native": {
+        "status": "Completed",
+        "output": {
+          "status": "rejected",
+          "error": {
+            "code": "authorization_denied"
+          },
+          "correlationId": "synthetic-correlation"
+        }
+      }
+    }
+  ],
+  "interpretation": "All eight callback rejection forms yielded empty errorText. The resolved synthetic server rejection remained structured. This isolates a reproduction without SurfaceRelay; it does not identify Chrome versus Puppeteer as root cause or qualify a fix.",
+  "implementation": "Not started; sanitized native rejection did not meet the required visibility gate."
+}

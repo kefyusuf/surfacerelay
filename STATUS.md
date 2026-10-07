@@ -63,7 +63,15 @@ blocker. Codex in-app loopback access still fails with `ERR_BLOCKED_BY_CLIENT` a
 is not qualified by Chrome results. [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43)
 records this acceptance and the Chrome setup recipe. Demo, helper, Compose file, owned app/network, two task volumes
 and seven test tabs were removed. Existing image, unrelated resources and user
-lockfiles are preserved. No additional task or release is selected.
+lockfiles are preserved. T-908 Phase 0 characterization is complete; see the
+[native error plan](docs/plans/2026-10-07-t908-native-webmcp-error-behavior.md).
+All eight native rejection forms have empty errorText, including sanitized Error;
+structured server-result control survives. Docker baseline 32/32 and canonical/22
+HTMX fixtures pass. [Evidence/options](docs/reviews/t908-native-characterization.md).
+Owner approved the explicit opt-in envelope under D-079. Runtime RED/GREEN,
+hostile-error/cancellation tests and adapter schema/41 fixtures pass in Docker.
+Exact built-candidate/real native Filament acceptance and final CI are pending;
+no further release has started.
 See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
 [guide and shutdown](examples/alpha-pilot/README.md).
 See [Livewire evidence](docs/reviews/t906-livewire-acceptance.md) and
@@ -71,3 +79,9 @@ See [Livewire evidence](docs/reviews/t906-livewire-acceptance.md) and
 See [Filament evidence](docs/reviews/t907-filament-acceptance.md) and
 [disposable recipe](scripts/acceptance/t907-filament/README.md).
 See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).
+
+## Needs decision
+
+None for T-908: owner accepted the explicit opt-in scope and D-079. Default
+behavior remains compatible; new-mode cancellation has explicit surface output.
+Registry publication and merge remain separate steps after qualified acceptance.

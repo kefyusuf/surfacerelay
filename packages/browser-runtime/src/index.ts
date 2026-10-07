@@ -58,6 +58,7 @@ export type { WebMcpAnnotations } from './webmcp-projection.js';
 
 export type {
   WebMcpRegistrationLease,
+  WebMcpRegistrationOptions,
 } from './webmcp-registration-lifecycle.js';
 
 export type {
@@ -67,6 +68,7 @@ export type {
 
 export type {
   WebMcpToolExecuteOptions,
+  WebMcpExecutionResult,
   WebMcpTool,
   WebMcpRegisterToolOptions,
   WebMcpModelContext,
