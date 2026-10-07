@@ -3,10 +3,14 @@ import {
   projectBoundActionTool,
   type BoundActionTool,
 } from './webmcp-tool-projection.js';
-import type { WebMcpModelContext, WebMcpTool } from './webmcp-types.js';
+import type { WebMcpExecutionResult, WebMcpModelContext, WebMcpTool } from './webmcp-types.js';
 
 export interface WebMcpRegistrationLease {
   dispose(): void;
+}
+
+export interface WebMcpRegistrationOptions {
+  resultMode?: 'passthrough' | 'envelope';
 }
 
 class RegistrationLease implements WebMcpRegistrationLease {
@@ -28,10 +32,19 @@ function compareToolNames(left: WebMcpTool, right: WebMcpTool): number {
 }
 
 export class WebMcpRegistrationLifecycle {
+  private readonly resultMode: 'passthrough' | 'envelope';
+
   constructor(
     private readonly modelContext: WebMcpModelContext,
     private readonly drivers: DriverRegistry,
-  ) {}
+    options: WebMcpRegistrationOptions = {},
+  ) {
+    const mode = options.resultMode ?? 'passthrough';
+    if (mode !== 'passthrough' && mode !== 'envelope') {
+      throw new Error('Unsupported WebMCP result mode.');
+    }
+    this.resultMode = mode;
+  }
 
   async register(
     candidates: readonly BoundActionTool[],
@@ -39,14 +52,40 @@ export class WebMcpRegistrationLifecycle {
     const projected = candidates.map((candidate) => {
       const tool = projectBoundActionTool(candidate, async (input, options) => {
         if (options.signal.aborted) {
+          if (this.resultMode === 'envelope') {
+            return {
+              kind: 'surfacerelay.webmcp.execution.v1', status: 'cancelled', outcome: 'not_dispatched',
+              error: { code: 'execution_cancelled', message: 'Execution was cancelled before driver dispatch.' },
+            } satisfies WebMcpExecutionResult;
+          }
           throw options.signal.reason;
         }
 
-        const driver = this.drivers.requireDriver(candidate.binding.driver);
-        return driver.execute(candidate.binding, input, {
-          signal: options.signal,
-        });
+        try {
+          const driver = this.drivers.requireDriver(candidate.binding.driver);
+          const value = await driver.execute(candidate.binding, input, {
+            signal: options.signal,
+          });
+          if (this.resultMode === 'passthrough') return value;
+          return {
+            kind: 'surfacerelay.webmcp.execution.v1', status: 'returned',
+            output: value === undefined ? { kind: 'undefined' } : { kind: 'value', value },
+          } satisfies WebMcpExecutionResult;
+        } catch (error) {
+          if (this.resultMode === 'passthrough') throw error;
+          return {
+            kind: 'surfacerelay.webmcp.execution.v1', status: 'execution_failed', outcome: 'unknown',
+            error: {
+              code: 'execution_failed',
+              message: 'Execution failed. The application outcome is unknown. Verify application state before considering a retry.',
+            },
+          } satisfies WebMcpExecutionResult;
+        }
       });
+
+      if (this.resultMode === 'envelope') {
+        tool.description += '\nSurfaceRelay execution envelope v1: inspect status and output. returned does not imply application success; inspect output.value for the application result. output.kind undefined means no returned value. execution_failed has unknown application outcome. Do not retry automatically; verify application state first. cancelled/not_dispatched means this callback did not invoke its driver.';
+      }
 
       this.drivers.requireDriver(candidate.binding.driver);
 

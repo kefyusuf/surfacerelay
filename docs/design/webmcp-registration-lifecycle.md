@@ -456,6 +456,18 @@ T-303 must not implement:
 
 These remain later tasks/milestones.
 
+## T-908 opt-in execution mode (Unreleased)
+
+The constructor's optional third argument accepts `resultMode: 'envelope'`.
+Omitting it, or choosing `passthrough`, preserves existing result/rejection and
+pre-abort reason identity. In envelope mode, every resolved application value is
+nested, undefined gets its own output arm, and invocation errors return fixed safe
+guidance with unknown outcome. Only the callback's own pre-abort branch can state
+that its driver was not dispatched. No thrown value is inspected for provenance.
+Discovery includes fixed envelope interpretation guidance. Registration failures,
+lease rollback and direct drivers are outside normalization. See D-079 and the
+[consumer migration guide](../consumers/browser-runtime.md#opt-in-native-execution-results-unreleased).
+
 ## Completion boundary
 
 T-303 is complete when:

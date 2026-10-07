@@ -1,0 +1,331 @@
+{
+  "qualification": "Local built browser candidate; not published alpha.1 or final-branch native proof",
+  "sourceRevision": "c2d797c70c881477bbd7ce0295110d608ab3c938",
+  "browser": {
+    "name": "Chrome",
+    "version": "154.0.8037.98",
+    "clientVersion": "1.10.1",
+    "isolatedContext": "t908-native-consumer",
+    "port": 4187
+  },
+  "artifact": {
+    "filename": "surfacerelay-browser-runtime-0.0.0-t908.1.tgz",
+    "sha256": "f88a44d0480ec85633bc57ca7e21bfd1ec99c0bf595c5b8afae2bbc2a459ff52",
+    "size": 19688,
+    "contentManifestSha256": "a00e043741ac84611e3b9de278e655a660d6b6360cb2dc12045ebe48339e8696"
+  },
+  "nativeCalls": [
+    {
+      "case": "list_confirmation",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"4b6b29ccb9c01199aee2cdb674e88476\",\n        \"confirmation\": {\n          \"challengeId\": \"E9iJaKEqQR4AglAlLVHFNhjlotaw0IYs_yhufoE0GoA\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T13:55:08Z\"\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "fault_arm_failed_normal_completion_control",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"succeeded\",\n        \"correlationId\": \"dbda02130e68515a34abb91ee43af65b\",\n        \"data\": {\n          \"orderIds\": [\n            101,\n            102\n          ],\n          \"affectedCount\": 2\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "explicit_same_intent_replay",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"succeeded\",\n        \"correlationId\": \"cb3a242165b728d497874571ae1ed798\",\n        \"data\": {\n          \"orderIds\": [\n            101,\n            102\n          ],\n          \"affectedCount\": 2\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "stale_list",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"execution_failed\",\n    \"outcome\": \"unknown\",\n    \"error\": {\n      \"code\": \"execution_failed\",\n      \"message\": \"Execution failed. The application outcome is unknown. Verify application state before considering a retry.\"\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "fresh_list_confirmation",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"3534591d5f5aae4cb57c823b1634d9e5\",\n        \"confirmation\": {\n          \"challengeId\": \"UwT9AOFuVuPwWFi23wXaE-YznyH3mfS3ogzddHQqLYw\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T13:58:31Z\"\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "effect_then_response_loss",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"execution_failed\",\n    \"outcome\": \"unknown\",\n    \"error\": {\n      \"code\": \"execution_failed\",\n      \"message\": \"Execution failed. The application outcome is unknown. Verify application state before considering a retry.\"\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "explicit_replay_after_verified_committed_effect",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"succeeded\",\n        \"correlationId\": \"8592a9382b20a76df2a43b98c825ffc9\",\n        \"data\": {\n          \"orderIds\": [\n            101,\n            102\n          ],\n          \"affectedCount\": 2\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "edit102_confirmation",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"b22e9c0c2229d6d39f8a4fea6fd3bd20\",\n        \"confirmation\": {\n          \"challengeId\": \"rzrzGdoJLvuzOMS6FQC7Ebx7hlGWeVHcgUbjtIIGDoc\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T14:14:16Z\"\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "edit102_after_ui_approval",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"succeeded\",\n        \"correlationId\": \"88a416481e67c5d62993aadfa7162010\",\n        \"data\": {\n          \"orderIds\": [\n            102\n          ],\n          \"affectedCount\": 1\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "stale_edit102_after_edit101_mount",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"execution_failed\",\n    \"outcome\": \"unknown\",\n    \"error\": {\n      \"code\": \"execution_failed\",\n      \"message\": \"Execution failed. The application outcome is unknown. Verify application state before considering a retry.\"\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "permission_revoked",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"rejected\",\n        \"correlationId\": \"33c56d12511cfa6043dd4b624d7222e6\",\n        \"error\": {\n          \"code\": \"authorization_denied\",\n          \"message\": \"Authorization denied.\"\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "fresh_permission_revoked_discovery",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "## WebMCP tools\nNo WebMCP tools available."
+          }
+        ]
+      }
+    },
+    {
+      "case": "edit101_approved_completion_control_not_expiry",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"succeeded\",\n        \"correlationId\": \"e1140b618efb543ab96049ec80c8ebd8\",\n        \"data\": {\n          \"orderIds\": [\n            101\n          ],\n          \"affectedCount\": 1\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tenant_switch_old_page",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"execution_failed\",\n    \"outcome\": \"unknown\",\n    \"error\": {\n      \"code\": \"execution_failed\",\n      \"message\": \"Execution failed. The application outcome is unknown. Verify application state before considering a retry.\"\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tenant_b_invalid_reason_preserved",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"rejected\",\n        \"correlationId\": \"ecf5d796dd132439351522ca68118ce0\",\n        \"error\": {\n          \"code\": \"input_validation_failed\",\n          \"message\": \"Input validation failed.\",\n          \"details\": {\n            \"fields\": [\n              \"reason\"\n            ]\n          }\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "tenant_b_expiry_confirmation_requested",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"f92a198da3119ddb2fef3b74ed3a4b45\",\n        \"confirmation\": {\n          \"challengeId\": \"m0ikYLreCsjSrKEgsq6LYxDZmZnYH27pITAE2bCQ-MI\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T14:26:04Z\"\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    {
+      "case": "expired_receipt_requires_fresh_confirmation",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"status\": \"Completed\",\n  \"output\": {\n    \"kind\": \"surfacerelay.webmcp.execution.v1\",\n    \"status\": \"returned\",\n    \"output\": {\n      \"kind\": \"value\",\n      \"value\": {\n        \"status\": \"confirmation_required\",\n        \"correlationId\": \"05a174ed9974c8a8f2a8267c58d9d0a3\",\n        \"confirmation\": {\n          \"challengeId\": \"w7hWS6eGq3KSZV-uQF2LmQFBxYANQ9cXm3sB5Mdy01U\",\n          \"summary\": \"Hold current order\",\n          \"expiresAt\": \"2026-10-07T14:28:05Z\"\n        }\n      }\n    }\n  }\n}"
+          }
+        ]
+      }
+    }
+  ],
+  "postLossSql": {
+    "effects": [
+      {
+        "id": 1,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101,102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_e0cbfd317ad53079c20b8029b51b8121",
+        "t908_action_id": "pilot.filament.orders.refund"
+      },
+      {
+        "id": 2,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101,102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_36af831f1c30c6212ca9d5683a006d4c",
+        "t908_action_id": "pilot.filament.orders.refund"
+      }
+    ],
+    "faults": [
+      {
+        "armed": 0,
+        "effects_before": 1,
+        "invocation_effects_before": 1,
+        "effects_after": 2,
+        "dropped_at": 1791381266
+      }
+    ]
+  },
+  "withoutRetrySql": {
+    "effects": [
+      {
+        "id": 1,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101,102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_e0cbfd317ad53079c20b8029b51b8121",
+        "t908_action_id": "pilot.filament.orders.refund"
+      },
+      {
+        "id": 2,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101,102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_36af831f1c30c6212ca9d5683a006d4c",
+        "t908_action_id": "pilot.filament.orders.refund"
+      }
+    ],
+    "faults": [
+      {
+        "armed": 0,
+        "effects_before": 1,
+        "invocation_effects_before": 1,
+        "effects_after": 2,
+        "dropped_at": 1791381266
+      }
+    ]
+  },
+  "finalSql": {
+    "effects": [
+      {
+        "id": 1,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101,102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_e0cbfd317ad53079c20b8029b51b8121",
+        "t908_action_id": "pilot.filament.orders.refund"
+      },
+      {
+        "id": 2,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101,102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_36af831f1c30c6212ca9d5683a006d4c",
+        "t908_action_id": "pilot.filament.orders.refund"
+      },
+      {
+        "id": 3,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[102]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_3a4171c92df812317d0fcebabd0e13aa",
+        "t908_action_id": "pilot.filament.orders.hold"
+      },
+      {
+        "id": 4,
+        "actor_id": 1,
+        "tenant_id": "tenant-a",
+        "order_ids": "[101]",
+        "reason": "customer-request",
+        "t908_binding_id": "sr_8d308f4367ae59b3f23ba30755dd476c",
+        "t908_action_id": "pilot.filament.orders.hold"
+      }
+    ],
+    "faults": [
+      {
+        "armed": 0,
+        "effects_before": 1,
+        "invocation_effects_before": 1,
+        "effects_after": 2,
+        "dropped_at": 1791381266
+      }
+    ]
+  },
+  "freshTenantB": {
+    "content": [
+      {
+        "type": "text",
+        "text": "## Latest page snapshot\nuid=15_0 RootWebArea \"Edit Order - SurfaceRelay installed alpha acceptance\" url=\"http://127.0.0.1:4187/admin/orders/201/edit\"\n  uid=15_1 link \"Skip to content\" url=\"http://127.0.0.1:4187/admin/orders/201/edit#fi-main-content\"\n    uid=15_2 StaticText \"Skip to content\"\n  uid=15_3 navigation \"Topbar\"\n    uid=15_4 link \"SurfaceRelay installed alpha acceptance\" url=\"http://127.0.0.1:4187/admin\"\n      uid=15_5 StaticText \"SurfaceRelay installed alpha acceptance\"\n    uid=15_6 button \"User menu\" expandable haspopup=\"menu\"\n  uid=15_7 navigation \"Sidebar navigation\"\n    uid=15_8 link \"Orders\" url=\"http://127.0.0.1:4187/admin/orders\"\n      uid=15_9 StaticText \"Orders\"\n  uid=15_10 main\n    uid=15_11 navigation \"Breadcrumb\"\n      uid=15_12 link \"Orders\" url=\"http://127.0.0.1:4187/admin/orders\"\n        uid=15_13 StaticText \"Orders\"\n      uid=15_14 StaticText \"Edit\"\n    uid=15_15 heading \"Edit Order\" level=\"1\"\n    uid=15_16 form\n      uid=15_17 StaticText \"Id\"\n      uid=15_18 textbox \"Id\" disableable disabled value=\"201\"\n      uid=15_19 StaticText \"Tenant id\"\n      uid=15_20 textbox \"Tenant id\" disableable disabled value=\"tenant-b\"\n      uid=15_21 button \"Save changes\"\n      uid=15_22 button \"Cancel\"\n  uid=15_23 status live=\"polite\" relevant=\"additions text\"\n"
+      }
+    ]
+  },
+  "limits": [
+    "Serial single-worker simulated effects; not concurrency or production banking proof.",
+    "Reviewer inspected source/evidence without native replay.",
+    "Final helper/document changes do not change the qualified runtime bytes. Hosted CI is separate.",
+    "The first attempted fault arm failed before the normal completion control; it is not response-loss evidence."
+  ]
+}

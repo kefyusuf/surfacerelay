@@ -6,7 +6,13 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ## Unreleased
 
-No pending release entries.
+### Added
+
+- Explicit opt-in WebMCP execution envelope (`resultMode: 'envelope'`) with safe
+  fixed failure guidance, conservative unknown outcomes, pre-dispatch cancellation
+  and distinct undefined output. Default registration and direct driver behavior
+  stay compatible. New projection schema/fixtures and a disposable post-commit
+  response-loss consumer accompany the change. This is not in registry alpha.1.
 
 ## 0.1.0-alpha.1 — 2026-10-06
 

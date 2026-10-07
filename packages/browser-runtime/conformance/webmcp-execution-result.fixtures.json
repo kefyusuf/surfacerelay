@@ -1,0 +1,588 @@
+[
+  {
+    "name": "returned-null",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": null
+      }
+    }
+  },
+  {
+    "name": "returned-string",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": "business value"
+      }
+    }
+  },
+  {
+    "name": "returned-number",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": 7
+      }
+    }
+  },
+  {
+    "name": "returned-boolean",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": false
+      }
+    }
+  },
+  {
+    "name": "returned-array",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": [
+          null,
+          {
+            "receipt": "business-only-value"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "returned-empty-object",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": {}
+      }
+    }
+  },
+  {
+    "name": "returned-undefined",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "undefined"
+      }
+    }
+  },
+  {
+    "name": "returned-envelope-shaped-business-value",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "execution_failed",
+          "outcome": "unknown",
+          "error": {
+            "code": "execution_failed",
+            "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "returned-core-succeeded",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": {
+          "status": "succeeded",
+          "correlationId": "server-correlation",
+          "data": {
+            "example": true
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "returned-core-rejected",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": {
+          "status": "rejected",
+          "correlationId": "server-correlation",
+          "data": {
+            "example": true
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "returned-core-failed",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": {
+          "status": "failed",
+          "correlationId": "server-correlation",
+          "data": {
+            "example": true
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "returned-core-confirmation_required",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": {
+          "status": "confirmation_required",
+          "correlationId": "server-correlation",
+          "data": {
+            "example": true
+          },
+          "confirmation": {
+            "challengeId": "server-challenge"
+          }
+        }
+      }
+    }
+  },
+  {
+    "name": "execution-failed-unknown",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      }
+    }
+  },
+  {
+    "name": "cancelled-not-dispatched",
+    "expect": "valid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "cancelled",
+      "outcome": "not_dispatched",
+      "error": {
+        "code": "execution_cancelled",
+        "message": "Execution was cancelled before driver dispatch."
+      }
+    }
+  },
+  {
+    "name": "forbidden-top-receipt",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      },
+      "receipt": "FORBIDDEN"
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/"
+  },
+  {
+    "name": "forbidden-error-receipt",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry.",
+        "receipt": "FORBIDDEN"
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/error"
+  },
+  {
+    "name": "forbidden-top-cause",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      },
+      "cause": "FORBIDDEN"
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/"
+  },
+  {
+    "name": "forbidden-error-cause",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry.",
+        "cause": "FORBIDDEN"
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/error"
+  },
+  {
+    "name": "forbidden-top-correlationId",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      },
+      "correlationId": "FORBIDDEN"
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/"
+  },
+  {
+    "name": "forbidden-error-correlationId",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry.",
+        "correlationId": "FORBIDDEN"
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/error"
+  },
+  {
+    "name": "failure-invents-no-dispatch",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "not_dispatched",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/outcome"
+  },
+  {
+    "name": "failure-invents-rollback",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "rolled_back",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/outcome"
+  },
+  {
+    "name": "failure-swapped-code",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_cancelled",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/error/code"
+  },
+  {
+    "name": "cancellation-swapped-code",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "cancelled",
+      "outcome": "not_dispatched",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution was cancelled before driver dispatch."
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/error/code"
+  },
+  {
+    "name": "cancellation-wrong-outcome",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "cancelled",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_cancelled",
+        "message": "Execution was cancelled before driver dispatch."
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/outcome"
+  },
+  {
+    "name": "failure-raw-message",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "RAW_SECRET"
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/error/message"
+  },
+  {
+    "name": "cancellation-raw-message",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "cancelled",
+      "outcome": "not_dispatched",
+      "error": {
+        "code": "execution_cancelled",
+        "message": "RAW_SECRET"
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/error/message"
+  },
+  {
+    "name": "failure-mixes-output",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      },
+      "output": {
+        "kind": "value",
+        "value": null
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/"
+  },
+  {
+    "name": "returned-mixes-outcome",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": null
+      },
+      "outcome": "unknown"
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/"
+  },
+  {
+    "name": "value-kind-missing-value",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value"
+      }
+    },
+    "keyword": "required",
+    "instancePath": "/output"
+  },
+  {
+    "name": "undefined-kind-with-null-value",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "undefined",
+        "value": null
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/output"
+  },
+  {
+    "name": "null-cannot-use-undefined-kind",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "undefined",
+        "value": null
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/output"
+  },
+  {
+    "name": "output-forbidden-receipt",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned",
+      "output": {
+        "kind": "value",
+        "value": null,
+        "receipt": "FORBIDDEN"
+      }
+    },
+    "keyword": "additionalProperties",
+    "instancePath": "/output"
+  },
+  {
+    "name": "failure-missing-error",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown"
+    },
+    "keyword": "required",
+    "instancePath": "/"
+  },
+  {
+    "name": "cancellation-missing-outcome",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "cancelled",
+      "error": {
+        "code": "execution_cancelled",
+        "message": "Execution was cancelled before driver dispatch."
+      }
+    },
+    "keyword": "required",
+    "instancePath": "/"
+  },
+  {
+    "name": "returned-missing-output",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "returned"
+    },
+    "keyword": "required",
+    "instancePath": "/"
+  },
+  {
+    "name": "wrong-projection-kind",
+    "expect": "invalid",
+    "result": {
+      "kind": "core.action-result",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": {
+        "code": "execution_failed",
+        "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+      }
+    },
+    "keyword": "const",
+    "instancePath": "/kind"
+  },
+  {
+    "name": "null-error",
+    "expect": "invalid",
+    "result": {
+      "kind": "surfacerelay.webmcp.execution.v1",
+      "status": "execution_failed",
+      "outcome": "unknown",
+      "error": null
+    },
+    "keyword": "type",
+    "instancePath": "/error"
+  },
+  {
+    "name": "null-envelope",
+    "expect": "invalid",
+    "result": null,
+    "keyword": "type",
+    "instancePath": "/"
+  },
+  {
+    "name": "array-envelope",
+    "expect": "invalid",
+    "result": [],
+    "keyword": "type",
+    "instancePath": "/"
+  },
+  {
+    "name": "legacy-unwrapped-core-result",
+    "expect": "invalid",
+    "result": {
+      "status": "succeeded",
+      "data": {}
+    },
+    "keyword": "required",
+    "instancePath": "/"
+  }
+]

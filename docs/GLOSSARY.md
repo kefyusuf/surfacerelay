@@ -2,6 +2,17 @@
 
 This glossary locks the v0.1 semantic vocabulary (task T-001). Every enum value has exactly one meaning and at least one example. The same value sets appear in `spec/0.1/action-definition.schema.json`.
 
+## WebMCP execution envelope
+
+A projection-only, opt-in result wrapper, identified by
+`kind: 'surfacerelay.webmcp.execution.v1'`. `returned` means the driver returned,
+not that the nested application operation succeeded. `execution_failed` carries
+fixed safe guidance with unknown application outcome. `cancelled/not_dispatched`
+is issued only when the callback observes cancellation before invoking its driver.
+Undefined output is represented explicitly; arbitrary application values remain
+nested. This wrapper is not a core Action Result or permission/confirmation
+authority (D-079).
+
 ## Action
 
 A coherent application capability with explicit input/output semantics and an execution handler.

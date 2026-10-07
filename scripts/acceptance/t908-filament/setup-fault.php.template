@@ -1,0 +1,11 @@
+// Demo-only one-shot fault controls, armed by local SQL rather than caller input.
+$schema->table('effects', function ($table): void {
+    $table->string('t908_binding_id')->nullable(); $table->string('t908_action_id')->nullable();
+});
+$schema->create('t908_response_faults', function ($table): void {
+    $table->string('binding_id')->primary(); $table->string('component_id');
+    $table->string('method'); $table->string('reason'); $table->boolean('armed');
+    $table->unsignedInteger('effects_before'); $table->unsignedInteger('effects_after')->nullable();
+    $table->unsignedInteger('invocation_effects_before')->nullable();
+    $table->unsignedInteger('dropped_at')->nullable();
+});
