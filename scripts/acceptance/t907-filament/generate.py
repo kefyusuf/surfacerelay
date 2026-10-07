@@ -72,6 +72,9 @@ gateway = gateway.replace("&& $row->tenant_id === self::tenant(), 409);", "&& $r
 routes = (BASE / 'routes/web.php').read_text().replace("Route::get('/', fn () => view('pilot'));", "Route::get('/', fn () => redirect('/admin/orders'));")
 routes = routes.replace('App\\HoldGateway', 'App\\FilamentGateway')
 (DEST / 'routes/web.php').write_text(routes)
+bootstrap = (DEST / 'bootstrap/app.php').read_text()
+bootstrap = bootstrap.replace('$status = $error instanceof', 'if ($error instanceof \\Illuminate\\Auth\\AuthenticationException) return null;\n            $status = $error instanceof')
+(DEST / 'bootstrap/app.php').write_text(bootstrap)
 (DEST / 'bootstrap/providers.php').write_text("<?php\nreturn [SurfaceRelay\\Laravel\\SurfaceRelayServiceProvider::class, App\\PanelProvider::class];\n")
 (DEST / 'public/router.php').write_text("<?php\n$path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);\nif(is_string($path)&&!str_contains($path,'..')&&is_file(__DIR__.$path))return false;\nrequire __DIR__.'/index.php';\n")
 for lock in ['composer.lock', 'package-lock.json']:

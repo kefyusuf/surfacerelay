@@ -48,10 +48,12 @@ remaining blocker. Acceptance is complete; [PR #42](https://github.com/kefyusuf/
 is merged; merge-commit main CI passed. Its task-owned Docker
 container/network were removed after verification; T-905 is preserved. Filament remains
 outside T-906. T-907 HTTP acceptance passes: exact registry Filament 5.10.0 consumer,
-20 signed HTTP tests, 3 generator safety tests, fresh locked install/build and
+23 HTTP tests, 3 generator safety tests, fresh locked install/build and
 canonical validation. Mixed-selection and superseded-modal regressions were
 observed RED and fixed in the consumer; independent review has no blocker.
-Native Codex in-app acceptance is BLOCKED by trusted Node initialization failure;
+Real Filament form login now establishes a membership-checked demo tenant;
+anonymous and nonmember requests are covered. Native browser control initializes
+after the app restart, but local demo navigation is BLOCKED by `ERR_BLOCKED_BY_CLIENT`;
 HTTP results do not establish native discovery, Alpine sync or browser lifecycle.
 T-907 remains open. The temporary demo, Compose file and owned container/network
 were removed; reproducible recipe, locks and tests remain. No additional release,

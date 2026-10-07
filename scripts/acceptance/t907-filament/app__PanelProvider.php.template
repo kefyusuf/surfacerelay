@@ -6,9 +6,9 @@ final class PanelProvider extends \Filament\PanelProvider {
     public function register(): void { parent::register(); $this->app->bind(\SurfaceRelay\Laravel\Confirmation\ConfirmationService::class, static fn()=>FilamentGateway::confirmation()); }
     public function boot(): void { \Livewire\Livewire::setUpdateRoute(fn($handle)=>\Illuminate\Support\Facades\Route::post('/livewire/update',$handle)->middleware('web')); }
     public function panel(Panel $panel): Panel {
-        return $panel->default()->id('acceptance')->path('admin')->resources([OrderResource::class])
+        return $panel->default()->id('acceptance')->path('admin')->login(Login::class)->resources([OrderResource::class])
             ->middleware([\Illuminate\Cookie\Middleware\EncryptCookies::class,\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,\Illuminate\Session\Middleware\StartSession::class,\Illuminate\View\Middleware\ShareErrorsFromSession::class,\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,\Illuminate\Routing\Middleware\SubstituteBindings::class,\Filament\Http\Middleware\DisableBladeIconComponents::class,\Filament\Http\Middleware\DispatchServingFilamentEvent::class])
-            ->authMiddleware([\Illuminate\Auth\Middleware\Authenticate::class])
+            ->authMiddleware([\Filament\Http\Middleware\Authenticate::class])
             ->renderHook(PanelsRenderHook::PAGE_END, static fn()=>\Livewire\Livewire::current()?->bindingScript() ?? '')
             ->renderHook(PanelsRenderHook::SCRIPTS_AFTER, static fn()=>'<script type="module" src="/assets/client.js"></script>');
     }

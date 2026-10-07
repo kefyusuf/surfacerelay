@@ -48,6 +48,46 @@ class Browser:
             return status,component['effects'].get('returns',[None])[0],body
         return status,body,body
 
+class FilamentLoginAcceptance(unittest.TestCase):
+    def form_login(self, browser):
+        status, body = browser.request('/admin/login')
+        self.assertEqual(status, 200)
+        snapshots = [html.unescape(s) for s in re.findall(r'wire:snapshot="([^"]+)"', body)]
+        browser.snapshot = next(s for s in snapshots if 'email' in json.loads(s)['data'].get('data', [{}, {}])[0])
+        return browser.call('authenticate', updates={'data.email': 'owner@example.test', 'data.password': 'acceptance-password'})
+    def test_real_form_login_populates_member_tenant_and_tool_binding(self):
+        browser = Browser()
+        self.assertEqual(self.form_login(browser)[0], 200)
+        body = browser.mount()
+        self.assertTrue('tenant-a' in body, 'Authenticated panel must show member tenant orders')
+        self.assertTrue('pilot.filament.orders.refund"' in body, 'Authenticated panel must expose its authorized tool')
+        self.assertEqual(browser.request('/session')[1]['actorId'], 1)
+    def test_real_form_login_without_default_tenant_membership_is_rejected(self):
+        database = os.environ.get('PILOT_DATABASE', '/tmp/pilot/database/acceptance.sqlite')
+        with sqlite3.connect(database) as connection:
+            membership = connection.execute("select user_id,tenant_id,can_hold from memberships where user_id=1 and tenant_id='tenant-a'").fetchone()
+            connection.execute("delete from memberships where user_id=1 and tenant_id='tenant-a'")
+        try:
+            browser = Browser()
+            self.assertEqual(self.form_login(browser)[0], 403)
+            self.assertIsNone(browser.request('/session')[1]['actorId'])
+            self.assertEqual(browser.request('/admin/orders')[0], 401)
+        finally:
+            with sqlite3.connect(database) as connection:
+                connection.execute('insert into memberships (user_id,tenant_id,can_hold) values (?,?,?)', membership)
+    def test_anonymous_browser_can_open_real_filament_login_form(self):
+        browser = Browser()
+        status, body = browser.request('/admin/login')
+        self.assertEqual(status, 200)
+        self.assertIn('wire:submit="authenticate"', body)
+        self.assertIn('type="password"', body)
+        self.assertEqual(browser.request('/admin/orders')[0], 401)
+        request = urllib.request.Request(browser.url + '/admin/orders', headers={'Accept': 'text/html'})
+        with browser.http.open(request, timeout=30) as response:
+            self.assertEqual(response.status, 200)
+            self.assertEqual(urlsplit(response.url).path, '/admin/login')
+            self.assertIn('wire:submit="authenticate"', response.read().decode())
+
 class FilamentAcceptance(unittest.TestCase):
     database=os.environ.get('PILOT_DATABASE','/tmp/pilot/database/acceptance.sqlite')
     def setUp(self):

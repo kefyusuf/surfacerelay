@@ -19,10 +19,12 @@ one-line entry; full history is in
   retain reproducible test assets and evidence, preserve T-905 and user lockfiles.
 - Likely files: `scripts/acceptance/t907-filament/`, temporary demo, acceptance
   evidence and current tracking. No publication, merge or next task is selected.
-- Current evidence: Fresh locked install, 20 signed HTTP checks, 3 generator safety
+- Current evidence: Fresh locked install, 23 HTTP checks, 3 generator safety
   checks and required validation pass; mixed-selection and superseded
   modal failures were observed RED and fixed in the consumer. Native Codex in-app
-  initialization fails before browser control; acceptance remains incomplete.
+  control initializes after restart, but loopback demo navigation fails with
+  `ERR_BLOCKED_BY_CLIENT`; acceptance remains incomplete. Real form login sets a
+  membership-checked demo tenant; anonymous/nonmember rejection is tested.
 - Cleanup verified: temporary demo/Compose file and owned container/network removed.
 
 ## Done

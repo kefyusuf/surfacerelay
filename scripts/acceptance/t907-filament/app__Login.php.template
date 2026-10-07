@@ -1,0 +1,17 @@
+<?php
+namespace App;
+final class Login extends \Filament\Auth\Pages\Login {
+    public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse {
+        $response = parent::authenticate();
+        if ($response === null) return null;
+        $actor = \Filament\Facades\Filament::auth()->user();
+        if (!\Illuminate\Support\Facades\DB::table('memberships')->where('user_id', $actor->getAuthIdentifier())->where('tenant_id', 'tenant-a')->exists()) {
+            \Filament\Facades\Filament::auth()->logout();
+            session()->invalidate();
+            session()->regenerateToken();
+            abort(403);
+        }
+        session()->put(['tenant' => 'tenant-a', 'record' => 101]);
+        return $response;
+    }
+}

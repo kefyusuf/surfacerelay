@@ -12,6 +12,11 @@ It writes only a simulated `effects` ledger. Explicit checkbox selection is
 supported; tracking all records is rejected. Selection synchronization stays
 app/example glue under proposed D-075.
 
+The real Filament login form at `/admin/login` uses the disposable fixture user
+`owner@example.test` / `acceptance-password`. Successful form authentication sets
+`tenant-a` only after verifying membership; missing membership logs out. These
+credentials and the fixed tenant are test data, not a production login policy.
+
 From the repository root, with PHP 8.4, Composer, Node 22 and Python 3.12:
 
 ```sh

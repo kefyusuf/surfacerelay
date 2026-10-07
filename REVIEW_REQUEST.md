@@ -14,14 +14,17 @@ scope, discovery versus invocation authorization, permission revocation, runtime
 receipt confidentiality, approval-only behavior and server-side idempotency.
 Livewire locked public properties must not be mistaken for current server authority.
 
-Fresh locked registry install, strict Composer, build, 20 signed HTTP checks,
+Fresh locked registry install, strict Composer, build, 23 HTTP checks,
 3 generator safety tests, PHP syntax and canonical/22 HTMX fixtures pass.
 TDD reproduced and fixed mixed-tenant partial execution and superseded modal A
 approval after B was issued. Approval alone has no effect; tested completion/replay
 has one effect. Independent static review has no remaining blocker. See
 [executed evidence](docs/reviews/t907-filament-acceptance.md).
 
-Native Codex in-app acceptance is BLOCKED at trusted Node startup. No native proof
+Real Filament form login now sets the default demo tenant after checking membership;
+anonymous redirects, JSON rejection and nonmember logout are tested.
+Native browser control initializes after restart, but Codex in-app loopback
+navigation is BLOCKED by `ERR_BLOCKED_BY_CLIENT`. No native proof
 is inferred from HTTP checks. The task stays open for real browser discovery,
 Alpine selection synchronization and lifecycle evidence. CI is a separate HTTP gate.
 

@@ -49,9 +49,21 @@ locks and executable acceptance checks remain under
 
 ## Native browser gate
 
-BLOCKED: the Codex in-app browser tool exits at trusted Node initialization.
-Two initial attempts and an explicit kernel reset followed by a fresh attempt
-returned `trusted Node process exited unexpectedly; kernel reset`.
+After the Codex app restart, browser control initializes and a temporary blank
+tab can be created and closed. The previous trusted Node initialization failure
+is no longer reproduced. Native acceptance remains BLOCKED: navigation to the
+running demo on port 4187 returns `net::ERR_BLOCKED_BY_CLIENT`, including the
+nonredirecting `/session` route via both `127.0.0.1` and `localhost`. Independent
+host HTTP access to `/session` returns 200. No cause or browser repair is inferred.
+
+The continuation also reproduced missing `/admin/login` (404), incorrect anonymous
+panel exception handling (500), and an empty tenant after actual signed Filament
+form authentication. The consumer now uses real Filament login with its own
+middleware, preserves Laravel's normal AuthenticationException handling and checks
+membership before setting the default demo tenant. Missing membership logs out and
+invalidates the session. All 23 HTTP checks pass, including actual form login,
+authorized discovery, anonymous redirects/401 and nonmember rejection; all three
+generator safety checks and canonical/22 HTMX fixtures pass. PHP syntax passes.
 No Chrome fallback is used. HTTP checks cannot qualify browser-side Alpine
 selection synchronization, native tool discovery or agent-driven execution.
 
@@ -66,4 +78,7 @@ file, `surfacerelay-t907-filament-app-1` and its project network were removed.
 Baseline, clean-consumer and final-contract containers used `--rm` and are gone.
 No new image, volume or worktree was created. The prior T-905 container was not
 running in the fresh inventory and was not restarted. User package lockfiles remain.
+The continuation's `surfacerelay-t907-native` stack, generated demo, temporary
+Compose file and browser tab were also removed; its ephemeral verification
+containers are gone. The reused image and unrelated runner fleet remain.
 Concurrency, crash recovery and production correctness are not qualified here.
