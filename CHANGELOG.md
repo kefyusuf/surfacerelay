@@ -6,17 +6,25 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ## Unreleased
 
+No unreleased package behavior is recorded.
+
+## 0.1.0-alpha.2 — 2026-10-07
+
+Published the coordinated Laravel/browser pair with exact registry-installed
+and bounded native/SQL verification; see the [release record](docs/releases/0.1.0-alpha.2-publication.md).
+Laravel runtime is unchanged. npm alpha points to alpha.2; latest remains alpha.1.
+
 ### Added
 
 - Coordinated `0.1.0-alpha.2` preparation exercises final artifact and installed
   application CI with an explicit release version. Public package documentation
-  supports follow-up alpha releases. This preparation does not publish registries.
+  supports follow-up alpha releases. Private tooling retains its NO-GO guards.
 
 - Explicit opt-in WebMCP execution envelope (`resultMode: 'envelope'`) with safe
   fixed failure guidance, conservative unknown outcomes, pre-dispatch cancellation
   and distinct undefined output. Default registration and direct driver behavior
   stay compatible. New projection schema/fixtures and a disposable post-commit
-  response-loss consumer accompany the change. This is not in registry alpha.1.
+  response-loss consumer accompany the change. This is now published in alpha.2.
 
 ## 0.1.0-alpha.1 — 2026-10-06
 

@@ -1,0 +1,146 @@
+{
+  "registryInstalled": true,
+  "uiApprovalObserved": true,
+  "sourceRevision": "eaa9cbfffea3e4ccb31425a3d3afc014718cdeca",
+  "browserArchiveSha256": "c67d8e080970a3158897140ca37cc95fba56ae14051fdd2904c4de3ef63b73cc",
+  "mirrorCommit": "622bcc9995b5b6726897683e1cb93f2f5db1c64f",
+  "observations": {
+    "invalid": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "returned",
+        "output": {
+          "kind": "value",
+          "value": {
+            "status": "rejected",
+            "error": {
+              "code": "input_validation_failed",
+              "message": "Input validation failed.",
+              "details": {
+                "fields": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "loss": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "execution_failed",
+        "outcome": "unknown",
+        "error": {
+          "code": "execution_failed",
+          "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+        }
+      }
+    },
+    "stale": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "execution_failed",
+        "outcome": "unknown",
+        "error": {
+          "code": "execution_failed",
+          "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+        }
+      }
+    },
+    "replay": {
+      "status": "Completed",
+      "output": {
+        "kind": "surfacerelay.webmcp.execution.v1",
+        "status": "returned",
+        "output": {
+          "kind": "value",
+          "value": {
+            "status": "succeeded",
+            "data": {
+              "orderIds": [
+                101
+              ],
+              "affectedCount": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "sql": {
+    "afterLoss": {
+      "fault": {
+        "binding_id": "sr_1f275cfe1569cc0f8f87ee0fbf446ef5",
+        "component_id": "nDM7u3PJaiWATTqBVRfE",
+        "method": "holdCurrent",
+        "reason": "customer-request",
+        "armed": 0,
+        "effects_before": 0,
+        "effects_after": 1,
+        "invocation_effects_before": 0,
+        "dropped_at": 1791397790
+      },
+      "effects": [
+        {
+          "id": 1,
+          "tenant_id": "tenant-a",
+          "order_ids": "[101]",
+          "reason": "customer-request",
+          "t908_binding_id": "sr_1f275cfe1569cc0f8f87ee0fbf446ef5",
+          "t908_action_id": "pilot.filament.orders.hold"
+        }
+      ]
+    },
+    "afterObserve": {
+      "fault": {
+        "binding_id": "sr_1f275cfe1569cc0f8f87ee0fbf446ef5",
+        "component_id": "nDM7u3PJaiWATTqBVRfE",
+        "method": "holdCurrent",
+        "reason": "customer-request",
+        "armed": 0,
+        "effects_before": 0,
+        "effects_after": 1,
+        "invocation_effects_before": 0,
+        "dropped_at": 1791397790
+      },
+      "effects": [
+        {
+          "id": 1,
+          "tenant_id": "tenant-a",
+          "order_ids": "[101]",
+          "reason": "customer-request",
+          "t908_binding_id": "sr_1f275cfe1569cc0f8f87ee0fbf446ef5",
+          "t908_action_id": "pilot.filament.orders.hold"
+        }
+      ]
+    },
+    "afterExplicitReplay": {
+      "fault": {
+        "binding_id": "sr_1f275cfe1569cc0f8f87ee0fbf446ef5",
+        "component_id": "nDM7u3PJaiWATTqBVRfE",
+        "method": "holdCurrent",
+        "reason": "customer-request",
+        "armed": 0,
+        "effects_before": 0,
+        "effects_after": 1,
+        "invocation_effects_before": 0,
+        "dropped_at": 1791397790
+      },
+      "effects": [
+        {
+          "id": 1,
+          "tenant_id": "tenant-a",
+          "order_ids": "[101]",
+          "reason": "customer-request",
+          "t908_binding_id": "sr_1f275cfe1569cc0f8f87ee0fbf446ef5",
+          "t908_action_id": "pilot.filament.orders.hold"
+        }
+      ]
+    }
+  },
+  "scope": "Serial native Chrome / simulated Filament ledger; no real payment or production claim."
+}

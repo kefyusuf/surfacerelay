@@ -21,7 +21,7 @@ every operating system. Native WebMCP evidence is separate and narrower: the
 through Chromium's own `document.modelContext` behind a feature flag. Separate Windows npm launch checks cover tested tooling
 paths; this POSIX recipe is not a Windows shell recipe.
 
-## Opt-in native execution results (Unreleased)
+## Opt-in native execution results (since 0.1.0-alpha.2)
 
 The default registration contract is unchanged: resolved driver values and
 rejected values retain their existing behavior. To make execution failures
@@ -59,8 +59,8 @@ Migration is explicit: leave existing registrations unchanged, or opt in and
 update consumers to inspect the outer discriminant and nested application result.
 JSON-compatible application values and explicit undefined are covered by the
 [adapter schema/fixtures](../../packages/browser-runtime/conformance/webmcp-execution-result.schema.json).
-This feature is not in the published alpha.1 tarball; test an exact locally built
-candidate before adoption. It does not fix Chrome's native rejection text channel
+This feature is published in alpha.2 and is absent from alpha.1. Install the
+explicit alpha.2 version and test the opt-in mode before adoption. It does not fix Chrome's native rejection text channel
 or qualify the Codex in-app browser.
 
 ## Build an exact candidate
