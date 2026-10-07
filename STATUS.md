@@ -4,84 +4,43 @@ Current state only; history is in Git, PRs and the archive.
 
 ## Current release
 
-- `0.1.0-alpha.1` is published for [Laravel](https://packagist.org/packages/surfacerelay/laravel)
-  and [browser runtime](https://www.npmjs.com/package/@surfacerelay/browser-runtime).
-  T-901–T-904 are complete; preparation/tooling PRs #36–#39 are merged.
-- Both packages come from the exact `v0.1.0-alpha.1` source tag. The Laravel
-  distribution mirror's matching tag/commit and all 160 file hashes are verified.
-- npm's downloaded tarball matches the reviewed SHA-256 and 39-file manifest.
-  Its `alpha` tag points to the release. npm also added `latest` and rejected
-  removing it with HTTP 400; use the explicit alpha version/tag.
-- Fresh registry consumers pass browser import/typecheck/bundle/smoke/deep-import
-  rejection and Laravel's 11 HTTP tests, authorization mutation and two-process
-  confirmation/idempotency races. Tagged-mirror and local artifact checks pass too.
-- Verification before publication: 187 Python tests, canonical/22 HTMX fixtures,
-  strict Composer, guardrails, independent review, tooling PR 41/41 and final
-  main-source CI 20/20. See [durable receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json).
-- Owner `kefyusuf` used interactive 2FA. Unattended token/OIDC provisioning is
-  deferred; private source builders/readiness/preview guards stay unchanged.
-- Private security intake is enabled. D-069–D-074/D-076–D-078 are Accepted;
-  D-026/D-075 remain Proposed.
+`0.1.0-alpha.1` is published for [Laravel](https://packagist.org/packages/surfacerelay/laravel)
+and [browser runtime](https://www.npmjs.com/package/@surfacerelay/browser-runtime).
+Exact tag/mirror/tarball provenance and registry consumer checks are recorded in
+the [publication receipt](docs/reviews/alpha-0.1.0-alpha.1-publication.json).
+npm's `alpha` and automatically added `latest` point to that experimental release;
+use the explicit alpha version. No subsequent release has started.
 
-## Limits and next work
+## Current task
 
-This is an experimental prerelease, without stable API, production-security or
-support-SLA guarantees. Native-browser/real-agent qualification limits remain.
-T-905 implementation and acceptance are complete; [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41)
-is merged; merge-commit main CI passed. The registry-installed
-Docker pilot recipe uses `http://127.0.0.1:4185/`; it is not running in the current
-Docker inventory. Agent-led native in-app WebMCP
-calls prove separate simulated 3D navigation, wrong/correct code, completion
-and replay with one effect. Docker verification passes 12 checkout HTTP tests,
-19 preserved HTTP tests, 6 Node DOM-wiring tests, build, strict Composer,
-PHP syntax and canonical/22 HTMX fixtures. Independent static review has no
-remaining blocker. TDD covers missing routes and a stale expiry observer race.
-This app-owned HTTP pilot does not qualify real bank 3DS or Livewire/Filament
-consumers. Single timing samples do not establish performance guarantees.
-Owner manual testing is optional. User Composer locks and pre-existing Docker
-resources are preserved; its startup recipe remains available for experiments.
-T-906 local acceptance is verified: real Livewire 4.4.7/Laravel 13.35.0 consumer
-using exact registry alpha packages, 15 signed HTTP checks, native in-app agent
-approval/completion/replay and SQL one-effect proof. A stale displayed-challenge
-approval race was fixed with observed RED/GREEN; independent review has no
-remaining blocker. Acceptance is complete; [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42)
-is merged; merge-commit main CI passed. Its task-owned Docker
-container/network were removed after verification; T-905 is preserved. Filament remains
-outside T-906. T-907 HTTP acceptance passes: exact registry Filament 5.10.0 consumer,
-23 HTTP tests, 3 generator safety tests, fresh locked install/build and
-canonical validation. Mixed-selection and superseded-modal regressions were
-observed RED and fixed in the consumer; independent review has no blocker.
-Real Filament form login now establishes a membership-checked demo tenant;
-anonymous and nonmember requests are covered. T-907 acceptance is complete through
-the owner-authorized Chrome alternative: native discovery, UI selection 101+102,
-approval-only behavior, exact edit102, replay, changed selection, permission
-revocation/fresh discovery, tenant switch, stale pages and receipt expiry all have
-agent/SQL evidence. Native operations added exactly two effects; rejected and
-approval-only steps added none. Fresh Docker 23 HTTP checks, 3 generator safety
-tests and canonical validation pass; independent source/evidence review has no
-blocker. Codex in-app loopback access still fails with `ERR_BLOCKED_BY_CLIENT` and
-is not qualified by Chrome results. [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43)
-records this acceptance and the Chrome setup recipe. Demo, helper, Compose file, owned app/network, two task volumes
-and seven test tabs were removed. Existing image, unrelated resources and user
-lockfiles are preserved. T-908 Phase 0 characterization is complete; see the
-[native error plan](docs/plans/2026-10-07-t908-native-webmcp-error-behavior.md).
-All eight native rejection forms have empty errorText, including sanitized Error;
-structured server-result control survives. Docker baseline 32/32 and canonical/22
-HTMX fixtures pass. [Evidence/options](docs/reviews/t908-native-characterization.md).
-Owner approved the explicit opt-in envelope under D-079. Runtime RED/GREEN,
-hostile-error/cancellation tests and adapter schema/41 fixtures pass in Docker.
-Exact built-candidate/real native Filament acceptance and final CI are pending;
-no further release has started.
-See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
-[guide and shutdown](examples/alpha-pilot/README.md).
-See [Livewire evidence](docs/reviews/t906-livewire-acceptance.md) and
-[Livewire startup recipe](examples/alpha-livewire-pilot/README.md).
-See [Filament evidence](docs/reviews/t907-filament-acceptance.md) and
-[disposable recipe](scripts/acceptance/t907-filament/README.md).
-See [release details and installation](docs/releases/0.1.0-alpha.1-publication.md).
+T-908 implementation and local acceptance are complete under accepted D-079.
+[PR #44](https://github.com/kefyusuf/surfacerelay/pull/44) adds explicit opt-in
+`resultMode: 'envelope'` at WebMCP registration. Default behavior and direct
+drivers remain compatible; core contracts and server authority are unchanged.
+Returned application values stay nested; generic failure reports unknown outcome,
+and only callback pre-abort reports no driver dispatch. No automatic retry.
 
-## Needs decision
+Docker checks pass: 447 browser tests/typecheck/build, 193 Python tests, canonical
+validation, 22 HTMX and 41 envelope fixtures, 23 existing + 7 new Filament HTTP
+checks, 5 generator checks and 4 CLI checks. A clean committed-source CI-helper
+run builds and installs the candidate successfully. Real isolated Chrome/SQL
+acceptance proves safe stale failures, permission denial, tenant change, expired
+receipt renewal, and committed-effect/response-loss uncertainty with one effect
+after explicit authorized replay. Independent source/evidence review has no blocker;
+reviewers did not replay native calls. [Evidence](docs/reviews/t908-native-acceptance.md)
+records the qualified candidate revision and limits. Hosted final-head CI is a
+separate gate on the PR.
 
-None for T-908: owner accepted the explicit opt-in scope and D-079. Default
-behavior remains compatible; new-mode cancellation has explicit surface output.
-Registry publication and merge remain separate steps after qualified acceptance.
+T-905/T-906/T-907 acceptance is complete and PRs #41–#43 are merged.
+Their recipes remain available; no task demo is running. T-908 demo/candidate,
+two containers, one network, two volumes, eight native test tabs and owned helpers
+were removed. Existing image/resources and user Composer locks are preserved.
+
+## Needs decision and limits
+
+No unresolved T-908 contract decision. Next step is final PR CI/review and an
+owner-authorized merge. Publication is separate; npm/Packagist still serve alpha.1.
+Do not start another task automatically. This is an experimental prerelease;
+serial simulated-effect tests do not qualify concurrency, production payments,
+performance or general native interoperability. In-app browser loopback remains
+unqualified; accepted Chrome results do not repair that environment.

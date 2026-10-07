@@ -16,7 +16,8 @@ The artifact SHA-256 is
 `f88a44d0480ec85633bc57ca7e21bfd1ec99c0bf595c5b8afae2bbc2a459ff52`.
 Final helper/document changes do not change these qualified runtime bytes.
 Clean root import, shipped-type typecheck, bundling, Node smoke and blocked deep
-import passed. [Raw native and SQL evidence](t908-native-acceptance.json) records
+import passed; see the [candidate manifest and clean-consumer proof](t908-candidate-proof.json).
+[Raw native and SQL evidence](t908-native-acceptance.json) records
 the exact revision, artifact manifest and observations.
 
 ## Native and SQL observations

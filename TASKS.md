@@ -6,19 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-### T-908 — Native WebMCP error behavior (implementation and acceptance)
-
-- Scope: Owner-approved explicit opt-in uniform WebMCP execution envelope; preserve default/direct-driver compatibility, nested server results and unknown-outcome safeguards.
-- Acceptance: Opt-in native failures have safe nonempty presentation; successful/core values remain unchanged inside returned output. Default mode retains exact behavior. No raw error leak, invented authority or automatic retry. Real Chrome/SQL tests include effect-then-response-loss uncertainty.
-- Verification: Native characterization before representation choice, TDD at the registered callback seam, driver/cancellation compatibility, clean artifact consumer, Docker Filament/native SQL acceptance, canonical validation and independent review.
-- Decision: D-079 Accepted by owner; opt-in surface cancellation changes presentation only at proven callback pre-abort, while default cancellation reason identity and post-dispatch natural completion remain compatible.
-- Plan: [Detailed scope and execution sequence](docs/plans/2026-10-07-t908-native-webmcp-error-behavior.md).
-- Current state: Native characterization and implementation RED/GREEN observed; schema/41 fixtures and negative controls pass locally in Docker. Exact candidate/real Filament native/SQL acceptance and final CI pending. [Baseline evidence](docs/reviews/t908-native-characterization.md). No PR, merge or publication yet.
+No new implementation task is selected. T-908 awaits final PR CI/review and an owner-authorized merge; publication is separate.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Native WebMCP error behavior | T-908 opt-in envelope accepted under D-079; Docker runtime/schema/consumer checks and real Chrome/SQL response-loss, stale/authorization/tenant/expiry controls pass; [evidence](docs/reviews/t908-native-acceptance.md), [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44); final PR CI/review is a separate gate |
 | Registry-installed Filament consumer | T-907 accepted through owner-authorized Chrome native tools and SQL proof; 23 HTTP checks, 3 generator tests, canonical validation and independent source/evidence review pass; scoped demo/stack/volumes/tabs removed; [evidence](docs/reviews/t907-filament-acceptance.md), [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) |
 | Registry-installed Livewire consumer | T-906 real mounted consumer accepted; 15 signed HTTP checks, native agent/SQL one-effect proof, required validation and independent review pass; [evidence](docs/reviews/t906-livewire-acceptance.md), [PR #42](https://github.com/kefyusuf/surfacerelay/pull/42) |
 | Registry-installed browser pilot | T-905 local Docker/native-agent refund and separate simulated 3D checkout accepted; 31 HTTP and 6 DOM-wiring tests, required validation and independent review pass; [evidence](docs/reviews/t905-checkout-acceptance.md), [PR #41](https://github.com/kefyusuf/surfacerelay/pull/41) |

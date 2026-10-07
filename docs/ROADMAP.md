@@ -62,8 +62,9 @@ its generated demo is removed after verification. Filament native-agent acceptan
 is complete through the owner-authorized Chrome alternative. In-app loopback
 access remains outside that accepted scope. T-908 Phase 0 proves the current
 native rejection channel loses even safe Error text. A representation decision
-was accepted as explicit opt-in uniform projection output; implementation and
-real-consumer acceptance are underway. Unknown-outcome safeguards remain required.
+  was accepted as explicit opt-in uniform projection output; implementation and
+  local Docker/native consumer acceptance are complete in [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44).
+  Unknown-outcome safeguards remain required; merge and publication are separate.
 General native interoperability and production readiness remain
 separate; no further release is selected automatically.
 
