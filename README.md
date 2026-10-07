@@ -74,7 +74,7 @@ The first reference runtime is Laravel. Livewire is the first runtime binding an
 
 This repository is a **research-backed implementation starter**. The schemas under `spec/0.1/` are provisional. Do not market them as a public standard until two materially different bindings implement them and the conformance scenarios have proven useful.
 
-Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANCE.md`](CONFORMANCE.md)). Native WebMCP evidence is limited to one flag-enabled Chromium build driving the HTMX fixture through `document.modelContext` ([details](examples/htmx-prep-list/README.md#native-webmcp-proof)); it is not WebMCP conformance and no real AI agent is involved. Current state and open work: [`STATUS.md`](STATUS.md), [`TASKS.md`](TASKS.md).
+Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANCE.md`](CONFORMANCE.md)). Bounded native-agent acceptance covers registry-installed checkout, Livewire and Filament consumers; see [`STATUS.md`](STATUS.md) for evidence and limits. Filament acceptance uses isolated Chrome with official Chrome DevTools MCP; the [Chrome setup recipe](scripts/acceptance/t907-filament/README.md#chrome-native-webmcp-setup) documents the tested connection. These checks do not establish WebMCP conformance or production qualification. Open work: [`TASKS.md`](TASKS.md).
 
 ## Using the artifacts
 

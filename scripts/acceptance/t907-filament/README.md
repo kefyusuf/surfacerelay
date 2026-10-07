@@ -57,3 +57,38 @@ environment limit. Passing HTTP tests alone do not prove native discovery,
 Alpine synchronization or browser lifecycle. See the evidence for the native
 matrix, SQL effect boundaries and the temporary CSRF-protected tenant test form.
 See [executed evidence](../../../docs/reviews/t907-filament-acceptance.md).
+
+## Chrome native WebMCP setup
+
+The tested agent connection uses official [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp), pinned to `1.10.1`, with Chrome 150+ and a supported Node version (`^20.19.0`, `^22.12.0`, or `>=23`). This is local acceptance tooling, not a SurfaceRelay package dependency. A browser exposing `document.modelContext` is only one requirement: the agent connection must also expose `list_webmcp_tools` and `execute_webmcp_tool`.
+
+For a manually opened Chrome profile, enable `chrome://flags/#enable-webmcp-testing` and relaunch Chrome. The isolated connection below instead enables WebMCP on its own Chrome process; it does not attach to the personal profile or inherit that profile's flags.
+
+Add the following project-local `.codex/config.toml` section, preserving other settings. This is the tested Windows Node/Chrome launcher; adjust installation paths on another machine. On macOS/Linux, use `command = "npx"` and remove the `npx-cli.js` entry from `args`.
+
+```toml
+[mcp_servers.chrome-webmcp]
+command = 'C:\Program Files\nodejs\node.exe'
+args = [
+  'C:\Program Files\nodejs\node_modules\npm\bin\npx-cli.js',
+  '--yes', 'chrome-devtools-mcp@1.10.1',
+  '--executablePath=C:\Program Files\Google\Chrome\Application\chrome.exe',
+  '--isolated=true', '--headless=true',
+  '--categoryExperimentalWebmcp=true', '--chromeArg=--enable-features=WebMCP',
+  '--allowedUrlPattern=http://127.0.0.1:4187/*',
+  '--allowedUrlPattern=http://localhost:4187/*',
+  '--javascriptEvaluation=false',
+  '--categoryPerformance=false', '--categoryEmulation=false',
+  '--categoryNetwork=false', '--categoryMemory=false',
+  '--usageStatistics=false', '--performanceCrux=false',
+  '--redactNetworkHeaders=true'
+]
+startup_timeout_sec = 60
+tool_timeout_sec = 60
+```
+
+On macOS/Linux, also remove or update the Windows `--executablePath` option. The Windows recipe invokes npm through Node to avoid shell quoting errors in paths containing spaces. Keep machine-specific configuration local (for example, exclude this file through `.git/info/exclude`). Codex loads project configuration only for trusted projects. Reload Codex after adding the connection; `codex mcp get chrome-webmcp --json` should report an enabled server, and the agent's active tools must include both native WebMCP operations.
+
+Start the disposable demo on port 4187, sign in through `/admin/login`, and select records using the actual Filament checkboxes. Discover `pilot.filament.orders.refund.v1` on the list or `pilot.filament.orders.hold.v1` on an edit page, then invoke with `{"reason":"customer-request"}`. The result requires visible approval; clicking Approve alone has no business effect. Invoke the same tool again to complete, and compare the SQL effect ledger before/after and on replay. The response may contain core `confirmation_required` even when the browser's outer execution status is `Completed`.
+
+The URL allowlist includes navigation, redirects and subresources; other ports and external fonts are blocked. Update it only when the intended local demo address changes. The profile is temporary and cleaned up when its browser closes. Close task-created pages and remove the generated demo and task-owned Docker resources after testing. To remove the connection, delete only this MCP section and reload Codex. See the [upstream configuration reference](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/configuration.md) for flags; released-package `--help` is authoritative when upstream main differs.

@@ -61,9 +61,9 @@ approval-only steps added none. Fresh Docker 23 HTTP checks, 3 generator safety
 tests and canonical validation pass; independent source/evidence review has no
 blocker. Codex in-app loopback access still fails with `ERR_BLOCKED_BY_CLIENT` and
 is not qualified by Chrome results. [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43)
-remains unmerged. Demo, helper, Compose file, owned app/network, two task volumes
+records this acceptance and the Chrome setup recipe. Demo, helper, Compose file, owned app/network, two task volumes
 and seven test tabs were removed. Existing image, unrelated resources and user
-lockfiles are preserved. No additional task, release or automatic merge is selected.
+lockfiles are preserved. No additional task or release is selected.
 See [acceptance evidence](docs/reviews/t905-checkout-acceptance.md) and
 [guide and shutdown](examples/alpha-pilot/README.md).
 See [Livewire evidence](docs/reviews/t906-livewire-acceptance.md) and

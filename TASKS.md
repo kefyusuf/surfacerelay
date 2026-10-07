@@ -7,7 +7,7 @@ one-line entry; full history is in
 ## Open
 
 None selected. T-907 used the owner-authorized native Chrome alternative;
-Codex in-app loopback access remains an environment limitation. PR #43 is unmerged.
+Codex in-app loopback access remains an environment limitation, outside the accepted Chrome scope.
 
 ## Done
 

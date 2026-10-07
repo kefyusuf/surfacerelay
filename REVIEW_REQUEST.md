@@ -2,7 +2,7 @@
 
 Task: T-907, locally accepted through the owner-authorized Chrome alternative.
 Branch: `feat/t-907-temporary-filament-acceptance`.
-[PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) remains unmerged.
+Review handoff: [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43).
 
 The selected scope is a temporary loopback Docker Filament application inside
 the repository using exact published alpha packages. Current record and selected
@@ -33,10 +33,10 @@ replayed by the reviewer. Stale HTTP failures appear as native Error with empty
 errorText; console HTTP statuses and SQL establish rejection. Fresh-document
 discovery is separate from the unchanged registry of an already open document.
 Codex in-app loopback still fails with `ERR_BLOCKED_BY_CLIENT`; Chrome results
-do not qualify that surface. CI for the updated head is a separate gate.
+do not qualify that surface. CI is a separate gate from native browser evidence.
 
-No public contract/core change, package publication, production qualification or
-automatic merge is selected. D-075 remains proposed app/example glue. The
+No public contract/core change, package publication or production qualification
+is included. D-075 remains proposed app/example glue. The
 temporary demo, test control/helper and Compose file were removed, along with the
 owned container/network, two task volumes and seven test browser tabs.
 Reproducible recipe/locks/tests remain. Existing Docker image, unrelated resources
