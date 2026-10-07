@@ -12,7 +12,7 @@ one-line entry; full history is in
 - Acceptance: Final artefact identity/hash/manifest and clean-consumer proof for both packages; exact-source CI/review; verified Laravel mirror/tag mapping; npm alpha tag and registry-installed consumers; bounded Chrome/SQL envelope acceptance. No false stable/production claims or secret disclosure.
 - Verification: Publication tooling TDD if required, canonical/guardrails and relevant regressions; Docker final browser consumer, Laravel HTTP/shared-store acceptance, real Filament/native candidate and registry tests. Registry writes follow successful gates and the owner's approved continuation.
 - Plan: [Release scope and gates](docs/releases/0.1.0-alpha.2.md).
-- Current state: Preparation selected. Existing tooling supports the version; CI still exercises alpha.1 and public README incorrectly calls every version the first alpha. Host npm session is unavailable; interactive identity/device verification is pending. No alpha.2 tag or publication yet.
+- Current state: README RED/GREEN and alpha.2 CI wiring are complete; 194 Python tests, canonical fixtures/guardrails and both exact-source Docker artifact consumers pass, including Laravel mutation/race controls. Final-source CI/rebuild, native/registry verification and owner identity/device authentication remain pending. No alpha.2 tag or publication yet.
 
 ## Done
 
