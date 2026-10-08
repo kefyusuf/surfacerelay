@@ -20,6 +20,23 @@ class AlphaPublicationArtifactTest(unittest.TestCase):
     def module(self):
         return importlib.import_module("scripts.alpha_publication_artifact")
 
+    def test_alpha3_installed_documentation_explains_filament_opt_in_and_retry_limits(self):
+        version = "0.1.0-alpha.3"
+        with patch.object(fixtures, "VERSION", version):
+            fixtures.PublicationPreviewTest.setUp(self)
+        record = self.build(version=version)
+        files = self.module().validate_public_browser_archive(
+            archive_path=self.root / "final" / record["browserArchive"]["filename"],
+            version=version, revision=REVISION,
+            expected_manifest=record["content"]["browser-runtime"],
+            expected_sha256=record["browserArchive"]["sha256"])
+        readme = files["README.md"].decode()
+        for text in ("FilamentBrowserDriver", "FilamentSelectionCoordinator",
+                     "GlobalFilamentSelectionRuntime", "same coordinator",
+                     "exact binding objects", "Unknown outcomes", "automatic retry"):
+            self.assertIn(text, readme)
+        self.assertFalse(record["registryWrites"])
+
     def test_followup_alpha_preserves_version_and_does_not_claim_first_release(self):
         version = "0.1.0-alpha.2"
         with patch.object(fixtures, "VERSION", version):

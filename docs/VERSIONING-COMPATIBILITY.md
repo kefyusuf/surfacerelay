@@ -4,9 +4,10 @@ SurfaceRelay is experimental and unofficial. This document separates implemented
 version contracts and executable evidence from a proposed future release policy.
 It does not promise registry availability or authorize publication.
 
-The owner-selected first alpha target is `0.1.0-alpha.1`. Its
-[preparation plan](releases/0.1.0-alpha.1.md) freezes scope and acceptance gates;
-target selection does not authorize publication or promote the proposed policy.
+The published coordinated pair is `0.1.0-alpha.2`. The owner approved
+[alpha.3 preparation](releases/0.1.0-alpha.3.md) for T-910's opt-in Filament helper.
+The existing coordinated package policy is retained; Laravel runtime behavior
+does not change. Alpha.3 publication and registry verification are still pending.
 
 ## Implemented version identities
 
@@ -28,7 +29,7 @@ or version-negotiation mechanism.
 | --- | --- | --- | --- |
 | Laravel | PHP `^8.3`, `ext-mbstring`, Illuminate `^12.0\|^13.0` | Composer artifact installation, exact identity and autoload: PHP 8.3/8.4 × Laravel 12/13 on Ubuntu | A dependency range is not proof of every patch, platform, database or application configuration. |
 | Laravel ActionBus | Installed Laravel ZIP and explicit fixture bus construction | One smoke leg: PHP 8.4 + Laravel 13 | Fixture pass-through validation, authorization, idempotency and confirmation do not prove production controls. |
-| Browser runtime | One root ESM export; ES2022 JavaScript and shipped declarations | Node 22, TypeScript 5.9.3, Vite 7.3.6: exact tarball install, root import, typecheck, bundle, DriverRegistry smoke and representative deep-import rejection | No CommonJS entry point, source/deep-import API or real-browser/WebMCP interoperability certification. |
+| Browser runtime | One root ESM export; ES2022 JavaScript and shipped declarations | Node 22, TypeScript 5.9.3, Vite 7.3.6: exact tarball install, root import, typecheck, bundle, registry/envelope smoke and representative deep-import rejection. T-911 extends these gates to installed Filament values/types and unexposed-binding rejection. | No CommonJS entry point, source/deep-import API or general real-browser/WebMCP interoperability certification. |
 | Artifact tooling | Python development tools; Git, npm or Composer as applicable | CI Python 3.12; guide commands verified in Docker Python 3.12.15 / Node 22.23.3 and PHP 8.4.26 / Composer 2.10.3 | Tested Windows npm launch paths do not establish broad platform/runtime support. |
 
 The [Validate workflow](../.github/workflows/validate.yml) defines the installation
@@ -55,7 +56,8 @@ consumer evidence. Under this proposed policy:
 
 This proposal applies to package API changes. It does not replace positive integer
 Action versions. The owner separately approved D-069–D-074 and D-076–D-078 for the
-alpha; D-026/D-075 remain Proposed. The accepted decisions establish a coordinated
+alpha; D-026 remains Proposed and D-075 is Accepted for the opt-in Filament driver.
+The accepted decisions establish a coordinated
 first-candidate identity, not independent support streams, support windows or a
 general public compatibility guarantee. Other monorepo packages remain outside
 the first two-artifact candidate scope; this future 0.x policy remains Proposed.

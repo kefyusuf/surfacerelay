@@ -1,30 +1,24 @@
-# T-910 Filament Selection Driver Review
+# T-911 Alpha.3 Preparation Review
 
-Branch: `feat/t-910-filament-selection-driver`. Local acceptance complete;
-[PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) carries delivery and live hosted checks.
-D-075 is accepted; no new release.
+Branch: `feat/t-911-alpha3-preparation`. Owner-approved coordinated alpha.3 plan;
+no registry publication or new runtime behavior in the preparation change.
 
-The opt-in public driver captures exact exposure membership and lossless owned
-plain binding descriptors. Unknown/cloned/mutated objects and conflicting policies
-fail closed. Shared Livewire preflight runs before deferred selection writes.
-One explicit coordinator excludes component overlap across driver instances and
-holds occupancy through underlying settlement, even after early capture failure.
-Selection/authorization/confirmation/idempotency authority remains server-owned.
+Review the public artifact README, installed consumer fixture and CI version.
+New Filament root values/types must compile and bundle from an isolated tarball
+installation. Node smoke retains the old registry/envelope checks and rejects an
+unexposed binding before framework lookup or selection writes. New instructions
+require one shared coordinator and exact binding objects, preserve server authority
+and prohibit automatic retries of unknown outcomes.
 
-Review the private Livewire seam, default cancellation/result compatibility,
-partial-write bounds and shared coordinator lifetime. The migrated live example
-uses the adapter. Historical registry generators retain compatible glue; a separate
-T-910 local candidate uses the new root exports/envelope. Published alpha.1/alpha.2
-do not acquire those exports.
+README regression was RED before correction, then 13 artifact tests passed. The
+new smoke rejects published alpha.2's missing export as a negative control.
+Docker 195 Python/508 browser tests, canonical validation and separate public
+tarball root/type/bundle/smoke/manifest checks passed; installed Laravel 11 HTTP/
+shared-store controls passed and detected deliberate authorization mutation.
+Independent preparation review found no blocker. [Evidence](docs/reviews/t911-alpha3-preparation.md).
+Exact merged-source and new native acceptance remain pending release gates.
+Publication requires merged-source rebuild, immutable mappings and fresh registry
+proof; working-tree evidence is distinct.
 
-Actual RED preceded fixes for missing API, clone/mutation/policy bypass and lossy
-JSON normalization. Docker 508 browser tests/typecheck/build/conformance, 16 live
-Filament browser tests, 30 HTTP/fault controls, 4/6/7 generator tests and canonical
-validation pass. Clean tarball consumers and real Chrome/SQL drift, current-record,
-response-loss/replay/stale controls pass. [Acceptance and manifests](docs/reviews/t910-filament-acceptance.md).
-Final source hashes match all 21 runtime source files; all 45 installed files match
-the final candidate manifest. Provenance is explicitly working-tree/base revision,
-not registry or exact commit qualification. Independent reviews found no blocker.
-
-Owned Docker resources/native tabs are removed; user locks and unrelated resources
-are preserved. Ordinary UI calls/transactional rollback/production are outside proof.
+User Composer locks and unrelated Docker resources are preserved. No new image,
+volume or worktree is created. Temporary verification resources remain T-911-owned.

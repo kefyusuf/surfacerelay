@@ -147,11 +147,22 @@ def verify_public_browser_install(*, consumer_root: Path, version: str, revision
 
 
 def _readme(kind: str, version: str, revision: str) -> bytes:
+    integration = (
+        "Opt-in Filament integration uses FilamentBrowserDriver, FilamentSelectionCoordinator and "
+        "GlobalFilamentSelectionRuntime from the package root. Helpers for a component must use the same coordinator "
+        "and preserve exact binding objects from the explicitly exposed tools. Ordinary UI calls are outside helper "
+        "exclusion; deferred selection writes are not transactional. Default Livewire behavior is unchanged.\n"
+        "Native Completed is not business success. Inspect the execution envelope and nested application result. "
+        "Unknown outcomes require application-state inspection before an explicit retry; no automatic retry is performed.\n"
+        "Migration guidance: https://github.com/kefyusuf/surfacerelay/blob/main/docs/consumers/browser-runtime.md\n"
+        if kind == "browser-runtime" else ""
+    )
     return (f"# SurfaceRelay {kind}\n\nExperimental alpha {version}; unofficial reference runtime.\n\n"
             f"Source revision: {revision}. Package versions are independent of Action versions.\n\n"
             "This alpha release contains only surfacerelay/laravel and @surfacerelay/browser-runtime.\n"
             "APIs may change. No production-security guarantee, support SLA or general native WebMCP certification is provided.\n"
             "Server authorization, tenant context, confirmation, idempotency and output policy remain authoritative.\n"
+            + integration +
             "See https://github.com/kefyusuf/surfacerelay for integration, security and migration guidance.\n"
             "Licensed under Apache-2.0; see LICENSE.\n").encode("utf-8")
 

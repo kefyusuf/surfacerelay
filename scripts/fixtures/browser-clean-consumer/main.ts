@@ -5,6 +5,12 @@ import {
   type WebMcpRegistrationOptions,
   type WebMcpExecutionResult,
   type WebMcpModelContext,
+  FilamentBrowserDriver,
+  FilamentSelectionCoordinator,
+  GlobalFilamentSelectionRuntime,
+  GlobalLivewireBrowserRuntime,
+  type FilamentBrowserDriverOptions,
+  type FilamentSelectionRuntime,
 } from '@surfacerelay/browser-runtime';
 
 const registry = new DriverRegistry();
@@ -30,3 +36,12 @@ function inspect(result: WebMcpExecutionResult): void {
 }
 void inspect;
 void lifecycle;
+
+const selectionRuntime: FilamentSelectionRuntime = new GlobalFilamentSelectionRuntime();
+const filamentOptions: FilamentBrowserDriverOptions = {
+  tools: [], selectionRuntime, coordinator: new FilamentSelectionCoordinator(),
+};
+const filament: BindingDriver = new FilamentBrowserDriver(
+  new GlobalLivewireBrowserRuntime(), filamentOptions,
+);
+registry.register('livewire', filament);

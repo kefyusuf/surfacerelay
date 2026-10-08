@@ -1,4 +1,7 @@
 import { DriverRegistry, WebMcpRegistrationLifecycle } from '@surfacerelay/browser-runtime';
+import {
+  FilamentBrowserDriver, FilamentSelectionCoordinator, GlobalFilamentSelectionRuntime,
+} from '@surfacerelay/browser-runtime';
 
 const registry = new DriverRegistry();
 const driver = {
@@ -46,5 +49,30 @@ try {
     kind: 'surfacerelay.webmcp.execution.v1', status: 'returned', output: { kind: 'undefined' },
   })) throw new Error('Installed execution envelope did not preserve undefined.');
 } finally { lease.dispose(); }
+
+// An installed opt-in driver must reject an unexposed binding before touching
+// framework or selection state. This runs without a DOM or Livewire globals.
+let frameworkReads = 0;
+let selectionWrites = 0;
+const filament = new FilamentBrowserDriver({
+  find() { frameworkReads++; throw new Error('Unexpected framework lookup'); },
+}, {
+  tools: [], coordinator: new FilamentSelectionCoordinator(),
+  selectionRuntime: { sync() { selectionWrites++; } },
+});
+if (typeof new GlobalFilamentSelectionRuntime().sync !== 'function') {
+  throw new Error('Installed default selection runtime is unavailable.');
+}
+let unexposedRejected = false;
+try {
+  await filament.execute({
+    bindingId: 'unexposed', action: { id: 'fixture.read', version: 1 },
+    driver: 'livewire', lifecycle: 'component', expiresAt: null,
+    target: { componentId: 'fixture', method: 'read', inputOrder: [], requiredCount: 0 },
+  }, {}, {});
+} catch { unexposedRejected = true; }
+if (!unexposedRejected || frameworkReads !== 0 || selectionWrites !== 0) {
+  throw new Error('Installed Filament driver did not reject unexposed bindings before side effects.');
+}
 
 console.log('SurfaceRelay browser-runtime clean-consumer smoke: PASS');

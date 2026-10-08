@@ -6,7 +6,11 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ## Unreleased
 
-No unreleased package behavior is recorded.
+- Opt-in Filament browser driver with exact exposure/binding validation, shared
+  component exclusion and deferred table-selection synchronization. New root
+  exports include `FilamentBrowserDriver`, `FilamentSelectionCoordinator` and
+  `GlobalFilamentSelectionRuntime`; default Livewire behavior remains compatible.
+  Implemented under T-910/D-075; proposed for coordinated alpha.3, not published.
 
 ## 0.1.0-alpha.2 — 2026-10-07
 
