@@ -3,6 +3,9 @@ import importlib.util
 from pathlib import Path
 import shutil
 import unittest
+import subprocess
+import sys
+import json
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('t907_generator_tests', HERE.parent / 't907-filament/test_generator.py')
@@ -11,6 +14,7 @@ spec.loader.exec_module(baseline)
 
 
 class GeneratorSafety(baseline.GeneratorSafety):
+    npm_install_mode='install'
     def setUp(self):
         super().setUp()
         shutil.copytree(HERE, self.root / 'scripts/acceptance/t908-filament', ignore=shutil.ignore_patterns('__pycache__'))
@@ -26,6 +30,13 @@ class GeneratorSafety(baseline.GeneratorSafety):
         self.artifact.unlink()
         self.assertNotEqual(self.run_generator().returncode, 0)
         self.assertFalse(self.target.exists())
+    def test_historical_client_builds_when_live_example_uses_future_exports(self):
+        npm='npm.cmd' if sys.platform=='win32' else 'npm'
+        packed=subprocess.run([npm,'pack','@surfacerelay/browser-runtime@0.1.0-alpha.2','--json'],
+            cwd=self.root,capture_output=True,text=True)
+        self.assertEqual(packed.returncode,0,packed.stderr)
+        self.artifact=self.root/json.loads(packed.stdout)[0]['filename']
+        super().test_historical_client_builds_when_live_example_uses_future_exports()
 
     def test_source_locks_and_existing_t907_consumer_are_preserved(self):
         locks = [self.root / 'examples/alpha-livewire-pilot/composer.lock',

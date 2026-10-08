@@ -40,9 +40,7 @@ composer['require']['filament/filament'] = '^5.0'
 (DEST / 'package.json').write_text(json.dumps({'private': True, 'type': 'module',
     'dependencies': {'@surfacerelay/browser-runtime': '0.1.0-alpha.1'},
     'devDependencies': {'esbuild': '^0.25.0'}, 'scripts': {'build': 'esbuild client.mjs --bundle --format=esm --outfile=public/assets/client.js'}}, indent=2) + '\n')
-client = (ROOT / 'examples/filament-orders-live/client.mjs').read_text()
-start, end = client.index('import '), client.index('// Filament')
-client = "import { DriverRegistry, LivewireBrowserDriver, GlobalLivewireBrowserRuntime, resolveDocumentModelContext, WebMcpRegistrationLifecycle } from '@surfacerelay/browser-runtime';\n\n" + client[end:]
+client = (Path(__file__).parent / 'historical-client.mjs').read_text()
 (DEST / 'client.mjs').write_text(client)
 for template in Path(__file__).parent.glob('*.template'):
     relative = template.name.removesuffix('.template').replace('__', '/')

@@ -6,13 +6,15 @@ one-line entry; full history is in
 
 ## Open
 
-No development task selected. T-909 release verification is complete.
-Select the next scope before coding.
+No next development task selected. T-910 local implementation acceptance passes;
+Delivery/hosted checks are on [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47).
+Do not begin another task automatically.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Reusable Filament selection driver | T-910 accepted under D-075; Docker 508 browser/16 live browser/30 HTTP controls, clean artifacts, native SQL/replay and independent reviews pass; [acceptance](docs/reviews/t910-filament-acceptance.md); delivery/hosted checks: [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) |
 | Coordinated alpha.2 publication | T-909 `0.1.0-alpha.2` published on npm/Packagist; exact source/mirror/tags/199 manifest files, registry consumers and native/SQL response-loss/replay controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.2-publication.json) |
 | Native WebMCP error behavior | T-908 accepted under D-079; Docker/native/SQL checks and independent review pass; [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44) merged and main CI passed; [evidence](docs/reviews/t908-native-acceptance.md) |
 | Registry-installed Filament consumer | T-907 accepted through owner-authorized Chrome native tools and SQL proof; 23 HTTP checks, 3 generator tests, canonical validation and independent source/evidence review pass; scoped demo/stack/volumes/tabs removed; [evidence](docs/reviews/t907-filament-acceptance.md), [PR #43](https://github.com/kefyusuf/surfacerelay/pull/43) |

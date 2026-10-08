@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "scope": "Final mounted local candidate; actual Chrome native WebMCP and SQL ledger controls",
+  "artifactSha256": "205a800918152f1375ab0cb8d971cbb5fefc49fa952611a2e924cb9ce4e73c45",
+  "installedManifestFiles": 45,
+  "observations": [
+    {
+      "case": "FinalConfirmation",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "confirmation_required",
+              "confirmation": {
+                "summary": "Hold current order",
+                "expiresAt": "2026-10-08T03:39:10Z"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "FinalSuccess",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "succeeded",
+              "data": {
+                "orderIds": [
+                  102
+                ],
+                "affectedCount": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "FinalReplay",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "succeeded",
+              "data": {
+                "orderIds": [
+                  102
+                ],
+                "affectedCount": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "FinalRecordConfirmation",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "confirmation_required",
+              "confirmation": {
+                "summary": "Hold current order",
+                "expiresAt": "2026-10-08T03:39:47Z"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "FinalResponseLoss",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "execution_failed",
+          "outcome": "unknown",
+          "error": {
+            "code": "execution_failed",
+            "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+          }
+        }
+      }
+    },
+    {
+      "case": "FinalResponseLossReplay",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "succeeded",
+              "data": {
+                "orderIds": [
+                  101
+                ],
+                "affectedCount": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "FinalStale",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "execution_failed",
+          "outcome": "unknown",
+          "error": {
+            "code": "execution_failed",
+            "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+          }
+        }
+      }
+    }
+  ],
+  "sql": [
+    {
+      "case": "selected102 final execution and explicit replay",
+      "effectsBefore": 2,
+      "effectsAfter": 3,
+      "orderIds": [
+        102
+      ]
+    },
+    {
+      "case": "record101 final post-commit response loss before retry",
+      "effectsBefore": 3,
+      "effectsAfter": 4,
+      "faultConsumed": true,
+      "orderIds": [
+        101
+      ]
+    },
+    {
+      "case": "SQL-inspected explicit retry and stale list",
+      "effectCount": 4,
+      "orders": [
+        [
+          102
+        ],
+        [
+          101
+        ],
+        [
+          102
+        ],
+        [
+          101
+        ]
+      ]
+    }
+  ],
+  "privacy": "No challenge/correlation IDs, receipts, credentials or signed snapshots retained."
+}

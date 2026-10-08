@@ -2,6 +2,10 @@ export { DriverRegistry } from './driver-registry.js';
 
 export { LivewireBrowserDriver } from './livewire-browser-driver.js';
 export { GlobalLivewireBrowserRuntime } from './livewire-browser-runtime.js';
+export { FilamentBrowserDriver, FilamentSelectionCoordinator } from './filament-browser-driver.js';
+export type { FilamentBrowserDriverOptions } from './filament-browser-driver.js';
+export { GlobalFilamentSelectionRuntime } from './filament-selection-runtime.js';
+export type { FilamentSelectionRuntime } from './filament-selection-runtime.js';
 
 export { HtmxBrowserDriver } from './htmx-browser-driver.js';
 export { GlobalHtmxBrowserRuntime } from './htmx-browser-runtime.js';

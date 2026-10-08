@@ -5,6 +5,9 @@ describe('browser-runtime public root API', () => {
   it('exports exactly the reviewed runtime value allowlist', () => {
     expect(Object.keys(api).sort()).toEqual([
       'DriverRegistry',
+      'FilamentBrowserDriver',
+      'FilamentSelectionCoordinator',
+      'GlobalFilamentSelectionRuntime',
       'GlobalHtmxBrowserRuntime',
       'GlobalLivewireBrowserRuntime',
       'HtmxBrowserDriver',

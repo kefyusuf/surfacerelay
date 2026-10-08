@@ -88,6 +88,8 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
       - name: Verify local browser candidate with the locked real Filament consumer
         run: python scripts/acceptance/t908-filament/verify_candidate.py --require-clean-source
+      - name: Verify opt-in Filament helper candidate generation
+        run: python scripts/acceptance/t910-filament/test_generator.py
 
   alpha-livewire-pilot:
     runs-on: ubuntu-latest
