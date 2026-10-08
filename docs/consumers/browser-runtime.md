@@ -60,15 +60,16 @@ update consumers to inspect the outer discriminant and nested application result
 JSON-compatible application values and explicit undefined are covered by the
 [adapter schema/fixtures](../../packages/browser-runtime/conformance/webmcp-execution-result.schema.json).
 This feature is published in alpha.2 and is absent from alpha.1. Install the
-explicit alpha.2 version and test the opt-in mode before adoption. It does not fix Chrome's native rejection text channel
+explicit alpha.3 version and test the opt-in mode before adoption. It does not fix Chrome's native rejection text channel
 or qualify the Codex in-app browser.
 
-## Opt-in Filament selection driver (unreleased)
+## Opt-in Filament selection driver (since 0.1.0-alpha.3)
 
-The source/local candidate includes `FilamentBrowserDriver`,
+The published alpha.3 package includes `FilamentBrowserDriver`,
 `FilamentSelectionCoordinator` and `GlobalFilamentSelectionRuntime`. These exports
 are absent from published alpha.1 and alpha.2; do not import them from those versions.
-No npm/Packagist publication is performed by this change.
+Install explicit alpha.3 versions; [registry acceptance](../releases/0.1.0-alpha.3-publication.md)
+verifies root exports and installed bytes.
 
 ```ts
 import {
