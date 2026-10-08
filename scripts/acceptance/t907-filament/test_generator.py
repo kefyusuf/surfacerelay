@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 class GeneratorSafety(unittest.TestCase):
+    npm_install_mode='ci'
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -25,6 +26,18 @@ class GeneratorSafety(unittest.TestCase):
         sentinel=self.target/'sentinel.txt'; sentinel.write_text('owner data')
         self.assertNotEqual(self.run_generator().returncode,0)
         self.assertEqual(sentinel.read_text(),'owner data')
+    def test_historical_client_builds_when_live_example_uses_future_exports(self):
+        # Migration of the live example must not change pinned alpha.1 consumers.
+        (self.root/'examples/filament-orders-live/client.mjs').write_text(
+            "import { FilamentBrowserDriver } from '@surfacerelay/browser-runtime';\n")
+        result=self.run_generator()
+        self.assertEqual(result.returncode,0,result.stderr)
+        npm='npm.cmd' if sys.platform=='win32' else 'npm'
+        install=subprocess.run([npm,self.npm_install_mode,'--no-audit','--no-fund'],cwd=self.target,capture_output=True,text=True)
+        self.assertEqual(install.returncode,0,install.stderr)
+        build=subprocess.run([npm,'run','build'],cwd=self.target,capture_output=True,text=True)
+        self.assertEqual(build.returncode,0,build.stderr)
+        self.assertGreater((self.target/'public/assets/client.js').stat().st_size,1000)
     def test_redirected_parent_is_rejected_without_writing_external_target(self):
         external=Path(self.temp.name)/'external'; external.mkdir()
         self.root.mkdir(exist_ok=True)

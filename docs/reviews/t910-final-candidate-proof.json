@@ -1,0 +1,269 @@
+{
+  "archivePath": "/task/.tmp/t910-final-candidate/artifacts/surfacerelay-browser-runtime-0.0.0-t910.1.tgz",
+  "archiveSha256": "205a800918152f1375ab0cb8d971cbb5fefc49fa952611a2e924cb9ce4e73c45",
+  "manifest": {
+    "artifactVersion": "0.0.0-t910.1",
+    "files": [
+      {
+        "path": "LICENSE",
+        "sha256": "10436375986f44dc98d84a0fa1d6e2f3cd5e294bec888499c493105ccda82abd",
+        "size": 11556
+      },
+      {
+        "path": "README.md",
+        "sha256": "bdf3448b0d4bc33d7cedd48b989f7196f8fe9ae12d08bf1155fd259998c81791",
+        "size": 296
+      },
+      {
+        "path": "dist/driver-registry.d.ts",
+        "sha256": "cde3b7aaf1deca192ff3587e4fb704536a7a10c87df01c86de6c202025521500",
+        "size": 208
+      },
+      {
+        "path": "dist/driver-registry.js",
+        "sha256": "6a8f8e1e3169e568da7746b16c9219e7b13f68b01267b9a2a940ec6726ec0f44",
+        "size": 971
+      },
+      {
+        "path": "dist/filament-browser-driver.d.ts",
+        "sha256": "f3b08c02ba6b7dc1a256cab6a0ddf38b1b9541d0955f9c4d4a0a5dba225fc47c",
+        "size": 1167
+      },
+      {
+        "path": "dist/filament-browser-driver.js",
+        "sha256": "8bd33c7a1539a7182a85f97c35ebeb6c52baeee31d0681feee34af896301ad24",
+        "size": 4932
+      },
+      {
+        "path": "dist/filament-selection-runtime.d.ts",
+        "sha256": "2d54c661fe8ef272a750e83af3ed4b4a26678d62ef04fc4c025bdddf39d0db69",
+        "size": 462
+      },
+      {
+        "path": "dist/filament-selection-runtime.js",
+        "sha256": "7c3470e6b5293e0af13321ab74bf909cb1a3d296a1fd5cfea93de44544863cf3",
+        "size": 2440
+      },
+      {
+        "path": "dist/htmx-binding-descriptor.d.ts",
+        "sha256": "5ade38484682aad03a221efbb3150a799dc19948a73e1a5286c43dcd8f050182",
+        "size": 1133
+      },
+      {
+        "path": "dist/htmx-binding-descriptor.js",
+        "sha256": "aa6ccb26bc943e7bb4919c3272c93fca5f318ac7f01969a11e453eb879d40f7a",
+        "size": 6266
+      },
+      {
+        "path": "dist/htmx-browser-driver.d.ts",
+        "sha256": "ab2bd955a0aadc9e0befa32d058fd7383aebc6c026436dedeb31433a6bf4e8d4",
+        "size": 538
+      },
+      {
+        "path": "dist/htmx-browser-driver.js",
+        "sha256": "7b22fdc3bff80e219d9d81368a85427d4fb7bcc5ef34e83374266f9b84b06d5a",
+        "size": 6000
+      },
+      {
+        "path": "dist/htmx-browser-runtime.d.ts",
+        "sha256": "22e213d155e6298419656e97662500a60340ea07642195f865adfd53e0b77cdc",
+        "size": 2526
+      },
+      {
+        "path": "dist/htmx-browser-runtime.js",
+        "sha256": "24f81b89576b897e8edb04e12188a5f9d710210bc9f0384c88d3ad920537ab22",
+        "size": 9367
+      },
+      {
+        "path": "dist/htmx-errors.d.ts",
+        "sha256": "e17b30f09ab087c0b5d8847e8695332cf52bfe63a4cca4c32295ab916689eab6",
+        "size": 480
+      },
+      {
+        "path": "dist/htmx-errors.js",
+        "sha256": "f61924f634d2b8afa4aa716b871813c74445a40bb4a98c8e34a7b3cf2ce32c17",
+        "size": 205
+      },
+      {
+        "path": "dist/htmx-input-mapping.d.ts",
+        "sha256": "a0cdda1002437aeb969dc43491ceb538326ec8891fb35588bdbcb44494602944",
+        "size": 208
+      },
+      {
+        "path": "dist/htmx-input-mapping.js",
+        "sha256": "10f60e7441e6d21fdd89712f8f81c34576acb8457c407a35d29b9259c2095c7e",
+        "size": 5790
+      },
+      {
+        "path": "dist/index.d.ts",
+        "sha256": "0303e79e024d4da29085df74a4dd3823b21c358a2b93ed9d5c52c3b4f3d0b65a",
+        "size": 2212
+      },
+      {
+        "path": "dist/index.js",
+        "sha256": "8c9fdb6f517ce48ed082a46b2fa06fa7227a3c689118ab7cbf337044b8eed542",
+        "size": 899
+      },
+      {
+        "path": "dist/livewire-browser-driver.d.ts",
+        "sha256": "a54a652ba280775a2d6a05a48282061d6aaa62a633505caa6d402692214c2131",
+        "size": 621
+      },
+      {
+        "path": "dist/livewire-browser-driver.js",
+        "sha256": "fdb9e021c78adb025f0977b196329faef04ffae93fcc5f06e571b5d3328d8172",
+        "size": 456
+      },
+      {
+        "path": "dist/livewire-browser-runtime.d.ts",
+        "sha256": "889537e0924096ca8d79501c34b741a565bec7f8d46ab98111a3e26db2ad5c7b",
+        "size": 966
+      },
+      {
+        "path": "dist/livewire-browser-runtime.js",
+        "sha256": "f012e0b88e7e8ed230513c5c3ffc88560b26e2adee2cc5adb9fa44c47e41a345",
+        "size": 704
+      },
+      {
+        "path": "dist/livewire-errors.d.ts",
+        "sha256": "38481e537ebf096501201a19867186565e6be382b3a366de99add69e6c97da82",
+        "size": 442
+      },
+      {
+        "path": "dist/livewire-errors.js",
+        "sha256": "9bc92bbd1f13b8420fdbbd47ba194bae2ecd332ff344305d60bdd1148c59b1b0",
+        "size": 213
+      },
+      {
+        "path": "dist/livewire-execution.d.ts",
+        "sha256": "55b3ec11903313808ee130214e90733493ee2de99d662d023b1bfdd4363422a5",
+        "size": 661
+      },
+      {
+        "path": "dist/livewire-execution.js",
+        "sha256": "ca0eb631e61065dc5f40a7f956de8710336cca547caf44d692d84838539c9938",
+        "size": 9544
+      },
+      {
+        "path": "dist/livewire-reserved-names.d.ts",
+        "sha256": "12845e85c21289e64e77baa8575dacec9aff9f0e7a0555b43e44e0ae7429a72d",
+        "size": 508
+      },
+      {
+        "path": "dist/livewire-reserved-names.js",
+        "sha256": "10aa4c59880e5decd140ea0b25c562850212eb7285f5a22a859750aeae53cdfb",
+        "size": 716
+      },
+      {
+        "path": "dist/runtime-binding-expiry.d.ts",
+        "sha256": "60d69df586a24b270dfa685c091c83d275cbf4718c320efe703fe8fa5e78b3f7",
+        "size": 292
+      },
+      {
+        "path": "dist/runtime-binding-expiry.js",
+        "sha256": "758480da05f8635983ac09bb00eee966fc7accf3aa2d996738e685d05afe9316",
+        "size": 2459
+      },
+      {
+        "path": "dist/types.d.ts",
+        "sha256": "d8a7f91c6c3ab19acf0a382ad5c6237f4b4f17d4362909c64ec78faee1d2d0be",
+        "size": 1403
+      },
+      {
+        "path": "dist/types.js",
+        "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+        "size": 11
+      },
+      {
+        "path": "dist/webmcp-model-context.d.ts",
+        "sha256": "1bdae84534de37b1feff68ca017bef0b4760c6540120109809193ad76d0dc71d",
+        "size": 156
+      },
+      {
+        "path": "dist/webmcp-model-context.js",
+        "sha256": "a4244fb10e4896171ab51e4e0b9d239fe4720a83eefa48b75dd3c77e4564c6b5",
+        "size": 412
+      },
+      {
+        "path": "dist/webmcp-projection.d.ts",
+        "sha256": "72008dc01c4ecf9205586411b713a885a9c20aac0bc7d26395ff0edf49f1b0af",
+        "size": 274
+      },
+      {
+        "path": "dist/webmcp-projection.js",
+        "sha256": "cedfbef1f72433b75fefd371df36cd6045eba8e36f7cfa12f716191ecef98a36",
+        "size": 265
+      },
+      {
+        "path": "dist/webmcp-registration-lifecycle.d.ts",
+        "sha256": "022ea255b5ee360bf6e833acbc10968b84de2eca21211b179f6823052bce93d1",
+        "size": 694
+      },
+      {
+        "path": "dist/webmcp-registration-lifecycle.js",
+        "sha256": "0df2bb151ffd7bc3ff95a3d80936dbe8aff7f2bb47dd1b4c8c6828bdfe0e4283",
+        "size": 4152
+      },
+      {
+        "path": "dist/webmcp-tool-projection.d.ts",
+        "sha256": "58b2f11b79fd388f98c7e6ada8cb5c651ac43e9a1081b48d955e0a782f99e7a9",
+        "size": 573
+      },
+      {
+        "path": "dist/webmcp-tool-projection.js",
+        "sha256": "cca931ad1c3b502267703c98e0a3b357816c11bb45f8f604159c99e5f19d6a09",
+        "size": 985
+      },
+      {
+        "path": "dist/webmcp-types.d.ts",
+        "sha256": "f0312441a46053830eb75798212f096cd2c9ce6a216c3b9a52a453d010aad125",
+        "size": 1417
+      },
+      {
+        "path": "dist/webmcp-types.js",
+        "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+        "size": 11
+      },
+      {
+        "path": "package.json",
+        "sha256": "57feaacf6ffa66f3d20c03a157ab257b357a80adc123514c6de3b2e08bc0b696",
+        "size": 602
+      }
+    ],
+    "packageName": "@surfacerelay/browser-runtime",
+    "schemaVersion": 1,
+    "sourceRevision": "74631bdf67a045b43facdac4b2364a34f16b3e50"
+  },
+  "sourceHashes": {
+    "src/livewire-errors.ts": "a3defdd1e466595c096d56b20dfaba92288a992b30e6bd888fae1154b04341de",
+    "src/webmcp-types.ts": "9095ed03161b7db59b2e55ac8e6ace5da178c806be4564d8591818d6629d4f73",
+    "src/webmcp-registration-lifecycle.ts": "ec3d6af0753cd953bd78e6e8856ecce3d580e841bbbc0bde7ca6aebc22cf1798",
+    "src/filament-selection-runtime.ts": "82bc6dd5bb8501aa6ae00618f6e11972a7a0e475b465362a20cefeabd0aeb83e",
+    "src/index.ts": "6e3ccecce28c96e72d7ef3ca65d7e8bc55097256c779665d2811b43c05bc8855",
+    "src/htmx-browser-driver.ts": "5ebe60624ea8588fe4dac0dcac342b2ed374fbe325b250cb12c0b57a305a4112",
+    "src/driver-registry.ts": "fc246e8259d88d2440a7e98205b83bc531ff2432a8d69be0cdb65982f7b3d6e5",
+    "src/htmx-input-mapping.ts": "b64da8715d3b638a43a5102ac929688e544e7ec1586a9843ad947ef677712ec0",
+    "src/webmcp-tool-projection.ts": "313ab01bd63bb3ad9aff67610c466d7e0a864d4f40d9dd606742795bb2e7c039",
+    "src/runtime-binding-expiry.ts": "8399da0643026340f17eca97021e3b5f0233757485d5e50a601f0464bd7c848f",
+    "src/livewire-browser-driver.ts": "57d63c28090c036890c6bfadba671ee23f9262d4236beea13fe3919f5be160a6",
+    "src/htmx-binding-descriptor.ts": "19b74b4883218f9dce02d92276412c70246bd63e7a74db632b33f094cf48b513",
+    "src/htmx-errors.ts": "4a315af791e757c5e6ed251d20095bd331497cf64790b8f278a36ee89ff1334d",
+    "src/types.ts": "5762ac246ce734890cb8968c5584a38f0540cc1f711a9f1ef3ea6b0137e88bcc",
+    "src/webmcp-model-context.ts": "6a2b6524c5010a5d78c4b6a4d48b8093f14aac7b069f93585aa2f452bf5c34da",
+    "src/livewire-execution.ts": "373cf63800b328fa3862d321f300d5462ad7411395d6c5753e052c50618dfae8",
+    "src/livewire-browser-runtime.ts": "d96855729acdfa76c46d037e5a9f97eb10c4fef6f648678dced5ece09df1e0d6",
+    "src/livewire-reserved-names.ts": "a7a69fbb37a8e8f5de50abc5276a202ae6236c1373e43aadbf036ab15f9c061c",
+    "src/webmcp-projection.ts": "49c5962e02d20fc12cf3ebe4d64dfb50d114b319fdf690fd38d90c215c8ced43",
+    "src/htmx-browser-runtime.ts": "e92065f3962694394bae12d4408828b25e73113a77eda59e2977539d4178612a",
+    "src/filament-browser-driver.ts": "31c860489ed9eb42397da7809612d321a9e7f059e07c3dd2cbdf40e2249bd6c2"
+  },
+  "cleanConsumer": {
+    "installedRoot": "/task/.tmp/t910-final-clean/node_modules/@surfacerelay/browser-runtime",
+    "rootImport": true,
+    "typecheck": true,
+    "bundle": true,
+    "smokeOutput": "SurfaceRelay browser-runtime clean-consumer smoke: PASS",
+    "deepImportRejected": true
+  },
+  "provenance": "final isolated working-tree source; sourceRevision is base revision, not candidate commit"
+}

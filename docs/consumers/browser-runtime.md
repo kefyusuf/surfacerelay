@@ -63,6 +63,57 @@ This feature is published in alpha.2 and is absent from alpha.1. Install the
 explicit alpha.2 version and test the opt-in mode before adoption. It does not fix Chrome's native rejection text channel
 or qualify the Codex in-app browser.
 
+## Opt-in Filament selection driver (unreleased)
+
+The source/local candidate includes `FilamentBrowserDriver`,
+`FilamentSelectionCoordinator` and `GlobalFilamentSelectionRuntime`. These exports
+are absent from published alpha.1 and alpha.2; do not import them from those versions.
+No npm/Packagist publication is performed by this change.
+
+```ts
+import {
+  FilamentBrowserDriver, FilamentSelectionCoordinator, GlobalFilamentSelectionRuntime,
+  GlobalLivewireBrowserRuntime,
+} from '@surfacerelay/browser-runtime';
+
+// Create once and share with every helper in this Livewire environment.
+const coordinator = new FilamentSelectionCoordinator();
+drivers.register('livewire', new FilamentBrowserDriver(new GlobalLivewireBrowserRuntime(), {
+  tools: explicitlyExposedTools,
+  selectionRuntime: new GlobalFilamentSelectionRuntime(),
+  coordinator,
+}));
+```
+
+Register the same exact binding objects with the WebMCP lifecycle. The driver
+captures owned descriptor data and selection policy at construction; clones,
+unknown objects, changed descriptors, unsupported descriptor values and conflicting
+selection policies for one exact binding fail closed. It does not freeze caller
+objects. Rebuild the driver/lease when the application issues new bindings; do not
+retarget old bindings. Selection is derived from the exposed definition's
+`current_selection` requirement, never from invocation input.
+
+Normal Livewire preflight runs before selection writes. The runtime validates one
+exact component-owned Filament table and captures its boolean tracking flag and
+two Sets of string record keys before three deferred writes. A missing, ambiguous,
+foreign-owned or malformed table stops invocation. Current-record actions need no
+table but share component exclusion. Different components remain independent.
+
+Sharing the coordinator is required to exclude overlap across helper instances.
+Rejected contenders do not release the active call's guard. Occupancy lasts until
+the underlying framework call settles, including when the public promise rejects
+early because exact-action capture failed. That post-initiation failure has unknown
+dispatch; do not retry automatically. Ordinary UI/Livewire calls outside these
+helpers are not covered. Three deferred writes are not transactional: a throwing
+write stops dispatch but can leave partial local state; the next selection-required
+call must fully revalidate/overwrite it. No rollback guarantee.
+
+Browser selection supplies no authority. Server record resolution, tenant/record
+authorization, confirmation and idempotency remain authoritative. Existing
+`LivewireBrowserDriver` behavior and registration result modes remain compatible.
+Use the [T-910 local consumer](../../scripts/acceptance/t910-filament/README.md) to
+verify a built candidate; historical registry fixtures keep compatible older glue.
+
 ## Build an exact candidate
 
 The builder is an existing Python function, not a command-line interface.

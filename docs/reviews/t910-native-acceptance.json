@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "scope": "Local simulated Filament consumer, real Chrome native WebMCP calls; no production/payment qualification",
+  "artifactSha256": "00a2df648621b2477d84e7f0c0e96cbb4b90fb4f19ed1247d1316c99f1d50a99",
+  "browserVersion": "Not separately recorded for host Chrome; native tools directly observed",
+  "frameworks": {
+    "laravel": "13.35.0",
+    "livewire": "4.4.7",
+    "filament": "5.10.0"
+  },
+  "observations": [
+    {
+      "case": "EmptySelection",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "rejected",
+              "error": {
+                "code": "required_context_missing",
+                "message": "Required trusted context is unavailable.",
+                "details": {
+                  "requirements": [
+                    "current_selection"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "SelectedInvalidInput",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "rejected",
+              "error": {
+                "code": "input_validation_failed",
+                "message": "Input validation failed.",
+                "details": {
+                  "fields": [
+                    "reason"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ConfirmationRequested",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "confirmation_required",
+              "confirmation": {
+                "summary": "Hold current order",
+                "expiresAt": "2026-10-08T03:30:49Z"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ChangedSelection",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "confirmation_required",
+              "confirmation": {
+                "summary": "Hold current order",
+                "expiresAt": "2026-10-08T03:31:08Z"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "Succeeded",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "succeeded",
+              "data": {
+                "orderIds": [
+                  102
+                ],
+                "affectedCount": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "Replay",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "succeeded",
+              "data": {
+                "orderIds": [
+                  102
+                ],
+                "affectedCount": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "RecordConfirmation",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "confirmation_required",
+              "confirmation": {
+                "summary": "Hold current order",
+                "expiresAt": "2026-10-08T03:32:08Z"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "ResponseLoss",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "execution_failed",
+          "outcome": "unknown",
+          "error": {
+            "code": "execution_failed",
+            "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+          }
+        }
+      }
+    },
+    {
+      "case": "ResponseLossReplay",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "returned",
+          "output": {
+            "kind": "value",
+            "value": {
+              "status": "succeeded",
+              "data": {
+                "orderIds": [
+                  101
+                ],
+                "affectedCount": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "StaleList",
+      "result": {
+        "status": "Completed",
+        "output": {
+          "kind": "surfacerelay.webmcp.execution.v1",
+          "status": "execution_failed",
+          "outcome": "unknown",
+          "error": {
+            "code": "execution_failed",
+            "message": "Execution failed. The application outcome is unknown. Verify application state before considering a retry."
+          }
+        }
+      }
+    }
+  ],
+  "sql": [
+    {
+      "after": "empty/invalid selection and first confirmation request",
+      "effectCount": 0
+    },
+    {
+      "after": "selection 101 approved, changed to 102, fresh approval, execution and explicit replay",
+      "effectCount": 1,
+      "orderIds": [
+        [
+          102
+        ]
+      ]
+    },
+    {
+      "after": "record101 response dropped after commit, before explicit retry",
+      "effectCount": 2,
+      "orderIds": [
+        [
+          102
+        ],
+        [
+          101
+        ]
+      ],
+      "fault": {
+        "armed": false,
+        "effectsBefore": 1,
+        "effectsAfter": 2
+      }
+    },
+    {
+      "after": "record101 explicit retry and stale list rejection",
+      "effectCount": 2,
+      "orderIds": [
+        [
+          102
+        ],
+        [
+          101
+        ]
+      ]
+    }
+  ],
+  "privacy": "Challenge/receipt/correlation identifiers, credentials and signed snapshots omitted."
+}

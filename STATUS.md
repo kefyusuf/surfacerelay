@@ -4,40 +4,38 @@ Current state only; history is in Git, PRs and the archive.
 
 ## Current release
 
-`0.1.0-alpha.2` is published on npm/Packagist for `@surfacerelay/browser-runtime`
-and `surfacerelay/laravel`. Source/mirror tags, final archive/manifest bytes,
-registry-installed consumers and bounded Chrome/SQL acceptance are verified in
-the [release record](docs/releases/0.1.0-alpha.2-publication.md) and
-[publication receipt](docs/reviews/alpha-0.1.0-alpha.2-publication.json).
-npm `alpha` points to alpha.2; `latest` remains alpha.1. Install explicit versions.
-Source metadata remains development-only; private builder/preview guards remain
-NO-GO. MCP/OpenAPI packages are outside this release.
+`0.1.0-alpha.2` is published for `@surfacerelay/browser-runtime` and
+`surfacerelay/laravel`; see the [release record](docs/releases/0.1.0-alpha.2-publication.md).
+npm alpha is alpha.2; latest is alpha.1. Install explicit versions.
+Source metadata stays development-only; private preview guards remain NO-GO.
+MCP/OpenAPI packages remain outside this release.
 
-## Current task
+## Current delivery
 
-T-909 release gates are complete. Preparation [PR #45](https://github.com/kefyusuf/surfacerelay/pull/45)
-merged after green CI and review; its merge is the frozen release source.
-This documentation branch records actual publication and verification results;
-its own review/CI is separate from the already published source.
+T-910 implementation and local acceptance pass under accepted D-075.
+Delivery and hosted checks: [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47),
+branch `feat/t-910-filament-selection-driver`. Consult the PR for live CI state.
+Opt-in Filament driver validates exact owned binding data before selection writes,
+shares component exclusion, and holds occupancy until the underlying call settles.
+Normal Livewire behavior and server authority remain unchanged. New exports are
+unreleased and absent from alpha.1/alpha.2.
 
-The browser now ships T-908's explicit opt-in execution envelope. Default/direct
-driver contracts remain compatible. Inspect the nested application result;
-native Completed is not business success. Unknown outcomes require checking
-application state before any explicit retry. Laravel runtime bytes are unchanged
-from alpha.1. [Migration guide](docs/consumers/browser-runtime.md).
+Docker: 508 browser tests/typecheck/build/conformance, 16 real Filament browser
+tests, clean artifact consumers, 30 signed HTTP/fault controls and canonical
+validation pass. Real Chrome native/SQL controls pass, including selection drift,
+current-record response loss and explicit replay. [Acceptance](docs/reviews/t910-filament-acceptance.md).
+Independent reviews found no remaining blocker after the lossy snapshot correction.
 
-## Limits and next scope
+## Needs decision
 
-Experimental prerelease: no stable API, production-security guarantee, support
-SLA, performance or general native interoperability claim. Native proof uses a
-serial simulated Filament ledger; shared-store races are separately bounded.
-Chrome qualification does not repair Codex in-app loopback access.
-No unresolved release gate or public-contract decision. No next development
-task is selected; plan D-075 helper/productization separately before coding.
+None for this task. No next development task is selected; do not begin one
+automatically or publish another version.
 
-## Cleanup
+## Limits and cleanup
 
-Task-owned Docker verification/native/registry containers, generated demos,
-test tabs and temporary publication resources are removed after retaining the
-durable receipts. Existing images/resources and two user Composer locks remain.
-No self-created worktree remains. Do not begin another development task automatically.
+Experimental prerelease: no stable API, production/payment, performance, SLA or
+general native interoperability qualification. Unrelated UI/Livewire calls are
+outside helper exclusion; deferred writes are not transactional. Native Completed
+is not business success; unknown outcomes require state inspection before retry.
+Task-owned Docker containers/demos/staging and native tabs are removed.
+Existing images/resources and both user Composer locks remain. No worktree created.

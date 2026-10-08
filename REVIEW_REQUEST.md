@@ -1,23 +1,30 @@
-# T-909 Alpha.2 Publication Record Review
+# T-910 Filament Selection Driver Review
 
-Branch: docs/t-909-alpha2-publication-record. Documentation/evidence only.
-Preparation PR #45 is merged; both alpha.2 packages and source/mirror tags exist.
-Review current tracking, explicit-version installation/migration guidance and
-the [release record](docs/releases/0.1.0-alpha.2-publication.md).
+Branch: `feat/t-910-filament-selection-driver`. Local acceptance complete;
+[PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) carries delivery and live hosted checks.
+D-075 is accepted; no new release.
 
-The receipt maps frozen source, final npm tarball, all 199 manifest entries,
-Laravel mirror commit/tags and actual registry-installed consumers. npm alpha
-is alpha.2; latest remains alpha.1. No stable promotion or new package/API.
-Fresh Docker npm import/types/bundle/smoke/deep-import and 11 Laravel HTTP/race
-checks pass; authorization mutation was detected. Registry Filament installed
-bytes match both final manifests. Fresh native invalid-input, UI approval,
-post-commit response loss, stale binding and explicit replay controls pass;
-the SQL ledger retains one effect. Sanitized native/SQL evidence is retained.
+The opt-in public driver captures exact exposure membership and lossless owned
+plain binding descriptors. Unknown/cloned/mutated objects and conflicting policies
+fail closed. Shared Livewire preflight runs before deferred selection writes.
+One explicit coordinator excludes component overlap across driver instances and
+holds occupancy through underlying settlement, even after early capture failure.
+Selection/authorization/confirmation/idempotency authority remains server-owned.
 
-Canonical/22 HTMX/41 envelope fixtures and private release guardrails pass.
-194 Python tests and independent preparation/final-byte reviews passed before
-publication. Independent receipt review and live registry/tag readback found no
-blocker; the reviewer did not replay native calls. Hosted CI is separate.
-Native controls are serial simulated effects, not production or broad concurrency
-qualification. No secrets, receipts, challenge identifiers or credentials retained.
-All owned test resources are removed; existing images and user locks are preserved.
+Review the private Livewire seam, default cancellation/result compatibility,
+partial-write bounds and shared coordinator lifetime. The migrated live example
+uses the adapter. Historical registry generators retain compatible glue; a separate
+T-910 local candidate uses the new root exports/envelope. Published alpha.1/alpha.2
+do not acquire those exports.
+
+Actual RED preceded fixes for missing API, clone/mutation/policy bypass and lossy
+JSON normalization. Docker 508 browser tests/typecheck/build/conformance, 16 live
+Filament browser tests, 30 HTTP/fault controls, 4/6/7 generator tests and canonical
+validation pass. Clean tarball consumers and real Chrome/SQL drift, current-record,
+response-loss/replay/stale controls pass. [Acceptance and manifests](docs/reviews/t910-filament-acceptance.md).
+Final source hashes match all 21 runtime source files; all 45 installed files match
+the final candidate manifest. Provenance is explicitly working-tree/base revision,
+not registry or exact commit qualification. Independent reviews found no blocker.
+
+Owned Docker resources/native tabs are removed; user locks and unrelated resources
+are preserved. Ordinary UI calls/transactional rollback/production are outside proof.
