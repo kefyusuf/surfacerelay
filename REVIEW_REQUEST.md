@@ -1,24 +1,22 @@
-# T-911 Alpha.3 Preparation Review
+# T-911 Alpha.3 Publication Handoff Review
 
-Branch: `feat/t-911-alpha3-preparation`. Owner-approved coordinated alpha.3 plan;
-no registry publication or new runtime behavior in the preparation change.
+Branch: `docs/t-911-alpha3-publication-handoff`. Documentation and sanitized receipts
+only. Preparation [PR #48](https://github.com/kefyusuf/surfacerelay/pull/48) is merged;
+frozen release source remains its exact merge, not this evidence-only branch.
 
-Review the public artifact README, installed consumer fixture and CI version.
-New Filament root values/types must compile and bundle from an isolated tarball
-installation. Node smoke retains the old registry/envelope checks and rejects an
-unexposed binding before framework lookup or selection writes. New instructions
-require one shared coordinator and exact binding objects, preserve server authority
-and prohibit automatic retries of unknown outcomes.
+Review [handoff](docs/releases/0.1.0-alpha.3-publication-handoff.md) and
+[receipt](docs/reviews/alpha-0.1.0-alpha.3-prepublication.json): canonical archive
+810 files match Git blobs; 45 browser/160 Laravel manifest files, tarball and
+local mirror mapping pass. Laravel 157 PHP/migration files match alpha.2. Earlier
+working-tree/Windows checkout-converted builds are explicitly superseded.
 
-README regression was RED before correction, then 13 artifact tests passed. The
-new smoke rejects published alpha.2's missing export as a negative control.
-Docker 195 Python/508 browser tests, canonical validation and separate public
-tarball root/type/bundle/smoke/manifest checks passed; installed Laravel 11 HTTP/
-shared-store controls passed and detected deliberate authorization mutation.
-Independent preparation review found no blocker. [Evidence](docs/reviews/t911-alpha3-preparation.md).
-Exact merged-source and new native acceptance remain pending release gates.
-Publication requires merged-source rebuild, immutable mappings and fresh registry
-proof; working-tree evidence is distinct.
+Clean final-public browser/installed Laravel consumers, real Filament 23 HTTP/
+7 fault controls and nine native Chrome cases pass. SQL selection102/replay and
+edit101 committed response loss/explicit replay remain 0 -> 1 -> 2 -> 2. Native
+and registry proof are distinct; no general interoperability claim. Independent
+preparation and final-byte reviews found no blocker.
 
-User Composer locks and unrelated Docker resources are preserved. No new image,
-volume or worktree is created. Temporary verification resources remain T-911-owned.
+Owner npm login remains the publication gate; credential prompt was cancelled.
+No remote tag/mirror/registry writes occurred. Both owned containers/demos and
+native tabs are removed; verified release staging/local mirror remain for resume.
+User locks, existing images/resources and personal tabs are preserved.
