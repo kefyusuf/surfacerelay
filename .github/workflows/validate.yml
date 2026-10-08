@@ -5,7 +5,7 @@ on:
   pull_request:
 
 env:
-  ALPHA_RELEASE_VERSION: '0.1.0-alpha.2'
+  ALPHA_RELEASE_VERSION: '0.1.0-alpha.3'
 
 jobs:
   filament-http-consumer:

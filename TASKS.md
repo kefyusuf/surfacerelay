@@ -6,9 +6,17 @@ one-line entry; full history is in
 
 ## Open
 
-No next development task selected. T-910 local implementation acceptance passes;
-Delivery/hosted checks are on [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47).
-Do not begin another task automatically.
+### T-911 — Coordinated alpha.3 preparation and publication
+
+Owner-approved [release plan](docs/releases/0.1.0-alpha.3.md). Scope: release T-910
+through the existing coordinated Laravel/browser pipeline; no new runtime behavior.
+Acceptance: exact archived candidates/public bytes, new root exports/types and
+old behavior in clean consumers, real Filament native/SQL controls, green reviewed
+PR, exact merged-source rebuild, immutable tags/mirror and fresh registry verification.
+Verification: Docker release/Python regressions, browser tests/typecheck/build,
+clean public npm consumer, installed Laravel HTTP/races, Filament HTTP/fault and
+Chrome native controls, `python scripts/validate.py`, manifest/hash comparisons.
+Preparation in progress; publication and registry proof remain unperformed.
 
 ## Done
 
