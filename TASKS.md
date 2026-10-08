@@ -6,25 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-### T-911 — Coordinated alpha.3 preparation and publication
-
-Owner-approved [release plan](docs/releases/0.1.0-alpha.3.md). Scope: release T-910
-through the existing coordinated Laravel/browser pipeline; no new runtime behavior.
-Acceptance: exact archived candidates/public bytes, new root exports/types and
-old behavior in clean consumers, real Filament native/SQL controls, green reviewed
-PR, exact merged-source rebuild, immutable tags/mirror and fresh registry verification.
-Verification: Docker release/Python regressions, browser tests/typecheck/build,
-clean public npm consumer, installed Laravel HTTP/races, Filament HTTP/fault and
-Chrome native controls, `python scripts/validate.py`, manifest/hash comparisons.
-Preparation PR #48 merged with all 49 checks and merged-source Validate CI passed.
-Canonical exact-source artifacts, clean consumers, native/SQL and independent byte
-review pass; [handoff](docs/releases/0.1.0-alpha.3-publication-handoff.md).
-Publication waits for owner npm authentication; registry proof remains unperformed.
+No implementation task selected. T-911 publication receipt delivery is in review.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Coordinated alpha.3 publication | T-911 `0.1.0-alpha.3` published on npm/Packagist; immutable source/mirror/tags, 205 installed files, actual registry consumers, 23 HTTP/seven fault and nine native/SQL controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json) |
 | Reusable Filament selection driver | T-910 accepted under D-075; Docker 508 browser/16 live browser/30 HTTP controls, clean artifacts, native SQL/replay and independent reviews pass; [acceptance](docs/reviews/t910-filament-acceptance.md); delivery/hosted checks: [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) |
 | Coordinated alpha.2 publication | T-909 `0.1.0-alpha.2` published on npm/Packagist; exact source/mirror/tags/199 manifest files, registry consumers and native/SQL response-loss/replay controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.2-publication.json) |
 | Native WebMCP error behavior | T-908 accepted under D-079; Docker/native/SQL checks and independent review pass; [PR #44](https://github.com/kefyusuf/surfacerelay/pull/44) merged and main CI passed; [evidence](docs/reviews/t908-native-acceptance.md) |

@@ -4,10 +4,10 @@ SurfaceRelay is experimental and unofficial. This document separates implemented
 version contracts and executable evidence from a proposed future release policy.
 It does not promise registry availability or authorize publication.
 
-The published coordinated pair is `0.1.0-alpha.2`. The owner approved
-[alpha.3 preparation](releases/0.1.0-alpha.3.md) for T-910's opt-in Filament helper.
-The existing coordinated package policy is retained; Laravel runtime behavior
-does not change. Alpha.3 publication and registry verification are still pending.
+The published coordinated pair is `0.1.0-alpha.3`; see the
+[actual registry release record](releases/0.1.0-alpha.3-publication.md).
+The existing coordinated package policy is retained; T-910's opt-in Filament
+helper is published and Laravel runtime behavior does not change.
 
 ## Implemented version identities
 

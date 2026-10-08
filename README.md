@@ -78,14 +78,14 @@ Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANC
 
 ## Using the artifacts
 
-The current experimental release, `0.1.0-alpha.2`, is published on [Packagist](https://packagist.org/packages/surfacerelay/laravel) and [npm](https://www.npmjs.com/package/@surfacerelay/browser-runtime). Install the explicit alpha version:
+The current experimental release, `0.1.0-alpha.3`, is published on [Packagist](https://packagist.org/packages/surfacerelay/laravel) and [npm](https://www.npmjs.com/package/@surfacerelay/browser-runtime). Install the explicit alpha version:
 
 ```sh
-composer require surfacerelay/laravel:0.1.0-alpha.2
-npm install @surfacerelay/browser-runtime@0.1.0-alpha.2
+composer require surfacerelay/laravel:0.1.0-alpha.3
+npm install @surfacerelay/browser-runtime@0.1.0-alpha.3
 ```
 
-See [release details](docs/releases/0.1.0-alpha.2-publication.md) for verified registry consumers, provenance and experimental limits. npm's `alpha` points to alpha.2; `latest` remains alpha.1. Neither implies stable API support. Alpha.2 adds the [opt-in execution envelope](docs/consumers/browser-runtime.md#opt-in-native-execution-results-since-010-alpha2); existing registrations keep their behavior. Local private release candidates can also be built and installed:
+See [release details](docs/releases/0.1.0-alpha.3-publication.md) for verified registry consumers, provenance and experimental limits. npm's `alpha` points to alpha.3; `latest` remains alpha.1. Neither implies stable API support. Alpha.3 adds the [opt-in Filament selection driver](docs/consumers/browser-runtime.md#opt-in-filament-selection-driver-since-010-alpha3) and includes the [opt-in execution envelope](docs/consumers/browser-runtime.md#opt-in-native-execution-results-since-010-alpha2); existing registrations keep their behavior. Local private release candidates can also be built and installed:
 
 - [Laravel artifact consumer guide](docs/consumers/laravel.md) — Composer ZIP from a local artifact repository.
 - [Browser runtime consumer guide](docs/consumers/browser-runtime.md) — npm tarball, root ESM import only.

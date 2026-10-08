@@ -6,11 +6,21 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ## Unreleased
 
+No pending consumer changes.
+
+## 0.1.0-alpha.3 — 2026-10-08
+
+Published the coordinated pair with actual registry-installed and bounded native/SQL
+verification; see the [release record](docs/releases/0.1.0-alpha.3-publication.md).
+npm alpha points to alpha.3; latest remains alpha.1. Laravel runtime is unchanged.
+
+### Added
+
 - Opt-in Filament browser driver with exact exposure/binding validation, shared
   component exclusion and deferred table-selection synchronization. New root
   exports include `FilamentBrowserDriver`, `FilamentSelectionCoordinator` and
   `GlobalFilamentSelectionRuntime`; default Livewire behavior remains compatible.
-  Implemented under T-910/D-075; proposed for coordinated alpha.3, not published.
+  Implemented under T-910/D-075; published in coordinated alpha.3.
 
 ## 0.1.0-alpha.2 — 2026-10-07
 
