@@ -6,7 +6,7 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. T-911 publication receipt delivery is in review.
+No implementation task selected. T-911 receipt delivery: [PR #50](https://github.com/kefyusuf/surfacerelay/pull/50).
 
 ## Done
 

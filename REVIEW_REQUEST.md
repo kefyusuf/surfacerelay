@@ -1,5 +1,6 @@
 # T-911 Alpha.3 Publication Receipt Review
 
+Delivery: [PR #50](https://github.com/kefyusuf/surfacerelay/pull/50).
 Branch: `docs/t-911-alpha3-publication-receipt`. Documentation and sanitized receipt
 only. Both packages are published; this branch does not change runtime or release
 bytes. Frozen source remains the exact [PR #48](https://github.com/kefyusuf/surfacerelay/pull/48)
@@ -16,8 +17,8 @@ pass; authorization mutation is detected. Actual registry-installed Filament pas
 edit101 committed response loss/explicit replay remain `0 -> 1 -> 2 -> 2`.
 No automatic retry, credential/receipt disclosure or general interoperability claim.
 Required canonical validation and independent receipt review pass. Hosted receipt
-checks remain to be observed.
+checks and merge state are available on PR #50.
 
-Cleanup removes only the owned registry container/demo/cache/database/native tabs
+Cleanup removed only the owned registry container/demo/cache/database/native tabs
 and retained task staging. User locks, existing images/resources and personal tabs
 are preserved. No new image, named volume or worktree exists.
