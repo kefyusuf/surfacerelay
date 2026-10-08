@@ -16,7 +16,10 @@ PR, exact merged-source rebuild, immutable tags/mirror and fresh registry verifi
 Verification: Docker release/Python regressions, browser tests/typecheck/build,
 clean public npm consumer, installed Laravel HTTP/races, Filament HTTP/fault and
 Chrome native controls, `python scripts/validate.py`, manifest/hash comparisons.
-Preparation in progress; publication and registry proof remain unperformed.
+Preparation PR #48 merged with all 49 checks and merged-source Validate CI passed.
+Canonical exact-source artifacts, clean consumers, native/SQL and independent byte
+review pass; [handoff](docs/releases/0.1.0-alpha.3-publication-handoff.md).
+Publication waits for owner npm authentication; registry proof remains unperformed.
 
 ## Done
 

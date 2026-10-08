@@ -5,40 +5,37 @@ Current state only; history is in Git, PRs and the archive.
 ## Current release
 
 `0.1.0-alpha.2` is published for `@surfacerelay/browser-runtime` and
-`surfacerelay/laravel`; see the [release record](docs/releases/0.1.0-alpha.2-publication.md).
-npm alpha is alpha.2; latest is alpha.1. Install explicit versions.
-Source metadata stays development-only; private preview guards remain NO-GO.
-MCP/OpenAPI packages remain outside this release.
+`surfacerelay/laravel`; [release record](docs/releases/0.1.0-alpha.2-publication.md).
+npm alpha is alpha.2; latest remains alpha.1. Install explicit versions.
+Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside release.
 
-## Current delivery
+## Active task
 
-T-910 is merged through [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47);
-main CI passed. T-911 coordinated alpha.3 preparation is active on
-`feat/t-911-alpha3-preparation`; see the [approved plan](docs/releases/0.1.0-alpha.3.md).
-Opt-in Filament driver validates exact owned binding data before selection writes,
-shares component exclusion, and holds occupancy until the underlying call settles.
-Normal Livewire behavior and server authority remain unchanged. New exports are
-unreleased and absent from alpha.1/alpha.2.
+T-911 alpha.3 preparation is merged through [PR #48](https://github.com/kefyusuf/surfacerelay/pull/48);
+all 49 PR checks and merged-source Validate CI passed. Frozen source and final
+artifacts are in the [publication handoff](docs/releases/0.1.0-alpha.3-publication-handoff.md).
+New T-910 Filament exports remain absent from published alpha.1/alpha.2.
 
-Docker: 508 browser tests/typecheck/build/conformance, 16 real Filament browser
-tests, clean artifact consumers, 30 signed HTTP/fault controls and canonical
-validation pass. Real Chrome native/SQL controls pass, including selection drift,
-current-record response loss and explicit replay. [Acceptance](docs/reviews/t910-filament-acceptance.md).
-Independent reviews found no remaining blocker after the lossy snapshot correction.
+Docker preparation 195 Python/508 browser checks and canonical validation pass.
+Canonical merged-source public artifacts pass clean browser import/types/bundle/
+smoke/deep-import and 11 installed-Laravel HTTP/race tests. Installed Filament 45 browser/
+160 Laravel files match; 23 HTTP + 7 fault controls and nine real Chrome native/
+SQL cases pass. Independent review found no remaining byte/preparation blocker.
+[Durable prepublication receipt](docs/reviews/alpha-0.1.0-alpha.3-prepublication.json).
 
-## Needs decision
+## Next gate
 
-None for T-911 scope. Preparation Docker 195 Python/508 browser tests, canonical
-validation, separate public tarball consumer and Laravel 11 HTTP/races pass;
-[evidence](docs/reviews/t911-alpha3-preparation.md) labels working-tree provenance.
-Exact merged-source/native acceptance and publication remain pending gates.
+Owner npm authentication is required: host whoami returned ENEEDAUTH; interactive
+web login did not finish and was cancelled when it requested credentials. No
+registry write, source tag or mirror push occurred. Complete human-controlled
+login, then resume approved publication/registry gates. Do not start another task.
 
 ## Limits and cleanup
 
-Experimental prerelease: no stable API, production/payment, performance, SLA or
-general native interoperability qualification. Unrelated UI/Livewire calls are
-outside helper exclusion; deferred writes are not transactional. Native Completed
-is not business success; unknown outcomes require state inspection before retry.
-T-910 resources were removed. T-911 owns `surfacerelay-t911-preparation` and
-`.tmp/t911-session`; clean them when verification ends.
-Existing images/resources and both user Composer locks remain. No worktree created.
+Experimental prerelease; no production/payment, SLA, performance or general native
+interoperability claim. Helper exclusion does not cover ordinary UI calls; deferred
+writes are not transactional. Unknown outcomes require state inspection before retry.
+Both task containers and all owned demo/native tabs are removed. Final artifacts,
+canonical source archive and unpublished local mirror remain in `.tmp/t911-session`
+for publication; existing images/resources and both user Composer locks are kept.
+No new image, named volume or worktree was created.
