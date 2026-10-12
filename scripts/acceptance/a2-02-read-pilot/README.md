@@ -17,7 +17,7 @@ The bootstrap must have a registered `App\Providers\Filament\AdminPanelProvider`
 - `app/Providers/A2OrdersProvider.php`: tenant + record scoped Laravel Gate
 - `app/Models/A2Order.php`, `app/Filament/Resources/A2Orders/*`: ordinary Filament resource and Livewire page method, one explicit action exposure attribute
 - `database/migrations/*`: only two synthetic fixture tables; SurfaceRelay's own audit tables come from its package migrations
-- `tests/Feature/A2OrdersInspectTest.php`: eleven proposed hosted Laravel tests, including tenant, missing membership, malicious extra field, guest, invalid ID and audit
+- `tests/Feature/A2OrdersInspectTest.php`: twelve proposed hosted Laravel tests, including tenant, missing membership, malicious extra field, guest, invalid ID and audit
 - `install_overlay.py`: refuse to overwrite any file or redirected installation target, refuses wrong version, unsupported source or missing Filament panel
 
 No agent-only HTTP endpoint, new driver, scope/confirmation contract or write operation is introduced. There is **no WebMCP lifecycle registration yet**. The `ExposeAction` attribute is only metadata and **does not issue or authorize a binding**.
@@ -31,7 +31,7 @@ find . -type f -name '*.php' -exec php -l '{}' \;
 python3 -m unittest -q verify_overlay.py test_check_junit.py
 ```
 
-**Result: 8 PHP lint checks; 16 local acceptance-tool tests PASS** (11 installer + 5 JUnit receipt-parser). Synthetic installer tests do not instantiate Laravel, hit a database or prove actual Filament/Livewire behavior.
+**Result: 8 PHP lint checks; 17 local acceptance-tool tests PASS** (12 installer + 5 JUnit receipt-parser). Synthetic installer tests do not instantiate Laravel, hit a database or prove actual Filament/Livewire behavior.
 
 ## Hosted A2-02a execution proposal
 
@@ -39,7 +39,7 @@ A companion, manual-only GitHub Actions workflow proposal is packaged at
 `.github/workflows/a2-02-read-consumer.yml` for review. It is **not deployed**.
 It reuses A2-01's exact public npm/Packagist installation, applies this
 standalone overlay, migrates only a disposable SQLite consumer and executes
-11 PHPUnit test cases. `check_junit.py` fails if any expected test is missing,
+12 PHPUnit test cases. `check_junit.py` fails if any expected test is missing,
 failed or skipped; a green JUnit result is recorded as `PASS_SERVER_READ_ONLY`
 **not** full A2-02 acceptance. Four bounded JSON receipts are eligible for
 3-day artifact retention; runtime package files, credentials and database
@@ -70,11 +70,11 @@ php artisan test tests/Feature/A2OrdersInspectTest.php
 
 **Fail closed if `bootstrap/providers.php` does not list `AdminPanelProvider::class`.** Recheck the Filament install and register its generated provider in the *disposable consumer* only; do not modify SurfaceRelay source or weaken the test to get green. Inspect each failed test, including Filament panel mount/API compatibility, before classifying `DOCS` vs published-product `FAIL`.
 
-A green eleven-test Laravel result is **A2-02a SERVER READ PASS**, not the complete A2-02 or native WebMCP acceptance. Record exact package versions, SQL audit results, commands, public API imports and negative cases in a limited JSON receipt. Delete only the newly created disposable test directory, after evidence capture and verified ownership.
+A green twelve-test Laravel result is **A2-02a SERVER READ PASS**, not the complete A2-02 or native WebMCP acceptance. Record exact package versions, SQL audit results, commands, public API imports and negative cases in a limited JSON receipt. Delete only the newly created disposable test directory, after evidence capture and verified ownership.
 
 ## Additional A2-02a negative tests (v2)
 
-The server-only test suite now declares **11** PHPUnit tests. Added checks:
+The server-only test suite now declares **12** PHPUnit tests. Added checks:
 revoked membership denies with an audit event; ambiguous membership in two
 eligible tenants fails closed without a silent tenant choice; an extra caller
 `tenant_id` is removed by the Laravel validation stage and cannot override
@@ -101,3 +101,7 @@ companion acceptance patch; merge and dispatch are separate approval gates.
 - **BLOCKED/NOT RUN** until hosted execution is available or if environment cannot run.
 
 No PR, branch, tag, release or workflow dispatch was performed as part of this local overlay. Continue with the same single acceptance gate only after evaluating the first mounted invocation.
+
+## Review correction: real panel authentication contract
+
+Filament 5 requires `FilamentUser::canAccessPanel()` outside the `local` environment. A2-02a now applies a tightly anchored, **disposable consumer-only** patch to the freshly generated `app/Models/User.php`, alongside the already required `bootstrap/providers.php` registration. Both are checked before any overlay files are copied; unknown or symlinked User models fail closed. The panel contract allows only the `admin` panel and an actor with exactly one eligible `a2_memberships` tenant; the normal runtime Gate still revalidates record ownership at each action invocation. The HTTP feature suite includes an explicit non-member panel-access denial. No SurfaceRelay source files or published packages are edited.

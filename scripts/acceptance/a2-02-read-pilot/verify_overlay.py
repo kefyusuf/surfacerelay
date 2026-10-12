@@ -18,6 +18,8 @@ class OverlayTests(unittest.TestCase):
         self.app.mkdir()
         self.source = Path(__file__).resolve().parent
         (self.app / 'bootstrap').mkdir()
+        (self.app / 'app/Models').mkdir(parents=True)
+        (self.app / 'app/Models/User.php').write_text('<?php\n\nnamespace App\\Models;\nuse Illuminate\\Foundation\\Auth\\User as Authenticatable;\nclass User extends Authenticatable\n{\n}\n')
         (self.app / 'bootstrap/providers.php').write_text('<?php\nreturn [\n    App\\Providers\\AppServiceProvider::class,\n    App\\Providers\\Filament\\AdminPanelProvider::class,\n];\n')
         (self.app / 'vendor/surfacerelay/laravel').mkdir(parents=True)
         (self.app / 'composer.json').write_text(json.dumps({'require': {'surfacerelay/laravel': '0.1.0-alpha.3'}}))
@@ -89,6 +91,16 @@ class OverlayTests(unittest.TestCase):
         self.assertTrue((self.app/'app/A2/InspectOrder.php').exists())
         self.assertEqual((self.app/'bootstrap/providers.php').read_text().count('A2OrdersProvider::class'), 1)
         self.assertEqual((self.app/'bootstrap/providers.php').read_text().count('AppServiceProvider::class'), 1)
+        self.assertIn('implements \\Filament\\Models\\Contracts\\FilamentUser',
+                      (self.app/'app/Models/User.php').read_text())
+        self.assertEqual((self.app/'app/Models/User.php').read_text().count('canAccessPanel('), 1)
+
+    def test_unexpected_existing_user_model_not_patched(self):
+        user = self.app/'app/Models/User.php'
+        user.write_text('<?php // unrelated custom user')
+        with self.assertRaisesRegex(ValueError, 'Unexpected Laravel User'):
+            assert_fresh_target(self.source, self.app)
+        self.assertEqual(user.read_text(), '<?php // unrelated custom user')
 
     def test_second_run_rejected(self):
         with patch.object(sys, 'argv', ['install_overlay.py', str(self.app)]):

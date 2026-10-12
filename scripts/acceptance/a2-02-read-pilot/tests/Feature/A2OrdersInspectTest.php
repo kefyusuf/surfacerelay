@@ -164,6 +164,13 @@ final class A2OrdersInspectTest extends TestCase
             ->assertOk();
     }
 
+    public function test_user_without_membership_cannot_mount_filament_orders_page(): void
+    {
+        $this->actingAs($this->withoutMembership)
+            ->get(A2OrderResource::getUrl('index'))
+            ->assertForbidden();
+    }
+
     public function test_guest_cannot_mount_filament_orders_page(): void
     {
         $this->get(A2OrderResource::getUrl('index'))

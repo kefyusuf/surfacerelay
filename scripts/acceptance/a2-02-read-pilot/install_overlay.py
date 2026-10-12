@@ -10,6 +10,36 @@ from pathlib import Path
 import shutil
 import sys
 
+USER_CLASS_MARKER = "class User extends Authenticatable\n{"
+USER_METHOD = r"""
+    /** Fixture panel gate; invocation always rechecks membership and order. */
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return $panel->getId() === 'admin'
+            && \Illuminate\Support\Facades\DB::table('a2_memberships')
+                ->where('user_id', $this->getAuthIdentifier())
+                ->where('can_inspect', true)
+                ->count() === 1;
+    }
+"""
+
+
+def panel_user_source(original: str) -> str:
+    """Conservatively patch only the standard disposable Laravel User skeleton."""
+    if (not original.startswith('<?php\n')
+            or 'namespace App\\Models;' not in original
+            or 'use Illuminate\\Foundation\\Auth\\User as Authenticatable;' not in original
+            or original.count(USER_CLASS_MARKER) != 1
+            or not original.endswith('\n}\n')
+            or 'FilamentUser' in original or 'canAccessPanel' in original):
+        raise ValueError('Unexpected Laravel User model; refusing panel access patch')
+    return original.replace(
+        USER_CLASS_MARKER,
+        'class User extends Authenticatable implements \\Filament\\Models\\Contracts\\FilamentUser\n{',
+        1,
+    )[:-2] + USER_METHOD + '}\n'
+
+
 PACKAGE_NAME = "surfacerelay/laravel"
 NPM_NAME = "@surfacerelay/browser-runtime"
 
@@ -70,6 +100,10 @@ def assert_fresh_target(source: Path, app: Path) -> list[tuple[Path, Path]]:
             entries.append((file, dest))
     if len(entries) != 8:
         raise ValueError(f"Expected 8 application overlay PHP files, found {len(entries)}")
+    user_path = app / 'app/Models/User.php'
+    if not user_path.is_file() or user_path.is_symlink():
+        raise ValueError('Missing or symlinked disposable Laravel User model')
+    panel_user_source(user_path.read_text())
     if (app / 'bootstrap/providers.php').is_symlink():
         raise ValueError('Symlinked bootstrap provider file')
     providers = (app / 'bootstrap/providers.php').read_text()
@@ -93,11 +127,14 @@ def main() -> int:
     try:
         entries = assert_fresh_target(source, target)
         providers_path = target / 'bootstrap/providers.php'
+        user_path = target / 'app/Models/User.php'
+        updated_user = panel_user_source(user_path.read_text())
         updated = providers_path.read_text().replace('];', '    \\App\\Providers\\A2OrdersProvider::class,\n];')
         for file, dest in entries:
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file, dest)
         providers_path.write_text(updated)
+        user_path.write_text(updated_user)
     except (ValueError, OSError, KeyError) as e:
         print(f'A2-02 overlay BLOCKED: {e}', file=sys.stderr)
         return 2

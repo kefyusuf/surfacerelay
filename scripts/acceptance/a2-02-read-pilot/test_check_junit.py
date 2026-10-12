@@ -20,12 +20,12 @@ class JunitReceiptTests(unittest.TestCase):
             SubElement(suite, 'testcase', {'name': extra})
         ElementTree(root).write(path)
 
-    def test_complete_eleven_cases_are_server_only(self):
+    def test_complete_twelve_cases_are_server_only(self):
         with TemporaryDirectory() as tmp:
             f = Path(tmp) / 'junit.xml'
             self.write_xml(f)
             proof = summarize(f)
-            self.assertEqual(proof['tests'], 11)
+            self.assertEqual(proof['tests'], 12)
             self.assertEqual(proof['result'], 'PASS_SERVER_READ_ONLY')
             self.assertIn('NOT RUN', proof['scope'])
 

@@ -19,6 +19,7 @@ EXPECTED = frozenset({
     'test_untrusted_tenant_field_is_not_forwarded_to_authorization',
     'test_authenticated_owner_can_mount_filament_orders_page',
     'test_guest_cannot_mount_filament_orders_page',
+    'test_user_without_membership_cannot_mount_filament_orders_page',
 })
 
 
