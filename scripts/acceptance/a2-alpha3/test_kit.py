@@ -75,7 +75,7 @@ class VerifierTests(unittest.TestCase):
             (root/'composer.json').write_text(json.dumps({'repositories': [{'type': 'path', 'url': '../packages/*'}]}))
             rc, report = self.call(root)
             self.assertEqual(rc, 1)
-            self.assertIn('non-registry Composer repository detected', report['errors'])
+            self.assertIn('custom Composer repository detected', report['errors'])
 
     def test_composer_map_style_path_repository_is_rejected(self):
         with TemporaryDirectory() as tmp:
@@ -84,7 +84,19 @@ class VerifierTests(unittest.TestCase):
             (root/'composer.json').write_text(json.dumps({'repositories': {'local': {'type': 'path', 'url': '../packages/*'}}, 'require': {'surfacerelay/laravel': '0.1.0-alpha.3'}}))
             rc, report = self.call(root)
             self.assertEqual(rc, 1)
-            self.assertIn('non-registry Composer repository detected', report['errors'])
+            self.assertIn('custom Composer repository detected', report['errors'])
+
+    def test_custom_packagist_mirror_repository_is_rejected(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.setup_consumer(root)
+            (root/'composer.json').write_text(json.dumps({
+                'repositories': [{'type': 'composer', 'url': 'https://packages.example.test'}],
+                'require': {'surfacerelay/laravel': '0.1.0-alpha.3'},
+            }))
+            rc, report = self.call(root)
+            self.assertEqual(rc, 1)
+            self.assertIn('custom Composer repository detected', report['errors'])
 
     def test_unpinned_composer_requirement_is_rejected(self):
         with TemporaryDirectory() as tmp:

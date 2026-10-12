@@ -33,13 +33,10 @@ def main():
     repos = composer_json.get("repositories", [])
     if isinstance(repos, dict):
         repos = list(repos.values())
-    check(
-        isinstance(repos, list) and all(
-            isinstance(r, dict) and r.get("type") not in ("path", "artifact", "vcs")
-            for r in repos
-        ),
-        "non-registry Composer repository detected", errors,
-    )
+    # This acceptance gate must use the default Packagist source, not a
+    # consumer-defined Composer repository (including custom Composer mirrors).
+    check(isinstance(repos, list) and not repos,
+          "custom Composer repository detected", errors)
     check(
         composer_json.get("require", {}).get("surfacerelay/laravel") == VERSION,
         "Composer SurfaceRelay requirement not exact alpha.3", errors,
