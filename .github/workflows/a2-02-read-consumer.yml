@@ -1,0 +1,76 @@
+name: A2-02a authenticated Filament read consumer
+
+# This is a proposed next gate; never run automatically on push or PR.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authenticated-read-consumer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      COMPOSER_NO_INTERACTION: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite, sqlite3, xml, zip, openssl, intl, fileinfo
+          coverage: none
+      - name: Validate isolated overlay installation rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd scripts/acceptance/a2-02-read-pilot
+          python3 -m unittest -q verify_overlay.py test_check_junit.py
+          find app database tests -name '*.php' -type f -print0 | xargs -0 -n1 php -l
+
+      - name: Install real registry-only Laravel and Filament consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/acceptance/a2-alpha3/preflight.py --output "$RUNNER_TEMP/a2-02a-preflight.json"
+          bash scripts/acceptance/a2-alpha3/run_a2_01.sh "$RUNNER_TEMP/a2-02a-consumer"
+
+      - name: Apply read-only pilot without replacing existing consumer files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/acceptance/a2-02-read-pilot/install_overlay.py "$RUNNER_TEMP/a2-02a-consumer/app"
+
+      - name: Run mounted Filament, Laravel Gate and audit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/a2-02a-consumer/app"
+          test -f database/database.sqlite || touch database/database.sqlite
+          php artisan migrate --force
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-02a-junit.xml" tests/Feature/A2OrdersInspectTest.php
+          python3 "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-read-pilot/check_junit.py" \
+            "$RUNNER_TEMP/a2-02a-junit.xml" "$RUNNER_TEMP/a2-02a-result.json"
+
+      - name: Preserve bounded JSON acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2-02a-authenticated-read-json
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/a2-02a-preflight.json
+            ${{ runner.temp }}/a2-02a-consumer/a2-01-lock-verification.json
+            ${{ runner.temp }}/a2-02a-consumer/a2-01-critical-payload-verification.json
+            ${{ runner.temp }}/a2-02a-result.json
