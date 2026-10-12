@@ -56,9 +56,10 @@ use SurfaceRelay\Laravel\Validation\LaravelInputValidationStage;
 /** A2-02a: no browser binding, no write/confirmation, no new HTTP endpoint. */
 final class InspectOrder
 {
-    public function dispatch(Page $page, array $untrustedInput): ActionPipelineOutcome
+    /** The single consumer-owned definition used for execution and binding issuance. */
+    public static function definition(): ActionDefinition
     {
-        $definition = new ActionDefinition(
+        return new ActionDefinition(
             id: 'a2.orders.inspect',
             version: 1,
             title: 'Inspect order',
@@ -77,6 +78,11 @@ final class InspectOrder
             outputContentTrust: OutputContentTrust::TrustedApplicationData,
             contextRequirements: [ContextRequirement::AuthenticatedActor, ContextRequirement::Tenant],
         );
+    }
+
+    public function dispatch(Page $page, array $untrustedInput): ActionPipelineOutcome
+    {
+        $definition = self::definition();
 
         $registry = new InMemoryActionRegistry();
         $registry->register($definition);

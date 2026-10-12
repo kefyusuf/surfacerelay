@@ -22,9 +22,9 @@ final class ListA2Orders extends ListRecords
     public ?array $inspected = null;
 
     #[ExposeAction('a2.orders.inspect', 1)]
-    public function inspectOrder(int $orderId): void
+    public function inspectOrder(int $order_id): void
     {
-        $outcome = app(InspectOrder::class)->dispatch($this, ['order_id' => $orderId]);
+        $outcome = app(InspectOrder::class)->dispatch($this, ['order_id' => $order_id]);
         $this->inspectionStatus = $outcome->completed ? 'ok' : 'denied';
         $this->inspected = $outcome->completed ? $outcome->state->output : null;
     }
