@@ -1,0 +1,125 @@
+name: A2-02b B1 independent Filament binding consumer
+
+# PR-only proof of the published consumer integration; never workflow_dispatch.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/a2-02b-b1-consumer.yml'
+      - 'scripts/acceptance/a2-02b-binding-pilot/**'
+      - 'scripts/acceptance/a2-02-read-pilot/app/A2/InspectOrder.php'
+      - 'scripts/acceptance/a2-02-read-pilot/app/Filament/Resources/A2Orders/Pages/ListA2Orders.php'
+
+permissions:
+  contents: read
+
+jobs:
+  mounted-binding-consumer:
+    if: github.head_ref == 'test/a2-02b-b1-filament-binding-production' && github.event.pull_request.head.repo.full_name == 'kefyusuf/surfacerelay'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      COMPOSER_NO_INTERACTION: '1'
+      B1_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite, sqlite3, xml, zip, openssl, intl, fileinfo
+          coverage: none
+      - name: Preflight and validate B1 test syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/acceptance/a2-alpha3/preflight.py --output "$RUNNER_TEMP/a2-02b-b1-preflight.json"
+          php -l scripts/acceptance/a2-02b-binding-pilot/tests/Feature/A2BindingProductionTest.php
+          php -l scripts/acceptance/a2-02-read-pilot/app/A2/InspectOrder.php
+          php -l scripts/acceptance/a2-02-read-pilot/app/Filament/Resources/A2Orders/Pages/ListA2Orders.php
+      - name: Install clean registry-only Laravel 13 and Filament 5 consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/acceptance/a2-alpha3/run_a2_01.sh "$RUNNER_TEMP/a2-02b-b1-consumer"
+      - name: Apply existing A2-02a overlay and one B1 test
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$RUNNER_TEMP/a2-02b-b1-consumer/app"
+          python3 scripts/acceptance/a2-02-read-pilot/install_overlay.py "$app"
+          test ! -e "$app/tests/Feature/A2BindingProductionTest.php"
+          cp -- scripts/acceptance/a2-02b-binding-pilot/tests/Feature/A2BindingProductionTest.php "$app/tests/Feature/A2BindingProductionTest.php"
+      - name: Recheck accepted A2-02a server read and audit behaviors
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/a2-02b-b1-consumer/app"
+          test -f database/database.sqlite || touch database/database.sqlite
+          php artisan migrate --force
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-02a-b1-regression-junit.xml" tests/Feature/A2OrdersInspectTest.php
+          python3 "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-read-pilot/check_junit.py" \
+            "$RUNNER_TEMP/a2-02a-b1-regression-junit.xml" "$RUNNER_TEMP/a2-02a-b1-regression.json"
+      - name: Execute two B1 mounted binding production tests and verify exact receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/a2-02b-b1-consumer/app"
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-02b-b1-junit.xml" tests/Feature/A2BindingProductionTest.php
+          python3 - "$RUNNER_TEMP/a2-02b-b1-junit.xml" "$RUNNER_TEMP/a2-02b-b1-result.json" <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          xml = Path(sys.argv[1])
+          if not xml.is_file() or xml.stat().st_size > 256_000:
+              raise SystemExit('B1 receipt rejected: missing or oversized XML')
+          cases = ElementTree.parse(xml).getroot().findall('.//testcase')
+          expected = {
+              'test_exposed_method_parameters_match_canonical_input_schema',
+              'test_mounted_page_issues_one_exact_livewire_component_binding',
+          }
+          names = [case.get('name') for case in cases]
+          if len(names) != 2 or set(names) != expected:
+              raise SystemExit(f'B1 receipt rejected: wrong test identities: {names!r}')
+          if any(any(case.find(tag) is not None for tag in ('error', 'failure', 'skipped')) for case in cases):
+              raise SystemExit('B1 receipt rejected: failure or skipped test')
+          proof = {
+              'gate': 'A2-02b-B1-mounted-binding-production',
+              'result': 'PASS_B1_BINDING_PRODUCTION_ONLY',
+              'tests': len(cases),
+              'failures': 0,
+              'errors': 0,
+              'skipped': 0,
+              'headSha': os.environ['B1_SOURCE_SHA'],
+              'scope': 'Published registry packages, actual Filament component, exact LivewireBindingProducer. Browser invocation and WebMCP are NOT RUN.',
+          }
+          Path(sys.argv[2]).write_text(json.dumps(proof, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(proof, indent=2))
+          PY
+      - name: Preserve bounded B1 proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2-02b-b1-mounted-binding-json
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/a2-02b-b1-preflight.json
+            ${{ runner.temp }}/a2-02b-b1-consumer/a2-01-lock-verification.json
+            ${{ runner.temp }}/a2-02b-b1-consumer/a2-01-critical-payload-verification.json
+            ${{ runner.temp }}/a2-02a-b1-regression.json
+            ${{ runner.temp }}/a2-02b-b1-result.json
+            ${{ runner.temp }}/a2-02b-b1-junit.xml
