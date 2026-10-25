@@ -1,8 +1,9 @@
 # Review handoff
 
-Open PR branch: `test/a2-02-browser-b2-wiring`. A2-02 B2 (app-owned browser
-descriptor and wiring) is implementation-prepared there; the guarded
-PR-only workflow produces the hosted evidence on that branch.
+Open PR: [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) from
+`test/a2-02-browser-b2-wiring`. A2-02 B2 (app-owned browser descriptor and
+wiring) is implementation-prepared there; the guarded PR-only workflow
+produces the hosted evidence on that PR.
 
 Consumer-only change set: `ListA2Orders.php` descriptor emission (additive
 `#[Locked]` property, same producer as B1), a new

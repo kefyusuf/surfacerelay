@@ -12,8 +12,9 @@ descriptor document; the glue plus a fifteen-case Node suite prove envelope
 return semantics and fail-closed surfaces against the published alpha.3
 package; a PR-only hosted workflow re-runs A2-02a and B1 as regressions. Real
 Chrome `document.modelContext` discovery/invocation proof remains A2-08.
-[pilot](scripts/acceptance/a2-02-browser-pilot/README.md). No write path, new
-driver, runtime change or release is in scope.
+[pilot](scripts/acceptance/a2-02-browser-pilot/README.md); delivery/hosted
+checks: [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54). No write
+path, new driver, runtime change or release is in scope.
 
 ## Done
 

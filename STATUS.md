@@ -20,16 +20,17 @@ plus a fifteen-case Node suite pass locally against the published
 `@surfacerelay/browser-runtime@0.1.0-alpha.3` root export: envelope return
 semantics, fail-closed unsupported/mismatched/stale/expired/forged surfaces,
 lease disposal and shared coordinator exclusion. PHP 8.4 syntax checked;
-`validate.py` green. Hosted proof needs a PR from `test/a2-02-browser-b2-wiring`
-([pilot](scripts/acceptance/a2-02-browser-pilot/README.md)); the real Chrome
+`validate.py` green. Hosted proof is pending on
+[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); the real Chrome
 `document.modelContext` proof remains A2-08. No write path, new driver,
 runtime change or release is in scope.
 
 ## Next gate
 
-Hosted A2-02 B2 acceptance evidence on the consumer overlay; the real Chrome
-discovery/invocation proof stays a separate later task. Do not start another
-task automatically. No further registry write is required.
+Green hosted receipts on [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54)
+(`PASS_B2_DESCRIPTOR_EMISSION_ONLY`, `PASS_B2_BROWSER_WIRING_ONLY`, plus A2-02a
+and B1 regressions). Do not start another task automatically. No further
+registry write is required.
 
 ## Limits and cleanup
 
