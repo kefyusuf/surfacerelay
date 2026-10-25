@@ -1,24 +1,25 @@
-# T-911 Alpha.3 Publication Receipt Review
+# Review handoff
 
-Delivery: [PR #50](https://github.com/kefyusuf/surfacerelay/pull/50).
-Branch: `docs/t-911-alpha3-publication-receipt`. Documentation and sanitized receipt
-only. Both packages are published; this branch does not change runtime or release
-bytes. Frozen source remains the exact [PR #48](https://github.com/kefyusuf/surfacerelay/pull/48)
-merge. Later documentation commits are not release source.
+Open PR branch: `test/a2-02-browser-b2-wiring`. A2-02 B2 (app-owned browser
+descriptor and wiring) is implementation-prepared there; the guarded
+PR-only workflow produces the hosted evidence on that branch.
 
-Review [release record](docs/releases/0.1.0-alpha.3-publication.md) and
-[publication receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json): immutable
-source/mirror tags, npm hash/alpha/latest, Packagist reference and all 205 installed
-file hashes match the earlier approved canonical prepublication manifests.
+Consumer-only change set: `ListA2Orders.php` descriptor emission (additive
+`#[Locked]` property, same producer as B1), a new
+[schema-safe glue module](scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs)
+consuming only the published `@surfacerelay/browser-runtime@0.1.0-alpha.3`
+root export, a fifteen-case Node suite, exact-identity JUnit receipts, and a
+PR-only workflow re-running A2-02a (12) and B1 (2) suites as regressions.
+Local evidence: Node 15/15 PASS against the real registry package, PHP 8.4
+syntax clean, `python scripts/validate.py` green. Hosted B2 evidence, browser
+registration and real Chrome `document.modelContext` discovery/invocation
+remain NOT RUN (A2-08). No runtime, schema, fixture or release bytes changed.
 
-Actual npm import/types/bundle/smoke/deep-import and Packagist 11 HTTP/race tests
-pass; authorization mutation is detected. Actual registry-installed Filament passes
-23 HTTP/seven fault controls and nine Chrome calls. SQL selection102/replay and
-edit101 committed response loss/explicit replay remain `0 -> 1 -> 2 -> 2`.
-No automatic retry, credential/receipt disclosure or general interoperability claim.
-Required canonical validation and independent receipt review pass. Hosted receipt
-checks and merge state are available on PR #50.
-
-Cleanup removed only the owned registry container/demo/cache/database/native tabs
-and retained task staging. User locks, existing images/resources and personal tabs
-are preserved. No new image, named volume or worktree exists.
+Security review focus: the descriptor is public discovery metadata and never
+an authorization capability; the negative emission test proves an
+unauthorized actor still gets denied on the same page instance, and the Node
+suite proves forged input, stale binding, expired binding, unsupported
+surface and identity mismatch all fail closed. Evidence baseline:
+[B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md),
+[B1 record](scripts/acceptance/a2-02b-binding-pilot/README.md),
+[A2-02 integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md).

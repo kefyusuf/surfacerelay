@@ -1,0 +1,9 @@
+{
+  "name": "a2-02-browser-pilot-glue",
+  "private": true,
+  "type": "module",
+  "description": "A2-02 B2 app-owned browser glue consuming the published @surfacerelay/browser-runtime alpha.3 root export only.",
+  "dependencies": {
+    "@surfacerelay/browser-runtime": "0.1.0-alpha.3"
+  }
+}

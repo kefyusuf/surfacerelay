@@ -6,12 +6,20 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. T-911 receipt delivery: [PR #50](https://github.com/kefyusuf/surfacerelay/pull/50).
+Selected: A2-02 B2 — app-owned browser descriptor and wiring. Implementation
+prepared; hosted evidence NOT RUN. The mounted Filament page issues the exact
+descriptor document; the glue plus a fifteen-case Node suite prove envelope
+return semantics and fail-closed surfaces against the published alpha.3
+package; a PR-only hosted workflow re-runs A2-02a and B1 as regressions. Real
+Chrome `document.modelContext` discovery/invocation proof remains A2-08.
+[pilot](scripts/acceptance/a2-02-browser-pilot/README.md). No write path, new
+driver, runtime change or release is in scope.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Independent A2 consumer gate | A2-01 registry-installed consumer gate ([PR #51](https://github.com/kefyusuf/surfacerelay/pull/51)); A2-02a server read-only dispatch (12 hosted Laravel tests) and A2-02b B1 mounted binding production (2 hosted tests) pass; [A2-02 gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md) |
 | Coordinated alpha.3 publication | T-911 `0.1.0-alpha.3` published on npm/Packagist; immutable source/mirror/tags, 205 installed files, actual registry consumers, 23 HTTP/seven fault and nine native/SQL controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json) |
 | Reusable Filament selection driver | T-910 accepted under D-075; Docker 508 browser/16 live browser/30 HTTP controls, clean artifacts, native SQL/replay and independent reviews pass; [acceptance](docs/reviews/t910-filament-acceptance.md); delivery/hosted checks: [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) |
 | Coordinated alpha.2 publication | T-909 `0.1.0-alpha.2` published on npm/Packagist; exact source/mirror/tags/199 manifest files, registry consumers and native/SQL response-loss/replay controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.2-publication.json) |
