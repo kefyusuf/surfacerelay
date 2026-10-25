@@ -12,25 +12,31 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-A2-02 B2, app-owned browser descriptor and wiring — implementation prepared,
-hosted evidence NOT RUN. The A2-02 read-only consumer's mounted Filament page
-now issues the exact descriptor document (canonical definition JSON plus the
-B1-accepted `LivewireBindingProducer` component binding). The app-owned glue
-plus a fifteen-case Node suite pass locally against the published
+A2-02 B2, app-owned browser descriptor and wiring — hosted-verified on
+[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54). The A2-02
+read-only consumer's mounted Filament page issues the exact descriptor
+document (canonical definition JSON plus the B1-accepted
+`LivewireBindingProducer` component binding), and the app-owned glue plus a
+fifteen-case Node suite pass against the published
 `@surfacerelay/browser-runtime@0.1.0-alpha.3` root export: envelope return
 semantics, fail-closed unsupported/mismatched/stale/expired/forged surfaces,
-lease disposal and shared coordinator exclusion. PHP 8.4 syntax checked;
-`validate.py` green. Hosted proof is pending on
-[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); the real Chrome
-`document.modelContext` proof remains A2-08. No write path, new driver,
-runtime change or release is in scope.
+lease disposal and shared coordinator exclusion. Hosted receipts:
+descriptor emission 3/3 and browser wiring 15/15, with A2-02a 12/12 and B1
+2/2 regressions on a registry-installed Laravel 13 / Filament 5.10 / Livewire
+4 consumer. Real Chrome `document.modelContext` proof remains A2-08. No
+write path, new driver, runtime change or release is in scope.
+
+Known unrelated breakage: main's floating `filament/filament: ^5.0` drifted;
+`FilamentConfirmationApprovalIntegrationTest` fails three tests on every
+`validate` matrix cell since 2026-10-12. Needs a separate owner decision.
 
 ## Next gate
 
-Green hosted receipts on [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54)
-(`PASS_B2_DESCRIPTOR_EMISSION_ONLY`, `PASS_B2_BROWSER_WIRING_ONLY`, plus A2-02a
-and B1 regressions). Do not start another task automatically. No further
-registry write is required.
+Owner review and merge decision on
+[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); the PR's B2
+workflow is green, while `php-tests` stays red from the known unrelated
+Filament drift on main. After the merge decision, select the next task
+explicitly. No further registry write is required.
 
 ## Limits and cleanup
 

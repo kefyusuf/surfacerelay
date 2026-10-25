@@ -1,6 +1,8 @@
 # SurfaceRelay A2-02 B2 — app-owned browser descriptor and wiring
 
-**State: IMPLEMENTATION PREPARED / NOT EXECUTED AGAINST HOSTED LARAVEL. Browser registration, WebMCP registration and real Chrome `document.modelContext` discovery/invocation remain NOT RUN (A2-08).**
+**State: HOSTED PASS — DESCRIPTOR EMISSION + BROWSER WIRING ONLY. Page-rendered descriptor delivery, real-browser WebMCP registration and real Chrome `document.modelContext` discovery/invocation remain NOT RUN (A2-08).**
+
+Hosted PR-only evidence ([run 40239214917](https://github.com/kefyusuf/surfacerelay/actions/runs/40239214917), PR #54): `PASS_B2_DESCRIPTOR_EMISSION_ONLY` (3/3) and `PASS_B2_BROWSER_WIRING_ONLY` (15/15, driven by the server-issued descriptor document from the same run), plus A2-02a `PASS_SERVER_READ_ONLY` (12/12) and B1 `PASS_B1_BINDING_PRODUCTION_ONLY` (2/2) regressions on a registry-installed Laravel 13.38.0 / Filament 5.10.3 / Livewire 4.4.8 consumer.
 
 Scope is deliberately limited to the consumer-owned browser half of A2-02 on top of the accepted A2-02a server read and A2-02b B1 binding production:
 

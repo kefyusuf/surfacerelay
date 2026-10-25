@@ -6,15 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: A2-02 B2 — app-owned browser descriptor and wiring. Implementation
-prepared; hosted evidence NOT RUN. The mounted Filament page issues the exact
-descriptor document; the glue plus a fifteen-case Node suite prove envelope
-return semantics and fail-closed surfaces against the published alpha.3
-package; a PR-only hosted workflow re-runs A2-02a and B1 as regressions. Real
-Chrome `document.modelContext` discovery/invocation proof remains A2-08.
-[pilot](scripts/acceptance/a2-02-browser-pilot/README.md); delivery/hosted
-checks: [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54). No write
-path, new driver, runtime change or release is in scope.
+A2-02 B2 hosted-verified on
+[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54): descriptor emission
+(3/3) and browser wiring (15/15) receipts pass with A2-02a (12/12) and B1 (2/2)
+regressions on a registry-installed consumer. Awaiting owner merge decision.
+Real Chrome `document.modelContext` discovery/invocation proof remains A2-08.
+[pilot](scripts/acceptance/a2-02-browser-pilot/README.md). No write path, new
+driver, runtime change or release is in scope.
 
 ## Done
 

@@ -12,9 +12,14 @@ consuming only the published `@surfacerelay/browser-runtime@0.1.0-alpha.3`
 root export, a fifteen-case Node suite, exact-identity JUnit receipts, and a
 PR-only workflow re-running A2-02a (12) and B1 (2) suites as regressions.
 Local evidence: Node 15/15 PASS against the real registry package, PHP 8.4
-syntax clean, `python scripts/validate.py` green. Hosted B2 evidence, browser
-registration and real Chrome `document.modelContext` discovery/invocation
-remain NOT RUN (A2-08). No runtime, schema, fixture or release bytes changed.
+syntax clean, `python scripts/validate.py` green. Hosted evidence is GREEN
+(descriptor emission 3/3, browser wiring 15/15, A2-02a 12/12 and B1 2/2
+regressions on the registry-installed consumer). Real Chrome
+`document.modelContext` discovery/invocation remains NOT RUN (A2-08). The
+PR's `php-tests` checks stay red from a known unrelated Filament
+`^5.0` drift on main (`FilamentConfirmationApprovalIntegrationTest`, all
+matrix cells, since 2026-10-12) — owner decision pending. No runtime,
+schema, fixture or release bytes changed.
 
 Security review focus: the descriptor is public discovery metadata and never
 an authorization capability; the negative emission test proves an
