@@ -7,6 +7,7 @@ namespace App\Filament\Resources\A2Orders\Pages;
 use App\A2\InspectOrder;
 use App\Filament\Resources\A2Orders\A2OrderResource;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
 use SurfaceRelay\Laravel\Binding\RandomBindingIdGenerator;
 use SurfaceRelay\Laravel\Enums\ContextRequirement;
@@ -45,7 +46,7 @@ final class ListA2Orders extends ListRecords
         $this->inspected = $outcome->completed ? $outcome->state->output : null;
     }
 
-    public function render()
+    public function render(): View
     {
         $this->issueBrowserDescriptor();
 
