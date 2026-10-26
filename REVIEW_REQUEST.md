@@ -1,25 +1,28 @@
-# T-912 Filament notification drift review
+# Review handoff
 
-Branch: `fix/filament-notification-drift`. Test-only repair of main's
-`php-tests` breakage; no production code, schema, fixture, release bytes or
-dependency constraint change. `python scripts/validate.py` stays green.
+Open PR: [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) from
+`test/a2-02-browser-b2-wiring`. A2-02 B2 (app-owned browser descriptor and
+wiring) is hosted-verified there; the guarded PR-only workflow produced the
+hosted evidence on that PR.
 
-Root cause: main's floating `filament/filament: ^5.0` resolved Filament
-5.10.2+ after 2026-10-12. That release scopes `NotificationMailbox` in its
-notifications provider; the confirmation approval integration test registered
-only Livewire's provider, so `Notification::send()` and `assertNotified()`
-resolved separate mailbox instances and three tests failed in every
-`validate` matrix cell (`A notification was not sent`).
+Consumer-only change set: `ListA2Orders.php` descriptor emission (additive
+`#[Locked]` property, same producer as B1), a new
+[schema-safe glue module](scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs)
+consuming only the published `@surfacerelay/browser-runtime@0.1.0-alpha.3`
+root export, a fifteen-case Node suite, exact-identity JUnit receipts, and a
+PR-only workflow re-running A2-02a (12) and B1 (2) suites as regressions.
+Hosted evidence is GREEN: descriptor emission 3/3, browser wiring 15/15,
+A2-02a 12/12 and B1 2/2 regressions on the registry-installed consumer.
+Real Chrome `document.modelContext` discovery/invocation remains NOT RUN
+(A2-08). The former `php-tests` red is fixed by merged T-912
+([PR #55](https://github.com/kefyusuf/surfacerelay/pull/55)); no runtime,
+schema, fixture or release bytes changed on this branch.
 
-Fix: the test registers `Filament\Support\SupportServiceProvider` and
-`Filament\Notifications\NotificationsServiceProvider` and pins array
-cache/session/mailbox stores. Verification: RED reproduced first on Filament
-5.10.3 (identical to CI), then the full Laravel package suite passes in
-Docker — 612 tests / 3272 assertions, 2 expected MySQL skips — and the
-confirmation test passes 6/6 on Filament 5.9.0, preserving the published
-`^5.0` support range. After merge, [A2-02 B2 PR #54](https://github.com/kefyusuf/surfacerelay/pull/54)
-is unblocked.
-
-Security review focus: none required — approval flow assertions (locked
-challenge, receipt isolation, redacted failure) are unchanged and still pass;
-only the notification capture environment was repaired.
+Security review focus: the descriptor is public discovery metadata and never
+an authorization capability; the negative emission test proves an
+unauthorized actor still gets denied on the same page instance, and the Node
+suite proves forged input, stale binding, expired binding, unsupported
+surface and identity mismatch all fail closed. Evidence baseline:
+[B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md),
+[B1 record](scripts/acceptance/a2-02b-binding-pilot/README.md),
+[A2-02 integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md).
