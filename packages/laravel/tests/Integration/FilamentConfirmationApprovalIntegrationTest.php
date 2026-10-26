@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SurfaceRelay\Laravel\Tests\Integration;
 
 use Filament\Notifications\Notification;
+use Filament\Notifications\NotificationsServiceProvider;
+use Filament\Support\SupportServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase;
 use SurfaceRelay\Laravel\Confirmation\ConfirmationRecordState;
@@ -19,13 +21,23 @@ final class FilamentConfirmationApprovalIntegrationTest extends TestCase
 {
     protected function getPackageProviders($app): array
     {
-        return [LivewireServiceProvider::class];
+        // Filament >= 5.10.2 scopes NotificationMailbox in its notifications
+        // provider; without that binding send() and assertNotified() resolve
+        // separate instances and the assertion never sees the notification.
+        return [
+            SupportServiceProvider::class,
+            LivewireServiceProvider::class,
+            NotificationsServiceProvider::class,
+        ];
     }
 
     protected function defineEnvironment($app): void
     {
         $app['config']->set('app.key', '0123456789abcdef0123456789abcdef');
         $app['config']->set('view.paths', [dirname(__DIR__) . '/Fixtures/views']);
+        $app['config']->set('cache.default', 'array');
+        $app['config']->set('session.driver', 'array');
+        $app['config']->set('filament.cache_store', 'array');
     }
 
     public function test_approve_uses_only_locked_challenge_and_ignores_browser_action_arguments(): void

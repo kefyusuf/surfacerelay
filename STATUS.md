@@ -12,24 +12,23 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-911 publication and actual registry acceptance pass. Preparation
-[PR #48](https://github.com/kefyusuf/surfacerelay/pull/48) and frozen-source CI passed.
-Frozen source/tag is `83ebb86984ef99ad397fa18ccaf48dbf5f8150e5`; the mirror/tag and
-Packagist reference match `1d20fcc98f6a525362e30138aff44d23b719dde1`.
-[Publication receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json) records
-registry metadata, immutable provenance and all 205 file hashes.
-
-Actual npm consumer import/types/bundle/smoke/deep-import controls pass. Actual
-Packagist 11 HTTP/race tests and authorization mutation pass. Installed Filament
-45 browser/160 Laravel files match; 23 HTTP + 7 fault controls and nine Chrome
-native/SQL cases pass. Canonical validation and independent receipt review pass.
-Publication receipt delivery is [PR #50](https://github.com/kefyusuf/surfacerelay/pull/50);
-its hosted checks and merge state are available on the PR.
+T-912 Filament notification drift repair. Main's floating
+`filament/filament: ^5.0` resolved a Filament 5.10.2+ release whose scoped
+`NotificationMailbox` is bound only by the notifications service provider;
+the confirmation approval test registered only Livewire's provider, so
+`send()` and `assertNotified()` resolved separate mailbox instances and
+`php-tests` failed three tests in every matrix cell since 2026-10-12. The
+test now registers the Filament support and notifications providers and
+uses array cache/session/mailbox stores. Production code and the published
+`^5.0` support range are unchanged. Verified: full Laravel package suite
+612 tests / 3272 assertions OK (2 expected MySQL skips) on Filament 5.10.3
+in Docker, and the confirmation test 6/6 on Filament 5.9.0.
 
 ## Next gate
 
-No new implementation task selected. Complete PR #50 delivery after green checks;
-do not start another task automatically. No further registry write is required.
+Hosted `php-tests` matrix green on this PR, then the owner merge decision;
+afterwards [A2-02 B2 PR #54](https://github.com/kefyusuf/surfacerelay/pull/54)
+is unblocked. No further registry write is required.
 
 ## Limits and cleanup
 

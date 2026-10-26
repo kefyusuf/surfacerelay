@@ -6,7 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. T-911 receipt delivery: [PR #50](https://github.com/kefyusuf/surfacerelay/pull/50).
+T-912 Filament notification drift repair, delivered on this branch: the
+confirmation approval integration test registers the Filament support and
+notifications providers with array cache/session/mailbox stores, restoring
+`assertNotified` capture under Filament >= 5.10.2's scoped
+`NotificationMailbox`. No production code or dependency-constraint change.
+After merge, [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54)
+(A2-02 B2, hosted-verified) can merge.
 
 ## Done
 
