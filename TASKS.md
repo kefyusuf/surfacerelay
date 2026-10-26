@@ -18,6 +18,7 @@ driver, runtime change or release is in scope.
 
 | Milestone | Tasks |
 | --- | --- |
+| Filament notification drift repair | T-912 confirmation approval test registers the Filament support/notifications providers with array stores, restoring `assertNotified` under Filament >= 5.10.2's scoped `NotificationMailbox`; no production or constraint change; delivered via [PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) |
 | Independent A2 consumer gate | A2-01 registry-installed consumer gate ([PR #51](https://github.com/kefyusuf/surfacerelay/pull/51)); A2-02a server read-only dispatch (12 hosted Laravel tests) and A2-02b B1 mounted binding production (2 hosted tests) pass; [A2-02 gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md) |
 | Coordinated alpha.3 publication | T-911 `0.1.0-alpha.3` published on npm/Packagist; immutable source/mirror/tags, 205 installed files, actual registry consumers, 23 HTTP/seven fault and nine native/SQL controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json) |
 | Reusable Filament selection driver | T-910 accepted under D-075; Docker 508 browser/16 live browser/30 HTTP controls, clean artifacts, native SQL/replay and independent reviews pass; [acceptance](docs/reviews/t910-filament-acceptance.md); delivery/hosted checks: [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) |

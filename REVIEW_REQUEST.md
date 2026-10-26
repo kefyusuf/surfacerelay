@@ -2,8 +2,8 @@
 
 Open PR: [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) from
 `test/a2-02-browser-b2-wiring`. A2-02 B2 (app-owned browser descriptor and
-wiring) is implementation-prepared there; the guarded PR-only workflow
-produces the hosted evidence on that PR.
+wiring) is hosted-verified there; the guarded PR-only workflow produced the
+hosted evidence on that PR.
 
 Consumer-only change set: `ListA2Orders.php` descriptor emission (additive
 `#[Locked]` property, same producer as B1), a new
@@ -11,15 +11,12 @@ Consumer-only change set: `ListA2Orders.php` descriptor emission (additive
 consuming only the published `@surfacerelay/browser-runtime@0.1.0-alpha.3`
 root export, a fifteen-case Node suite, exact-identity JUnit receipts, and a
 PR-only workflow re-running A2-02a (12) and B1 (2) suites as regressions.
-Local evidence: Node 15/15 PASS against the real registry package, PHP 8.4
-syntax clean, `python scripts/validate.py` green. Hosted evidence is GREEN
-(descriptor emission 3/3, browser wiring 15/15, A2-02a 12/12 and B1 2/2
-regressions on the registry-installed consumer). Real Chrome
-`document.modelContext` discovery/invocation remains NOT RUN (A2-08). The
-PR's `php-tests` checks stay red from a known unrelated Filament
-`^5.0` drift on main (`FilamentConfirmationApprovalIntegrationTest`, all
-matrix cells, since 2026-10-12) — owner decision pending. No runtime,
-schema, fixture or release bytes changed.
+Hosted evidence is GREEN: descriptor emission 3/3, browser wiring 15/15,
+A2-02a 12/12 and B1 2/2 regressions on the registry-installed consumer.
+Real Chrome `document.modelContext` discovery/invocation remains NOT RUN
+(A2-08). The former `php-tests` red is fixed by merged T-912
+([PR #55](https://github.com/kefyusuf/surfacerelay/pull/55)); no runtime,
+schema, fixture or release bytes changed on this branch.
 
 Security review focus: the descriptor is public discovery metadata and never
 an authorization capability; the negative emission test proves an

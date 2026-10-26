@@ -26,17 +26,16 @@ descriptor emission 3/3 and browser wiring 15/15, with A2-02a 12/12 and B1
 4 consumer. Real Chrome `document.modelContext` proof remains A2-08. No
 write path, new driver, runtime change or release is in scope.
 
-Known unrelated breakage: main's floating `filament/filament: ^5.0` drifted;
-`FilamentConfirmationApprovalIntegrationTest` fails three tests on every
-`validate` matrix cell since 2026-10-12. Needs a separate owner decision.
+The main-branch Filament notification drift is repaired: T-912 merged via
+[PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) and the full
+`php-tests` matrix is green again on `main`.
 
 ## Next gate
 
 Owner review and merge decision on
-[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); the PR's B2
-workflow is green, while `php-tests` stays red from the known unrelated
-Filament drift on main. After the merge decision, select the next task
-explicitly. No further registry write is required.
+[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54). After the merge
+decision, select the next task explicitly. No further registry write is
+required.
 
 ## Limits and cleanup
 
