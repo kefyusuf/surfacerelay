@@ -12,30 +12,21 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-A2-02 B2, app-owned browser descriptor and wiring — hosted-verified on
-[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54). The A2-02
-read-only consumer's mounted Filament page issues the exact descriptor
-document (canonical definition JSON plus the B1-accepted
-`LivewireBindingProducer` component binding), and the app-owned glue plus a
-fifteen-case Node suite pass against the published
-`@surfacerelay/browser-runtime@0.1.0-alpha.3` root export: envelope return
-semantics, fail-closed unsupported/mismatched/stale/expired/forged surfaces,
-lease disposal and shared coordinator exclusion. Hosted receipts:
-descriptor emission 3/3 and browser wiring 15/15, with A2-02a 12/12 and B1
-2/2 regressions on a registry-installed Laravel 13 / Filament 5.10 / Livewire
-4 consumer. Real Chrome `document.modelContext` proof remains A2-08. No
-write path, new driver, runtime change or release is in scope.
-
-The main-branch Filament notification drift is repaired: T-912 merged via
-[PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) and the full
-`php-tests` matrix is green again on `main`.
+No implementation task selected. `main` is green: the Filament notification
+drift was repaired by merged T-912 ([PR #55](https://github.com/kefyusuf/surfacerelay/pull/55),
+test-only, full `php-tests` matrix green again), and A2-02 B2 — app-owned
+browser descriptor and wiring — was merged via
+[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) with hosted
+receipts `PASS_B2_DESCRIPTOR_EMISSION_ONLY` 3/3 and `PASS_B2_BROWSER_WIRING_ONLY`
+15/15 plus A2-02a 12/12 and B1 2/2 regressions on a registry-installed
+consumer. The mounted Filament page issues the exact descriptor document;
+the glue consumes only the published alpha.3 root export.
 
 ## Next gate
 
-Owner review and merge decision on
-[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54). After the merge
-decision, select the next task explicitly. No further registry write is
-required.
+Owner selects the next task explicitly: A2-08 (real Chrome
+`document.modelContext` discovery/invocation proof) or the minimal
+quickstart work. No further registry write is required.
 
 ## Limits and cleanup
 

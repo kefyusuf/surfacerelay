@@ -6,20 +6,18 @@ one-line entry; full history is in
 
 ## Open
 
-A2-02 B2 hosted-verified on
-[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54): descriptor emission
-(3/3) and browser wiring (15/15) receipts pass with A2-02a (12/12) and B1 (2/2)
-regressions on a registry-installed consumer. Awaiting owner merge decision.
-Real Chrome `document.modelContext` discovery/invocation proof remains A2-08.
-[pilot](scripts/acceptance/a2-02-browser-pilot/README.md). No write path, new
-driver, runtime change or release is in scope.
+No implementation task selected. Natural next candidates: A2-08 (real Chrome
+`document.modelContext` discovery/invocation proof on the A2-02 consumer,
+per the [integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md))
+and the minimal quickstart work. Select exactly one explicitly before
+starting.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
 | Filament notification drift repair | T-912 confirmation approval test registers the Filament support/notifications providers with array stores, restoring `assertNotified` under Filament >= 5.10.2's scoped `NotificationMailbox`; no production or constraint change; delivered via [PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) |
-| Independent A2 consumer gate | A2-01 registry-installed consumer gate ([PR #51](https://github.com/kefyusuf/surfacerelay/pull/51)); A2-02a server read-only dispatch (12 hosted Laravel tests) and A2-02b B1 mounted binding production (2 hosted tests) pass; [A2-02 gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md) |
+| Independent A2 consumer gate | A2-01 registry-installed consumer gate ([PR #51](https://github.com/kefyusuf/surfacerelay/pull/51)); A2-02a server read-only dispatch (12 hosted Laravel tests) and A2-02b B1 mounted binding production (2 hosted tests) pass; A2-02 B2 descriptor emission (3/3) and browser wiring (15/15) receipts pass with A2-02a/B1 regressions, delivered via [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); [A2-02 gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md), [B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md) |
 | Coordinated alpha.3 publication | T-911 `0.1.0-alpha.3` published on npm/Packagist; immutable source/mirror/tags, 205 installed files, actual registry consumers, 23 HTTP/seven fault and nine native/SQL controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json) |
 | Reusable Filament selection driver | T-910 accepted under D-075; Docker 508 browser/16 live browser/30 HTTP controls, clean artifacts, native SQL/replay and independent reviews pass; [acceptance](docs/reviews/t910-filament-acceptance.md); delivery/hosted checks: [PR #47](https://github.com/kefyusuf/surfacerelay/pull/47) |
 | Coordinated alpha.2 publication | T-909 `0.1.0-alpha.2` published on npm/Packagist; exact source/mirror/tags/199 manifest files, registry consumers and native/SQL response-loss/replay controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.2-publication.json) |

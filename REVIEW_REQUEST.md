@@ -1,28 +1,25 @@
 # Review handoff
 
-Open PR: [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) from
-`test/a2-02-browser-b2-wiring`. A2-02 B2 (app-owned browser descriptor and
-wiring) is hosted-verified there; the guarded PR-only workflow produced the
-hosted evidence on that PR.
+No open PR. Two deliveries merged to `main` with green hosted checks:
 
-Consumer-only change set: `ListA2Orders.php` descriptor emission (additive
-`#[Locked]` property, same producer as B1), a new
-[schema-safe glue module](scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs)
-consuming only the published `@surfacerelay/browser-runtime@0.1.0-alpha.3`
-root export, a fifteen-case Node suite, exact-identity JUnit receipts, and a
-PR-only workflow re-running A2-02a (12) and B1 (2) suites as regressions.
-Hosted evidence is GREEN: descriptor emission 3/3, browser wiring 15/15,
-A2-02a 12/12 and B1 2/2 regressions on the registry-installed consumer.
-Real Chrome `document.modelContext` discovery/invocation remains NOT RUN
-(A2-08). The former `php-tests` red is fixed by merged T-912
-([PR #55](https://github.com/kefyusuf/surfacerelay/pull/55)); no runtime,
-schema, fixture or release bytes changed on this branch.
+- [PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) — T-912,
+  test-only repair of the Filament notification drift: the confirmation
+  approval integration test registers the Filament support/notifications
+  providers with array stores, restoring `assertNotified` capture under
+  Filament >= 5.10.2's scoped `NotificationMailbox`. Full `php-tests`
+  matrix is green again; the published `^5.0` support range is unchanged.
+- [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) — A2-02 B2,
+  app-owned browser descriptor and wiring (consumer-only): the mounted
+  Filament page issues the exact descriptor document, the glue consumes
+  only the published alpha.3 root export, and hosted receipts pass
+  (`PASS_B2_DESCRIPTOR_EMISSION_ONLY` 3/3, `PASS_B2_BROWSER_WIRING_ONLY`
+  15/15, plus A2-02a 12/12 and B1 2/2 regressions). Real Chrome
+  `document.modelContext` discovery/invocation remains NOT RUN (A2-08).
 
-Security review focus: the descriptor is public discovery metadata and never
-an authorization capability; the negative emission test proves an
-unauthorized actor still gets denied on the same page instance, and the Node
-suite proves forged input, stale binding, expired binding, unsupported
-surface and identity mismatch all fail closed. Evidence baseline:
-[B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md),
+Security review focus for external reviewers: the descriptor stays public
+discovery metadata and never an authorization capability (negative emission
+test), and the Node suite proves forged input, stale binding, expired
+binding, unsupported surface and identity mismatch all fail closed.
+Evidence: [B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md),
 [B1 record](scripts/acceptance/a2-02b-binding-pilot/README.md),
 [A2-02 integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md).
