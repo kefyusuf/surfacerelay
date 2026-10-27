@@ -1,0 +1,6 @@
+{
+  "gate": "A2-08-native-chrome-guest-discovery",
+  "result": "PASS_A2_08_GUEST_NO_DISCOVERY",
+  "landedOn": "/admin/login",
+  "tools": "## WebMCP tools\nNo WebMCP tools available."
+}

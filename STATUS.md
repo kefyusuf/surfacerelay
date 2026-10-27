@@ -12,21 +12,27 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is green: the Filament notification
-drift was repaired by merged T-912 ([PR #55](https://github.com/kefyusuf/surfacerelay/pull/55),
-test-only, full `php-tests` matrix green again), and A2-02 B2 — app-owned
-browser descriptor and wiring — was merged via
-[PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) with hosted
-receipts `PASS_B2_DESCRIPTOR_EMISSION_ONLY` 3/3 and `PASS_B2_BROWSER_WIRING_ONLY`
-15/15 plus A2-02a 12/12 and B1 2/2 regressions on a registry-installed
-consumer. The mounted Filament page issues the exact descriptor document;
-the glue consumes only the published alpha.3 root export.
+A2-08 — real Chrome `document.modelContext` discovery/invocation proof on the
+A2-02 read-only consumer. LOCAL NATIVE PASS, receipts committed in
+[scripts/acceptance/a2-08-native-chrome](scripts/acceptance/a2-08-native-chrome/README.md):
+on Chrome 155 with the WebMCP feature and the official chrome-devtools-mcp
+1.10.1 agent surface, the app-owned page module registers the server-issued
+descriptor, `list_webmcp_tools` exposes exactly `a2.orders.inspect.v1`
+(readOnly), `execute_webmcp_tool` returns the B2 envelope and creates a server
+audit row (same server operation as the human route), and the negatives pass:
+forged/missing input fail closed, the foreign-tenant denial is proven in
+server-owned page state, unmount disposes the lease, re-registration works,
+and an unauthenticated visitor sees no tools. Consumer-only changes: render
+hook page wiring, self-guarding registration module, staged setup scripts,
+hosted Chrome-free wiring tests. Hosted wiring receipts pending on
+[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56).
 
 ## Next gate
 
-Owner selects the next task explicitly: A2-08 (real Chrome
-`document.modelContext` discovery/invocation proof) or the minimal
-quickstart work. No further registry write is required.
+Hosted page-wiring receipts green on
+[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56), then the owner
+merge decision; after that the next task is selected explicitly (minimal
+quickstart per the progression plan). No further registry write is required.
 
 ## Limits and cleanup
 

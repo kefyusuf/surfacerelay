@@ -1,0 +1,135 @@
+name: A2-08 page wiring independent consumer
+
+# PR-only proof of the consumer page wiring; never workflow_dispatch.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/a2-08-page-wiring-consumer.yml'
+      - 'scripts/acceptance/a2-08-native-chrome/**'
+      - 'scripts/acceptance/a2-02-read-pilot/app/Providers/A2OrdersProvider.php'
+      - 'scripts/acceptance/a2-02-read-pilot/app/Filament/Resources/A2Orders/Pages/ListA2Orders.php'
+
+permissions:
+  contents: read
+
+jobs:
+  page-wiring-consumer:
+    if: github.head_ref == 'test/a2-08-native-chrome' && github.event.pull_request.head.repo.full_name == 'kefyusuf/surfacerelay'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      COMPOSER_NO_INTERACTION: '1'
+      A2_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite, sqlite3, xml, zip, openssl, intl, fileinfo
+          coverage: none
+      - name: Preflight and validate A2-08 syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/acceptance/a2-alpha3/preflight.py --output "$RUNNER_TEMP/a2-08-preflight.json"
+          php -l scripts/acceptance/a2-02-read-pilot/app/Providers/A2OrdersProvider.php
+          php -l scripts/acceptance/a2-08-native-chrome/tests/Feature/A2PageWiringTest.php
+      - name: Install clean registry-only Laravel 13 and Filament 5 consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/acceptance/a2-alpha3/run_a2_01.sh "$RUNNER_TEMP/a2-08-consumer"
+      - name: Apply accepted overlay stages and A2-08 page assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          instance="$RUNNER_TEMP/a2-08-consumer"
+          app="$instance/app"
+          python3 scripts/acceptance/a2-02-read-pilot/install_overlay.py "$app"
+          test ! -e "$app/tests/Feature/A2PageWiringTest.php"
+          cp -- scripts/acceptance/a2-02-browser-pilot/tests/Feature/A2BindingProductionTest.php "$app/tests/Feature/A2BindingProductionTest.php"
+          cp -- scripts/acceptance/a2-02-browser-pilot/tests/Feature/A2BrowserEmissionTest.php "$app/tests/Feature/A2BrowserEmissionTest.php"
+          cp -- scripts/acceptance/a2-08-native-chrome/tests/Feature/A2PageWiringTest.php "$app/tests/Feature/A2PageWiringTest.php"
+          mkdir -p "$app/public/js/browser-runtime"
+          cp -- scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs "$app/public/js/a2-surfacerelay-glue.mjs"
+          cp -- scripts/acceptance/a2-08-native-chrome/a2-surfacerelay-page.mjs "$app/public/js/a2-surfacerelay-page.mjs"
+          cp "$app/node_modules/@surfacerelay/browser-runtime/dist/"*.js "$app/public/js/browser-runtime/"
+          sha256sum "$app/public/js/a2-surfacerelay-glue.mjs" "$app/public/js/a2-surfacerelay-page.mjs" "$app/public/js/browser-runtime/index.js" > "$instance/a2-08-page-assets-sha256.txt"
+          cd "$app"
+          test -f database/database.sqlite || touch database/database.sqlite
+          php artisan migrate --force
+          A2_DESCRIPTOR_OUT=1 ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-02-b2-emission-junit.xml" tests/Feature/A2BrowserEmissionTest.php
+      - name: Recheck accepted A2-02a, B1 and B2 suites as regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$RUNNER_TEMP/a2-08-consumer/app"
+          cd "$app"
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-02a-regression-junit.xml" tests/Feature/A2OrdersInspectTest.php
+          python3 "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-read-pilot/check_junit.py" \
+            "$RUNNER_TEMP/a2-02a-regression-junit.xml" "$RUNNER_TEMP/a2-02a-regression.json"
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-02b-b1-junit.xml" tests/Feature/A2BindingProductionTest.php
+          python3 - "$RUNNER_TEMP/a2-02b-b1-junit.xml" "$RUNNER_TEMP/a2-02b-b1-regression.json" <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          from xml.etree import ElementTree
+          xml = Path(sys.argv[1])
+          cases = ElementTree.parse(xml).getroot().findall('.//testcase')
+          expected = {'test_exposed_method_parameters_match_canonical_input_schema', 'test_mounted_page_issues_one_exact_livewire_component_binding'}
+          names = [c.get('name') for c in cases]
+          assert len(names) == 2 and set(names) == expected, names
+          assert not any(any(c.find(t) is not None for t in ('error', 'failure', 'skipped')) for c in cases)
+          Path(sys.argv[2]).write_text(json.dumps({'gate': 'A2-02b-B1-regression', 'result': 'PASS_B1_BINDING_PRODUCTION_ONLY', 'tests': 2, 'headSha': os.environ['A2_SOURCE_SHA']}, indent=2) + '\n')
+          PY
+          python3 "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-browser-pilot/check_php_junit.py" \
+            "$RUNNER_TEMP/a2-02-b2-emission-junit.xml" "$RUNNER_TEMP/a2-02-b2-emission-result.json"
+          browser="$RUNNER_TEMP/a2-08-browser"
+          mkdir "$browser"
+          cp -- scripts/acceptance/a2-02-browser-pilot/browser/package.json "$browser/package.json"
+          cp -- scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs "$browser/a2-surfacerelay-glue.mjs"
+          mkdir "$browser/tests"
+          cp -- scripts/acceptance/a2-02-browser-pilot/browser/tests/a2-glue.test.mjs "$browser/tests/a2-glue.test.mjs"
+          npm --prefix "$browser" install --no-package-lock --ignore-scripts --no-audit --no-fund
+          A2_DESCRIPTOR_FILE="$RUNNER_TEMP/a2-08-consumer/app/storage/framework/surfacerelay/a2-descriptor.json" \
+            node --test --test-reporter=junit --test-reporter-destination="$RUNNER_TEMP/a2-02-b2-node-junit.xml" \
+            "$browser/tests/a2-glue.test.mjs"
+          python3 "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-browser-pilot/check_node_junit.py" \
+            "$RUNNER_TEMP/a2-02-b2-node-junit.xml" "$RUNNER_TEMP/a2-02-b2-node-result.json"
+      - name: Execute two A2-08 page wiring tests and verify exact receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/a2-08-consumer/app"
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/a2-08-wiring-junit.xml" tests/Feature/A2PageWiringTest.php
+          python3 "$GITHUB_WORKSPACE/scripts/acceptance/a2-08-native-chrome/check_wiring_junit.py" \
+            "$RUNNER_TEMP/a2-08-wiring-junit.xml" "$RUNNER_TEMP/a2-08-wiring-result.json"
+      - name: Preserve bounded A2-08 proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2-08-page-wiring-json
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/a2-08-preflight.json
+            ${{ runner.temp }}/a2-08-consumer/a2-01-lock-verification.json
+            ${{ runner.temp }}/a2-08-consumer/a2-01-critical-payload-verification.json
+            ${{ runner.temp }}/a2-08-consumer/a2-08-page-assets-sha256.txt
+            ${{ runner.temp }}/a2-02a-regression.json
+            ${{ runner.temp }}/a2-02b-b1-regression.json
+            ${{ runner.temp }}/a2-02-b2-emission-result.json
+            ${{ runner.temp }}/a2-02-b2-node-result.json
+            ${{ runner.temp }}/a2-08-wiring-result.json
+            ${{ runner.temp }}/a2-08-wiring-junit.xml

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\User;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -25,5 +27,25 @@ final class A2OrdersProvider extends ServiceProvider
                     ->where('tenant_id', $tenant)
                     ->exists();
         });
+
+        // A2-08 app-owned page wiring: inject the registration module on every
+        // panel page. The module self-guards — it registers only on a surface
+        // that exposes document.modelContext AND a component that carries the
+        // server-issued descriptor, so the login page and other pages register
+        // nothing. This injects discovery metadata delivery only; it issues no
+        // authority and the server re-checks every dispatch.
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_END,
+            static function (): string {
+                return sprintf(
+                    <<<'HTML'
+                    <script type="importmap">{"imports":{"@surfacerelay/browser-runtime":"%1$s"}}</script>
+                    <script type="module" src="%2$s"></script>
+                    HTML,
+                    asset('js/browser-runtime/index.js'),
+                    asset('js/a2-surfacerelay-page.mjs'),
+                );
+            },
+        );
     }
 }

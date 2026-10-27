@@ -6,11 +6,17 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. Natural next candidates: A2-08 (real Chrome
-`document.modelContext` discovery/invocation proof on the A2-02 consumer,
-per the [integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md))
-and the minimal quickstart work. Select exactly one explicitly before
-starting.
+Selected: A2-08 — real Chrome `document.modelContext` discovery/invocation
+proof on the A2-02 read-only consumer. LOCAL NATIVE PASS committed as
+receipts: discovery (`list_webmcp_tools` → exactly `a2.orders.inspect.v1`,
+readOnly), invocation through the agent surface (`execute_webmcp_tool` →
+envelope `returned`, server audit row delta — same server operation),
+negatives (forged/missing fail closed, foreign-tenant denial proven in
+server-owned state, unmount disposal, re-registration, guest sees no tools)
+on Chrome 155 + official chrome-devtools-mcp 1.10.1. Hosted page-wiring
+receipts pending on
+[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56). No write path,
+new driver, runtime change or release is in scope.
 
 ## Done
 
