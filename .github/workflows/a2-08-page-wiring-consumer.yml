@@ -97,10 +97,10 @@ jobs:
             "$RUNNER_TEMP/a2-02-b2-emission-junit.xml" "$RUNNER_TEMP/a2-02-b2-emission-result.json"
           browser="$RUNNER_TEMP/a2-08-browser"
           mkdir "$browser"
-          cp -- scripts/acceptance/a2-02-browser-pilot/browser/package.json "$browser/package.json"
-          cp -- scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs "$browser/a2-surfacerelay-glue.mjs"
+          cp -- "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-browser-pilot/browser/package.json" "$browser/package.json"
+          cp -- "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-browser-pilot/browser/a2-surfacerelay-glue.mjs" "$browser/a2-surfacerelay-glue.mjs"
           mkdir "$browser/tests"
-          cp -- scripts/acceptance/a2-02-browser-pilot/browser/tests/a2-glue.test.mjs "$browser/tests/a2-glue.test.mjs"
+          cp -- "$GITHUB_WORKSPACE/scripts/acceptance/a2-02-browser-pilot/browser/tests/a2-glue.test.mjs" "$browser/tests/a2-glue.test.mjs"
           npm --prefix "$browser" install --no-package-lock --ignore-scripts --no-audit --no-fund
           A2_DESCRIPTOR_FILE="$RUNNER_TEMP/a2-08-consumer/app/storage/framework/surfacerelay/a2-descriptor.json" \
             node --test --test-reporter=junit --test-reporter-destination="$RUNNER_TEMP/a2-02-b2-node-junit.xml" \
