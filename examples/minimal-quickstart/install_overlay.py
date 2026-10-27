@@ -26,7 +26,6 @@ def panel_user_source(original: str) -> str:
             or 'namespace App\\Models;' not in original
             or 'use Illuminate\\Foundation\\Auth\\User as Authenticatable;' not in original
             or original.count(USER_CLASS_MARKER) != 1
-            or original.endswith('\n}\n')
             or 'FilamentUser' in original or 'canAccessPanel' in original):
         raise ValueError('Unexpected Laravel User model; refusing panel access patch')
     return original.replace(
