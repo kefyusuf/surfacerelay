@@ -24,15 +24,16 @@ forged/missing input fail closed, the foreign-tenant denial is proven in
 server-owned page state, unmount disposes the lease, re-registration works,
 and an unauthenticated visitor sees no tools. Consumer-only changes: render
 hook page wiring, self-guarding registration module, staged setup scripts,
-hosted Chrome-free wiring tests. Hosted wiring receipts pending on
-[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56).
+hosted Chrome-free wiring tests. Hosted wiring receipts are GREEN on
+[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56)
+(`PASS_A2_08_PAGE_WIRING_ONLY` 2/2 plus A2-02a/B1/B2 regressions).
 
 ## Next gate
 
-Hosted page-wiring receipts green on
-[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56), then the owner
-merge decision; after that the next task is selected explicitly (minimal
-quickstart per the progression plan). No further registry write is required.
+Owner review and merge decision on
+[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56); after the merge
+the next task is selected explicitly (minimal quickstart per the progression
+plan). No further registry write is required.
 
 ## Limits and cleanup
 

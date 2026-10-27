@@ -2,17 +2,12 @@
 
 Open PR: [PR #56](https://github.com/kefyusuf/surfacerelay/pull/56) from
 `test/a2-08-native-chrome`. A2-08 — real Chrome `document.modelContext`
-discovery/invocation proof on the A2-02 read-only consumer — has a LOCAL
+discovery/invocation proof on the A2-02 read-only consumer — has BOTH a LOCAL
 NATIVE PASS with committed receipts
 ([pilot](scripts/acceptance/a2-08-native-chrome/README.md),
-`proof-result.json`, `guest-result.json`): Chrome 155 + WebMCP feature,
-official chrome-devtools-mcp 1.10.1 agent surface. Discovery exposes exactly
-`a2.orders.inspect.v1` (readOnly); invocation returns the B2 envelope and
-creates a server audit row (same server operation as the human route);
-forged/missing input fail closed; the foreign-tenant denial is proven in
-server-owned page state while the void-method envelope stays `returned`
-(documented semantics); unmount disposes the lease; re-registration works;
-an unauthenticated visitor sees no tools.
+`proof-result.json`, `guest-result.json`) AND hosted wiring receipts
+(`PASS_A2_08_PAGE_WIRING_ONLY` 2/2 plus A2-02a 12/12, B1 2/2, B2 emission 3/3
+and B2 Node 15/15 regressions) on this PR's guarded workflow.
 
 Consumer-only change set: a `BODY_END` render hook injecting one import map
 (published runtime bytes) plus a self-guarding registration module; staged
