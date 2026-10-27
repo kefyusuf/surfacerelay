@@ -97,8 +97,8 @@ final class QuickstartTest extends TestCase
 
     public function test_guest_cannot_mount_the_quickstart_page(): void
     {
-        $this->expectException(\Illuminate\Auth\AuthenticationException::class);
-
-        Livewire::test(ListQuickstartOrders::class);
+        // The panel's route middleware is the guest boundary; component-level
+        // mounting alone does not exercise it.
+        $this->get('/admin/quickstart-orders')->assertRedirect('/admin/login');
     }
 }
