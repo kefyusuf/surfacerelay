@@ -1,0 +1,3 @@
+## WebMCP tools
+name="a2.orders.inspect.v1", description="Read the existence of one order belonging to the authenticated tenant.
+SurfaceRelay execution envelope v1: inspect status and output. returned does not imply application success; inspect output.value for the application result. output.kind undefined means no returned value. execution_failed has unknown application outcome. Do not retry automatically; verify application state first. cancelled/not_dispatched means this callback did not invoke its driver.", inputSchema={"type":"object","properties":{"order_id":{"type":"integer","minimum":1}},"required":["order_id"],"additionalProperties":false}, annotations={"readOnly":true,"untrustedContent":false,"consequential":false,"debugging":false}

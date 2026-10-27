@@ -1,25 +1,23 @@
 # Review handoff
 
-No open PR. Two deliveries merged to `main` with green hosted checks:
+Open PR: [PR #56](https://github.com/kefyusuf/surfacerelay/pull/56) from
+`test/a2-08-native-chrome`. A2-08 — real Chrome `document.modelContext`
+discovery/invocation proof on the A2-02 read-only consumer — has BOTH a LOCAL
+NATIVE PASS with committed receipts
+([pilot](scripts/acceptance/a2-08-native-chrome/README.md),
+`proof-result.json`, `guest-result.json`) AND hosted wiring receipts
+(`PASS_A2_08_PAGE_WIRING_ONLY` 2/2 plus A2-02a 12/12, B1 2/2, B2 emission 3/3
+and B2 Node 15/15 regressions) on this PR's guarded workflow.
 
-- [PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) — T-912,
-  test-only repair of the Filament notification drift: the confirmation
-  approval integration test registers the Filament support/notifications
-  providers with array stores, restoring `assertNotified` capture under
-  Filament >= 5.10.2's scoped `NotificationMailbox`. Full `php-tests`
-  matrix is green again; the published `^5.0` support range is unchanged.
-- [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54) — A2-02 B2,
-  app-owned browser descriptor and wiring (consumer-only): the mounted
-  Filament page issues the exact descriptor document, the glue consumes
-  only the published alpha.3 root export, and hosted receipts pass
-  (`PASS_B2_DESCRIPTOR_EMISSION_ONLY` 3/3, `PASS_B2_BROWSER_WIRING_ONLY`
-  15/15, plus A2-02a 12/12 and B1 2/2 regressions). Real Chrome
-  `document.modelContext` discovery/invocation remains NOT RUN (A2-08).
+Consumer-only change set: a `BODY_END` render hook injecting one import map
+(published runtime bytes) plus a self-guarding registration module; staged
+consumer setup scripts; a hosted Chrome-free wiring test
+(`PASS_A2_08_PAGE_WIRING_ONLY` pending on this PR's workflow) with A2-02a/B1/B2
+regressions. No runtime, schema, fixture or release bytes changed.
 
-Security review focus for external reviewers: the descriptor stays public
-discovery metadata and never an authorization capability (negative emission
-test), and the Node suite proves forged input, stale binding, expired
-binding, unsupported surface and identity mismatch all fail closed.
-Evidence: [B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md),
-[B1 record](scripts/acceptance/a2-02b-binding-pilot/README.md),
-[A2-02 integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md).
+Security review focus: the render hook and module deliver discovery metadata
+only — registration requires both a native `document.modelContext` and a
+server-issued descriptor; the live guest negative shows no tools; the
+foreign-tenant denial stays server-owned; the invocation audit row proves the
+agent route reaches the same trusted pipeline. The former
+`php-tests` red is already fixed by merged T-912 (PR #55).

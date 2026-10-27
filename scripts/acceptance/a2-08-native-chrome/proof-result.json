@@ -1,0 +1,18 @@
+{
+  "gate": "A2-08-native-chrome-discovery-invocation",
+  "result": "PASS_A2_08_NATIVE_DISCOVERY_INVOCATION_ONLY",
+  "chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "baseUrl": "http://127.0.0.1:8080",
+  "discovery": "PASS",
+  "invocation": "PASS",
+  "negatives": {
+    "forged_tenant_field": "PASS",
+    "foreign_tenant_order_denied_in_state": "PASS",
+    "missing_required_input": "PASS",
+    "unmount_dispose": "PASS"
+  },
+  "auditRowsBefore": 7,
+  "auditRowsAfter": 8,
+  "reregistration": "PASS",
+  "scope": "Real Chrome document.modelContext discovery and invocation of the A2-02 read-only consumer tool. No write path, no release claim."
+}

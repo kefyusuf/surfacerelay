@@ -6,11 +6,13 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. Natural next candidates: A2-08 (real Chrome
-`document.modelContext` discovery/invocation proof on the A2-02 consumer,
-per the [integration gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md))
-and the minimal quickstart work. Select exactly one explicitly before
-starting.
+A2-08 hosted-verified on
+[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56): hosted page-wiring
+receipt `PASS_A2_08_PAGE_WIRING_ONLY` (2/2) with A2-02a (12/12), B1 (2/2),
+B2 emission (3/3) and B2 Node (15/15) regressions; the local native proof
+(`PASS_A2_08_NATIVE_DISCOVERY_INVOCATION_ONLY`, `PASS_A2_08_GUEST_NO_DISCOVERY`)
+is committed as receipts. Awaiting owner merge decision. No write path, new
+driver, runtime change or release is in scope.
 
 ## Done
 
