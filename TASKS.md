@@ -6,18 +6,20 @@ one-line entry; full history is in
 
 ## Open
 
-A2-08 hosted-verified on
-[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56): hosted page-wiring
-receipt `PASS_A2_08_PAGE_WIRING_ONLY` (2/2) with A2-02a (12/12), B1 (2/2),
-B2 emission (3/3) and B2 Node (15/15) regressions; the local native proof
-(`PASS_A2_08_NATIVE_DISCOVERY_INVOCATION_ONLY`, `PASS_A2_08_GUEST_NO_DISCOVERY`)
-is committed as receipts. Awaiting owner merge decision. No write path, new
-driver, runtime change or release is in scope.
+Selected: T-913 — verified minimal quickstart. One consumer-facing document
+(`docs/consumers/getting-started.md`) whose ~60 lines of consumer code — one
+read-only Action Definition, one explicit exposure on a Filament page, one
+self-guarding registration module — are proven verbatim by an example overlay
+and a PR-only CI job that installs a fresh registry consumer and runs the
+document's code end to end. Read-only scope; progressive hardening
+(confirmation, idempotency, redaction) is documented as later steps, not part
+of the quickstart. No runtime, schema, fixture or release change.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Real Chrome native proof | A2-08 `document.modelContext` discovery/invocation on the A2-02 read-only consumer: local native receipts (discovery, invocation + audit delta, forged/missing fail-closed, server-owned denial, unmount, re-registration, guest no-tools) and hosted wiring receipt `PASS_A2_08_PAGE_WIRING_ONLY` with A2-02a/B1/B2 regressions; delivered via [PR #56](https://github.com/kefyusuf/surfacerelay/pull/56) |
 | Filament notification drift repair | T-912 confirmation approval test registers the Filament support/notifications providers with array stores, restoring `assertNotified` under Filament >= 5.10.2's scoped `NotificationMailbox`; no production or constraint change; delivered via [PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) |
 | Independent A2 consumer gate | A2-01 registry-installed consumer gate ([PR #51](https://github.com/kefyusuf/surfacerelay/pull/51)); A2-02a server read-only dispatch (12 hosted Laravel tests) and A2-02b B1 mounted binding production (2 hosted tests) pass; A2-02 B2 descriptor emission (3/3) and browser wiring (15/15) receipts pass with A2-02a/B1 regressions, delivered via [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); [A2-02 gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md), [B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md) |
 | Coordinated alpha.3 publication | T-911 `0.1.0-alpha.3` published on npm/Packagist; immutable source/mirror/tags, 205 installed files, actual registry consumers, 23 HTTP/seven fault and nine native/SQL controls verified; [receipt](docs/reviews/alpha-0.1.0-alpha.3-publication.json) |

@@ -12,33 +12,25 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-A2-08 — real Chrome `document.modelContext` discovery/invocation proof on the
-A2-02 read-only consumer. LOCAL NATIVE PASS, receipts committed in
-[scripts/acceptance/a2-08-native-chrome](scripts/acceptance/a2-08-native-chrome/README.md):
-on Chrome 155 with the WebMCP feature and the official chrome-devtools-mcp
-1.10.1 agent surface, the app-owned page module registers the server-issued
-descriptor, `list_webmcp_tools` exposes exactly `a2.orders.inspect.v1`
-(readOnly), `execute_webmcp_tool` returns the B2 envelope and creates a server
-audit row (same server operation as the human route), and the negatives pass:
-forged/missing input fail closed, the foreign-tenant denial is proven in
-server-owned page state, unmount disposes the lease, re-registration works,
-and an unauthenticated visitor sees no tools. Consumer-only changes: render
-hook page wiring, self-guarding registration module, staged setup scripts,
-hosted Chrome-free wiring tests. Hosted wiring receipts are GREEN on
-[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56)
-(`PASS_A2_08_PAGE_WIRING_ONLY` 2/2 plus A2-02a/B1/B2 regressions).
+T-913 — verified minimal quickstart (selected; implementation starting). `main`
+is green and the A2 series is complete: server read (A2-02a), binding
+production (B1), browser wiring (B2, [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54))
+and the real Chrome native proof (A2-08, [PR #56](https://github.com/kefyusuf/surfacerelay/pull/56),
+local native receipts plus hosted `PASS_A2_08_PAGE_WIRING_ONLY`) are merged.
+The quickstart addresses the adoption gap: one consumer document whose code —
+one read-only Action Definition, one explicit exposure, one self-guarding
+registration module — is proven verbatim by a fresh registry consumer in CI.
+Read-only scope; no runtime, schema, fixture or release change.
 
 ## Next gate
 
-Owner review and merge decision on
-[PR #56](https://github.com/kefyusuf/surfacerelay/pull/56); after the merge
-the next task is selected explicitly (minimal quickstart per the progression
-plan). No further registry write is required.
+T-913 PR with the document, the verbatim example overlay and a green PR-only
+CI run proving the document's code on a fresh registry consumer.
 
 ## Limits and cleanup
 
 Experimental prerelease; no production/payment, SLA, performance or general native
 interoperability claim. Helper exclusion does not cover ordinary UI calls; deferred
 writes are not transactional. Unknown outcomes require state inspection before retry.
-Existing images/resources and both user Composer locks are kept; the A2-02
-consumer overlay and B1 test are tracked acceptance consumers, not runtime code.
+Existing images/resources and both user Composer locks are kept; the A2 acceptance
+consumers are tracked acceptance tooling, not runtime code.
