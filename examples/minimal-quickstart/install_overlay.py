@@ -74,10 +74,11 @@ def main() -> int:
                 if dest.exists() or dest.is_symlink():
                     raise ValueError(f'Refusing to replace existing consumer file: {dest}')
                 entries.append((file, dest))
-        expected = len(list((source / 'app').rglob('*.php'))) \
-            + len(list((source / 'database').rglob('*.php'))) \
-            + len(list((source / 'public').rglob('*.mjs'))) \
-            + len(list((source / 'tests').rglob('*')))
+        overlay_dirs = ('app', 'database', 'public', 'tests')
+        expected = sum(
+            1 for file in source.rglob('*')
+            if file.is_file() and file.relative_to(source).parts[0] in overlay_dirs
+        )
         if len(entries) != expected or expected == 0:
             raise ValueError(f'Unexpected overlay file count: {len(entries)} (expected {expected})')
 
