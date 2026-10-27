@@ -42,9 +42,12 @@ final class A2PageWiringTest extends TestCase
 
     public function test_panel_pages_serve_the_a2_registration_module_wiring(): void
     {
-        $html = Livewire::actingAs($this->member)
-            ->test(ListA2Orders::class)
-            ->html();
+        // The BODY_END render hook lives in the panel layout, so assert the
+        // full HTTP page, not the component-only HTML.
+        $response = $this->actingAs($this->member)->get('/admin/a2-orders');
+
+        $response->assertOk();
+        $html = $response->getContent();
 
         self::assertStringContainsString('type="importmap"', $html);
         self::assertStringContainsString('/js/browser-runtime/index.js', $html);
