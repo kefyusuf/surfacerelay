@@ -59,7 +59,7 @@ jobs:
           app="$instance/app"
           python3 scripts/acceptance/a2-02-read-pilot/install_overlay.py "$app"
           test ! -e "$app/tests/Feature/A2PageWiringTest.php"
-          cp -- scripts/acceptance/a2-02-browser-pilot/tests/Feature/A2BindingProductionTest.php "$app/tests/Feature/A2BindingProductionTest.php"
+          cp -- scripts/acceptance/a2-02b-binding-pilot/tests/Feature/A2BindingProductionTest.php "$app/tests/Feature/A2BindingProductionTest.php"
           cp -- scripts/acceptance/a2-02-browser-pilot/tests/Feature/A2BrowserEmissionTest.php "$app/tests/Feature/A2BrowserEmissionTest.php"
           cp -- scripts/acceptance/a2-08-native-chrome/tests/Feature/A2PageWiringTest.php "$app/tests/Feature/A2PageWiringTest.php"
           mkdir -p "$app/public/js/browser-runtime"
