@@ -6,17 +6,18 @@ one-line entry; full history is in
 
 ## Open
 
-T-913 hosted-verified on
-[PR #57](https://github.com/kefyusuf/surfacerelay/pull/57): the documented
-quickstart code runs on a fresh registry consumer with
-`PASS_T913_QUICKSTART_READ_ONLY` (5/5) and `PASS_T913_GLUE_NODE_ONLY` (3/3).
-Awaiting owner merge decision. No write path, new driver, runtime change or
-release is in scope.
+Selected: T-914 — first external consumer outreach. The quickstart is merged
+and CI-verified; this task prepares the honest ask: one outreach document, a
+structured feedback form, a GitHub consumer-feedback issue template, and a
+researched list of candidate open-source Filament/Livewire projects. Success
+is measured by one external maintainer completing the quickstart unassisted;
+no code changes, no new features, no release.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Verified minimal quickstart | T-913 `docs/consumers/getting-started.md` plus the verbatim [`examples/minimal-quickstart`](examples/minimal-quickstart/) overlay; fresh registry consumer CI: `PASS_T913_QUICKSTART_READ_ONLY` 5/5 and `PASS_T913_GLUE_NODE_ONLY` 3/3; delivered via [PR #57](https://github.com/kefyusuf/surfacerelay/pull/57) |
 | Real Chrome native proof | A2-08 `document.modelContext` discovery/invocation on the A2-02 read-only consumer: local native receipts (discovery, invocation + audit delta, forged/missing fail-closed, server-owned denial, unmount, re-registration, guest no-tools) and hosted wiring receipt `PASS_A2_08_PAGE_WIRING_ONLY` with A2-02a/B1/B2 regressions; delivered via [PR #56](https://github.com/kefyusuf/surfacerelay/pull/56) |
 | Filament notification drift repair | T-912 confirmation approval test registers the Filament support/notifications providers with array stores, restoring `assertNotified` under Filament >= 5.10.2's scoped `NotificationMailbox`; no production or constraint change; delivered via [PR #55](https://github.com/kefyusuf/surfacerelay/pull/55) |
 | Independent A2 consumer gate | A2-01 registry-installed consumer gate ([PR #51](https://github.com/kefyusuf/surfacerelay/pull/51)); A2-02a server read-only dispatch (12 hosted Laravel tests) and A2-02b B1 mounted binding production (2 hosted tests) pass; A2-02 B2 descriptor emission (3/3) and browser wiring (15/15) receipts pass with A2-02a/B1 regressions, delivered via [PR #54](https://github.com/kefyusuf/surfacerelay/pull/54); [A2-02 gate](scripts/acceptance/a2-alpha3/A2-02-INTEGRATION-GATE.md), [B2 pilot](scripts/acceptance/a2-02-browser-pilot/README.md) |
