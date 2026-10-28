@@ -60,7 +60,9 @@ Channel: GitHub discussion or issue on `tomatophp/filament-ecommerce`.
 ## Send checklist (per candidate)
 
 1. Re-verify `pushed_at` and the Filament constraint on the send day.
-2. Pick the channel from the draft; open the issue/discussion as @kefyusuf.
-3. Log the send in [CONTACT-LEDGER.md](CONTACT-LEDGER.md) with the link and date.
-4. Two-week cool-off before any follow-up; every reply (including "no") is
+2. `python scripts/check_docs_links.py` — every link a candidate may click
+   must resolve before outreach goes out.
+3. Pick the channel from the draft; open the issue/discussion as @kefyusuf.
+4. Log the send in [CONTACT-LEDGER.md](CONTACT-LEDGER.md) with the link and date.
+5. Two-week cool-off before any follow-up; every reply (including "no") is
    logged and converted into `consumer-feedback` issues where applicable.

@@ -931,7 +931,7 @@ git commit -m "docs(adapters): add authoring entry point"
 In `README.md`, keep the current start-here list and add a single discoverable entry:
 
 ```markdown
-6. [`docs/adapters/README.md`](docs/adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
+6. [`docs/adapters/README.md`](../../adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
 ```
 
 Do not rewrite the repository positioning or claim a public adapter SDK/certification surface.

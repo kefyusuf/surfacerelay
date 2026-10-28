@@ -24,7 +24,7 @@ This draft PR is stacked on the open plan branch `docs/t-804-release-facing-plan
 
 ## Approved plan handoff — preceding gate
 
-Active scope: **PLAN APPROVED / IMPLEMENTATION NOT STARTED**. Review [the approved plan](docs/superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md) on `docs/t-804-release-facing-plan`, based on main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290` (Validate 36986576898: 18/18 SUCCESS).
+Active scope: **PLAN APPROVED / IMPLEMENTATION NOT STARTED**. Review [the approved plan](../superpowers/plans/2026-10-02-release-facing-documentation-compatibility.md) on `docs/t-804-release-facing-plan`, based on main `e7d61ef2f044990d12d2aa4cca44a62c57e9e290` (Validate 36986576898: 18/18 SUCCESS).
 
 The plan defines README, two consumer guides, Unreleased changelog, SECURITY, compatibility/versioning and release-checklist work. This PR changes the plan and three tracking documents only; none of those future guides is implemented. Canonical validation and publication guard pass; link/scope checks and exact-head CI are verified before handoff completion.
 
