@@ -1,0 +1,77 @@
+name: Consumer feedback
+description: Report an external quickstart pass (or where it went wrong)
+title: "Consumer feedback: "
+labels: ["consumer-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for running the [minimal quickstart](https://github.com/kefyusuf/surfacerelay/blob/main/docs/consumers/getting-started.md)
+        on your own application. Every field is optional — a report that says
+        "I got stuck at step 2 and gave up" is a complete, valuable report.
+        Nothing here is used as a marketing endorsement.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, PHP, Laravel / Filament / Livewire versions, Chrome version and how WebMCP was enabled.
+    validations:
+      required: false
+  - type: input
+    id: time
+    attributes:
+      label: Time to complete
+      description: Total, and roughly per step (install / define / expose / wire / first discovery).
+    validations:
+      required: false
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Where you got stuck first
+      description: The exact step and the error text, if any. Also anything you had to do that the document did not say.
+    validations:
+      required: false
+  - type: textarea
+    id: comprehension
+    attributes:
+      label: Terms or steps that were unclear
+      description: e.g. Action Definition, Runtime Binding, descriptor, envelope, fail closed.
+    validations:
+      required: false
+  - type: textarea
+    id: trust
+    attributes:
+      label: Security-model questions
+      description: What felt risky or unexplained (caller input, tenant resolution, the Gate, the browser descriptor)? Would you expose this action in staging today?
+    validations:
+      required: false
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Did the tool appear in Chrome discovery and reach your server handler?
+      options:
+        - "Yes - discovery and invocation with audit row"
+        - "Partially"
+        - "No"
+        - "Did not get that far"
+    validations:
+      required: false
+  - type: input
+    id: onething
+    attributes:
+      label: The one change that would have made this a 30-minute task
+    validations:
+      required: false
+  - type: input
+    id: recommend
+    attributes:
+      label: Recommendation to a colleague (0-10)
+    validations:
+      required: false
+  - type: textarea
+    id: freeform
+    attributes:
+      label: Anything else
+      description: Including "this solved a problem I did not have".
+    validations:
+      required: false
