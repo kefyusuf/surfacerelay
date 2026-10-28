@@ -12,20 +12,20 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-914 — first external consumer outreach (selected; implementation starting).
-`main` is green and the delivery chain a new adopter touches is complete and
-CI-verified: the minimal quickstart ([PR #57](https://github.com/kefyusuf/surfacerelay/pull/57),
-`PASS_T913_QUICKSTART_READ_ONLY` 5/5 + `PASS_T913_GLUE_NODE_ONLY` 3/3), the
-browser wiring (B2, PR #54) and the real Chrome native proof (A2-08, PR #56).
-This task ships the honest ask — outreach text, structured feedback form, a
-consumer-feedback issue template and a researched candidate list — and then
-measures one unassisted external quickstart completion. No code changes.
+T-915 — first-contact drafts and outreach ledger (selected; implementation
+starting). T-914's kit is merged ([PR #58](https://github.com/kefyusuf/surfacerelay/pull/58)):
+the honest ask, the feedback instrument, the `consumer-feedback` issue
+template and the dated candidate research. This task makes the outreach
+send-ready: personalized drafts grounded in live-verified candidate state
+(liberu-ecommerce pushed 2026-10-27 on Filament ^5.11 — our exact verified
+stack; tomatophp active on ^5.0) and a contact ledger. Sending stays
+owner-authorized, one candidate at a time. Docs only; no code changes.
 
 ## Next gate
 
-T-914 PR (outreach kit + template + researched targets); after that, actual
-external outreach is an owner-authorized activity — a maintainer completes
-the quickstart unassisted, and their report becomes a decision-record input.
+T-915 PR; after that the outreach is blocked on one thing only — the owner
+sending the first message — and the first unassisted external quickstart
+completion becomes the success signal.
 
 ## Limits and cleanup
 
