@@ -12,19 +12,20 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-916 — consumer-facing decision guide (selected; implementation starting).
-T-915's send-ready drafts are merged
-([PR #59](https://github.com/kefyusuf/surfacerelay/pull/59)): the outreach
-phase is now blocked on one owner-authorized action — sending Draft 1 to the
-live-verified liberu candidate — while responses arrive in parallel. This
-task sharpens positioning where it affects adoption: the honest
-"when SurfaceRelay, when a plain MCP tool" decision guide
-([when-to-use.md](docs/consumers/when-to-use.md)), linked from the quickstart
-and POSITIONING. Docs only; no code changes.
+T-917 — outreach intake readiness (selected; implementation on branch).
+T-916's decision guide is merged ([PR #60](https://github.com/kefyusuf/surfacerelay/pull/60))
+and linked from POSITIONING and the quickstart. This task closes the intake
+side before any outreach goes out: [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md)
+(triage categories, one-report-vs-two evidence rules, running metrics,
+reporter loop-closure) and a docs link-integrity checker
+([scripts/check_docs_links.py](scripts/check_docs_links.py)) — 255 links
+verified, six broken root-absolute-style pointers fixed, the check added to
+the per-candidate send checklist. Docs and one standalone script; no runtime
+code changes.
 
 ## Next gate
 
-T-916 PR; after that the repository-side queue is intentionally empty — the
+T-917 PR; after that the repository-side queue is intentionally empty — the
 loop waits on external signals (the owner's first outreach send and filed
 consumer-feedback reports) before any new feature work.
 

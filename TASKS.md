@@ -6,14 +6,19 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: T-916 — consumer-facing decision guide "when to use SurfaceRelay
-and when a plain MCP tool is enough", completing the Faz 4 positioning
-sharpening. Docs only; no code changes.
+Selected: T-917 — outreach intake readiness. The report-processing intake
+([REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md): triage
+categories, one-report-vs-two evidence rules, running metrics) and the docs
+link-integrity checker ([scripts/check_docs_links.py](scripts/check_docs_links.py),
+255 links verified, six root-absolute-style broken pointers fixed) — the
+candidates will click those links. Docs and one standalone script; no code
+changes.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| When-to-use decision guide | T-916 [when-to-use.md](docs/consumers/when-to-use.md): honest exclusion of stateless CRUD up front, decision table, niche signals, per-action cost; POSITIONING and the quickstart link to it; delivered via [PR #60](https://github.com/kefyusuf/surfacerelay/pull/60) |
 | Send-ready contact drafts | T-915 [DRAFTS.md](docs/consumers/outreach/DRAFTS.md) (two personalized drafts + generic template), append-only [contact ledger](docs/consumers/outreach/CONTACT-LEDGER.md), live-verification stamps on the candidate research (liberu pushed 2026-10-27 on Filament ^5.11 — exact stack match); delivered via [PR #59](https://github.com/kefyusuf/surfacerelay/pull/59) |
 | External consumer outreach kit | T-914 [OUTREACH.md](docs/consumers/outreach/OUTREACH.md), 14-field [feedback form](docs/consumers/outreach/FEEDBACK-FORM.md), GitHub `consumer-feedback` issue template and dated [candidate research](docs/consumers/outreach/TARGETS.md); delivered via [PR #58](https://github.com/kefyusuf/surfacerelay/pull/58) |
 | Verified minimal quickstart | T-913 `docs/consumers/getting-started.md` plus the verbatim [`examples/minimal-quickstart`](examples/minimal-quickstart/) overlay; fresh registry consumer CI: `PASS_T913_QUICKSTART_READ_ONLY` 5/5 and `PASS_T913_GLUE_NODE_ONLY` 3/3; delivered via [PR #57](https://github.com/kefyusuf/surfacerelay/pull/57) |
