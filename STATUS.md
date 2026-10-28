@@ -12,20 +12,21 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-915 — first-contact drafts and outreach ledger (selected; implementation
-starting). T-914's kit is merged ([PR #58](https://github.com/kefyusuf/surfacerelay/pull/58)):
-the honest ask, the feedback instrument, the `consumer-feedback` issue
-template and the dated candidate research. This task makes the outreach
-send-ready: personalized drafts grounded in live-verified candidate state
-(liberu-ecommerce pushed 2026-10-27 on Filament ^5.11 — our exact verified
-stack; tomatophp active on ^5.0) and a contact ledger. Sending stays
-owner-authorized, one candidate at a time. Docs only; no code changes.
+T-916 — consumer-facing decision guide (selected; implementation starting).
+T-915's send-ready drafts are merged
+([PR #59](https://github.com/kefyusuf/surfacerelay/pull/59)): the outreach
+phase is now blocked on one owner-authorized action — sending Draft 1 to the
+live-verified liberu candidate — while responses arrive in parallel. This
+task sharpens positioning where it affects adoption: the honest
+"when SurfaceRelay, when a plain MCP tool" decision guide
+([when-to-use.md](docs/consumers/when-to-use.md)), linked from the quickstart
+and POSITIONING. Docs only; no code changes.
 
 ## Next gate
 
-T-915 PR; after that the outreach is blocked on one thing only — the owner
-sending the first message — and the first unassisted external quickstart
-completion becomes the success signal.
+T-916 PR; after that the repository-side queue is intentionally empty — the
+loop waits on external signals (the owner's first outreach send and filed
+consumer-feedback reports) before any new feature work.
 
 ## Limits and cleanup
 
