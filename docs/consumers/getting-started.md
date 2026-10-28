@@ -16,6 +16,13 @@ You will NOT find write paths, confirmation receipts, idempotency keys, output
 redaction or multi-tenancy plumbing here. Those are real requirements for real
 actions and are documented as later steps (see *After the quickstart*).
 
+## Before you start
+
+Is this the right tool for your action? Read the honest decision guide in
+[when-to-use.md](when-to-use.md): stateless actions over clean endpoints are
+better served by plain MCP tools; SurfaceRelay pays for itself when the
+action's meaning depends on live application surface state.
+
 ## Prerequisites
 
 - Laravel 13 with Filament 5 and a login-protected admin panel.

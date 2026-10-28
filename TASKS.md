@@ -6,18 +6,15 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: T-915 — first-contact drafts and outreach ledger. Personalized,
-honest, ready-to-send messages for the two live-verified candidates
-(liberu-ecommerce: pushed 2026-10-27 on Filament ^5.11/Laravel ^13.38/Livewire
-^4.4.8 — our exact verified stack; tomatophp/filament-ecommerce: active
-Filament ^5.0 plugin) plus a generic template for the third candidate, and a
-contact ledger. Sending remains owner-authorized and one-at-a-time. Docs
-only; no code changes.
+Selected: T-916 — consumer-facing decision guide "when to use SurfaceRelay
+and when a plain MCP tool is enough", completing the Faz 4 positioning
+sharpening. Docs only; no code changes.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Send-ready contact drafts | T-915 [DRAFTS.md](docs/consumers/outreach/DRAFTS.md) (two personalized drafts + generic template), append-only [contact ledger](docs/consumers/outreach/CONTACT-LEDGER.md), live-verification stamps on the candidate research (liberu pushed 2026-10-27 on Filament ^5.11 — exact stack match); delivered via [PR #59](https://github.com/kefyusuf/surfacerelay/pull/59) |
 | External consumer outreach kit | T-914 [OUTREACH.md](docs/consumers/outreach/OUTREACH.md), 14-field [feedback form](docs/consumers/outreach/FEEDBACK-FORM.md), GitHub `consumer-feedback` issue template and dated [candidate research](docs/consumers/outreach/TARGETS.md); delivered via [PR #58](https://github.com/kefyusuf/surfacerelay/pull/58) |
 | Verified minimal quickstart | T-913 `docs/consumers/getting-started.md` plus the verbatim [`examples/minimal-quickstart`](examples/minimal-quickstart/) overlay; fresh registry consumer CI: `PASS_T913_QUICKSTART_READ_ONLY` 5/5 and `PASS_T913_GLUE_NODE_ONLY` 3/3; delivered via [PR #57](https://github.com/kefyusuf/surfacerelay/pull/57) |
 | Real Chrome native proof | A2-08 `document.modelContext` discovery/invocation on the A2-02 read-only consumer: local native receipts (discovery, invocation + audit delta, forged/missing fail-closed, server-owned denial, unmount, re-registration, guest no-tools) and hosted wiring receipt `PASS_A2_08_PAGE_WIRING_ONLY` with A2-02a/B1/B2 regressions; delivered via [PR #56](https://github.com/kefyusuf/surfacerelay/pull/56) |

@@ -19,3 +19,9 @@ Define a Laravel action once and safely bind it to Livewire/Filament pages, WebM
 - Not a new browser standard.
 - Not a universal agent protocol yet.
 - Not automatic AI enablement for every backend method.
+
+## See also
+
+The consumer-facing decision guide — when the contract layer pays for itself
+and when a plain MCP tool is enough — lives in
+[consumers/when-to-use.md](consumers/when-to-use.md).
