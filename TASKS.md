@@ -6,18 +6,16 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: T-917 — outreach intake readiness. The report-processing intake
-([REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md): triage
-categories, one-report-vs-two evidence rules, running metrics) and the docs
-link-integrity checker ([scripts/check_docs_links.py](scripts/check_docs_links.py),
-255 links verified, six root-absolute-style broken pointers fixed) — the
-candidates will click those links. Docs and one standalone script; no code
-changes.
+Selected: T-918 — WebMCP momentum watch (Faz 5). A dated monitoring note
+defining the signals this project's WebMCP bet depends on, the pre-agreed
+pivot per outcome, and an append-only observation log. Monitoring only; no
+code changes.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Outreach intake readiness | T-917 [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md) (triage categories, evidence rules, metrics, loop-closure) plus the standalone [docs link checker](scripts/check_docs_links.py) — 255 links verified, six broken pointers fixed, check added to the send checklist; delivered via [PR #61](https://github.com/kefyusuf/surfacerelay/pull/61) |
 | When-to-use decision guide | T-916 [when-to-use.md](docs/consumers/when-to-use.md): honest exclusion of stateless CRUD up front, decision table, niche signals, per-action cost; POSITIONING and the quickstart link to it; delivered via [PR #60](https://github.com/kefyusuf/surfacerelay/pull/60) |
 | Send-ready contact drafts | T-915 [DRAFTS.md](docs/consumers/outreach/DRAFTS.md) (two personalized drafts + generic template), append-only [contact ledger](docs/consumers/outreach/CONTACT-LEDGER.md), live-verification stamps on the candidate research (liberu pushed 2026-10-27 on Filament ^5.11 — exact stack match); delivered via [PR #59](https://github.com/kefyusuf/surfacerelay/pull/59) |
 | External consumer outreach kit | T-914 [OUTREACH.md](docs/consumers/outreach/OUTREACH.md), 14-field [feedback form](docs/consumers/outreach/FEEDBACK-FORM.md), GitHub `consumer-feedback` issue template and dated [candidate research](docs/consumers/outreach/TARGETS.md); delivered via [PR #58](https://github.com/kefyusuf/surfacerelay/pull/58) |

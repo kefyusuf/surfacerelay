@@ -12,22 +12,20 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-917 — outreach intake readiness (selected; implementation on branch).
-T-916's decision guide is merged ([PR #60](https://github.com/kefyusuf/surfacerelay/pull/60))
-and linked from POSITIONING and the quickstart. This task closes the intake
-side before any outreach goes out: [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md)
-(triage categories, one-report-vs-two evidence rules, running metrics,
-reporter loop-closure) and a docs link-integrity checker
-([scripts/check_docs_links.py](scripts/check_docs_links.py)) — 255 links
-verified, six broken root-absolute-style pointers fixed, the check added to
-the per-candidate send checklist. Docs and one standalone script; no runtime
-code changes.
+T-918 — WebMCP momentum watch (Faz 5; selected, implementation on branch).
+T-917's intake readiness is merged ([PR #61](https://github.com/kefyusuf/surfacerelay/pull/61))
+plus one missed link repair completed on `main` (0c69288; 260/260 links
+resolve). The outreach phase stays blocked on the owner sending
+[Draft 1](docs/consumers/outreach/DRAFTS.md). This task converts the
+remaining conditional bet (Faz 5) into a dated monitoring note: the WebMCP
+signals to watch, the pre-agreed pivot per outcome, and an append-only log.
+Monitoring only; no code changes.
 
 ## Next gate
 
-T-917 PR; after that the repository-side queue is intentionally empty — the
-loop waits on external signals (the owner's first outreach send and filed
-consumer-feedback reports) before any new feature work.
+T-918 PR; then the repository-side queue is empty by design — external
+signals (the first outreach send, filed consumer-feedback reports, WebMCP
+momentum entries) drive everything that follows.
 
 ## Limits and cleanup
 
