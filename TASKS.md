@@ -6,14 +6,12 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: T-913 — verified minimal quickstart. One consumer-facing document
-(`docs/consumers/getting-started.md`) whose ~60 lines of consumer code — one
-read-only Action Definition, one explicit exposure on a Filament page, one
-self-guarding registration module — are proven verbatim by an example overlay
-and a PR-only CI job that installs a fresh registry consumer and runs the
-document's code end to end. Read-only scope; progressive hardening
-(confirmation, idempotency, redaction) is documented as later steps, not part
-of the quickstart. No runtime, schema, fixture or release change.
+T-913 hosted-verified on
+[PR #57](https://github.com/kefyusuf/surfacerelay/pull/57): the documented
+quickstart code runs on a fresh registry consumer with
+`PASS_T913_QUICKSTART_READ_ONLY` (5/5) and `PASS_T913_GLUE_NODE_ONLY` (3/3).
+Awaiting owner merge decision. No write path, new driver, runtime change or
+release is in scope.
 
 ## Done
 

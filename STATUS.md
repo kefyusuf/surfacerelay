@@ -20,12 +20,18 @@ local native receipts plus hosted `PASS_A2_08_PAGE_WIRING_ONLY`) are merged.
 The quickstart addresses the adoption gap: one consumer document whose code —
 one read-only Action Definition, one explicit exposure, one self-guarding
 registration module — is proven verbatim by a fresh registry consumer in CI.
-Read-only scope; no runtime, schema, fixture or release change.
+Hosted receipts are GREEN on
+[PR #57](https://github.com/kefyusuf/surfacerelay/pull/57)
+(`PASS_T913_QUICKSTART_READ_ONLY` 5/5 plus `PASS_T913_GLUE_NODE_ONLY` 3/3);
+README now points new adopters at the quickstart. Read-only scope; no runtime,
+schema, fixture or release change.
 
 ## Next gate
 
-T-913 PR with the document, the verbatim example overlay and a green PR-only
-CI run proving the document's code on a fresh registry consumer.
+Owner review and merge decision on
+[PR #57](https://github.com/kefyusuf/surfacerelay/pull/57). After the merge,
+the highest-value next step is the first real external consumer, not new
+features.
 
 ## Limits and cleanup
 

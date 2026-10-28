@@ -1,0 +1,116 @@
+name: T-913 quickstart verified consumer
+
+# PR-only proof that the documented quickstart code works on a fresh
+# registry consumer; never workflow_dispatch.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/t913-quickstart-consumer.yml'
+      - 'examples/minimal-quickstart/**'
+      - 'docs/consumers/getting-started.md'
+
+permissions:
+  contents: read
+
+jobs:
+  quickstart-consumer:
+    if: github.head_ref == 'docs/t-913-minimal-quickstart' && github.event.pull_request.head.repo.full_name == 'kefyusuf/surfacerelay'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      COMPOSER_NO_INTERACTION: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          extensions: mbstring, pdo_sqlite, sqlite3, xml, zip, openssl, intl, fileinfo
+          coverage: none
+      - name: Preflight and lint the documented quickstart code
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/acceptance/a2-alpha3/preflight.py --output "$RUNNER_TEMP/t913-preflight.json"
+          find examples/minimal-quickstart/app examples/minimal-quickstart/database -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Install clean registry-only Laravel 13 and Filament 5 consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/acceptance/a2-alpha3/run_a2_01.sh "$RUNNER_TEMP/t913-consumer"
+      - name: Apply the documented quickstart overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$RUNNER_TEMP/t913-consumer/app"
+          python3 examples/minimal-quickstart/install_overlay.py "$app"
+          # Serve the published runtime bytes the document's import map points to.
+          mkdir -p "$app/public/js/browser-runtime"
+          cp "$app/node_modules/@surfacerelay/browser-runtime/dist/"*.js "$app/public/js/browser-runtime/"
+      - name: Run the quickstart PHPUnit acceptance on the fresh consumer
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/t913-consumer/app"
+          test -f database/database.sqlite || touch database/database.sqlite
+          php artisan migrate --force
+          ./vendor/bin/phpunit --log-junit "$RUNNER_TEMP/t913-junit.xml" tests/Feature/QuickstartTest.php
+          python3 "$GITHUB_WORKSPACE/examples/minimal-quickstart/check_junit.py" \
+            "$RUNNER_TEMP/t913-junit.xml" "$RUNNER_TEMP/t913-result.json"
+      - name: Run the quickstart browser-glue Node suite against the published package
+        shell: bash
+        run: |
+          set -euo pipefail
+          suite="$RUNNER_TEMP/t913-node"
+          mkdir -p "$suite/public/js" "$suite/tests"
+          cp -- "$GITHUB_WORKSPACE/examples/minimal-quickstart/public/js/quickstart-register.mjs" "$suite/public/js/quickstart-register.mjs"
+          cp -- "$GITHUB_WORKSPACE/examples/minimal-quickstart/tests/quickstart-register.test.mjs" "$suite/tests/quickstart-register.test.mjs"
+          printf '%s\n' '{"name":"t913-quickstart-glue","private":true,"type":"module","dependencies":{"@surfacerelay/browser-runtime":"0.1.0-alpha.3"}}' > "$suite/package.json"
+          npm --prefix "$suite" install --no-package-lock --ignore-scripts --no-audit --no-fund
+          cd "$suite"
+          node --test --test-reporter=junit --test-reporter-destination="$RUNNER_TEMP/t913-node-junit.xml" tests/quickstart-register.test.mjs
+          python3 - "$RUNNER_TEMP/t913-node-junit.xml" "$RUNNER_TEMP/t913-node-result.json" <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          from xml.etree import ElementTree
+          xml = Path(sys.argv[1])
+          cases = ElementTree.parse(xml).getroot().findall('.//testcase')
+          expected = {
+              'test_glue_registers_exactly_one_tool_with_published_projection_contract',
+              'test_void_dispatch_returns_envelope_undefined_output',
+              'test_forged_extra_input_is_rejected_before_dispatch',
+          }
+          names = [c.get('name') for c in cases]
+          assert len(names) == 3 and set(names) == expected, names
+          assert not any(any(c.find(t) is not None for t in ('error', 'failure', 'skipped')) for c in cases)
+          Path(sys.argv[2]).write_text(json.dumps({
+              'gate': 'T-913-quickstart-glue', 'result': 'PASS_T913_GLUE_NODE_ONLY',
+              'tests': 3, 'headSha': os.environ.get('GITHUB_SHA', 'local'),
+          }, indent=2) + '\n')
+          PY
+      - name: Preserve bounded T-913 proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t913-quickstart-json
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/t913-preflight.json
+            ${{ runner.temp }}/t913-consumer/a2-01-lock-verification.json
+            ${{ runner.temp }}/t913-consumer/a2-01-critical-payload-verification.json
+            ${{ runner.temp }}/t913-result.json
+            ${{ runner.temp }}/t913-node-result.json
+            ${{ runner.temp }}/t913-junit.xml
+            ${{ runner.temp }}/t913-node-junit.xml
