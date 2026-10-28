@@ -22,7 +22,7 @@ needed — only the published `0.1.0-alpha.3` packages and your app.
   trusted.
 - The path is CI-verified end to end on a fresh registry consumer; the real
   Chrome discovery/invocation proof is public
-  ([A2-08 evidence](../../scripts/acceptance/a2-08-native-chrome/README.md)).
+  ([A2-08 evidence](../../../scripts/acceptance/a2-08-native-chrome/README.md)).
 - Your report directly shapes the next release: blockers and terminology
   confusion go into the decision register as first-class inputs.
 
