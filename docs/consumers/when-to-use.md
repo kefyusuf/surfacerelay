@@ -2,7 +2,7 @@
 
 > **Experimental project; unofficial.** This guide states implemented behavior
 > only: the proven surface today is **read-only, page-scoped actions** with
-> hosted receipts ([getting started](getting-started.md)); the write/
+> hosted acceptance receipts ([getting started](getting-started.md)); the write/
 > consequential path is designed but not acceptance-complete (A2-04…A2-07).
 
 The honest starting point: **if your action is stateless and its input fully

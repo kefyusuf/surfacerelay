@@ -36,6 +36,11 @@ async function register() {
   if (lease) return;
   const descriptor = descriptorFromMountedComponents();
   if (!descriptor) return;
+  if (descriptor.definition.id !== descriptor.binding.action?.id
+    || descriptor.definition.version !== descriptor.binding.action?.version) {
+    window.__quickstartRegistration = { registered: false, reason: 'identity_mismatch' };
+    return;
+  }
   const modelContext = resolveDocumentModelContext(document);
   if (modelContext === null) {
     window.__quickstartRegistration = { registered: false, reason: 'model_context_unavailable' };
@@ -46,8 +51,15 @@ async function register() {
   drivers.register('livewire', new LivewireBrowserDriver(new GlobalLivewireBrowserRuntime()));
 
   const lifecycle = new WebMcpRegistrationLifecycle(modelContext, drivers, { resultMode: 'envelope' });
-  lease = await lifecycle.register([{ definition: descriptor.definition, binding: descriptor.binding }]);
-  window.__quickstartRegistration = { registered: true, reason: null };
+  try {
+    lease = await lifecycle.register([{ definition: descriptor.definition, binding: descriptor.binding }]);
+    window.__quickstartRegistration = { registered: true, reason: null };
+  } catch {
+    // Registration failed (identity, duplicate tool, surface rejection):
+    // report it diagnostically instead of leaving an unhandled rejection.
+    lease = null;
+    window.__quickstartRegistration = { registered: false, reason: 'registration_threw' };
+  }
 }
 
 function dispose() {

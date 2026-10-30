@@ -12,22 +12,22 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. The repository-side queue is intentionally
-empty and everything a new adopter touches is merged with green checks: the
-A2 series (server read, binding production, browser wiring B2, real Chrome
-native proof A2-08), the minimal quickstart (T-913), the outreach kit and
-send-ready drafts (T-914/T-915), the when-to-use decision guide (T-916), the
-report intake process plus docs link checker (T-917), and the WebMCP momentum
-watch (T-918). A local verification sweep on this machine additionally ran
-the full Python suite (195 tests, one pre-existing Windows skip now fixed by
-T-919) and the browser-runtime vitest suite (508/508).
+T-920 — independent QA follow-ups (selected; PR pending). An adversarial sub
+agent review reproduced the verification baseline exactly, reviewed 11
+consumer-facing files against all architecture rules (no critical or major
+findings), and verified the quickstart document is verbatim-faithful to the
+shipped example. Its two cosmetic recommendations are fixed here: the
+quickstart glue catches registration failures diagnostically and pre-checks
+descriptor identity; when-to-use.md disambiguates "hosted acceptance
+receipts" from confirmation receipts. The owner has parked the first
+outreach send (Draft 1) for later; no runtime code changes.
 
 ## Next gate
 
-New task selection comes from three signal sources only: (1) the owner's
-first outreach send and any `consumer-feedback` reports, (2) monthly entries
-in the [WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md),
-(3) an owner decision. Do not start feature work without one of these.
+Merge of the T-920 QA follow-ups; after that the repository-side queue is
+empty by design — next task selection comes from the three signal sources
+(the parked outreach send, consumer-feedback reports, monthly momentum
+watch entries) or an owner decision.
 
 ## Limits and cleanup
 
