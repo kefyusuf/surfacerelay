@@ -140,16 +140,19 @@ class ExternalReviewRegressionTest(unittest.TestCase):
         self.assertTrue(any("unexpected target" in error for error in errors), errors)
 
     def test_repo_relative_harness_command_runs_from_repository_root(self):
-        original_cwd = Path.cwd()
-        try:
-            with tempfile.TemporaryDirectory() as tmp:
+        # The CWD is restored BEFORE TemporaryDirectory cleanup: on Windows a
+        # directory that is still the process working directory cannot be
+        # removed, which made this test error on every Windows run.
+        with tempfile.TemporaryDirectory() as tmp:
+            original_cwd = Path.cwd()
+            try:
                 os.chdir(tmp)
                 result = run_harness(
                     [sys.executable, str(FAKE_RELATIVE), "valid"],
                     request(),
                 )
-        finally:
-            os.chdir(original_cwd)
+            finally:
+                os.chdir(original_cwd)
 
         self.assertEqual(PASS, result.status, result.infrastructure_error)
 
