@@ -1,30 +1,25 @@
 # Review handoff
 
-Open PR: T-918 from `docs/t918-webmcp-watch` — the Faz 5 momentum watch
-([docs/plans/2026-10-28-webmcp-momentum-watch.md](docs/plans/2026-10-28-webmcp-momentum-watch.md)),
-converting the project's last conditional bet into a defined monitoring
-process: six signals (unflagged Chrome stable ship, second Chromium browser,
-chrome-devtools-mcp graduation, `document.modelContext` API changes,
-two-quarter stall → MCP-first re-weight, competing adoption → positioning
-review) each with a **pre-agreed pivot**, an append-only monthly observation
-log with the 2026-10-28 baseline, and rules that keep predictions out of the
-log and task selection inside `STATUS.md`/`TASKS.md`. Monitoring only; no
-runtime, schema, fixture or release bytes change.
+No open PR. All recent deliveries are merged with green hosted checks:
+T-918 WebMCP momentum watch ([PR #62](https://github.com/kefyusuf/surfacerelay/pull/62))
+and T-919 Windows test-harness portability fix
+([PR #63](https://github.com/kefyusuf/surfacerelay/pull/63)), on top of the
+outreach kit (PR #58), contact drafts (PR #59), decision guide (PR #60),
+intake readiness (PR #61), quickstart (PR #57), browser wiring (PR #54),
+native Chrome proof (PR #56) and drift repair (PR #55).
 
-Also on `main` this cycle: T-917 merged ([PR #61](https://github.com/kefyusuf/surfacerelay/pull/61))
-plus one missed OUTREACH.md link-depth repair completed directly (0c69288;
-260/260 links resolve — now 262 with this PR).
+The repository-side queue is intentionally empty: next task selections come
+from three signal sources only — the owner's first outreach send plus
+`consumer-feedback` reports (intake: [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md)),
+monthly [momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md)
+entries, or an owner decision.
 
-Context of the standing queue: the outreach phase is blocked on one
-owner-authorized action — sending
-[Draft 1](docs/consumers/outreach/DRAFTS.md) (live-verified liberu
-candidate); consumer reports will arrive through the
-`consumer-feedback` template with a defined intake; WebMCP momentum entries
-land monthly. **After this PR, the repository-side queue is empty by
-design** — every next task selection should come from one of those three
-signal sources.
-
-Review focus: the pivots are pre-agreed (so momentum observations cannot be
-argued into scope creep), signal #4 respects ADR-0005 isolation and the
-public-contract decision rule, and the baseline statements match the A2-08
-evidence.
+Full local verification sweep (Windows machine, 2026-10-30): `validate.py`
+green; 261→262 relative links resolve; Python suite 195 tests (one
+environment skip, one Windows-only cleanup failure found and fixed by T-919);
+browser-runtime vitest 508/508. External-review entry points for a fresh
+reviewer: [getting-started](docs/consumers/getting-started.md),
+[when-to-use](docs/consumers/when-to-use.md),
+[OUTREACH](docs/consumers/outreach/OUTREACH.md), the
+[A2-08 native proof](scripts/acceptance/a2-08-native-chrome/README.md) and
+the [alpha.3 release record](docs/releases/0.1.0-alpha.3-publication.md).

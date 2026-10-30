@@ -12,20 +12,22 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-918 — WebMCP momentum watch (Faz 5; selected, implementation on branch).
-T-917's intake readiness is merged ([PR #61](https://github.com/kefyusuf/surfacerelay/pull/61))
-plus one missed link repair completed on `main` (0c69288; 260/260 links
-resolve). The outreach phase stays blocked on the owner sending
-[Draft 1](docs/consumers/outreach/DRAFTS.md). This task converts the
-remaining conditional bet (Faz 5) into a dated monitoring note: the WebMCP
-signals to watch, the pre-agreed pivot per outcome, and an append-only log.
-Monitoring only; no code changes.
+No implementation task selected. The repository-side queue is intentionally
+empty and everything a new adopter touches is merged with green checks: the
+A2 series (server read, binding production, browser wiring B2, real Chrome
+native proof A2-08), the minimal quickstart (T-913), the outreach kit and
+send-ready drafts (T-914/T-915), the when-to-use decision guide (T-916), the
+report intake process plus docs link checker (T-917), and the WebMCP momentum
+watch (T-918). A local verification sweep on this machine additionally ran
+the full Python suite (195 tests, one pre-existing Windows skip now fixed by
+T-919) and the browser-runtime vitest suite (508/508).
 
 ## Next gate
 
-T-918 PR; then the repository-side queue is empty by design — external
-signals (the first outreach send, filed consumer-feedback reports, WebMCP
-momentum entries) drive everything that follows.
+New task selection comes from three signal sources only: (1) the owner's
+first outreach send and any `consumer-feedback` reports, (2) monthly entries
+in the [WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md),
+(3) an owner decision. Do not start feature work without one of these.
 
 ## Limits and cleanup
 
