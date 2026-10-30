@@ -6,25 +6,23 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. The repository-side queue is intentionally
-empty — new task selections come from three signal sources only:
-1. the owner's first outreach send
-   ([DRAFTS.md](docs/consumers/outreach/DRAFTS.md), live-verified liberu
-   candidate) and any filed
-   [consumer-feedback](.github/ISSUE_TEMPLATE/consumer-feedback.yml) reports
-   (intake process: [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md));
-2. monthly entries in the
-   [WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md)
-   (each signal has a pre-agreed pivot);
-3. an owner decision on any standing item.
+Selected: T-920 — independent QA follow-ups. A fresh adversarial sub agent
+review reproduced the verification baseline exactly (195 Python tests OK,
+508 vitest tests, 271 links, validate green), reviewed 11 consumer-facing
+files against all architecture rules with no critical or major findings, and
+verified the quickstart document is verbatim-faithful to the shipped example.
+Two cosmetic gaps fixed here: the quickstart glue catches registration
+failures diagnostically (matching the A2 module) and pre-checks descriptor
+identity; when-to-use.md disambiguates "hosted acceptance receipts" from
+confirmation receipts. Docs and one glue module; no runtime changes.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Independent QA follow-ups | Adversarial sub agent review: baseline reproduced exactly (195 Python tests, 508 vitest, 271 links, validate green), 11 consumer-facing files clean against all architecture rules, quickstart doc verbatim-faithful; two cosmetic follow-ups fixed (glue try/catch + identity pre-check, acceptance-receipts wording); outreach send parked by owner decision |
 | WebMCP momentum watch | T-918 [docs/plans/2026-10-28-webmcp-momentum-watch.md](docs/plans/2026-10-28-webmcp-momentum-watch.md): six signals with pre-agreed pivots (unflagged stable ship, second browser, DevTools MCP graduation, API changes, two-quarter stall → MCP-first re-weight, competing adoption) and an append-only monthly log; delivered via [PR #62](https://github.com/kefyusuf/surfacerelay/pull/62) |
 | Windows test-harness portability | T-919 restore the CWD before `TemporaryDirectory` cleanup in the conformance review regression test — Windows removed the still-CWD temp directory on every run (WinError 32); verified locally (module 2/2, full 14-module Python suite OK, validate green) and hosted; delivered via [PR #63](https://github.com/kefyusuf/surfacerelay/pull/63) |
-| WebMCP momentum watch |
 | Outreach intake readiness | T-917 [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md) (triage categories, evidence rules, metrics, loop-closure) plus the standalone [docs link checker](scripts/check_docs_links.py) — 255 links verified, six broken pointers fixed, check added to the send checklist; delivered via [PR #61](https://github.com/kefyusuf/surfacerelay/pull/61) |
 | When-to-use decision guide | T-916 [when-to-use.md](docs/consumers/when-to-use.md): honest exclusion of stateless CRUD up front, decision table, niche signals, per-action cost; POSITIONING and the quickstart link to it; delivered via [PR #60](https://github.com/kefyusuf/surfacerelay/pull/60) |
 | Send-ready contact drafts | T-915 [DRAFTS.md](docs/consumers/outreach/DRAFTS.md) (two personalized drafts + generic template), append-only [contact ledger](docs/consumers/outreach/CONTACT-LEDGER.md), live-verification stamps on the candidate research (liberu pushed 2026-10-27 on Filament ^5.11 — exact stack match); delivered via [PR #59](https://github.com/kefyusuf/surfacerelay/pull/59) |
