@@ -6,7 +6,44 @@ dates. SurfaceRelay remains experimental and unofficial.
 
 ## Unreleased
 
-No pending consumer changes.
+Documentation, acceptance-tooling and test-portability work. No runtime,
+schema, fixture or release bytes change; registry packages remain
+`0.1.0-alpha.3`. Entries reference the merge PRs.
+
+### Added
+
+- Verified minimal quickstart: `docs/consumers/getting-started.md` plus the
+  verbatim `examples/minimal-quickstart` overlay — one read-only action
+  exposed to WebMCP agents through a Filament page, proven on a fresh
+  registry consumer by a guarded CI job (PHPUnit 5/5, Node 3/3 against the
+  published packages). T-913, PR #57.
+- Consumer decision guide `docs/consumers/when-to-use.md`: when the contract
+  layer pays for itself and when plain MCP tools suffice; POSITIONING and the
+  quickstart link to it. T-916, PR #60.
+- External-consumer outreach kit and send-ready contact drafts: outreach ask,
+  feedback form, `consumer-feedback` issue template, report intake process,
+  contact ledger and live-verified candidate research. T-914/T-915, PRs
+  #58/#59.
+- WebMCP momentum watch: six signals with pre-agreed pivots (unflagged stable
+  ship, second browser, DevTools MCP graduation, API changes, two-quarter
+  stall → MCP-first re-weight, competing adoption) and a monthly observation
+  log. T-918, PR #62.
+- Standalone docs link-integrity checker (`scripts/check_docs_links.py`);
+  260+ relative markdown links verified. T-917, PR #61.
+- Real-Chrome `document.modelContext` discovery/invocation proof for a
+  registry-installed read-only consumer (A2-08): local native receipts plus a
+  hosted page-wiring receipt, including guest no-discovery, forged-input
+  rejection, unmount disposal and re-registration negatives. PR #56.
+
+### Fixed
+
+- Filament notification drift: the confirmation approval integration test now
+  registers the Filament support/notifications providers with array stores,
+  restoring `assertNotified` under Filament >= 5.10.2's scoped
+  `NotificationMailbox` on every CI matrix cell. T-912, PR #55.
+- Windows-only failure in the conformance review regression test: the CWD is
+  restored before `TemporaryDirectory` cleanup (WinError 32 on every Windows
+  run). T-919, PR #63.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 

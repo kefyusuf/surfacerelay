@@ -6,15 +6,10 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: T-920 — independent QA follow-ups. A fresh adversarial sub agent
-review reproduced the verification baseline exactly (195 Python tests OK,
-508 vitest tests, 271 links, validate green), reviewed 11 consumer-facing
-files against all architecture rules with no critical or major findings, and
-verified the quickstart document is verbatim-faithful to the shipped example.
-Two cosmetic gaps fixed here: the quickstart glue catches registration
-failures diagnostically (matching the A2 module) and pre-checks descriptor
-identity; when-to-use.md disambiguates "hosted acceptance receipts" from
-confirmation receipts. Docs and one glue module; no runtime changes.
+Selected: T-921 — repository refresh: README (acceptance status, reading
+order, guide links, validation section) and the CHANGELOG Unreleased section
+now reflect everything merged since alpha.3 (T-912…T-920, PRs #54–#64). Docs
+only; no code changes.
 
 ## Done
 

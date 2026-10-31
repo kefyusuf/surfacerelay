@@ -74,7 +74,7 @@ The first reference runtime is Laravel. Livewire is the first runtime binding an
 
 This repository is a **research-backed implementation starter**. The schemas under `spec/0.1/` are provisional. Do not market them as a public standard until two materially different bindings implement them and the conformance scenarios have proven useful.
 
-Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANCE.md`](CONFORMANCE.md)). Bounded native-agent acceptance covers registry-installed checkout, Livewire and Filament consumers; see [`STATUS.md`](STATUS.md) for evidence and limits. Filament acceptance uses isolated Chrome with official Chrome DevTools MCP; the [Chrome setup recipe](scripts/acceptance/t907-filament/README.md#chrome-native-webmcp-setup) documents the tested connection. These checks do not establish WebMCP conformance or production qualification. Open work: [`TASKS.md`](TASKS.md).
+Livewire and HTMX bindings share one executable conformance matrix ([`CONFORMANCE.md`](CONFORMANCE.md)). Bounded native-agent acceptance covers registry-installed checkout, Livewire and Filament consumers, and a real-Chrome `document.modelContext` discovery/invocation proof with fail-closed negatives ([A2-08 evidence](scripts/acceptance/a2-08-native-chrome/README.md)); see [`STATUS.md`](STATUS.md) for evidence and limits. Filament acceptance uses isolated Chrome with official Chrome DevTools MCP; the [Chrome setup recipe](scripts/acceptance/t907-filament/README.md#chrome-native-webmcp-setup) documents the tested connection. These checks do not establish WebMCP conformance or production qualification. Open work: [`TASKS.md`](TASKS.md).
 
 ## Using the artifacts
 
@@ -89,6 +89,7 @@ See [release details](docs/releases/0.1.0-alpha.3-publication.md) for verified r
 
 - [Laravel artifact consumer guide](docs/consumers/laravel.md) — Composer ZIP from a local artifact repository.
 - [Browser runtime consumer guide](docs/consumers/browser-runtime.md) — npm tarball, root ESM import only.
+- [When to use SurfaceRelay](docs/consumers/when-to-use.md) — the honest decision guide: stateless CRUD is better served by plain MCP tools; the contract layer pays for itself on surface-bound, consequential actions.
 - [Versioning and compatibility](docs/VERSIONING-COMPATIBILITY.md) — tested matrix versus manifest constraints.
 - [Release checklist](docs/RELEASE-CHECKLIST.md), [changelog](CHANGELOG.md), [security policy](SECURITY.md).
 
@@ -101,9 +102,10 @@ Start with:
 3. [`TASKS.md`](TASKS.md)
 4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 5. [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md)
-6. [`docs/adapters/README.md`](docs/adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
-7. [`packages/laravel-mcp/README.md`](packages/laravel-mcp/README.md) — optional maintained-Laravel-MCP projection bridge and its trust boundary.
-8. [`packages/openapi-importer/README.md`](packages/openapi-importer/README.md) — optional bounded OpenAPI 3.1/3.2 secondary importer; produces reviewable candidates and requires explicit SurfaceRelay resolution before Action Definition materialization.
+6. [`docs/consumers/when-to-use.md`](docs/consumers/when-to-use.md) — the honest decision guide: when the contract layer pays for itself and when plain MCP tools suffice.
+7. [`docs/adapters/README.md`](docs/adapters/README.md) — authoring new import, runtime/binding, or projection integrations without redefining core semantics.
+8. [`packages/laravel-mcp/README.md`](packages/laravel-mcp/README.md) — optional maintained-Laravel-MCP projection bridge and its trust boundary.
+9. [`packages/openapi-importer/README.md`](packages/openapi-importer/README.md) — optional bounded OpenAPI 3.1/3.2 secondary importer; produces reviewable candidates and requires explicit SurfaceRelay resolution before Action Definition materialization.
 
 Run:
 
@@ -157,7 +159,11 @@ The initial repository should always keep this command green:
 python scripts/validate.py
 ```
 
-As implementation grows, package-specific tests are added to the same verification contract.
+As implementation grows, package-specific tests are added to the same verification contract. Documentation link integrity (what consumers and candidates will click) is checked separately:
+
+```bash
+python scripts/check_docs_links.py
+```
 
 ## External review checkpoints
 

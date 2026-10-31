@@ -12,22 +12,19 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-920 — independent QA follow-ups (selected; PR pending). An adversarial sub
-agent review reproduced the verification baseline exactly, reviewed 11
-consumer-facing files against all architecture rules (no critical or major
-findings), and verified the quickstart document is verbatim-faithful to the
-shipped example. Its two cosmetic recommendations are fixed here: the
-quickstart glue catches registration failures diagnostically and pre-checks
-descriptor identity; when-to-use.md disambiguates "hosted acceptance
-receipts" from confirmation receipts. The owner has parked the first
-outreach send (Draft 1) for later; no runtime code changes.
+T-921 — repository refresh (selected; PR pending). T-920's QA follow-ups are
+merged ([PR #64](https://github.com/kefyusuf/surfacerelay/pull/64)). This task
+brings the entry-point documents up to date with everything merged since
+alpha.3: README's acceptance status (A2-08 native proof), reading order and
+guide links, and the CHANGELOG Unreleased section covering T-912…T-920. Docs
+only; no runtime code changes.
 
 ## Next gate
 
-Merge of the T-920 QA follow-ups; after that the repository-side queue is
-empty by design — next task selection comes from the three signal sources
-(the parked outreach send, consumer-feedback reports, monthly momentum
-watch entries) or an owner decision.
+T-921 PR; after the merge the repository-side queue is empty by design — next
+task selection comes from the three signal sources (the parked outreach send,
+consumer-feedback reports, monthly momentum watch entries) or an owner
+decision.
 
 ## Limits and cleanup
 

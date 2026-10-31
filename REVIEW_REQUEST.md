@@ -1,26 +1,23 @@
 # Review handoff
 
-Open PR: T-920 from `docs/t920-qa-followups` — follow-ups from an independent
-adversarial sub agent review. The review reproduced the verification baseline
-exactly (195 Python tests OK/skipped=1, 26 files/508 vitest tests, 271 links,
-validate green), reviewed 11 consumer-facing files against all 13
-architecture rules and the security rules with **no critical or major
-findings** (per-file clean verdicts: trusted context, fail-closed surfaces,
-discovery ≠ authorization, negative tests all verified), and mechanically
-confirmed the quickstart document is verbatim-faithful to the shipped
-example.
+Open PR: T-921 from `docs/t921-docs-refresh` — the entry-point documents
+updated to everything merged since alpha.3 (PRs #54–#64). Ships:
 
-This PR applies the review's two cosmetic recommendations:
-1. `quickstart-register.mjs` catches registration failures diagnostically
-   (`registration_threw`) and pre-checks definition/binding identity —
-   matching the A2 module; no more unhandled rejections on the host page.
-   Quickstart Node suite re-run: 3/3 PASS against the published alpha.3
-   package.
-2. `when-to-use.md` disambiguates "hosted **acceptance** receipts" (CI
-   evidence) from confirmation receipts, which the quickstart deliberately
-   excludes.
+- `README.md`: the repository-status acceptance sentence now includes the
+  real-Chrome `document.modelContext` discovery/invocation proof with
+  fail-closed negatives (A2-08 evidence); the guide list and the development
+  reading order link [when-to-use.md](docs/consumers/when-to-use.md); the
+  Validation section documents the standalone link checker.
+- `CHANGELOG.md`: the Unreleased section now records the full post-alpha.3
+  cycle (T-912…T-920) — quickstart, decision guide, outreach kit and drafts,
+  momentum watch, link checker, the A2-08 native proof under Added, and the
+  T-912 notification-drift / T-919 Windows-cleanup fixes under Fixed. No
+  registry claim changes: packages remain `0.1.0-alpha.3`.
 
-The owner has parked the first outreach send (Draft 1) for later. After this
-PR merges, the repository-side queue is empty by design — next task selection
-comes from the parked outreach send, consumer-feedback reports, monthly
-momentum watch entries, or an owner decision.
+Docs only; no runtime, schema, fixture or release bytes change.
+`python scripts/validate.py` green; `python scripts/check_docs_links.py`
+green.
+
+Review focus: the CHANGELOG claims stay descriptive of merged, CI-verified
+work (no registry claim changes, no dates for Unreleased); README positioning
+remains conservative per the documentation discipline.
