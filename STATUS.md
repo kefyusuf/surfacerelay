@@ -12,19 +12,18 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-921 — repository refresh (selected; PR pending). T-920's QA follow-ups are
-merged ([PR #64](https://github.com/kefyusuf/surfacerelay/pull/64)). This task
-brings the entry-point documents up to date with everything merged since
-alpha.3: README's acceptance status (A2-08 native proof), reading order and
-guide links, and the CHANGELOG Unreleased section covering T-912…T-920. Docs
-only; no runtime code changes.
+No implementation task selected. `main` is current: the entry-point documents
+are refreshed for everything merged since alpha.3 (T-921,
+[PR #65](https://github.com/kefyusuf/surfacerelay/pull/65)) — README now
+carries the A2-08 acceptance status and links the when-to-use guide, and the
+CHANGELOG Unreleased section records T-912…T-920. The first outreach send
+(Draft 1) remains parked with the owner.
 
 ## Next gate
 
-T-921 PR; after the merge the repository-side queue is empty by design — next
-task selection comes from the three signal sources (the parked outreach send,
-consumer-feedback reports, monthly momentum watch entries) or an owner
-decision.
+The repository-side queue is empty by design — new task selection comes from
+the three signal sources (the parked outreach send, consumer-feedback
+reports, monthly momentum watch entries) or an owner decision.
 
 ## Limits and cleanup
 
