@@ -6,17 +6,14 @@ one-line entry; full history is in
 
 ## Open
 
-No implementation task selected. The repository-side queue is intentionally
-empty — new task selections come from three signal sources only:
-1. the owner's first outreach send
-   ([DRAFTS.md](docs/consumers/outreach/DRAFTS.md), live-verified liberu
-   candidate) and any filed
-   [consumer-feedback](.github/ISSUE_TEMPLATE/consumer-feedback.yml) reports
-   (intake process: [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md));
-2. monthly entries in the
-   [WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md)
-   (each signal has a pre-agreed pivot);
-3. an owner decision on any standing item.
+Selected: T-922 — one-command try-it flow for the quickstart. Ships a
+committed toolchain Dockerfile, a host wrapper
+([try-it.sh](examples/minimal-quickstart/try-it.sh)) that builds/installs/
+seeds/serves a disposable consumer on `http://127.0.0.1:8080` with a printed
+Chrome checklist and a self-diagnosing port-forward warning, a demo seeder,
+and getting-started/README updates. Verified end to end on this machine
+(setup, seed, serve, endpoints, PHPUnit 5/5 inside the demo). Docs and demo
+tooling; no runtime changes.
 
 ## Done
 
