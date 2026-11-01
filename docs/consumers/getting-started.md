@@ -25,10 +25,30 @@ action's meaning depends on live application surface state.
 
 ## Prerequisites
 
-- Laravel 13 with Filament 5 and a login-protected admin panel.
+| Requirement | Quick check |
+| --- | --- |
+| PHP 8.4 + Composer 2 | `php -v`, `composer -V` |
+| Node 22+ and npm | `node -v` |
+| A Laravel 13 app with a Filament 5 admin panel and login | you will add the code to **your own** app |
+| Chrome 150+ with WebMCP available (for the browser check) | enable `chrome://flags/#enable-webmcp-testing`, or launch Chrome with `--enable-features=WebMCP` |
+
 - `composer require surfacerelay/laravel:0.1.0-alpha.3`
 - `npm install --save-exact @surfacerelay/browser-runtime@0.1.0-alpha.3`
 - Install the exact alpha versions; alpha releases make no compatibility promises.
+
+**Want to see it working before writing anything?** On a machine with Docker:
+
+```sh
+bash examples/minimal-quickstart/try-it.sh
+```
+
+installs a disposable consumer (fresh registry packages, ~5 minutes), seeds
+demo data and serves it on `http://127.0.0.1:8080` — then follow the printed
+checklist: log in, open `/admin/quickstart-orders`, and check
+`window.__quickstartRegistration` in the DevTools console (expect
+`registered: true`). The script self-diagnoses the common environment failure
+(Docker's port forwarder not binding published ports) instead of leaving you
+with a silent timeout.
 
 ## Step 1 — define one read-only action
 
@@ -161,10 +181,13 @@ the provider hook lives in
   denial) plus a Node suite that runs the browser module against the published
   package (registration contract, envelope return, forged-input rejection).
 - **In your browser:** open the page in a Chrome 150+ build with the WebMCP
-  feature enabled and the tool appears through `document.modelContext`. The
-  repository's own real-Chrome proof
-  ([A2-08](../../scripts/acceptance/a2-08-native-chrome/README.md)) demonstrates
-  the same discovery/invocation path end to end.
+  feature enabled and the tool appears through `document.modelContext`. Quick
+  console check on the orders page: `window.__quickstartRegistration` should
+  read `{ registered: true, ... }`, and
+  `window.Livewire.all().find(c => c.$wire.get('surfacerelayDescriptor'))`
+  should return the descriptor component. The repository's own real-Chrome
+  proof ([A2-08](../../scripts/acceptance/a2-08-native-chrome/README.md))
+  demonstrates the same discovery/invocation path end to end.
 
 ## The security model you just used
 

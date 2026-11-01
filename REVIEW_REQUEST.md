@@ -1,29 +1,34 @@
 # Review handoff
 
-No open PR. The entry-point documents are refreshed for everything merged
-since alpha.3 ([PR #65](https://github.com/kefyusuf/surfacerelay/pull/65)):
-README's acceptance status now includes the A2-08 real-Chrome
-`document.modelContext` proof, when-to-use is in the reading order and guide
-list, the Validation section documents the link checker, and the CHANGELOG
-Unreleased section records T-912…T-920 (quickstart, decision guide, outreach
-kit, momentum watch, link checker, native proof; T-912/T-919 fixes under
-Fixed). Docs only; no runtime, schema, fixture or release bytes change;
-packages remain `0.1.0-alpha.3`.
+Open PR: T-922 from `docs/t922-try-it` — a one-command try-it flow for the
+quickstart, closing the "how do I actually run this right now" gap flagged by
+the owner. Ships:
 
-Standing state: the repository-side queue is empty by design. The first
-outreach send (Draft 1, live-verified liberu candidate) is parked with the
-owner; `consumer-feedback` reports have a defined intake
-([REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md)); the
-[WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md) is
-monthly. An independent adversarial sub agent review (2026-10-30) reproduced
-the verification baseline exactly and found no critical or major issues.
+- [try-it.sh](examples/minimal-quickstart/try-it.sh): host wrapper — builds
+  the committed toolchain image if missing, creates a disposable volume,
+  installs a fresh registry-only consumer with the documented quickstart
+  code, seeds synthetic demo data, serves on `http://127.0.0.1:8080`, polls
+  reachability and prints a Chrome checklist
+  (`window.__quickstartRegistration`, agent path via chrome-devtools-mcp).
+  Self-diagnoses the wedged-port-forwarder environment failure with concrete
+  fixes instead of a silent timeout.
+- [docker/Dockerfile](examples/minimal-quickstart/docker/Dockerfile): the
+  toolchain image recipe (PHP 8.4 + intl/zip + Composer + Node 22 +
+  Python 3), committed so users don't depend on a private image.
+- [seed_demo.php](examples/minimal-quickstart/seed_demo.php): synthetic demo
+  user and orders (single-tenant quickstart tenant).
+- getting-started: prerequisites table, one-command try-it pointer, expected
+  console outputs; README: "Got Docker? Try the demo first" box.
 
-Verification on this machine: `python scripts/validate.py` green;
-`python scripts/check_docs_links.py` 263/263 links resolve; Python suite
-195 tests OK (skip=1); browser-runtime vitest 508/508.
+Verified end to end on this machine: full flow run (build → install → seed →
+serve), all server-side endpoints exercised, PHPUnit 5/5 inside the demo
+container. One honest finding: on this Windows host Docker's port forwarder
+(`com.docker.backend.exe`) stopped binding published ports entirely (raw
+host processes CAN bind the same ports; survives Docker and WSL restarts) —
+the script now self-diagnoses this with the likely fixes (antivirus
+per-application rule for the backend binary is the leading suspect). The
+diagnosis and repro are documented in the script's warning block; server
+containers elsewhere on the machine are unaffected.
 
-Reviewer entry points: [getting-started](docs/consumers/getting-started.md),
-[when-to-use](docs/consumers/when-to-use.md),
-[OUTREACH](docs/consumers/outreach/OUTREACH.md),
-[A2-08 native proof](scripts/acceptance/a2-08-native-chrome/README.md),
-[alpha.3 release record](docs/releases/0.1.0-alpha.3-publication.md).
+Docs and demo tooling; no runtime, schema, fixture or release bytes change.
+`validate.py` and the link checker are green.

@@ -12,18 +12,21 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current: the entry-point documents
-are refreshed for everything merged since alpha.3 (T-921,
-[PR #65](https://github.com/kefyusuf/surfacerelay/pull/65)) — README now
-carries the A2-08 acceptance status and links the when-to-use guide, and the
-CHANGELOG Unreleased section records T-912…T-920. The first outreach send
-(Draft 1) remains parked with the owner.
+T-922 — one-command try-it flow for the quickstart (selected; PR pending).
+Ships a committed toolchain Dockerfile, a host wrapper
+([try-it.sh](examples/minimal-quickstart/try-it.sh)) that stands up a
+disposable registry consumer on `http://127.0.0.1:8080` with a printed Chrome
+checklist and a self-diagnosing port-forward warning, a demo seeder, and
+getting-started/README updates. Verified end to end on this machine
+(setup, seed, serve, endpoints, PHPUnit 5/5 inside the demo container). Demo
+tooling only; no runtime changes.
 
 ## Next gate
 
-The repository-side queue is empty by design — new task selection comes from
-the three signal sources (the parked outreach send, consumer-feedback
-reports, monthly momentum watch entries) or an owner decision.
+T-922 PR merge; after that the repository-side queue is empty by design —
+next task selection comes from the three signal sources (the parked outreach
+send, consumer-feedback reports, monthly momentum watch entries) or an owner
+decision.
 
 ## Limits and cleanup
 
