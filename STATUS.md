@@ -12,21 +12,19 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-922 — one-command try-it flow for the quickstart (selected; PR pending).
-Ships a committed toolchain Dockerfile, a host wrapper
-([try-it.sh](examples/minimal-quickstart/try-it.sh)) that stands up a
-disposable registry consumer on `http://127.0.0.1:8080` with a printed Chrome
-checklist and a self-diagnosing port-forward warning, a demo seeder, and
-getting-started/README updates. Verified end to end on this machine
-(setup, seed, serve, endpoints, PHPUnit 5/5 inside the demo container). Demo
-tooling only; no runtime changes.
+No implementation task selected. `main` is current and the try-it flow is
+merged ([PR #66](https://github.com/kefyusuf/surfacerelay/pull/66),
+T-922): one command
+(`bash examples/minimal-quickstart/try-it.sh`) stands up a disposable
+registry consumer with the documented quickstart code, seeds demo data and
+serves it with a printed Chrome checklist. The owner has parked the first
+outreach send (Draft 1) for later.
 
 ## Next gate
 
-T-922 PR merge; after that the repository-side queue is empty by design —
-next task selection comes from the three signal sources (the parked outreach
-send, consumer-feedback reports, monthly momentum watch entries) or an owner
-decision.
+The repository-side queue is empty by design — new task selection comes from
+the three signal sources (the parked outreach send, consumer-feedback
+reports, monthly momentum watch entries) or an owner decision.
 
 ## Limits and cleanup
 

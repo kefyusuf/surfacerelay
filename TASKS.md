@@ -6,19 +6,23 @@ one-line entry; full history is in
 
 ## Open
 
-Selected: T-922 — one-command try-it flow for the quickstart. Ships a
-committed toolchain Dockerfile, a host wrapper
-([try-it.sh](examples/minimal-quickstart/try-it.sh)) that builds/installs/
-seeds/serves a disposable consumer on `http://127.0.0.1:8080` with a printed
-Chrome checklist and a self-diagnosing port-forward warning, a demo seeder,
-and getting-started/README updates. Verified end to end on this machine
-(setup, seed, serve, endpoints, PHPUnit 5/5 inside the demo). Docs and demo
-tooling; no runtime changes.
+No implementation task selected. The repository-side queue is intentionally
+empty — new task selections come from three signal sources only:
+1. the owner's first outreach send
+   ([DRAFTS.md](docs/consumers/outreach/DRAFTS.md), live-verified liberu
+   candidate) and any filed
+   [consumer-feedback](.github/ISSUE_TEMPLATE/consumer-feedback.yml) reports
+   (intake process: [REPORT-INTAKE.md](docs/consumers/outreach/REPORT-INTAKE.md));
+2. monthly entries in the
+   [WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md)
+   (each signal has a pre-agreed pivot);
+3. an owner decision on any standing item.
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| One-command try-it flow | T-922 [try-it.sh](examples/minimal-quickstart/try-it.sh) + committed toolchain Dockerfile + demo seeder: fresh registry consumer, seeded demo data, serve on 8080, Chrome checklist, self-diagnosing port-forward warning; verified end to end (setup/seed/serve/endpoints/PHPUnit 5/5 in the demo); getting-started prerequisites table + expected console outputs; delivered via [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66) |
 | Repository docs refresh | T-921 README (A2-08 acceptance status, when-to-use in the reading order, link checker documented) and the CHANGELOG Unreleased section covering T-912…T-920; delivered via [PR #65](https://github.com/kefyusuf/surfacerelay/pull/65) |
 | Independent QA follow-ups | Adversarial sub agent review: baseline reproduced exactly (195 Python tests, 508 vitest, 271 links, validate green), 11 consumer-facing files clean against all architecture rules, quickstart doc verbatim-faithful; two cosmetic follow-ups fixed (glue try/catch + identity pre-check, acceptance-receipts wording); outreach send parked by owner decision |
 | WebMCP momentum watch | T-918 [docs/plans/2026-10-28-webmcp-momentum-watch.md](docs/plans/2026-10-28-webmcp-momentum-watch.md): six signals with pre-agreed pivots (unflagged stable ship, second browser, DevTools MCP graduation, API changes, two-quarter stall → MCP-first re-weight, competing adoption) and an append-only monthly log; delivered via [PR #62](https://github.com/kefyusuf/surfacerelay/pull/62) |
