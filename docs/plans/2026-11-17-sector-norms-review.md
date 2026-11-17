@@ -100,6 +100,26 @@ exists. The dominant risk remains adoption, not engineering debt.
   measurement; signing/SBOM/SLSA (pre-publication); `laravel-mcp`
   publishability; the code findings above.
 
+## Static-scanner triage (2026-11-18)
+
+The repository's pre-commit scanner reported 12 pre-existing high-severity
+findings, all in acceptance tooling that T-923 did not touch. Review of the
+flagged lines classifies each as a recognized static-analysis
+false-positive class for this repo's own harness:
+
+- **SSRF** — `urllib.request.urlopen` targets the harness's own locally
+  spawned `php -S` server (`self.url`), not external or user-controlled
+  input.
+- **Hardcoded credentials** — `password: "acceptance-password"` for
+  `user@example.test`: synthetic fixture data for a disposable generated
+  consumer (RFC 2606 `.test` domain), not a real secret.
+- **Code injection** — the T-910 generator `exec()`s the T-908 generator
+  source through a count-guarded transformation of committed repo files;
+  no external input.
+
+No runtime code is affected. The findings stay visible to the scanner;
+accepting them as tooling patterns is the owner decision recorded here.
+
 ## Parked owner decisions
 
 1. **GitHub repo description/topics.** Proposed text (not applied):

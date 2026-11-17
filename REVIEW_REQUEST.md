@@ -8,6 +8,10 @@ follow-ups from the owner-commissioned sector-norms review. Ships:
   findings, a prioritized signal-gated follow-up backlog, two parked owner
   decisions (GitHub repo description/topics text; npm `latest` dist-tag) and
   the adoption baseline (Packagist 590 downloads, 0 dependents).
+- A static-scanner triage note in the review record: the 12 pre-existing
+  pre-commit findings are acceptance-tooling false-positive classes (local
+  harness SSRF, `.test` fixture credentials, count-guarded generator
+  `exec()`); no runtime code affected.
 - [.gitignore](.gitignore): adds `__pycache__/`, `*.pyc`,
   `packages/*/composer.lock` and `.mimosa/` — removes permanent git-status
   noise (scanner-ledger files, local locks, bytecode) and keeps clean-tree
