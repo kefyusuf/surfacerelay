@@ -16,12 +16,15 @@ empty — new task selections come from three signal sources only:
 2. monthly entries in the
    [WebMCP momentum watch](docs/plans/2026-10-28-webmcp-momentum-watch.md)
    (each signal has a pre-agreed pivot);
-3. an owner decision on any standing item.
+3. an owner decision on any standing item (the
+   [sector-norms review backlog](docs/plans/2026-11-17-sector-norms-review.md)
+   holds parked candidates).
 
 ## Done
 
 | Milestone | Tasks |
 | --- | --- |
+| Repo landing & hygiene | T-923 [sector-norms review](docs/plans/2026-11-17-sector-norms-review.md) recorded with a prioritized signal-gated backlog; `.gitignore` covers bytecode caches, package-local Composer locks and `.mimosa` state; repo description/topics applied and npm `latest` dist-tag kept at alpha.1 by owner decision; delivered via [PR #67](https://github.com/kefyusuf/surfacerelay/pull/67) |
 | One-command try-it flow | T-922 [try-it.sh](examples/minimal-quickstart/try-it.sh) + committed toolchain Dockerfile + demo seeder: fresh registry consumer, seeded demo data, serve on 8080, Chrome checklist, self-diagnosing port-forward warning; verified end to end (setup/seed/serve/endpoints/PHPUnit 5/5 in the demo); getting-started prerequisites table + expected console outputs; delivered via [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66) |
 | Repository docs refresh | T-921 README (A2-08 acceptance status, when-to-use in the reading order, link checker documented) and the CHANGELOG Unreleased section covering T-912…T-920; delivered via [PR #65](https://github.com/kefyusuf/surfacerelay/pull/65) |
 | Independent QA follow-ups | Adversarial sub agent review: baseline reproduced exactly (195 Python tests, 508 vitest, 271 links, validate green), 11 consumer-facing files clean against all architecture rules, quickstart doc verbatim-faithful; two cosmetic follow-ups fixed (glue try/catch + identity pre-check, acceptance-receipts wording); outreach send parked by owner decision |
