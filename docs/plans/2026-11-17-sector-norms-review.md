@@ -81,9 +81,10 @@ exists. The dominant risk remains adoption, not engineering debt.
 - [x] `.gitignore` hygiene: `__pycache__/`, `*.pyc`, package-local Composer
   locks, `.mimosa/` — removes permanent status noise and keeps clean-tree
   release preflights immune to local tool residue.
-- [ ] **Owner decision:** apply the proposed GitHub repo description/topics
-  (below) — outward-facing, deliberately not applied by this task.
-- [ ] **Owner decision:** npm `latest` dist-tag (below).
+- [x] **Owner decision (2026-11-18): applied** — the GitHub repo
+  description/topics proposal below was set via the API with owner approval.
+- [x] **Owner decision (2026-11-18): keep** — npm `latest` remains
+  `0.1.0-alpha.1`; the note below stays for future reference.
 
 ### Next — parked follow-up candidates (each needs owner selection)
 
@@ -122,7 +123,8 @@ accepting them as tooling patterns is the owner decision recorded here.
 
 ## Parked owner decisions
 
-1. **GitHub repo description/topics.** Proposed text (not applied):
+1. **GitHub repo description/topics.** Proposed text (applied 2026-11-18 with
+   owner approval):
    description — "Protocol-neutral action contract and reference runtimes for
    exposing stateful web-app actions to AI agents (Laravel/Livewire/Filament/
    HTMX; WebMCP projection). Experimental."; topics — `php`, `laravel`,
@@ -132,7 +134,7 @@ accepting them as tooling patterns is the owner decision recorded here.
 2. **npm `latest` dist-tag.** `latest` points at `0.1.0-alpha.1` while
    `alpha` points at `0.1.0-alpha.3`; README says "install explicit versions".
    Deliberate, but unusual for consumers browsing npm. Move `latest` to
-   alpha.3 or keep — owner call.
+   alpha.3 or keep — owner decision 2026-11-18: **keep** at alpha.1.
 
 ## Adoption baseline (2026-11-17)
 

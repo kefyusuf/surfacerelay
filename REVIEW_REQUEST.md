@@ -25,5 +25,6 @@ Verified on this machine: `python scripts/validate.py` green,
 changes after a full validation run.
 
 Docs and hygiene only; no runtime, schema, fixture or release bytes change.
-Two outward-facing items (repo metadata, dist-tag) are deliberately not
-applied — they are owner decisions recorded in the review note.
+Outward-facing repo metadata (description + 9 topics) was applied with
+explicit owner approval; the npm `latest` dist-tag stays at alpha.1 by owner
+decision.
