@@ -703,6 +703,25 @@ jobs:
         working-directory: packages/laravel
         run: composer test
 
+  phpstan:
+    runs-on: ubuntu-latest
+    name: phpstan (packages/laravel)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          extensions: mbstring, intl
+      - name: Install dependencies
+        working-directory: packages/laravel
+        run: composer update --no-interaction --no-progress --prefer-dist
+      - name: Run PHPStan (level 5 + committed baseline)
+        working-directory: packages/laravel
+        run: vendor/bin/phpstan analyse --no-progress --error-format=github
+
   laravel-mcp-tests:
     runs-on: ubuntu-latest
     strategy:

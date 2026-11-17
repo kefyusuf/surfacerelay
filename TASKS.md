@@ -24,6 +24,7 @@ empty — new task selections come from three signal sources only:
 
 | Milestone | Tasks |
 | --- | --- |
+| Static analysis gate | T-924 PHPStan level 5 on `packages/laravel` (composer `phpstan` script, `phpstan.neon` + committed 23-entry baseline of deliberate fail-closed runtime guards and consumer-trait-mediated calls); new CI job fails on any finding outside the baseline; delivered on `chore/t924-phpstan` (PR pending) |
 | Repo landing & hygiene | T-923 [sector-norms review](docs/plans/2026-11-17-sector-norms-review.md) recorded with a prioritized signal-gated backlog; `.gitignore` covers bytecode caches, package-local Composer locks and `.mimosa` state; repo description/topics applied and npm `latest` dist-tag kept at alpha.1 by owner decision; delivered via [PR #67](https://github.com/kefyusuf/surfacerelay/pull/67) |
 | One-command try-it flow | T-922 [try-it.sh](examples/minimal-quickstart/try-it.sh) + committed toolchain Dockerfile + demo seeder: fresh registry consumer, seeded demo data, serve on 8080, Chrome checklist, self-diagnosing port-forward warning; verified end to end (setup/seed/serve/endpoints/PHPUnit 5/5 in the demo); getting-started prerequisites table + expected console outputs; delivered via [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66) |
 | Repository docs refresh | T-921 README (A2-08 acceptance status, when-to-use in the reading order, link checker documented) and the CHANGELOG Unreleased section covering T-912…T-920; delivered via [PR #65](https://github.com/kefyusuf/surfacerelay/pull/65) |

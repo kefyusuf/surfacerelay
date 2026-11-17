@@ -1,0 +1,12 @@
+# PHPStan level 5 with a committed baseline. The baseline entries are
+# deliberate fail-closed runtime guards (is_string/instanceof checks on
+# declared-typed values at trust boundaries) and consumer-trait-mediated
+# calls PHPStan cannot see. Raise the level and shrink the baseline over
+# time; new findings still fail CI because they are not in the baseline.
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - src

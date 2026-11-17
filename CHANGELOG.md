@@ -37,6 +37,9 @@ schema, fixture or release bytes change; registry packages remain
 - Sector-norms review record `docs/plans/2026-11-17-sector-norms-review.md`:
   findings against common OSS norms, a prioritized signal-gated follow-up
   backlog and two parked owner decisions. T-923.
+- PHPStan static analysis for `packages/laravel` (`phpstan.neon`, level 5
+  with a committed 23-entry baseline of deliberate fail-closed runtime
+  guards); a new CI job fails on any finding outside the baseline. T-924.
 
 ### Fixed
 

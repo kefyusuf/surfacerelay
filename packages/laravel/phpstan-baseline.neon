@@ -1,0 +1,139 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Instanceof between SurfaceRelay\\Laravel\\Enums\\ContextRequirement and SurfaceRelay\\Laravel\\Enums\\ContextRequirement will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Attributes/AgentAction.php
+
+		-
+			message: '#^Instanceof between SurfaceRelay\\Laravel\\Audit\\AuditTrustedContextEntry and SurfaceRelay\\Laravel\\Audit\\AuditTrustedContextEntry will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Audit/AuditEvent.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Auth/LaravelAuthenticatedActorResolver.php
+
+		-
+			message: '#^Instanceof between Illuminate\\Contracts\\Auth\\Authenticatable and Illuminate\\Contracts\\Auth\\Authenticatable will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Auth/LaravelAuthenticatedActorResolver.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Binding/RuntimeBinding.php
+
+		-
+			message: '#^Instanceof between Illuminate\\Contracts\\Cache\\Lock and Illuminate\\Contracts\\Cache\\Lock will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Confirmation/CacheConfirmationStore.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Definition/ActionDefinition.php
+
+		-
+			message: '#^Instanceof between SurfaceRelay\\Laravel\\Enums\\ContextRequirement and SurfaceRelay\\Laravel\\Enums\\ContextRequirement will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Definition/ActionDefinition.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<SurfaceRelay\\Laravel\\Enums\\ContextRequirement\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Definition/ActionDefinition.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Resources\\Pages\\Page\:\:presentSurfaceRelayConfirmation\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Confirmation/FilamentConfirmationBridge.php
+
+		-
+			message: '#^Trait SurfaceRelay\\Laravel\\Filament\\Confirmation\\InteractsWithSurfaceRelayConfirmation is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Filament/Confirmation/InteractsWithSurfaceRelayConfirmation.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Filament/Context/FilamentRecordContextResolver.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Filament/Context/FilamentRecordIdentity.php
+
+		-
+			message: '#^Call to function array_is_list\(\) with list\<string\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Livewire/Binding/LivewireMethodCallPlan.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Livewire/Binding/LivewireMethodCallPlan.php
+
+		-
+			message: '#^Call to function is_callable\(\) with array\{object, ''getId''\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Livewire/Identity/MethodLivewireComponentIdentityResolver.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Livewire/LivewireBindingTarget.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Livewire/LivewireBindingTarget.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<SurfaceRelay\\Laravel\\Runtime\\Context\\TrustedContextEntry\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/OutputPolicy/OutputPolicyContext.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<non\-empty\-string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Result/ActionResultNormalizer.php
+
+		-
+			message: '#^Instanceof between SurfaceRelay\\Laravel\\Runtime\\Context\\TrustedContextEntry and SurfaceRelay\\Laravel\\Runtime\\Context\\TrustedContextEntry will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Runtime/InvocationContext.php
+
+		-
+			message: '#^Instanceof between SurfaceRelay\\Laravel\\Runtime\\Context\\TrustedContextExtension and SurfaceRelay\\Laravel\\Runtime\\Context\\TrustedContextExtension will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Runtime/InvocationContext.php
+
+		-
+			message: '#^Instanceof between SurfaceRelay\\Laravel\\Runtime\\Pipeline\\ActionPipelineStageHandler and SurfaceRelay\\Laravel\\Runtime\\Pipeline\\ActionPipelineStageHandler will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Runtime/Pipeline/ActionBus.php
