@@ -88,7 +88,10 @@ exists. The dominant risk remains adoption, not engineering debt.
 
 ### Next — parked follow-up candidates (each needs owner selection)
 
-- PHPStan at a low level on `packages/laravel`, raised over time.
+- [x] PHPStan on `packages/laravel` — delivered as T-924: level 5 with a
+  committed baseline of the deliberate fail-closed runtime guards; a CI job
+  fails on any finding outside the baseline. Raise the level and shrink the
+  baseline over time.
 - ruff + `pyproject.toml` for `scripts/` and the Python test suite.
 - Dependabot, at minimum for GitHub Actions.
 - CI hygiene: composer/pip caching, `concurrency` groups, `timeout-minutes`
