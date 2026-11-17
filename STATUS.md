@@ -12,13 +12,13 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-923 landed the owner-commissioned sector-norms review
-([docs/plans/2026-11-17-sector-norms-review.md](docs/plans/2026-11-17-sector-norms-review.md))
-and the pre-outreach `.gitignore` hygiene fixes; delivered as open
-[PR #67](https://github.com/kefyusuf/surfacerelay/pull/67). The try-it flow
-(T-922, [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66)) remains
-merged and current. The owner has parked the first outreach send (Draft 1)
-for later.
+No implementation task selected. `main` is current: T-923 is merged
+([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) — the
+[sector-norms review record](docs/plans/2026-11-17-sector-norms-review.md),
+`.gitignore` hygiene, the scanner triage and the applied repo metadata —
+alongside the try-it flow (T-922,
+[PR #66](https://github.com/kefyusuf/surfacerelay/pull/66)). The owner has
+parked the first outreach send (Draft 1) for later.
 
 ## Next gate
 
