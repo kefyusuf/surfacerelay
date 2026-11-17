@@ -34,6 +34,9 @@ schema, fixture or release bytes change; registry packages remain
   registry-installed read-only consumer (A2-08): local native receipts plus a
   hosted page-wiring receipt, including guest no-discovery, forged-input
   rejection, unmount disposal and re-registration negatives. PR #56.
+- Sector-norms review record `docs/plans/2026-11-17-sector-norms-review.md`:
+  findings against common OSS norms, a prioritized signal-gated follow-up
+  backlog and two parked owner decisions. T-923.
 
 ### Fixed
 
@@ -44,6 +47,9 @@ schema, fixture or release bytes change; registry packages remain
 - Windows-only failure in the conformance review regression test: the CWD is
   restored before `TemporaryDirectory` cleanup (WinError 32 on every Windows
   run). T-919, PR #63.
+- `.gitignore` now covers Python bytecode caches, package-local Composer
+  locks and the `.mimosa` state directory, keeping clean-tree release
+  preflights immune to local tool residue. T-923.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 

@@ -1,34 +1,25 @@
 # Review handoff
 
-Open PR: T-922 from `docs/t922-try-it` — a one-command try-it flow for the
-quickstart, closing the "how do I actually run this right now" gap flagged by
-the owner. Ships:
+Open PR: T-923 from `docs/t923-norms-followups` — repo landing + hygiene
+follow-ups from the owner-commissioned sector-norms review. Ships:
 
-- [try-it.sh](examples/minimal-quickstart/try-it.sh): host wrapper — builds
-  the committed toolchain image if missing, creates a disposable volume,
-  installs a fresh registry-only consumer with the documented quickstart
-  code, seeds synthetic demo data, serves on `http://127.0.0.1:8080`, polls
-  reachability and prints a Chrome checklist
-  (`window.__quickstartRegistration`, agent path via chrome-devtools-mcp).
-  Self-diagnoses the wedged-port-forwarder environment failure with concrete
-  fixes instead of a silent timeout.
-- [docker/Dockerfile](examples/minimal-quickstart/docker/Dockerfile): the
-  toolchain image recipe (PHP 8.4 + intl/zip + Composer + Node 22 +
-  Python 3), committed so users don't depend on a private image.
-- [seed_demo.php](examples/minimal-quickstart/seed_demo.php): synthetic demo
-  user and orders (single-tenant quickstart tenant).
-- getting-started: prerequisites table, one-command try-it pointer, expected
-  console outputs; README: "Got Docker? Try the demo first" box.
+- [docs/plans/2026-11-17-sector-norms-review.md](docs/plans/2026-11-17-sector-norms-review.md):
+  the full review record — method, verdict, strengths, norm gaps, ranked code
+  findings, a prioritized signal-gated follow-up backlog, two parked owner
+  decisions (GitHub repo description/topics text; npm `latest` dist-tag) and
+  the adoption baseline (Packagist 590 downloads, 0 dependents).
+- [.gitignore](.gitignore): adds `__pycache__/`, `*.pyc`,
+  `packages/*/composer.lock` and `.mimosa/` — removes permanent git-status
+  noise (scanner-ledger files, local locks, bytecode) and keeps clean-tree
+  release preflights immune to local tool residue. Package locks stay on
+  disk, untracked; example/acceptance locks remain tracked.
+- `STATUS.md`, `TASKS.md` and `CHANGELOG.md` updated in place.
 
-Verified end to end on this machine: full flow run (build → install → seed →
-serve), all server-side endpoints exercised, PHPUnit 5/5 inside the demo
-container. One honest finding: on this Windows host Docker's port forwarder
-(`com.docker.backend.exe`) stopped binding published ports entirely (raw
-host processes CAN bind the same ports; survives Docker and WSL restarts) —
-the script now self-diagnoses this with the likely fixes (antivirus
-per-application rule for the backend binary is the leading suspect). The
-diagnosis and repro are documented in the script's warning block; server
-containers elsewhere on the machine are unaffected.
+Verified on this machine: `python scripts/validate.py` green,
+`python scripts/check_docs_links.py` green, and
+`git status --porcelain --untracked-files=all` shows only the intentional
+changes after a full validation run.
 
-Docs and demo tooling; no runtime, schema, fixture or release bytes change.
-`validate.py` and the link checker are green.
+Docs and hygiene only; no runtime, schema, fixture or release bytes change.
+Two outward-facing items (repo metadata, dist-tag) are deliberately not
+applied — they are owner decisions recorded in the review note.

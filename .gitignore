@@ -12,3 +12,7 @@ node_modules/
 coverage/
 dist/
 .tmp/
+__pycache__/
+*.pyc
+packages/*/composer.lock
+.mimosa/

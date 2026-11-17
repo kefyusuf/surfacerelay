@@ -12,19 +12,22 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current and the try-it flow is
-merged ([PR #66](https://github.com/kefyusuf/surfacerelay/pull/66),
-T-922): one command
-(`bash examples/minimal-quickstart/try-it.sh`) stands up a disposable
-registry consumer with the documented quickstart code, seeds demo data and
-serves it with a printed Chrome checklist. The owner has parked the first
-outreach send (Draft 1) for later.
+T-923 landed the owner-commissioned sector-norms review
+([docs/plans/2026-11-17-sector-norms-review.md](docs/plans/2026-11-17-sector-norms-review.md))
+and the pre-outreach `.gitignore` hygiene fixes; delivered on
+`docs/t923-norms-followups` (handoff: [REVIEW_REQUEST.md](REVIEW_REQUEST.md)).
+The try-it flow (T-922, [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66))
+remains merged and current. The owner has parked the first outreach send
+(Draft 1) for later.
 
 ## Next gate
 
 The repository-side queue is empty by design — new task selection comes from
-the three signal sources (the parked outreach send, consumer-feedback
-reports, monthly momentum watch entries) or an owner decision.
+the signal sources (the parked outreach send, consumer-feedback reports,
+monthly momentum watch entries) or an owner decision. Two parked owner
+decisions sit in the review note (GitHub repo description/topics text; the
+npm `latest` dist-tag), and the review backlog holds further parked
+candidates; none is selected.
 
 ## Limits and cleanup
 
