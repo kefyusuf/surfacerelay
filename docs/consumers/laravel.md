@@ -27,6 +27,16 @@ The package's [dependency constraints](../../packages/laravel/composer.json)
 These checks do not establish every patch version, operating system, database,
 application configuration, or production security integration.
 
+**Filament approval notifications (Filament >= 5.10.2).** The Filament
+confirmation bridge delivers its approval and retry feedback as Filament
+notifications. Since Filament 5.10.2 those route through a scoped
+`NotificationMailbox` flushed to `filament.cache_store`; the in-memory
+`array` store lives per request, so approval toasts never render for a caller
+on a later request. Applications using the confirmation bridge on
+Filament >= 5.10.2 need a cache store that persists across requests (file,
+redis, database, memcached); the browser proof pins the `file` store for
+exactly this reason.
+
 ## Build from one clean revision
 
 The temporary source is a Git archive, so ignored dependencies and local source

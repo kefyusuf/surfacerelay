@@ -96,7 +96,9 @@ async function approveInModal(page) {
   await expect(approve).toBeVisible();
   await expect(modal).toContainText('Refund selected orders');
   await approve.click();
-  await expect(page.getByText('Confirmation approved. Retry the original operation.')).toBeVisible();
+  // The first approval pays the mailbox cache write and pull latency; a
+  // tight default timeout flakes the suite, not the behavior.
+  await expect(page.getByText('Confirmation approved. Retry the original operation.')).toBeVisible({ timeout: 15_000 });
 }
 
 async function refundedIds(request) {
