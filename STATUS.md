@@ -12,15 +12,14 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-925 repairs the `filament-live` browser proof: Filament >= 5.10.2 routes
-approval notifications through a scoped NotificationMailbox flushed to
-`filament.cache_store`, and the demo's per-request `array` store lost every
-flush, so approval toasts never rendered; the demo pins the persistent
-`file` store and the proof is green again. Delivered on
-`fix/t925-filament-live-drift` (handoff: [REVIEW_REQUEST.md](REVIEW_REQUEST.md));
-T-923 ([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) and T-924
-([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)) are merged and
-current. The owner has parked the first outreach send (Draft 1) for later.
+No implementation task selected. `main` is current: T-925 is merged
+([PR #69](https://github.com/kefyusuf/surfacerelay/pull/69)) — the
+filament-live browser proof is repaired for the Filament >= 5.10.2
+notification mailbox (persistent cache store pin) and the workflow now
+surfaces dependency drift monthly — alongside T-923
+([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) and T-924
+([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)). The owner has
+parked the first outreach send (Draft 1) for later.
 
 ## Next gate
 
