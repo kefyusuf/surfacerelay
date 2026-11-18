@@ -12,13 +12,15 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current: T-925 is merged
-([PR #69](https://github.com/kefyusuf/surfacerelay/pull/69)) — the
-filament-live browser proof is repaired for the Filament >= 5.10.2
-notification mailbox (persistent cache store pin) and the workflow now
-surfaces dependency drift monthly — alongside T-923
-([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) and T-924
-([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)). The owner has
+T-926 delivers the Python lint gate from the
+[sector-norms review backlog](docs/plans/2026-11-17-sector-norms-review.md):
+`pyproject.toml` + ruff (signal-bearing pyflakes + syntax/runtime core) over
+the `scripts` tree, one unused-import fix, and a `python-lint` CI job.
+Delivered on `chore/t926-python-lint` (handoff:
+[REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923/T-924/T-925 are merged and
+current ([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67),
+[#68](https://github.com/kefyusuf/surfacerelay/pull/68),
+[#69](https://github.com/kefyusuf/surfacerelay/pull/69)). The owner has
 parked the first outreach send (Draft 1) for later.
 
 ## Next gate

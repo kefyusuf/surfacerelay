@@ -93,7 +93,10 @@ exists. The dominant risk remains adoption, not engineering debt.
   a committed baseline of the deliberate fail-closed runtime guards; a CI
   job fails on any finding outside the baseline. Raise the level and shrink
   the baseline over time.
-- ruff + `pyproject.toml` for `scripts/` and the Python test suite.
+- [x] ruff + `pyproject.toml` — delivered as T-926: the signal-bearing core
+  (pyflakes + syntax/runtime errors) over the `scripts` tree; E7xx/E402 stay
+  deferred because adopting them would reformat the established compact
+  style. Raise the set over time.
 - Dependabot, at minimum for GitHub Actions.
 - CI hygiene: composer/pip caching, `concurrency` groups, `timeout-minutes`
   on validate.yml jobs, dedup push/PR runs.

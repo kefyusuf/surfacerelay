@@ -1,37 +1,28 @@
 # Review handoff
 
-Open PR: T-925 from `fix/t925-filament-live-drift` — repairs the red
-`filament-live` browser proof on `main` (red since 2026-11-17, 9/16 Playwright
-tests failing on the approval modal). Ships:
+Open PR: T-926 from `chore/t926-python-lint` — the Python lint gate, the
+next selected item from the
+[sector-norms review backlog](docs/plans/2026-11-17-sector-norms-review.md).
+Ships:
 
-- [OrderDemoBrowserServiceProvider.php](packages/laravel/tests/Browser/OrderDemoBrowserServiceProvider.php):
-  pins `filament.cache_store` to the persistent `file` store. Root cause:
-  Filament >= 5.10.2 delivers `Notification::send()` through a scoped
-  `NotificationMailbox` flushed to that cache store; the demo's `array`
-  store is per request, so mailbox pulls never saw earlier flushes and
-  approval toasts never rendered. Filament 5.9 (the last green resolution,
-  2026-10-08) delivered toasts without the mailbox, so the drift was silent
-  until a fresh `composer update` pulled >= 5.10.2.
-- [filament-webmcp.spec.mjs](examples/filament-orders-live/tests/filament-webmcp.spec.mjs):
-  the approval-toast assertion keeps its exact text but waits up to 15s —
-  the first approval pays mailbox write + pull latency and the 5s default
-  flaked one test that passes in isolation.
-- [filament-live.yml](.github/workflows/filament-live.yml): monthly
-  schedule so fresh-resolution dependency drift surfaces within a month
-  instead of hiding until an unrelated path trigger.
-- [docs/consumers/laravel.md](docs/consumers/laravel.md): documents the
-  Filament >= 5.10.2 mailbox cache requirement for consumers of the
-  confirmation bridge.
-- `STATUS.md` / `TASKS.md` / `CHANGELOG.md` updated.
+- `pyproject.toml` (new): dev-tooling config only — ruff, `target-version
+  py312`, rule set pinned to the signal-bearing core (pyflakes `F` +
+  syntax/runtime `E9`). Ruff's newer releases ship a much broader default
+  (99 findings incl. import sorting, simplify, pylint rules), and E7xx/E402
+  conflict with the repo's established compact style and deliberate
+  sys.path-then-import pattern — both deferred, documented in the config,
+  to be raised over time like the PHPStan level (T-924).
+- Scope: the `scripts` tree (release/conformance tooling + its unittest
+  suite). The examples' Python acceptance tests are a later raise.
+- `scripts/tests/test_alpha_publication_artifact.py`: one unused-import
+  removal (the only finding; behavior-preserving).
+- `requirements-dev.txt`: adds `ruff>=0.17,<0.18` (resolved 0.17.5).
+- `validate.yml`: new `python-lint` job (Python 3.12, installs
+  requirements-dev, `ruff check scripts`; `persist-credentials: false`).
+- `STATUS.md` / `TASKS.md` / `CHANGELOG.md` / review-doc backlog updated.
 
-**Evidence chain (all reproduced locally in Docker, Filament 5.11.4 /
-Livewire 4.4.8 / Laravel 13.43):** exact CI signature reproduced (9 failed /
-7 passed) → server side proven healthy (approve response carried
-`filamentNotificationBatch` + header) → session files proven to never hold
-the mailbox address → array store identified as per-request in-memory →
-manual `pullNotifications` with the real batch still empty → `file` store
-pin → manual pull renders → full-suite 15/16 (one 5s-timeout flake that
-passes in isolation) → assertion timeout widened → full-suite rerun 16/16.
+**Verified:** `ruff check scripts` green (0 findings); Python test suite
+green (`unittest discover scripts/tests`, 1 pre-existing skip); `validate.py`
+green; docs link checker green; release guardrails green with the new job.
 
-No runtime, schema, fixture or release bytes change; no publish commands
-added (guardrails green).
+Tooling only; no runtime, schema, fixture or release bytes change.
