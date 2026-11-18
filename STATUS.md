@@ -12,15 +12,13 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-926 delivers the Python lint gate from the
-[sector-norms review backlog](docs/plans/2026-11-17-sector-norms-review.md):
-`pyproject.toml` + ruff (signal-bearing pyflakes + syntax/runtime core) over
-the `scripts` tree, one unused-import fix, and a `python-lint` CI job.
-Delivered on `chore/t926-python-lint` (handoff:
-[REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923/T-924/T-925 are merged and
-current ([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67),
-[#68](https://github.com/kefyusuf/surfacerelay/pull/68),
-[#69](https://github.com/kefyusuf/surfacerelay/pull/69)). The owner has
+No implementation task selected. `main` is current: T-926 is merged
+([PR #70](https://github.com/kefyusuf/surfacerelay/pull/70)) — the Python
+lint gate (`pyproject.toml` + ruff over the `scripts` tree, `python-lint`
+CI job) — alongside T-925
+([PR #69](https://github.com/kefyusuf/surfacerelay/pull/69)), T-924
+([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)) and T-923
+([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)). The owner has
 parked the first outreach send (Draft 1) for later.
 
 ## Next gate
