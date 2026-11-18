@@ -59,6 +59,9 @@ schema, fixture or release bytes change; registry packages remain
   `file` store, the approval-toast assertion tolerates first-approval
   latency, and the workflow gains a monthly schedule so dependency drift
   surfaces without an unrelated trigger. T-925.
+- ruff lint gate for the Python tooling (`pyproject.toml`, pyflakes +
+  syntax/runtime rule core over the `scripts` tree, one unused-import fix)
+  and a `python-lint` CI job. T-926.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 

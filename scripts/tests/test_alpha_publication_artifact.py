@@ -2,7 +2,6 @@ import hashlib
 import importlib
 import io
 import json
-from pathlib import Path
 import shutil
 import tarfile
 import unittest

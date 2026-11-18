@@ -1,0 +1,15 @@
+# Repository tooling configuration. SurfaceRelay is not a Python package:
+# this file configures dev tooling only (ruff), it does not declare a build.
+[tool.ruff]
+target-version = "py312"
+line-length = 110
+
+[tool.ruff.lint]
+# Explicitly pinned to the signal-bearing core (pyflakes + syntax/runtime
+# errors). E7xx compound-statement rules and E402 conflict with this repo's
+# established compact style and deliberate sys.path-then-import pattern —
+# adopting them would be a mass reformat, so they stay deferred; raise the
+# set over time like the PHPStan level (T-924). Scope is the `scripts` tree —
+# the release/conformance tooling and its unittest suite; the examples'
+# Python acceptance tests are a later raise.
+select = ["F", "E9"]
