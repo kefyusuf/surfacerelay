@@ -1,0 +1,44 @@
+version: 2
+
+# Watches only the publishable package manifests. The examples and acceptance
+# fixtures are deliberate drift probes: the path-gated browser proofs install
+# fresh Composer resolutions and the filament-live / htmx-fixture workflows
+# surface upstream drift on a monthly schedule (T-925), so automated example
+# bumps would be noise, not signal.
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      python-dev:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: composer
+    directories:
+      - '/packages/laravel'
+      - '/packages/laravel-mcp'
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+
+  - package-ecosystem: npm
+    directories:
+      - '/packages/browser-runtime'
+      - '/packages/openapi-importer'
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
