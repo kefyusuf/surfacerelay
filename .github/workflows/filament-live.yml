@@ -23,6 +23,11 @@ on:
       - 'packages/laravel/composer.json'
       - 'packages/browser-runtime/src/**'
       - '.github/workflows/filament-live.yml'
+  schedule:
+    # The proof installs fresh Composer resolutions on every run; a monthly
+    # schedule surfaces upstream Filament/Livewire drift even when no tracked
+    # path changes, instead of hiding it until an unrelated trigger.
+    - cron: '0 6 1 * *'
 
 permissions:
   contents: read

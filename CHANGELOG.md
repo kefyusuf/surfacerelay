@@ -53,6 +53,12 @@ schema, fixture or release bytes change; registry packages remain
 - `.gitignore` now covers Python bytecode caches, package-local Composer
   locks and the `.mimosa` state directory, keeping clean-tree release
   preflights immune to local tool residue. T-923.
+- Repaired the `filament-live` browser proof: Filament >= 5.10.2 delivers
+  approval notifications through a scoped `NotificationMailbox` cache that
+  the `array` store loses between requests; the demo pins the persistent
+  `file` store, the approval-toast assertion tolerates first-approval
+  latency, and the workflow gains a monthly schedule so dependency drift
+  surfaces without an unrelated trigger. T-925.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 

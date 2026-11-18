@@ -1,33 +1,37 @@
 # Review handoff
 
-Open PR: T-924 from `chore/t924-phpstan` — PHPStan static analysis for the
-Laravel kernel, the first selected item from the
-[sector-norms review backlog](docs/plans/2026-11-17-sector-norms-review.md)
-("Next" list, owner-approved order). Ships:
+Open PR: T-925 from `fix/t925-filament-live-drift` — repairs the red
+`filament-live` browser proof on `main` (red since 2026-11-17, 9/16 Playwright
+tests failing on the approval modal). Ships:
 
-- `packages/laravel/phpstan.neon`: level 5, `src` only, includes the
-  committed baseline; header comment records the policy (deliberate
-  fail-closed guards live in the baseline; raise level / shrink baseline
-  over time).
-- `packages/laravel/phpstan-baseline.neon`: 23 entries — 22 are deliberate
-  fail-closed runtime guards (`is_string`/`instanceof`/`array_is_list` on
-  declared-typed values, `array_values` on already-lists) that removing
-  would weaken trust-boundary checks; 1 is the consumer-trait-mediated
-  `presentSurfaceRelayConfirmation()` bridge call PHPStan cannot see; 1 is
-  the consumer-applied trait flagged unused in-repo.
-- `packages/laravel/composer.json`: `phpstan/phpstan ^2.1` dev dependency
-  (resolved 2.3.6) + `composer phpstan` script.
-- `.github/workflows/validate.yml`: new `phpstan` job (PHP 8.4, latest
-  Illuminate cell, no DB service) running `vendor/bin/phpstan analyse
-  --error-format=github`; fails on any finding outside the baseline.
-- `STATUS.md` / `TASKS.md` / `CHANGELOG.md` / review-doc backlog updated.
+- [OrderDemoBrowserServiceProvider.php](packages/laravel/tests/Browser/OrderDemoBrowserServiceProvider.php):
+  pins `filament.cache_store` to the persistent `file` store. Root cause:
+  Filament >= 5.10.2 delivers `Notification::send()` through a scoped
+  `NotificationMailbox` flushed to that cache store; the demo's `array`
+  store is per request, so mailbox pulls never saw earlier flushes and
+  approval toasts never rendered. Filament 5.9 (the last green resolution,
+  2026-10-08) delivered toasts without the mailbox, so the drift was silent
+  until a fresh `composer update` pulled >= 5.10.2.
+- [filament-webmcp.spec.mjs](examples/filament-orders-live/tests/filament-webmcp.spec.mjs):
+  the approval-toast assertion keeps its exact text but waits up to 15s —
+  the first approval pays mailbox write + pull latency and the 5s default
+  flaked one test that passes in isolation.
+- [filament-live.yml](.github/workflows/filament-live.yml): monthly
+  schedule so fresh-resolution dependency drift surfaces within a month
+  instead of hiding until an unrelated path trigger.
+- [docs/consumers/laravel.md](docs/consumers/laravel.md): documents the
+  Filament >= 5.10.2 mailbox cache requirement for consumers of the
+  confirmation bridge.
+- `STATUS.md` / `TASKS.md` / `CHANGELOG.md` updated.
 
-Verified on this machine (Docker `sr-php84-node`, PHP 8.4): level sweep
-(L1: 0, L5: 23, max: 47) → level 5 + baseline chosen; `composer phpstan`
-green with baseline; canary check — a deliberately broken file produced
-exactly one new error while the baseline held, then was removed;
-`composer validate --strict` green; `python scripts/validate.py` and the
-docs link checker green.
+**Evidence chain (all reproduced locally in Docker, Filament 5.11.4 /
+Livewire 4.4.8 / Laravel 13.43):** exact CI signature reproduced (9 failed /
+7 passed) → server side proven healthy (approve response carried
+`filamentNotificationBatch` + header) → session files proven to never hold
+the mailbox address → array store identified as per-request in-memory →
+manual `pullNotifications` with the real batch still empty → `file` store
+pin → manual pull renders → full-suite 15/16 (one 5s-timeout flake that
+passes in isolation) → assertion timeout widened → full-suite rerun 16/16.
 
-Tooling only; no runtime, schema, fixture or release bytes change. The
-baseline does not mask trust-boundary logic: it documents it.
+No runtime, schema, fixture or release bytes change; no publish commands
+added (guardrails green).

@@ -12,13 +12,15 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current: T-924 is merged
-([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)) — PHPStan level
-5 on `packages/laravel` with a committed 23-entry baseline and a CI job that
-fails on findings outside it — alongside T-923
-([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) and the try-it
-flow (T-922, [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66)).
-The owner has parked the first outreach send (Draft 1) for later.
+T-925 repairs the `filament-live` browser proof: Filament >= 5.10.2 routes
+approval notifications through a scoped NotificationMailbox flushed to
+`filament.cache_store`, and the demo's per-request `array` store lost every
+flush, so approval toasts never rendered; the demo pins the persistent
+`file` store and the proof is green again. Delivered on
+`fix/t925-filament-live-drift` (handoff: [REVIEW_REQUEST.md](REVIEW_REQUEST.md));
+T-923 ([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) and T-924
+([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)) are merged and
+current. The owner has parked the first outreach send (Draft 1) for later.
 
 ## Next gate
 
@@ -27,13 +29,9 @@ the signal sources (the parked outreach send, consumer-feedback reports,
 monthly momentum watch entries) or an owner decision. Of the review note's
 two parked decisions, the repo description/topics were applied with owner
 approval and the npm `latest` dist-tag stays at alpha.1; the review backlog
-holds further parked candidates, none selected. One standing item: the
-`filament-live` Playwright job is red on `main` since 2026-11-17 — 9/16
-tests fail on the approval modal because the example resolves Composer deps
-fresh with no lock, so Filament/Livewire drift accumulated while the
-path-gated job never ran (last green 2026-10-08); the `validate` suite,
-including the T-924 phpstan job, is green. Repair is a candidate task
-awaiting owner selection.
+holds further parked candidates, none selected. The filament-live drift
+standing item is resolved by T-925 (pending merge); the workflow now also
+surfaces dependency drift on a monthly schedule.
 
 ## Limits and cleanup
 

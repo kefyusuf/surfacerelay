@@ -31,6 +31,13 @@ final class OrderDemoBrowserServiceProvider extends ServiceProvider
     {
         $this->app->register(OrderDemoPanelProvider::class);
 
+        // Filament >= 5.10.2 routes Notification::send() through a scoped
+        // NotificationMailbox flushed to `filament.cache_store`; the array
+        // store lives per request, so mailbox pulls never see earlier
+        // flushes. Pin the persistent file store — the same store the
+        // confirmation service below already uses to survive requests.
+        $this->app['config']->set('filament.cache_store', 'file');
+
         $this->app->singleton(
             FilamentOrderDemoHarness::class,
             static fn (Application $app): FilamentOrderDemoHarness => new FilamentOrderDemoHarness(
