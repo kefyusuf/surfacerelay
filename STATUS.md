@@ -12,15 +12,14 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-927 adds `.github/dependabot.yml` (owner grouped the remaining norms
-backlog: dependabot, CI hygiene, branch protection — delivered in order):
-github-actions + pip weekly (grouped), composer + npm monthly on the
-publishable package manifests; examples stay deliberate drift probes.
-Delivered on `chore/t927-dependabot` (handoff:
-[REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923…T-926 are merged and current
+No implementation task selected. `main` is current: T-927 is merged
+([PR #71](https://github.com/kefyusuf/surfacerelay/pull/71)) — Dependabot
+watches the publishable package manifests (actions + pip weekly grouped,
+composer + npm monthly) — alongside T-923…T-926
 ([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
-[#70](https://github.com/kefyusuf/surfacerelay/pull/70)). The owner has
-parked the first outreach send (Draft 1) for later.
+[#70](https://github.com/kefyusuf/surfacerelay/pull/70)). Next in the
+owner-grouped queue: CI hygiene (T-928), then branch protection (T-929).
+The owner has parked the first outreach send (Draft 1) for later.
 
 ## Next gate
 
