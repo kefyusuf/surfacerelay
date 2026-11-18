@@ -12,13 +12,14 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current: T-926 is merged
-([PR #70](https://github.com/kefyusuf/surfacerelay/pull/70)) — the Python
-lint gate (`pyproject.toml` + ruff over the `scripts` tree, `python-lint`
-CI job) — alongside T-925
-([PR #69](https://github.com/kefyusuf/surfacerelay/pull/69)), T-924
-([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)) and T-923
-([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)). The owner has
+T-927 adds `.github/dependabot.yml` (owner grouped the remaining norms
+backlog: dependabot, CI hygiene, branch protection — delivered in order):
+github-actions + pip weekly (grouped), composer + npm monthly on the
+publishable package manifests; examples stay deliberate drift probes.
+Delivered on `chore/t927-dependabot` (handoff:
+[REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923…T-926 are merged and current
+([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
+[#70](https://github.com/kefyusuf/surfacerelay/pull/70)). The owner has
 parked the first outreach send (Draft 1) for later.
 
 ## Next gate

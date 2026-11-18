@@ -62,6 +62,9 @@ schema, fixture or release bytes change; registry packages remain
 - ruff lint gate for the Python tooling (`pyproject.toml`, pyflakes +
   syntax/runtime rule core over the `scripts` tree, one unused-import fix)
   and a `python-lint` CI job. T-926.
+- Dependabot configuration for the publishable package manifests:
+  github-actions and pip weekly (grouped), composer and npm monthly;
+  examples and acceptance fixtures remain deliberate drift probes. T-927.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 
