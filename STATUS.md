@@ -12,14 +12,13 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-924 delivers PHPStan static analysis for `packages/laravel` from the
-[sector-norms review backlog](docs/plans/2026-11-17-sector-norms-review.md):
-level 5 with a committed 23-entry baseline (deliberate fail-closed runtime
-guards and consumer-trait-mediated calls), a `composer phpstan` script, and
-a CI job that fails on any finding outside the baseline. Delivered on
-`chore/t924-phpstan` (handoff: [REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923
-([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) is merged and
-current. The owner has parked the first outreach send (Draft 1) for later.
+No implementation task selected. `main` is current: T-924 is merged
+([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)) — PHPStan level
+5 on `packages/laravel` with a committed 23-entry baseline and a CI job that
+fails on findings outside it — alongside T-923
+([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)) and the try-it
+flow (T-922, [PR #66](https://github.com/kefyusuf/surfacerelay/pull/66)).
+The owner has parked the first outreach send (Draft 1) for later.
 
 ## Next gate
 
