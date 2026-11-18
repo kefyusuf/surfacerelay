@@ -27,7 +27,13 @@ the signal sources (the parked outreach send, consumer-feedback reports,
 monthly momentum watch entries) or an owner decision. Of the review note's
 two parked decisions, the repo description/topics were applied with owner
 approval and the npm `latest` dist-tag stays at alpha.1; the review backlog
-holds further parked candidates, none selected.
+holds further parked candidates, none selected. One standing item: the
+`filament-live` Playwright job is red on `main` since 2026-11-17 — 9/16
+tests fail on the approval modal because the example resolves Composer deps
+fresh with no lock, so Filament/Livewire drift accumulated while the
+path-gated job never ran (last green 2026-10-08); the `validate` suite,
+including the T-924 phpstan job, is green. Repair is a candidate task
+awaiting owner selection.
 
 ## Limits and cleanup
 
