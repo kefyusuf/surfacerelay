@@ -32,9 +32,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   filament-live:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       COMPOSER_NO_INTERACTION: 1
       COMPOSER_NO_AUDIT: 1

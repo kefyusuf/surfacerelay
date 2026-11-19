@@ -15,13 +15,23 @@ on:
       - 'packages/browser-runtime/src/**'
       - 'packages/browser-runtime/tsconfig.json'
       - '.github/workflows/htmx-fixture.yml'
+  schedule:
+    # The proof installs fresh npm/Playwright resolutions on every run; a
+    # monthly schedule surfaces upstream drift even when no tracked path
+    # changes, mirroring the filament-live schedule (T-925).
+    - cron: '0 7 1 * *'
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   htmx-fixture:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:

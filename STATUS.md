@@ -12,14 +12,14 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current: T-927 is merged
-([PR #71](https://github.com/kefyusuf/surfacerelay/pull/71)) — Dependabot
-watches the publishable package manifests (actions + pip weekly grouped,
-composer + npm monthly) — alongside T-923…T-926
+T-928 delivers the CI hygiene item of the owner-grouped norms backlog:
+composer/pip caches, `concurrency` groups with cancel-in-progress on all
+nine workflows, `timeout-minutes` on every job, and a monthly
+`htmx-fixture` schedule. Delivered on `chore/t928-ci-hygiene` (handoff:
+[REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923…T-927 are merged and current
 ([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
-[#70](https://github.com/kefyusuf/surfacerelay/pull/70)). Next in the
-owner-grouped queue: CI hygiene (T-928), then branch protection (T-929).
-The owner has parked the first outreach send (Draft 1) for later.
+[#71](https://github.com/kefyusuf/surfacerelay/pull/71)). The owner has
+parked the first outreach send (Draft 1) for later.
 
 ## Next gate
 

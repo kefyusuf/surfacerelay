@@ -65,6 +65,10 @@ schema, fixture or release bytes change; registry packages remain
 - Dependabot configuration for the publishable package manifests:
   github-actions and pip weekly (grouped), composer and npm monthly;
   examples and acceptance fixtures remain deliberate drift probes. T-927.
+- CI hygiene: composer and pip caches, `concurrency` groups with
+  cancel-in-progress, `timeout-minutes` on every job across all nine
+  workflows, and a monthly `htmx-fixture` schedule mirroring filament-live.
+  T-928.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 
