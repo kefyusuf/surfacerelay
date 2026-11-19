@@ -12,18 +12,17 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current and the owner-grouped
-norms backlog is fully delivered: T-927 Dependabot
-([PR #71](https://github.com/kefyusuf/surfacerelay/pull/71)), T-928 CI
-hygiene ([PR #78](https://github.com/kefyusuf/surfacerelay/pull/78)) and
-T-929 branch protection (settings-only, no PR), alongside T-923…T-926
-([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
-[#70](https://github.com/kefyusuf/surfacerelay/pull/70)). Dependabot has
-opened six first PRs
-([#72](https://github.com/kefyusuf/surfacerelay/pull/72)–
-[#77](https://github.com/kefyusuf/surfacerelay/pull/77), incl. major
-typescript 7 / vitest 5 bumps) awaiting owner review. The owner has parked
-the first outreach send (Draft 1) for later.
+No implementation task selected. `main` is current with the full norms
+backlog delivered (T-923…T-929,
+[PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
+[#71](https://github.com/kefyusuf/surfacerelay/pull/71),
+[#78](https://github.com/kefyusuf/surfacerelay/pull/78) + settings) and the
+first Dependabot wave evaluated and merged (T-930: actions v7, typescript
+7.0.2 and vitest 5.1.0 in both packages, pip floors; all six PRs
+row-by-row verified). The toolchain now runs on typescript 7 / vitest 5;
+the next Dependabot wave surfaces weekly (actions, pip) or monthly
+(composer, npm). The owner has parked the first outreach send (Draft 1)
+for later; the monthly momentum check falls due 2026-12-01.
 
 ## Next gate
 

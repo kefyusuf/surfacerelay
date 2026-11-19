@@ -1,25 +1,26 @@
 # Review handoff
 
-Open PR: T-928 from `chore/t928-ci-hygiene` — CI hygiene, the next item of
-the owner-grouped norms backlog. Config-only workflow changes:
+No open branch. `main` is current and green after the infrastructure cycle
+and the first Dependabot wave (2026-11-19):
 
-- **validate.yml**: top-level `concurrency` group per ref with
-  cancel-in-progress; `timeout-minutes` on all 17 jobs (10 lint/contract,
-  15 release-contract/phpstan, 30 the rest); `cache: composer` on all 10
-  setup-php steps; `cache: pip` + `cache-dependency-path:
-  requirements-dev.txt` on all 12 setup-python steps.
-- **filament-live.yml / htmx-fixture.yml**: concurrency + 30-minute job
-  timeout; `htmx-fixture` gains a monthly schedule (`0 7 1 * *`) mirroring
-  filament-live, so its fresh npm/Playwright resolutions surface drift
-  monthly too.
-- **Six consumer-gate workflows** (a2-02-browser-b2, a2-02-read, a2-02b-b1,
-  a2-08-page-wiring, a2-alpha3, t913-quickstart): concurrency groups.
+- T-923…T-926: sector-norms review record + pre-outreach hygiene
+  ([PR #67](https://github.com/kefyusuf/surfacerelay/pull/67)), PHPStan
+  level-5 gate ([PR #68](https://github.com/kefyusuf/surfacerelay/pull/68)),
+  filament-live drift repair — root cause: the Filament >= 5.10.2
+  notification mailbox needs a cross-request cache store
+  ([PR #69](https://github.com/kefyusuf/surfacerelay/pull/69)), ruff gate
+  ([PR #70](https://github.com/kefyusuf/surfacerelay/pull/70)).
+- T-927…T-929 (owner-grouped backlog): Dependabot
+  ([PR #71](https://github.com/kefyusuf/surfacerelay/pull/71)), CI hygiene
+  — concurrency/timeouts/caches + monthly htmx-fixture schedule
+  ([PR #78](https://github.com/kefyusuf/surfacerelay/pull/78)), branch
+  protection on `main` (settings-only).
+- T-930: first Dependabot wave merged (actions v7, typescript 7.0.2 +
+  vitest 5.1.0 in both packages, pip floors) — each PR row-by-row verified;
+  same-package pairs merged sequentially so the combined tree is CI-proven.
 
-Honest limitation: the branch-push + PR double run remains — same-tree ref
-groups cannot dedup a push and its pull_request event; caches keep both
-cheap. npm-cache additions to the remaining 5 setup-node steps are deferred
-(each needs a distinct lockfile path; the heavy npm jobs already cache).
-
-Verified: every workflow YAML-parses with `concurrency: True` and no job
-without `timeout-minutes`; guardrails and `validate.py` green. No runtime,
-schema, fixture or release bytes change.
+Current gates on every PR: contract, php-lint, python-lint, browser,
+phpstan (branch protection) + the full validate suite. Remaining open
+work is signal-gated (TASKS.md): the parked outreach send, consumer
+feedback, the monthly momentum check (due 2026-12-01) and future
+Dependabot waves.
