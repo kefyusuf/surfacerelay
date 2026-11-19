@@ -21,13 +21,13 @@ jobs:
       PILOT_CONFIRMATION_TTL: '5'
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
@@ -76,13 +76,13 @@ jobs:
       PILOT_CONFIRMATION_TTL: '5'
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -113,13 +113,13 @@ jobs:
       run:
         working-directory: examples/alpha-livewire-pilot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
@@ -161,13 +161,13 @@ jobs:
       run:
         working-directory: examples/alpha-pilot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
@@ -211,15 +211,15 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: requirements-dev.txt
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - uses: shivammathur/setup-php@v2
@@ -304,7 +304,7 @@ jobs:
               'version': os.environ['ALPHA_RELEASE_VERSION'], 'rootImport': True, 'typecheck': True, 'bundle': True,
               'smoke': True, 'deepImportRejected': True, 'registryWrites': False}, indent=2) + '\n')
           PY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: publication-metadata-preview-evidence
           path: |
@@ -320,10 +320,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -365,7 +365,7 @@ jobs:
             --artifact "$artifact" --sha256 "$(sha256sum "$artifact" | cut -d ' ' -f 1)" \
             --source-revision "$(git rev-parse HEAD)" --version "$ALPHA_RELEASE_VERSION" \
             --consumer "$RUNNER_TEMP/t902-consumer" --evidence "$RUNNER_TEMP/t902-evidence"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: installed-alpha-application-evidence
@@ -376,8 +376,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -391,10 +391,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -417,7 +417,7 @@ jobs:
     env:
       T803_ARTIFACT_VERSION: 0.0.0-alpha1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Verify browser release-consumer checkout is exact and clean
@@ -430,12 +430,12 @@ jobs:
             echo "browser release-consumer checkout must be clean before verification tools run" >&2
             exit 1
           fi
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: packages/browser-runtime/package-lock.json
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -536,7 +536,7 @@ jobs:
       COMPOSER_NO_INTERACTION: 1
       COMPOSER_NO_AUDIT: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Verify release-consumer checkout is exact and clean
@@ -549,7 +549,7 @@ jobs:
             echo "release-consumer checkout must be clean before verification tools run" >&2
             exit 1
           fi
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -709,7 +709,7 @@ jobs:
             testbench-version: '^11.0'
     name: php-tests (PHP ${{ matrix.php-version }}, Illuminate ${{ matrix.illuminate-version }}, Testbench ${{ matrix.testbench-version }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           cache: composer
@@ -745,7 +745,7 @@ jobs:
     timeout-minutes: 15
     name: phpstan (packages/laravel)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: shivammathur/setup-php@v2
@@ -782,7 +782,7 @@ jobs:
             testbench-version: '^11.0'
     name: laravel-mcp-tests (PHP ${{ matrix.php-version }}, Laravel ${{ matrix.laravel-version }}, Testbench ${{ matrix.testbench-version }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           cache: composer
@@ -809,7 +809,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Lint PHP sources
         run: find packages/laravel packages/laravel-mcp -name '*.php' -not -path '*/vendor/*' -print0 | xargs -0 -n1 php -l
 
@@ -817,10 +817,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -834,8 +834,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -849,7 +849,7 @@ jobs:
       - name: Run browser-runtime tests
         working-directory: packages/browser-runtime
         run: npm test
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Run conformance runner unit tests
@@ -864,8 +864,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
