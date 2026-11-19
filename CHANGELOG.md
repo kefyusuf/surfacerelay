@@ -69,6 +69,9 @@ schema, fixture or release bytes change; registry packages remain
   cancel-in-progress, `timeout-minutes` on every job across all nine
   workflows, and a monthly `htmx-fixture` schedule mirroring filament-live.
   T-928.
+- Branch protection on `main`: required checks (contract, php-lint,
+  python-lint, browser, phpstan), force-pushes and deletions blocked, admin
+  bypass preserved for the solo workflow. T-929.
 
 ## 0.1.0-alpha.3 — 2026-10-08
 

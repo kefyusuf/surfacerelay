@@ -24,6 +24,7 @@ empty — new task selections come from three signal sources only:
 
 | Milestone | Tasks |
 | --- | --- |
+| Branch protection | T-929 `main` protected via API (2026-11-19): required checks (contract, php-lint, python-lint, browser, phpstan), force-pushes/deletions blocked; admin bypass preserved and no PR requirement — deliberate solo-workflow deviation, documented in the review note; settings-only, no PR |
 | CI hygiene | T-928 composer/pip caches, `concurrency` + cancel-in-progress on all nine workflows, `timeout-minutes` on every job, monthly `htmx-fixture` schedule (branch-push+PR double run stays — same-tree ref groups cannot dedup it); delivered via [PR #78](https://github.com/kefyusuf/surfacerelay/pull/78) with a follow-up scoping fix (`cache: pip` kept only on the 8 jobs that install `requirements-dev.txt` — the rest fail the post-cache save on cold runners) |
 | Dependency updates | T-927 `.github/dependabot.yml`: github-actions + pip weekly (grouped into single PRs), composer + npm monthly on the publishable package manifests; examples/acceptance fixtures stay deliberate drift probes (fresh resolutions + monthly path-gated schedules); delivered via [PR #71](https://github.com/kefyusuf/surfacerelay/pull/71) |
 | Python lint gate | T-926 `pyproject.toml` + ruff (signal-bearing core: pyflakes + syntax/runtime) over the `scripts` tree; one unused-import fix; `python-lint` CI job installs `requirements-dev.txt` and fails on findings; delivered via [PR #70](https://github.com/kefyusuf/surfacerelay/pull/70) |

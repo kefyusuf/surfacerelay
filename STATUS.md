@@ -12,15 +12,15 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-No implementation task selected. `main` is current: T-928 is merged
-([PR #78](https://github.com/kefyusuf/surfacerelay/pull/78)) — CI hygiene
-(concurrency groups + timeouts on all nine workflows, composer/pip caches
-scoped to jobs that install dependencies, monthly htmx-fixture schedule) —
-alongside T-923…T-927
+No implementation task selected. `main` is current and the owner-grouped
+norms backlog is fully delivered: T-927 Dependabot
+([PR #71](https://github.com/kefyusuf/surfacerelay/pull/71)), T-928 CI
+hygiene ([PR #78](https://github.com/kefyusuf/surfacerelay/pull/78)) and
+T-929 branch protection (settings-only, no PR), alongside T-923…T-926
 ([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
-[#71](https://github.com/kefyusuf/surfacerelay/pull/71)). Next in the
-owner-grouped queue: branch protection (T-929). Dependabot has opened six
-first PRs ([#72](https://github.com/kefyusuf/surfacerelay/pull/72)–
+[#70](https://github.com/kefyusuf/surfacerelay/pull/70)). Dependabot has
+opened six first PRs
+([#72](https://github.com/kefyusuf/surfacerelay/pull/72)–
 [#77](https://github.com/kefyusuf/surfacerelay/pull/77), incl. major
 typescript 7 / vitest 5 bumps) awaiting owner review. The owner has parked
 the first outreach send (Draft 1) for later.

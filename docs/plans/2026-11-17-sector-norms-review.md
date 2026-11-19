@@ -103,7 +103,12 @@ exists. The dominant risk remains adoption, not engineering debt.
   every job, and a monthly `htmx-fixture` schedule. The branch-push + PR
   double run remains (same-tree ref groups cannot dedup it); caches keep it
   cheap.
-- Branch protection on `main` (require PR + validate).
+- [x] Branch protection on `main` — delivered as T-929 (2026-11-19, settings
+  via API): required checks (contract, php-lint, python-lint, browser,
+  phpstan), force-pushes and deletions blocked. Deliberate deviation from
+  the original "require PR + validate" proposal: no PR requirement, because
+  a solo maintainer cannot self-approve — admin bypass stays open and the
+  existing direct-push workflow is preserved.
 
 ### Deferred (recorded, not scheduled)
 
