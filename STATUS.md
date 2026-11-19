@@ -12,14 +12,18 @@ Development metadata/private NO-GO guards remain; MCP/OpenAPI are outside releas
 
 ## Active task
 
-T-928 delivers the CI hygiene item of the owner-grouped norms backlog:
-composer/pip caches, `concurrency` groups with cancel-in-progress on all
-nine workflows, `timeout-minutes` on every job, and a monthly
-`htmx-fixture` schedule. Delivered on `chore/t928-ci-hygiene` (handoff:
-[REVIEW_REQUEST.md](REVIEW_REQUEST.md)); T-923…T-927 are merged and current
+No implementation task selected. `main` is current: T-928 is merged
+([PR #78](https://github.com/kefyusuf/surfacerelay/pull/78)) — CI hygiene
+(concurrency groups + timeouts on all nine workflows, composer/pip caches
+scoped to jobs that install dependencies, monthly htmx-fixture schedule) —
+alongside T-923…T-927
 ([PRs #67](https://github.com/kefyusuf/surfacerelay/pull/67)–
-[#71](https://github.com/kefyusuf/surfacerelay/pull/71)). The owner has
-parked the first outreach send (Draft 1) for later.
+[#71](https://github.com/kefyusuf/surfacerelay/pull/71)). Next in the
+owner-grouped queue: branch protection (T-929). Dependabot has opened six
+first PRs ([#72](https://github.com/kefyusuf/surfacerelay/pull/72)–
+[#77](https://github.com/kefyusuf/surfacerelay/pull/77), incl. major
+typescript 7 / vitest 5 bumps) awaiting owner review. The owner has parked
+the first outreach send (Draft 1) for later.
 
 ## Next gate
 
