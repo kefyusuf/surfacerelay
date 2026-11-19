@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   browser-wiring-consumer:
     if: github.head_ref == 'test/a2-02-browser-b2-wiring' && github.event.pull_request.head.repo.full_name == 'kefyusuf/surfacerelay'

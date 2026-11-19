@@ -7,9 +7,14 @@ on:
 env:
   ALPHA_RELEASE_VERSION: '0.1.0-alpha.3'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   filament-http-consumer:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -27,6 +32,7 @@ jobs:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           tools: composer:v2
           extensions: mbstring, pdo_sqlite, intl
@@ -63,6 +69,7 @@ jobs:
 
   t908-filament-envelope-consumer:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -78,8 +85,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           tools: composer:v2
           extensions: mbstring, pdo_sqlite, intl
@@ -93,6 +103,7 @@ jobs:
 
   alpha-livewire-pilot:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -113,6 +124,7 @@ jobs:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           tools: composer:v2
           extensions: mbstring, pdo_sqlite, intl
@@ -139,6 +151,7 @@ jobs:
 
   alpha-pilot:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -159,6 +172,7 @@ jobs:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           tools: composer:v2
           extensions: mbstring, pdo_sqlite
@@ -191,6 +205,7 @@ jobs:
 
   publication-metadata-preview:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -202,11 +217,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           tools: composer:v2
           coverage: none
@@ -298,6 +316,7 @@ jobs:
 
   installed-alpha-application:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -307,8 +326,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           extensions: mbstring, pdo_sqlite, sqlite3, zip
           tools: composer:v2
@@ -352,16 +374,20 @@ jobs:
 
   contract:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - run: python -m pip install -r requirements-dev.txt
       - run: python scripts/validate.py
 
   release-contract:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -371,6 +397,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - name: Install release-contract dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Run release-candidate contract tests
@@ -383,6 +411,7 @@ jobs:
 
   browser-release-consumer:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -409,6 +438,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - name: Install browser release-consumer Python dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Run browser release-candidate tooling tests
@@ -483,6 +514,7 @@ jobs:
 
   laravel-release-consumer:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     strategy:
@@ -520,8 +552,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: ${{ matrix.php-version }}
           coverage: none
           extensions: mbstring
@@ -636,6 +671,7 @@ jobs:
 
   php-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       mysql:
         image: mysql:8.4
@@ -676,6 +712,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: ${{ matrix.php-version }}
           coverage: none
           extensions: pdo_mysql, intl
@@ -705,6 +742,7 @@ jobs:
 
   phpstan:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     name: phpstan (packages/laravel)
     steps:
       - uses: actions/checkout@v4
@@ -712,6 +750,7 @@ jobs:
           persist-credentials: false
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: '8.4'
           coverage: none
           extensions: mbstring, intl
@@ -724,6 +763,7 @@ jobs:
 
   laravel-mcp-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -745,6 +785,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
+          cache: composer
           php-version: ${{ matrix.php-version }}
           coverage: none
           extensions: mbstring
@@ -766,6 +807,7 @@ jobs:
 
   php-lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Lint PHP sources
@@ -773,6 +815,7 @@ jobs:
 
   python-lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -780,6 +823,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - name: Install dev tooling
         run: python -m pip install -r requirements-dev.txt
       - name: Lint Python tooling sources
@@ -787,6 +832,7 @@ jobs:
 
   browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -816,6 +862,7 @@ jobs:
 
   openapi-importer:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

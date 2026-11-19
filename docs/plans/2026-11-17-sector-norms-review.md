@@ -98,8 +98,11 @@ exists. The dominant risk remains adoption, not engineering debt.
   deferred because adopting them would reformat the established compact
   style. Raise the set over time.
 - Dependabot, at minimum for GitHub Actions.
-- CI hygiene: composer/pip caching, `concurrency` groups, `timeout-minutes`
-  on validate.yml jobs, dedup push/PR runs.
+- [x] CI hygiene — delivered as T-928: composer/pip caches, `concurrency`
+  groups with cancel-in-progress on all nine workflows, `timeout-minutes` on
+  every job, and a monthly `htmx-fixture` schedule. The branch-push + PR
+  double run remains (same-tree ref groups cannot dedup it); caches keep it
+  cheap.
 - Branch protection on `main` (require PR + validate).
 
 ### Deferred (recorded, not scheduled)
