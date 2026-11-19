@@ -44,7 +44,7 @@ jobs:
       COMPOSER_NO_INTERACTION: 1
       COMPOSER_NO_AUDIT: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - uses: shivammathur/setup-php@v2
@@ -52,7 +52,7 @@ jobs:
           php-version: '8.4'
           extensions: pdo_sqlite
           coverage: none
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm

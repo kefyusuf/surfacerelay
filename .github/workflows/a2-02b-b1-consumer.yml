@@ -27,14 +27,14 @@ jobs:
       COMPOSER_NO_INTERACTION: '1'
       B1_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - uses: shivammathur/setup-php@v2
@@ -115,7 +115,7 @@ jobs:
           PY
       - name: Preserve bounded B1 proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: a2-02b-b1-mounted-binding-json
           retention-days: 3
